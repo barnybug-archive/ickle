@@ -109,7 +109,7 @@ void ContactListView::clear() {
   Gtk::CList::clear();
 }
 
-// Try to move selection to the next keypress that starts with the letter
+// Try to move selection to the next contact that starts with the letter
 // on a keypress event.
 gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
   char key = tolower(ev->string[0]);
@@ -122,7 +122,7 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
     row_iter = rows().begin();
     int n = sl.front().get_row_num();
     while (--n >= 0) { ++row_iter; }
-    // there's no better way to covert a SelectionIterator -> RowIterator :-(
+    // there's no better way to convert a SelectionIterator -> RowIterator :-(
   } else {
     row_iter = rows().begin();
   }
@@ -232,10 +232,7 @@ void ContactListView::UpdateRow(const Contact& c) {
       else alias = c.getMobileNo();
     }
   }
-  rp->alias = alias;
-  // Doi. Why can't string have case-insensitive comparison :(
-  for (int i = 0; i < rp->alias.length(); i++)
-    rp->alias[i] = tolower(alias[i]);
+  transform( alias.begin(), alias.end(), inserter(rp->alias, rp->alias.begin()), tolower );
   (*row)[1].set_text( alias );
 }
 
