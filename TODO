@@ -4,8 +4,6 @@ Stuff to do:
 L = work required library side
 G = work required GUI side
 
-* (L) TCP Client-Client connections (a lot of work)
-
 * (G/L) Setting away messages
 
 * (G/L) Setting status to invisible
@@ -16,12 +14,7 @@ G = work required GUI side
 
 * (G) Authorisation request/responses
 
-* (G) History Viewing support
-
-* (G) Setting debug level in settings for the log messages that are
-      printed - also logging to a file
-
-* (L) Non-blocking DNS lookup at startup
+* (G) History Searching support
 
 * (G/ L?) Foreground/background colour support for sending/receiving messages
       there is some support library side for this
