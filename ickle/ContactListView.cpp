@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.42 2002-10-30 20:59:39 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.43 2002-10-30 21:54:45 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -103,15 +103,17 @@ ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
      ml_c.push_back( MenuElem( "Send Auth Request", slot( this, &ContactListView::send_auth_req_cb ) ) );
      rc_popup_auth = ml_c.back();
      ml_c.push_back( MenuElem( "Remove Contact", slot( this, &ContactListView::remove_contact_cb ) ) );
+     ml_c.push_back( MenuElem( "Add New Group", slot( this, &ContactListView::blank_add_group_cb ) ) );
 
      // popup for right-click group
      MenuList& ml_g = rc_popup_group.items();
      ml_g.push_back( MenuElem( "Rename Group", slot( this, &ContactListView::group_rename_cb ) ) );
      ml_g.push_back( MenuElem( "Remove Group", slot( this, &ContactListView::group_remove_cb ) ) );
+     ml_g.push_back( MenuElem( "Add New Group", slot( this, &ContactListView::blank_add_group_cb ) ) );
 
      // popup for right-click over blank area
      MenuList& ml_b = rc_popup_blank.items();
-     ml_b.push_back( MenuElem( "Add Group", slot( this, &ContactListView::blank_add_group_cb ) ) );
+     ml_b.push_back( MenuElem( "Add New Group", slot( this, &ContactListView::blank_add_group_cb ) ) );
      // anything else?
    }
 }

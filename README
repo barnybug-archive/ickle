@@ -129,8 +129,16 @@ Mandrake 8.1   You will need these rpms and their dependancies:
                libsigc++1.0-devel-1.0.3-2mdk.i586.rpm
                (thanks Meindert Niemeijer for contributing this)
 
-Other          At a guess similar to Mandrake 8.1, some more info is needed
-Mandrakes      here.
+Mandrake 8.2   You will need these rpms and their dependancies:
+	       libstdc++2.10-devel-2.96-0.76mdk.rpm
+	       libgtkmm1.2-devel-1.2.8-2mdk.i586.rpm
+	       libgtk+1.2-devel-1.2.10-25mdk.i586.rpm
+	       libsigc++1.0-devel-1.0.4-1mdk.i586.rpm
+	       libglib1.2-devel-1.2.10-4mdk.i586.rpm
+               (thanks Phil Edwards for contributing this)
+
+Other          At a guess similar to Mandrake 8.1/8.2, some more info is
+Mandrakes      needed here.
 
 
 For RPM distributions (Redhat, SuSE, etc..) - make sure you install
