@@ -20,6 +20,7 @@
  */
 
 #include "buffer.h"
+#include <ctype.h>
 
 Buffer::Buffer() : endn(BIG), out_pos(0), data() { }
 
@@ -213,8 +214,7 @@ void Buffer::dump(ostream& out) {
     if (a % 16 == 0) out << setw(4) << a << "  ";
     if (a < data.size()) {
       out << setw(2) << (int)data[a] << " ";
-      if (data[a] < 32) d[a%16] = '.';
-      else d[a%16] = data[a];
+      d[a%16] = isprint(data[a]) ? data[a] : '.';
     } else {
       out << "   ";
       d[a%16] = ' ';

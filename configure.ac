@@ -20,7 +20,7 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h arpa/inet.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
+AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h arpa/inet.h stdlib.h string.h sys/socket.h ctype.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
 # doesn't matter if getopt is missing it's a gnu thing
 AC_CHECK_HEADERS([getopt.h],,)
 
