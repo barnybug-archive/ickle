@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.21 2003-04-10 08:28:12 cborni Exp $
+/* $Id: Icons.cpp,v 1.22 2003-04-10 22:39:55 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -37,6 +37,11 @@
 //#include "file.xpm"
 #include "sysmsg.xpm"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
+
 using std::string;
 
 using ICQ2000::Status;
@@ -63,15 +68,18 @@ void Icons::setDefaultIcons() {
   Icon_Status_Invisible = Gdk::Pixbuf::create_from_xpm_data( (invisible_xpm) );
 }
 
-void Icons::settings_changed_cb(const string& key) {
+void Icons::settings_changed_cb(const string& key)
+{
   if (key == "icons_dir") {
     setIcons( g_settings.getValueString("icons_dir") );
   }
 }
 
-bool Icons::setIcons(const string &dir) {
+bool Icons::setIcons(const string &dir)
+{
 
-  if (dir == "" || dir == "Default") {
+  if (dir == "" || dir == "Default")
+  {
     setDefaultIcons();
     icons_changed.emit();
     return true;
@@ -97,10 +105,14 @@ Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, bool inv)
 {
   Glib::RefPtr<Gdk::Pixbuf> ret;
 
-  if (inv && s != ICQ2000::STATUS_OFFLINE) {
+  if (inv && s != ICQ2000::STATUS_OFFLINE)
+  {
     ret = Icon_Status_Invisible;
-  } else {
-    switch(s) {
+  }
+  else
+  {
+    switch(s)
+    {
     case ICQ2000::STATUS_ONLINE:
       ret = Icon_Status_Online;
       break;
@@ -196,14 +208,28 @@ Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_event(ICQMessageEvent::ICQMessageT
 std::vector<std::string> Icons::get_icon_sets()
 {
   std::vector<std::string> buf;
-  //todo lets actually scan the directory
-  buf.push_back("icq");
-  buf.push_back("doors");
-  buf.push_back("eureka");
-  buf.push_back("gnomeicu");
-  buf.push_back("ickle");
-  buf.push_back("kit");
-  buf.push_back("new");
+  DIR *pDir;
+  
+  pDir = opendir(ICONS_DIR.c_str());
+  if (pDir)
+  {
+    struct dirent *rdp;
+
+    while ( (rdp = readdir(pDir)) != NULL)
+    {
+      if (strcmp(rdp->d_name, ".") == 0 || strcmp(rdp->d_name, "..") == 0)
+	continue;
+
+      std::string fullname = ICONS_DIR + "/" + rdp->d_name;
+
+      struct stat st;
+      if ( stat(fullname.c_str(), &st) == 0 && S_ISDIR(st.st_mode) )
+	buf.push_back( fullname );
+    }
+
+    closedir(pDir);
+  }
+  
   return buf;
 }
 
