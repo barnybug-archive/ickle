@@ -4,11 +4,17 @@
 
 http://ickle.sourceforge.net/
 
-Version: 0.1-pre1
------------------
+Version: 0.1
+------------
 
 This is the first release of ickle, so please be tolerant of bugs, and
 the lack of features. Given time ickle will grow bigger.
+
+At the moment it supports:
+- Message sending/receiving
+- URL sending/receiving
+- SMS sending/receiving, including delivery reports
+- Status changes
 
 ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
 
