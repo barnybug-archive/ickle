@@ -121,7 +121,6 @@ AddContactDialog::AddContactDialog(Gtk::Window& parent)
 
   if ( ! ct.empty() )
   {
-    ICQ2000::ContactTree& ct = icqclient.getContactTree();
     ICQ2000::ContactTree::iterator curr = ct.begin();
     Gtk::ComboDropDown_Helpers::ComboDropDownList& cl = m_group_list.get_list()->children();
     while (curr != ct.end())
@@ -133,7 +132,7 @@ AddContactDialog::AddContactDialog(Gtk::Window& parent)
       cl.push_back( *item );
       m_group_list.set_item_string( *item, curr->get_label() );
       m_group_map[ curr->get_id() ] = item;
-    
+
       ++curr;
     }
   }
@@ -144,7 +143,7 @@ AddContactDialog::AddContactDialog(Gtk::Window& parent)
     m_selected_group = NULL;
     m_group_list.set_popdown_strings( strlist );
   }
-  
+
   m_group_list.set_value_in_list();
 
   table->attach( * manage( new Gtk::Label( _("Add to group"), 0.0, 0.5 ) ),
