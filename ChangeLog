@@ -1,3 +1,172 @@
+Fri, 28 Dec 2001 12:23:17 -0800 nordman
+
+	* ickle/IckleApplet.h ickle/IckleApplet.cpp
+	ickle/IckleClient.cpp:
+
+	Make sure settings are correctly saved even when exiting via
+	the "remove from panel" option (gnome applet). 
+
+Fri, 28 Dec 2001 08:19:37 -0800 nordman
+
+	* ickle/IckleApplet.cpp ickle/IckleGUI.h ickle/IckleGUI.cpp:
+
+	Revert the window positioning code in IckleApplet and instead
+	handle that with {show,hide}/_impl in IckleGUI. From Dominic
+	Sacré <bugcreator@gmx.de> 
+
+Thu, 27 Dec 2001 17:04:53 -0800 barnabygray
+
+	* THANKS TODO configure.ac ickle/IckleClient.cpp:
+
+	Amended Michael's THANKS entry. 
+
+Thu, 27 Dec 2001 16:59:52 -0800 barnabygray
+
+	* src/Client.cpp src/Contact.cpp src/Contact.h
+	src/Makefile.am src/SNAC-LOC.cpp src/TLV.cpp src/TLV.h
+	src/UserInfoBlock.cpp src/UserInfoBlock.h:
+
+	These shouldn't have been there, the merge wrongly kept them. 
+
+Thu, 27 Dec 2001 07:16:20 -0800 nordman
+
+	* ickle/IckleApplet.cpp ickle/IckleClient.h THANKS
+	ickle/IckleClient.cpp ickle/IckleGUI.h ickle/IckleGUI.cpp:
+
+	Save settings correctly upon exiting. Make the applet keep
+	track of the main window position between toggles. Closing
+	the main window does not exit ickle when run as an applet
+	now. From Dominic Sacré <bugcreator@gmx.de> 
+
+Thu, 27 Dec 2001 06:27:39 -0800 nordman
+
+	* ickle/IckleClient.cpp:
+
+	Ignore any unknown options in processCommandLine(...) when
+	run as an applet. This allows the applet to be used added
+	from the panel. Although this works it should be improved
+	later. 
+
+Wed, 26 Dec 2001 15:32:57 -0800 barnabygray
+
+	* ickle/IckleGUI.h:
+
+	Corrected mistake made in merge 
+
+Wed, 26 Dec 2001 15:24:21 -0800 barnabygray
+
+	* ickle/AddUserDialog.h ickle/AwayMessageDialog.cpp
+	ickle/AwayMessageDialog.h ickle/ContactListView.cpp
+	ickle/ContactListView.h ickle/History.cpp ickle/History.h
+	ickle/IckleApplet.cpp ickle/IckleApplet.h
+	ickle/IckleClient.cpp ickle/IckleClient.h ickle/IckleGUI.cpp
+	ickle/IckleGUI.h ickle/Icons.cpp ickle/Icons.h
+	ickle/Makefile.am ickle/MessageBox.cpp ickle/MessageBox.h
+	ickle/Settings.h ickle/SettingsDialog.cpp
+	ickle/SettingsDialog.h ickle/UserInfoDialog.cpp
+	ickle/UserInfoDialog.h ickle/Added ickle/Files:
+	ickle/EventSubstituter.cpp ickle/EventSubstituter.h
+	ickle/SetAutoResponseDialog.cpp ickle/SetAutoResponseDialog.h
+	ickle/sstream_fix.h examples/Makefile.am examples/shell.cpp
+	src/Cache.h src/Client.h src/ContactList.cpp
+	src/ContactList.h src/DCCache.h src/DirectClient.cpp
+	src/DirectClient.h src/ICBMCookie.cpp src/ICBMCookie.h
+	src/ICBMCookieCache.h src/ICQ.cpp src/ICQ.h
+	src/RequestIDCache.h src/SNAC-BUD.cpp src/SNAC-BUD.h
+	src/SNAC-GEN.cpp src/SNAC-GEN.h src/SNAC-LOC.h
+	src/SNAC-MSG.cpp src/SNAC-MSG.h src/SNAC-SRV.cpp
+	src/SNAC-SRV.h src/SNAC-UIN.cpp src/SNAC-UIN.h
+	src/SNAC-base.cpp src/SNAC-base.h src/SNAC.cpp src/SNAC.h
+	src/SeqNumCache.h src/Translator.cpp src/Translator.h
+	src/Xml.cpp src/Xml.h src/buffer.cpp src/buffer.h
+	src/constants.h src/custom_marshal.h src/events.cpp
+	src/events.h src/exceptions.cpp src/exceptions.h
+	src/socket.cpp src/socket.h src/sstream_fix.h
+	src/userinfoconstants.h share/icons/ickle/invisible.xpm
+	share/icons/doors/invisible.xpm Makefile.am README configure.ac:
+
+	Merged 0.3 branch back into main 
+
+Wed, 26 Dec 2001 15:04:53 -0800 barnabygray
+
+	* NEWS:
+
+	Speling mistake 
+
+Wed, 26 Dec 2001 14:09:43 -0800 barnabygray
+
+	* src/Makefile.am ChangeLog NEWS README
+	debian/changelog:
+
+	Small fixes for 0.2.1 release 
+
+Tue, 25 Dec 2001 16:07:28 -0800 barnabygray
+
+	* src/SNAC-LOC.cpp src/TLV.cpp src/TLV.h:
+
+	Fixes for what Ian's patch broke. The Capabilities TLV coded
+	was not for parsing incoming capabilities which arrive with a
+	different TLV type then the sent ones. Changing the
+	Capabilities TLV to parse your incoming ones and then
+	changing the constant broke my code, and I spent a long while
+	tracking this down so am rightfully a bit annoyed. 
+
+Tue, 25 Dec 2001 14:47:32 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* ickle/IckleGUI.cpp:
+
+	And some initialisers.. 
+
+Tue, 25 Dec 2001 14:46:05 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* share/icons/ickle/invisible.xpm:
+
+	Fixed invisibility. Added pixmaps. 
+
+Tue, 25 Dec 2001 14:46:05 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* share/icons/doors/invisible.xpm:
+
+	Fixed invisibility. Added pixmaps. 
+
+Tue, 25 Dec 2001 14:46:05 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* ickle/IckleGUI.cpp ickle/IckleGUI.h:
+
+	Fixed invisibility. Added pixmaps. 
+
+Tue, 25 Dec 2001 13:48:27 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* ickle/IckleGUI.cpp ickle/IckleGUI.h ickle/Icons.cpp:
+
+	Invisible status enabled! 
+
+Tue, 25 Dec 2001 11:32:26 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* ickle/IckleClient.cpp ickle/IckleClient.h
+	ickle/IckleGUI.cpp ickle/IckleGUI.h ickle/Makefile.am
+	ickle/MessageBox.cpp ickle/MessageBox.h ickle/Added
+	ickle/Files: ickle/EventSubstituter.cpp
+	ickle/EventSubstituter.h ickle/SetAutoResponseDialog.cpp
+	ickle/SetAutoResponseDialog.h:
+
+	- Patch for away message setting from Michael Smith (with
+	additions) 
+
+Tue, 25 Dec 2001 11:32:26 -0800 barnabygray
+
+	-- TAG: ickle-0-3-unstable --
+	* README configure.ac:
+
+	- Patch for away message setting from Michael Smith (with
+	additions) 
+
 2001-12-24 14:10  barnabygray
 
 	* src/: Client.cpp, Contact.cpp, Contact.h, TLV.cpp, TLV.h,
