@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.64 2003-02-10 00:43:26 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.65 2003-04-06 14:57:05 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -280,7 +280,7 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev)
     if (cev->getContact()->getStatus() != ICQ2000::STATUS_OFFLINE)
     {
       old_row[ m_columns.total_online ] = old_row[ m_columns.total_online ] - 1;
-      row[ m_columns.total_online ] = row[ m_columns.total_online ] - 1;
+      row[ m_columns.total_online ] = row[ m_columns.total_online ] + 1;
     }
     update_group( cev->get_old_group() );
     update_group( cev->get_group() );
