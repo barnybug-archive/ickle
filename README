@@ -56,7 +56,7 @@ ickle supports:
 
 Features:
 - Autoconnect, autoreconnect and retries
-- GNOME applets
+- GNOME applet
 
 See the TODO for information about planned features in progress.
 
@@ -157,12 +157,16 @@ brief instructions for ickle:
 
 1. Type './configure'
 
- If you have the gnome dependancies installed ickle will by default
- compile the gnome applet. A prompt after configure will confirm
+ If you have the gnome dependencies installed ickle will by default
+ compile the gnome applet. A message after configure will confirm
  whether this is going to happen. The option --without-gnome will
  always prevent the gnome applet from being compiled.
 
 2. Type 'make' to compile the package
+
+On some systems that don't have gmake as the default make you might
+have to install and explicitly use that (usually named as gmake in
+that case).
 
    ------------------------------------------------------------------
    - Installation                                                   -
@@ -179,12 +183,6 @@ path. (usually /usr/local/bin)
 If you built it as a GNOME applet the executable will instead be named
 'ickle_applet'. You should then run ickle by rightclicking the panel
 and choosing Applets->Network->Ickle ICQ.
-
-The configure script will tell you whether the GNOME applet will
-be built or not. If you don't want the GNOME applet to be built even
-though you have the required GNOME development packages installed run
-configure with the '--without-gnome' option.
-
 
 
  --------------------------------------------------------------------
@@ -216,7 +214,7 @@ translate between windows-cp1251 and KOI8-R.
  - Icons                                                            -
  --------------------------------------------------------------------
 
-The default icons distributed with ickle are some designed by
+The default set of icons distributed with ickle are designed by
 me. They're not amazing but they do the job. I've also included some
 more familiar ones. To change between icon sets, go to Settings and
 then choose from the list. You are welcome to design you own set (or
