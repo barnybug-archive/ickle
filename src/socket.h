@@ -75,6 +75,7 @@ class TCPSocket {
 
   void setRemoteHost(const char *host);
   void setRemotePort(unsigned short port);
+  void setRemoteIP(unsigned int ip);
   
   unsigned int getRemoteIP() const;
   unsigned short getRemotePort() const;
@@ -97,6 +98,8 @@ class TCPServer {
   
   void StartServer();
   void Disconnect();
+
+  bool isStarted() const;
 
   // blocking accept
   TCPSocket* Accept();

@@ -17,7 +17,7 @@ pkginclude_HEADERS = Client.h buffer.h socket.h TLV.h constants.h \
     events.h Xml.h Contact.h ContactList.h exceptions.h custom_marshal.h \
     DirectClient.h ICQ.h UserInfoBlock.h ICBMCookie.h userinfoconstants.h \
     Translator.h Cache.h RequestIDCache.h ICBMCookieCache.h \
-    sstream_fix.h
+    SeqNumCache.h DCCache.h sstream_fix.h
 
 libicq2000_la_LDFLAGS = -version-info 1:0:0
 

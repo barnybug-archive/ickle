@@ -160,6 +160,10 @@ void TCPSocket::setRemotePort(unsigned short port) {
   remoteAddr.sin_port = htons(port);
 }
 
+void TCPSocket::setRemoteIP(unsigned int ip) {
+  remoteAddr.sin_addr.s_addr = htonl(ip);
+}
+
 unsigned short TCPSocket::getRemotePort() const {
   return ntohs( remoteAddr.sin_port );
 }
@@ -264,6 +268,8 @@ void TCPServer::Disconnect() {
     socketDescriptor = -1;
   }
 }
+
+bool TCPServer::isStarted() const { return socketDescriptor != -1; }
 
 /**
  * SocketException class

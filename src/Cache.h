@@ -36,17 +36,21 @@ namespace ICQ2000 {
   
   template <typename Key, typename Value> class CacheItem {
    protected:
+    unsigned int m_timeout;
     time_t m_timestamp;
     Key m_key;
     Value m_value;
 
    public:
-    CacheItem(const Key &k, const Value &v);
+    CacheItem(const Key &k, const Value &v, unsigned int timeout);
     
     const Key& getKey() const;
     Value& getValue();
     time_t getTimestamp() const;
+    time_t getExpiryTime() const;
     void setTimestamp(time_t t);
+    void setTimeout(time_t t);
+    void refresh();
   };
 
   template < typename Key, typename Value >
@@ -63,24 +67,45 @@ namespace ICQ2000 {
      * issue - there shouldn't be more than 10 items in here at any one point
      */
     list< CacheItem<Key,Value> > m_list;
+
+    citerator lookup(const Key& k) const {
+      citerator curr = m_list.begin();
+      while (curr != m_list.end()) {
+	if ((*curr).getKey() == k) return curr;
+	++curr;
+      }
+      return m_list.end();
+    }
+    
+    literator lookup(const Key& k) {
+      literator curr = m_list.begin();
+      while (curr != m_list.end()) {
+	if ((*curr).getKey() == k) return curr;
+	++curr;
+      }
+      return m_list.end();
+    }
     
    public:
     Cache();
     virtual ~Cache();
 
-    bool exists(const Key &k) const;
+    bool exists(const Key &k) const {
+      citerator i = lookup(k);
+      return (i != m_list.end());
+    }
 
-    Value& operator[](const Key &k);
+    Value& operator[](const Key &k) {
+      literator i = lookup(k);
+      if (i == m_list.end())
+	return insert(k, Value());
+      else
+	return (*i).getValue();
+    }
 
     void remove(const Key &k)  {
-      literator curr = m_list.begin();
-      while (curr != m_list.end()) {
-	if ((*curr).getKey() == k) {
-	  removeItem(curr);
-	  return;
-	}
-	++curr;
-      }
+      literator i = lookup(k);
+      if (i != m_list.end()) removeItem(i);
     }
 
     virtual void removeItem(const literator& l) {
@@ -91,33 +116,87 @@ namespace ICQ2000 {
       // might want to override to add signalling on expiring of items
       removeItem(l);
     }
-
-    Value& insert(const Key &k, const Value &v) {
-      m_list.push_front( CacheItem<Key,Value>(k,v) );
-      return m_list.front().getValue();
+    
+    void expireAll() {
+      while (!m_list.empty()) {
+	expireItem(m_list.begin());
+      }
     }
 
-    unsigned int getTimeout() { return m_timeout; }
-    void setTimeout(unsigned int s) { m_timeout = s; }
+    Value& insert(const Key &k, const Value &v) {
+      CacheItem<Key,Value> t(k,v,m_timeout);
+      return (*insert(t)).getValue();
+    }
+
+    literator insert(const CacheItem<Key,Value>& t) {
+      time_t exp_time = t.getExpiryTime();
+
+      literator l = m_list.end();
+      while (l != m_list.begin()) {
+	literator p = l--;
+	if ( (*p).getExpiryTime() < exp_time ) break;
+	l = p;
+      }
+      return m_list.insert(l, t);
+    }
+
+    bool empty() const {
+      return m_list.empty();
+    }
+
+    const Key& front() const {
+      return m_list.front().getKey();
+    }
+
+    void refresh(const Key &k) {
+      literator i = lookup(k);
+      if (i != m_list.end()) {
+	CacheItem<Key,Value> t(*i);
+	m_list.erase(i);
+	insert(t);
+      }
+    }
+
+    unsigned int getDefaultTimeout() { return m_timeout; }
+    void setDefaultTimeout(unsigned int s) { m_timeout = s; }
+
+    void setTimeout(const Key &k, unsigned int s) {
+      literator i = lookup(k);
+      if (i != m_list.end()) {
+	CacheItem<Key,Value> t(*i);
+	t.setTimeout(s);
+	m_list.erase(i);
+	insert(t);
+      }
+    }
 
     void clearoutPoll() {
-      time_t n = time(NULL) - m_timeout;
-      while (!m_list.empty() && m_list.front().getTimestamp() < n)
+      time_t n = time(NULL);
+      while (!m_list.empty() && m_list.front().getExpiryTime() < n)
 	expireItem( m_list.begin() );
     }
 
   };
 
   template <typename Key, typename Value>
-  CacheItem<Key,Value>::CacheItem(const Key &k, const Value &v)
+  CacheItem<Key,Value>::CacheItem(const Key &k, const Value &v, unsigned int timeout)
     : m_key(k), m_value(v),
-      m_timestamp(time(NULL)) { }
+      m_timestamp(time(NULL)), m_timeout(timeout) { }
 
   template <typename Key, typename Value>
   void CacheItem<Key,Value>::setTimestamp(time_t t) { m_timestamp = t; }
   
   template <typename Key, typename Value>
+  void CacheItem<Key,Value>::setTimeout(time_t t) { m_timeout = t; }
+  
+  template <typename Key, typename Value>
   time_t CacheItem<Key,Value>::getTimestamp() const { return m_timestamp; }
+  
+  template <typename Key, typename Value>
+  time_t CacheItem<Key,Value>::getExpiryTime() const { return m_timestamp + m_timeout; }
+  
+  template <typename Key, typename Value>
+  void CacheItem<Key,Value>::refresh() { m_timestamp = time(NULL); }
   
   template <typename Key, typename Value>
   const Key& CacheItem<Key,Value>::getKey() const {
@@ -131,7 +210,7 @@ namespace ICQ2000 {
 
   template <typename Key, typename Value>
   Cache<Key,Value>::Cache() {
-    setTimeout(60); // default timeout
+    setDefaultTimeout(60); // default timeout
   }
 
   template <typename Key, typename Value>
@@ -139,26 +218,6 @@ namespace ICQ2000 {
     
   }
  
-  template <typename Key, typename Value>
-  bool Cache<Key,Value>::exists(const Key &k) const {
-    citerator curr = m_list.begin();
-    while (curr != m_list.end()) {
-      if ((*curr).getKey() == k) return true;
-      ++curr;
-    }
-    return false;
-  }
-
-  template <typename Key, typename Value>
-  Value& Cache<Key,Value>::operator[](const Key &k) {
-    literator curr = m_list.begin();
-    while (curr != m_list.end()) {
-      if ((*curr).getKey() == k) return (*curr).getValue();
-      ++curr;
-    }
-    return insert(k, Value());
-  }
-
 }
 
 #endif

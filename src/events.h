@@ -124,8 +124,10 @@ namespace ICQ2000 {
    public:
     enum LogType {
       WARN,
+      ERROR,
       INFO,
-      PACKET
+      PACKET,
+      DIRECTPACKET
     };
 
    private:
@@ -216,7 +218,8 @@ namespace ICQ2000 {
       SMS_Response,
       SMS_Receipt,
       AuthReq,
-      AuthAck
+      AuthAck,
+      AwayMessage
     };
 
     MessageEvent(Contact* c);
@@ -329,18 +332,17 @@ namespace ICQ2000 {
     bool delivered() const;
   };
 
-  // --------------------- Away Message Event -----------------------
-
-  class AwayMsgEvent : public Event {
+  class AwayMessageEvent : public MessageEvent {
    private:
     Contact *m_contact;
     string m_message;
 
    public:
-    AwayMsgEvent(Contact *c, const string& msg);
+    AwayMessageEvent(Contact *c);
 
+    MessageType getType() const;
     string getMessage() const;
-    Contact *getContact() const;
+    void setMessage(const string& msg);
   };
 
   // --------------------- Status Change Event ----------------------

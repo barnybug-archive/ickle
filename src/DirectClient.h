@@ -21,6 +21,7 @@
 #ifndef DIRECTCLIENT_H
 #define DIRECTCLIENT_H
 
+#include <list>
 #include <string>
 
 #include <sigc++/signal_system.h>
@@ -33,19 +34,22 @@
 #include "exceptions.h"
 #include "ICQ.h"
 #include "Contact.h"
-
+#include "ContactList.h"
+#include "SeqNumCache.h"
 #include "Translator.h"
 
 using std::string;
+using std::list;
 using std::exception;
+using SigC::Signal0;
 using SigC::Signal1;
 
 namespace ICQ2000 {
 
-  class DirectClient {
+  class DirectClient : public SigC::Object {
    private:
-    enum State { WAITING_FOR_INIT,
-		 WAITING_FOR_UIN_CONFIRMATION,
+    enum State { NOT_CONNECTED,
+		 WAITING_FOR_INIT,
 		 WAITING_FOR_INIT_ACK,
 		 WAITING_FOR_INIT2,
 		 CONNECTED };
@@ -56,13 +60,16 @@ namespace ICQ2000 {
     Buffer m_recv;
 
     Contact *m_contact;
+    ContactList *m_contact_list;
 
-    unsigned short m_tcp_version, m_revision;
+    bool m_incoming;
+
+    unsigned short m_remote_tcp_version;
     unsigned int m_remote_uin;
     unsigned char m_tcp_flags;
     unsigned short m_eff_tcp_version;
 
-    unsigned int m_local_uin, m_local_inet_ip, m_session_id;
+    unsigned int m_local_uin, m_local_ext_ip, m_session_id;
     unsigned short m_local_server_port;
 
     void Parse();
@@ -70,23 +77,37 @@ namespace ICQ2000 {
     void ParseInitAck(Buffer &b);
     void ParseInit2(Buffer &b);
     void ParsePacket(Buffer& b);
-    void ParsePacketV6(Buffer& b);
-    void ParsePacketV7(Buffer& b);
+    void ParsePacketInt(Buffer& b);
 
     void SendInitAck();
     void SendInitPacket();
-    void SendPacketAck(unsigned short seqnum, unsigned short subCommand);
+    void SendInit2();
+    void SendPacketEvent(MessageEvent *ev);
+    void SendPacketAck(UINRelatedSubType *i);
     void Send(Buffer &b);
     
     bool Decrypt(Buffer& in, Buffer& out);
     void Encrypt(Buffer& in, Buffer& out);
     static unsigned char client_check_data[];
     Translator *m_translator;
+    SeqNumCache m_msgcache;
+    list<MessageEvent*> m_msgqueue;
+    unsigned short m_seqnum;
+
+    unsigned short NextSeqNum();
+    void ConfirmUIN();
+
+    void expired_cb(MessageEvent *ev);
+    void flush_queue();
+
+    void Init();
 
    public:
-    DirectClient(TCPSocket *sock, unsigned int uin, unsigned inet_ip, unsigned short server_port,Translator* translator);
+    DirectClient(TCPSocket *sock, ContactList *cl, unsigned int uin, unsigned int ext_ip, unsigned short server_port, Translator* translator);
+    DirectClient::DirectClient(Contact *c, unsigned int uin, unsigned int ext_ip, unsigned short server_port, Translator *translator);
     ~DirectClient();
 
+    void Connect();
     void Recv();
 
     // ------------------ Signal dispatchers -----------------
@@ -95,16 +116,19 @@ namespace ICQ2000 {
     // ------------------  Signals ---------------------------
     Signal1<void,LogEvent*> logger;
     Signal1<void,MessageEvent*> messaged;
+    Signal1<void,MessageEvent*> messageack;
+    Signal0<void> connected;
 
     unsigned int getUIN() const;
     unsigned int getIP() const;
     unsigned short getPort() const;
+    int getfd() const;
 
     void setContact(Contact* c);
-
+    void SendEvent(MessageEvent* ev);
   };
 
-  class DirectClientException : exception {
+  class DirectClientException : public exception {
    private:
     string m_errortext;
     
@@ -116,14 +140,9 @@ namespace ICQ2000 {
     const char* what() const throw();
   };
   
-  class DisconnectedException : DirectClientException {
+  class DisconnectedException : public DirectClientException {
    public:
     DisconnectedException(const string& text);
-  };
-
-  class UINConfirmationException : DirectClientException {
-   public:
-    UINConfirmationException();
   };
 
 }

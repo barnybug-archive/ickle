@@ -48,11 +48,12 @@
 #include "constants.h"
 #include "Contact.h"
 #include "ContactList.h"
-#include "DirectClient.h"
 #include "custom_marshal.h"
 #include "Translator.h"
 #include "RequestIDCache.h"
 #include "ICBMCookieCache.h"
+#include "DirectClient.h"
+#include "DCCache.h"
 
 using std::string;
 using SigC::Signal1;
@@ -104,7 +105,8 @@ namespace ICQ2000 {
     unsigned int m_ext_ip;
     TCPSocket m_serverSocket;
     TCPServer m_listenServer;
-    hash_map<int, DirectClient*> m_fdmap;
+
+    DCCache m_dccache;   // this is for established connections
     hash_map<unsigned int, DirectClient*> m_uinmap;
 
     time_t m_last_server_ping;
@@ -124,6 +126,8 @@ namespace ICQ2000 {
     void DisconnectBOS();
     void DisconnectInt();
 
+
+    DirectClient* ConnectDirect(Contact *c);
     void DisconnectDirectConns();
     void DisconnectDirectConn(int fd);
 
@@ -132,13 +136,11 @@ namespace ICQ2000 {
     void SignalDisconnect(DisconnectedEvent::Reason r);
     void SignalMessage(MessageSNAC *snac);
     void SignalMessageACK(MessageACKSNAC *snac);
-    void SignalMessageEvent_cb(MessageEvent *ev);
     void SignalSrvResponse(SrvResponseSNAC *snac);
     void SignalUINResponse(UINResponseSNAC *snac);
     void SignalUINRequestError();
     void SignalRateInfoChange(RateInfoChangeSNAC *snac);
     void SignalLog(LogEvent::LogType type, const string& msg);
-    void SignalLog_cb(LogEvent *ev);
     void SignalUserOnline(BuddyOnlineSNAC *snac);
     void SignalUserOffline(BuddyOfflineSNAC *snac);
     void SignalUserAdded(Contact *c);
@@ -198,18 +200,29 @@ namespace ICQ2000 {
     bool MapICQStatusToInvisible(unsigned short st);
 
     void ICBMCookieCache_expired_cb(MessageEvent *ev);
+    void dccache_expired_cb(DirectClient *dc);
+    void dc_connected_cb(DirectClient *dc);
+    void dc_log_cb(LogEvent *ev);
+    void dc_messaged_cb(MessageEvent *ev);
+    void dc_messageack_cb(MessageEvent *ev);
+
+    bool SendDirect(MessageEvent *ev);
+    void SendViaServer(MessageEvent *ev);
+    
+    void Connect();
+    void Disconnect(DisconnectedEvent::Reason r = DisconnectedEvent::REQUESTED);
 
    public:
     Client();
     Client(const unsigned int uin, const string& password);
     ~Client();
    
-    bool getInvisible() { return m_invisible; }
+    bool getInvisible() const { return m_invisible; }
     void setInvisible(bool i) { m_invisible = i; }
     void setUIN(unsigned int uin) { m_uin = uin; }
-    unsigned int getUIN() { return m_uin; }
+    unsigned int getUIN() const { return m_uin; }
     void setPassword(const string& password) { m_password = password; }
-    string getPassword() { return m_password; }
+    string getPassword() const { return m_password; }
 
     bool setTranslationMap(const string& szMapFileName);
     const string& getTranslationMapFileName() { return m_translator.getMapFileName(); }
@@ -221,7 +234,6 @@ namespace ICQ2000 {
     Signal1<void,DisconnectedEvent*> disconnected;
     Signal1<bool,MessageEvent*,StopOnTrueMarshal> messaged;
     Signal1<void,MessageEvent*> messageack;
-    Signal1<void,AwayMsgEvent*> away_message;
     Signal1<void,ContactListEvent*> contactlist;
     Signal1<void,NewUINEvent*> newuin;
     Signal1<void,RateInfoChangeEvent*> rate;
@@ -241,15 +253,13 @@ namespace ICQ2000 {
     // -- Send calls --
     void SendEvent(MessageEvent *ev);
 
-    void fetchAwayMsg(Contact *c);
-    
     // -- Set Status --
     void setStatus(const Status st);
     /* This can be called when connected to set the initial status
      * when you do connect, or can be called whilst connected to
      * change status
      */
-    Status getStatus();
+    Status getStatus() const;
 
     // -- Contact List --
     void addContact(Contact& c);
@@ -258,9 +268,9 @@ namespace ICQ2000 {
     void fetchSimpleContactInfo(Contact* c);
 
     void setServerHostname(const string& host) { m_authorizerHostname = host; }
-    string getServerHostname() { return m_authorizerHostname; }
+    string getServerHostname() const { return m_authorizerHostname; }
     void setServerPort(const unsigned short& port) { m_authorizerPort = port; }
-    unsigned short getServerPort() { return m_authorizerPort; }
+    unsigned short getServerPort() const { return m_authorizerPort; }
 
     /*
      *  Poll must be called regularly (at least every 60 seconds)
@@ -281,28 +291,13 @@ namespace ICQ2000 {
     //  for socket events now)
     int getSocketHandle() { return m_serverSocket.getSocketHandle(); }
 
-    /* The client should be free to call Connect()
-     * whenever they want. If we are connected already
-     * it's ignored, if we aren't and are not already
-     * connecting it should start the proceedings
-     * Returns the file descriptor for the socket,
-     * so the client can select() on it - not this is
-     * deprecated - a client should listen for socket
-     * events.
-     */
-    int Connect();
-    int RegisterUIN();
-
-    /*
-     * Likewise for Disconnect()
-     */
-    void Disconnect();
+    void RegisterUIN();
 
     /* isConnected() is a convenience for the
      * client, it should correspond exactly to ConnectedEvents
      * & DisconnectedEvents the client gets
      */
-    bool isConnected();
+    bool isConnected() const;
     
   };
 }

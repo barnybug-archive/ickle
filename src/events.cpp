@@ -247,11 +247,14 @@ namespace ICQ2000 {
 
   // ---------------- Away Message -----------------------
 
-  AwayMsgEvent::AwayMsgEvent(Contact *c, const string& msg)
-    : m_contact(c), m_message(msg) { }
+  AwayMessageEvent::AwayMessageEvent(Contact *c)
+    : MessageEvent(c) { }
 
-  string AwayMsgEvent::getMessage() const { return m_message; }
-  Contact *AwayMsgEvent::getContact() const { return m_contact; }
+  MessageEvent::MessageType AwayMessageEvent::getType() const { return MessageEvent::AwayMessage; }
+
+  string AwayMessageEvent::getMessage() const { return m_message; }
+
+  void AwayMessageEvent::setMessage(const string& msg) { m_message = msg; }
 
   // ---------------- My Status Change -------------------
 
