@@ -434,8 +434,8 @@ bool PipeExec::Open(const char *shellcmd) {
 
 void PipeExec::Read(char *buf, int size) {
   int pos = 0;
-  char c;
-  while (((c = fgetc(fStdOut)) != EOF) && (pos < size)) buf[pos++] = c;
+  int c;
+  while (((c = fgetc(fStdOut)) != EOF) && (pos < size)) buf[pos++] = (unsigned char)c;
   buf[pos] = '\0';
 }
 

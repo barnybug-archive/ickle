@@ -482,19 +482,24 @@ void IckleClient::event_system(const string& s, MessageEvent *ev) {
   if (g_settings.getValueString(s) != "") {
     Contact *co = ev->getContact();
 
-    char c;
+    int ci;
+    unsigned char c;
     char timebuf[100];
     time_t ev_time;
     istringstream istr (g_settings.getValueString(s));
     ostringstream ostr;
 
     while(istr.good()){
-      c = istr.get();
-      if(c == -1)
+      ci = istr.get();
+      if (ci == EOF)
         break;
-      if(c=='%'){
-        c = istr.get();
-        switch(c){
+      c = (unsigned char)ci;
+      if (c == '%'){
+        ci = istr.get();
+	if (ci == EOF)
+	  break;
+	c = (unsigned char)ci;
+        switch(c) {
 	case 'i':
 	  ostr << IPtoString( co->getExtIP() );
 	  break;
