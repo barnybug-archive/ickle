@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.95 2002-04-16 21:05:19 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.96 2002-04-18 14:00:54 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -284,8 +284,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("message_autoraise", true);
   g_settings.defaultValueBool("message_autoclose", false);
   g_settings.defaultValueUnsignedInt("history_shownr", 10, 1, 255);
-  g_settings.defaultValueString("message_header_font", "-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
-  g_settings.defaultValueString("message_text_font", "");
+  g_settings.defaultValueString("message_header_font", "-*-helvetica-bold-r-*-*-*-*-*-*-*-*-*-*");
+  g_settings.defaultValueString("message_text_font", "-*-helvetica-medium-r-*-*-*-*-*-*-*-*-*-*");
 
   /* Default size 0 means that we leave it up to the packed widgets to decide size */
   g_settings.defaultValueUnsignedInt("message_box_width", 0, 0, 2000);
