@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.101 2002-04-23 01:08:02 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.102 2002-04-25 16:21:01 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -427,7 +427,7 @@ void IckleClient::saveSettings() {
   // save contact-specific settings
   for( map<unsigned int, string>::iterator itr = m_settingsmap.begin(); itr != m_settingsmap.end(); ++itr ) {
     ContactRef c = icqclient.getContact( itr->first );
-    if (c.get() != NULL) saveContact( c, itr->second );
+    if (c.get() != NULL) saveContact( c, itr->second, false );
   }
 }
 
@@ -929,7 +929,7 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
       return;
     }
     
-    saveContact( c, m_settingsmap[c->getUIN()] );
+    saveContact( c, m_settingsmap[c->getUIN()], false );
     
   }
   else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
@@ -951,7 +951,7 @@ void IckleClient::settings_changed_cb() {
   saveSettings();
 }
 
-void IckleClient::saveContact(ContactRef c, const string& s)
+void IckleClient::saveContact(ContactRef c, const string& s, bool self)
 {
   Settings user;
   user.setValue( "alias", c->getAlias() );
@@ -995,6 +995,11 @@ void IckleClient::saveContact(ContactRef c, const string& s)
   user.setValue( "last_message_time", c->get_last_message_time() );
   user.setValue( "last_away_msg_check_time", c->get_last_away_msg_check_time() );
 
+  if (!self) {
+    // save history mapping
+    user.setValue( "history_file", m_histmap[c->getUIN()]->getFilename() );
+  }
+  
   try {
     user.save(s);
   } catch(runtime_error& e) {
@@ -1004,7 +1009,7 @@ void IckleClient::saveContact(ContactRef c, const string& s)
 
 void IckleClient::saveSelfContact()
 {
-  saveContact( icqclient.getSelfContact(), BASE_DIR + "self.user" );
+  saveContact( icqclient.getSelfContact(), BASE_DIR + "self.user", true );
 }
 
 void IckleClient::loadContact(const string& s, bool self)
@@ -1122,7 +1127,7 @@ void IckleClient::check_pid_file(){
       cerr << "ickle left behind a stale lockfile (" << PID_FILENAME << ")" << endl;
     } else {
       gui.already_running_prompt( PID_FILENAME, pid );
-      exit(1);
+      quit();
     }
   }
 

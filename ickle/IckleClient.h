@@ -97,7 +97,7 @@ class IckleClient : public SigC::Object {
   void saveSelfContact();
 
   void loadContact(const std::string& s, bool self);
-  void saveContact(ICQ2000::ContactRef c, const std::string& s);
+  void saveContact(ICQ2000::ContactRef c, const std::string& s, bool self);
 
   void event_system(const std::string& s, ICQ2000::ContactRef c, time_t t);
   gint idle_connect_cb(ICQ2000::Status s);
