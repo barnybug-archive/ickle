@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.5 2001-12-10 00:12:33 nordman Exp $
+/* $Id: History.h,v 1.6 2001-12-10 02:04:33 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -57,6 +57,8 @@ class History : public SigC::Object {
 
   void                  quote_output    (ostream& ostr, const string& text);
   void                  build_index     ();
+
+  void                  touch           ();
 
  public:
 

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.23 2001-12-10 00:17:06 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.24 2001-12-10 02:04:33 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -22,11 +22,15 @@
 
 #include "sstream_fix.h"
 
+#include "main.h"
+#include "Settings.h"
+
 #include <gtk--/imageloader.h>
 #include <gtk--/pixmap.h>
 #include <gtk--/scrollbar.h>
 #include <gtk--/toolbar.h>
 #include <gdk/gdkkeysyms.h>
+
 
 using std::ostringstream;
 using std::endl;
@@ -58,12 +62,12 @@ MessageBox::MessageBox(Contact *c, History *h)
   Gtk::Scrollbar *scrollbar;
   
   m_history_table.set_usize(400,140);
-  m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
+  m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
 			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
 
   // scrollbars
   scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
-  m_history_table.attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+  m_history_table.attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
 
   // scale adjustment
   gfloat upper = m_history->size() / m_nrmsgs_shown;
@@ -393,7 +397,15 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
 void MessageBox::display_message(History::Entry &e)
 {
   Gdk_Font normal_font;
-  Gdk_Font bold_font("-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
+  Gdk_Font header_font;
+  string message_text_font = g_settings.getValueString("message_text_font");
+  string message_header_font = g_settings.getValueString("message_header_font");
+  if ( !message_text_font.empty() ) {
+    normal_font = Gdk_Font( message_text_font );
+  }
+  if ( !message_header_font.empty() ) {
+    header_font = Gdk_Font( message_header_font );
+  }
   Gdk_Color nickc;
   string nick;
   
@@ -409,7 +421,8 @@ void MessageBox::display_message(History::Entry &e)
   Gdk_Color white("white");
   Gdk_Color black("black");
   
-  m_history_text.insert( normal_font, black, white, "\n", -1);
+  if (m_history_text.get_point() > 0)
+    m_history_text.insert( normal_font, black, white, "\n", -1);
 
   ostringstream ostr;
   if (m_display_times)
@@ -419,12 +432,12 @@ void MessageBox::display_message(History::Entry &e)
   if (e.type == MessageEvent::Normal) {
 
     if ( e.multiparty ) ostr << "[multiparty] ";
-    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
+    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, e.message, -1);
       
   } else if (e.type == MessageEvent::URL) {
 
-    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
+    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, e.URL, -1);
     m_history_text.insert( normal_font, black, white, "\n", -1);
     m_history_text.insert( normal_font, black, white, e.message, -1);
@@ -432,7 +445,7 @@ void MessageBox::display_message(History::Entry &e)
   } else if (e.type == MessageEvent::SMS) {
 
     ostr << "[sms] ";
-    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
+    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, e.message, -1);
       
   } else if (e.type == MessageEvent::SMS_Receipt) {
@@ -442,8 +455,9 @@ void MessageBox::display_message(History::Entry &e)
       ostr << "[sms not delivered]";
     }
     ostr << endl;
-    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
+    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
   }
+
 }
 
 void MessageBox::popup() {
@@ -515,7 +529,13 @@ void MessageBox::scaleadj_value_changed_cb()
   if( end > m_history->size() )
     end = m_history->size();
 
-  os << "displaying messages " << i + 1 << " to " << end << " out of " << m_history->size();
+  if ( m_history->size() == 0) {
+    os << "No messages in history";
+  } else {
+    if (i+1 == end) os << "Message " << end;
+    else os << "Messages " << i + 1 << " to " << end;
+    os << " (" << m_history->size() << " total)";
+  }
   m_scalelabel.set( os.str() );
 
   for( ; i < end; ++i ) {

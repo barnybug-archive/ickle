@@ -27,7 +27,6 @@
 #include <gtk--/label.h>
 #include <gtk--/entry.h>
 #include <gtk--/notebook.h>
-#include <gtk--/fileselection.h>
 #include <gtk--/list.h>
 #include <gtk--/checkbutton.h>
 #include <gtk--/spinbutton.h>
@@ -41,6 +40,11 @@
 #include "Contact.h"
 
 using std::string;
+
+namespace Gtk {
+  class FontSelectionDialog;
+  class FileSelection;
+}
 
 class SettingsDialog : public Gtk::Dialog {
  private:
@@ -58,6 +62,8 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
   Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;
 
+  string message_header_font, message_text_font;
+
   Status m_status;
 
   bool finished_okay;
@@ -71,6 +77,8 @@ class SettingsDialog : public Gtk::Dialog {
   void okay_cb();
   void cancel_cb();
   void trans_cb();
+  void fontsel_cb(int n);
+  void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
 

@@ -33,6 +33,8 @@
 #include <gtk--/menu.h>
 #include <gtk--/menushell.h>
 #include <gtk--/adjustment.h>
+#include <gtk--/fontselection.h>
+#include <gtk--/fileselection.h>
 
 using SigC::slot;
 using SigC::bind;
@@ -221,10 +223,26 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 1, false ) );
+  table = manage( new Gtk::Table( 2, 3, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
-  table->attach( message_autopopup, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autopopup, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+
+  hbox = manage( new Gtk::HBox(true, 5) );
+
+  message_header_font = g_settings.getValueString("message_header_font");
+  message_text_font = g_settings.getValueString("message_text_font");
+
+  Gtk::Button *button;
+  button = manage( new Gtk::Button("Header Font...") );
+  button->clicked.connect( bind( slot( this, &SettingsDialog::fontsel_cb ), 0 ) );
+  hbox->pack_start( *button, false );
+
+  button = manage( new Gtk::Button("Text Font...") );
+  button->clicked.connect( bind( slot( this, &SettingsDialog::fontsel_cb ), 1 ) );
+  hbox->pack_end( *button, false );
+
+  table->attach( *hbox, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0 );
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -397,6 +415,8 @@ void SettingsDialog::updateSettings() {
 
   // ------------ Message Box tab ------------------
   g_settings.setValue("message_autopopup", message_autopopup.get_active() );
+  g_settings.setValue("message_header_font", message_header_font );
+  g_settings.setValue("message_text_font", message_text_font );
 
   // ------------ Away Messages tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
@@ -472,6 +492,40 @@ void SettingsDialog::trans_cb() {
   Gtk::Main::run();
 }
 
+void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
+  icqclient.setTranslationMap(filesel->get_filename());
+  trans_l.set_text(icqclient.getTranslationMapName());
+  filesel->destroy();
+}
+
+void SettingsDialog::fontsel_cb(int n) {
+  Gtk::FontSelectionDialog fontsel( (n == 0 ? "Header Font Selection" : "Text Font Selection" ) );
+  fontsel.destroy.connect( Gtk::Main::quit.slot() );
+  fontsel.get_ok_button()->clicked.connect( bind( bind(slot( this, &SettingsDialog::fontsel_ok_cb ), n), &fontsel ) );
+  fontsel.get_cancel_button()->clicked.connect( fontsel.destroy.slot() );
+  if (n == 0) {
+    fontsel.set_font_name( message_header_font );
+  } else {
+    fontsel.set_font_name( message_text_font );
+  }
+
+  fontsel.set_modal(true);
+  fontsel.show();
+  Gtk::Main::run();
+}
+
+void SettingsDialog::fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n) {
+  if (n == 0) {
+    // Gtk::FontSelectionDialog::get_font_name seeks to fuck up sometimes
+    //    message_header_font = fontsel->get_font_selection()->get_actual_font_name()->get_text();
+    message_header_font = fontsel->get_font_name();
+  } else {
+    //    message_text_font = fontsel->get_font_selection()->get_actual_font_name()->get_text();
+    message_text_font = fontsel->get_font_name();
+  }
+  fontsel->destroy();
+}
+
 void SettingsDialog::icons_cb() {
   string s = getIconsFilename();
   if( s.size() )
@@ -487,11 +541,4 @@ string SettingsDialog::getIconsFilename() {
   string filename = dynamic_cast<Gtk::Label*>((*iter)->get_child())->get();
   if (filename != "Default") filename = ICONS_DIR + filename + "/";
   return filename;
-}
-
-
-void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
-  icqclient.setTranslationMap(filesel->get_filename());
-  trans_l.set_text(icqclient.getTranslationMapName());
-  filesel->destroy();
 }

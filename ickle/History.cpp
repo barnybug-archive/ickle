@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.6 2001-12-10 00:12:33 nordman Exp $
+/* $Id: History.cpp,v 1.7 2001-12-10 02:04:33 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -25,6 +25,11 @@
 
 #include "Contact.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
@@ -46,6 +51,8 @@ History::History(unsigned int uin) {
   m_size = 0;
   m_uin =  uin;
   m_streamlock = false;
+
+  touch();
 }
 
 History::~History() {
@@ -53,6 +60,11 @@ History::~History() {
     cerr << "Warning: History::~History: stream was not released properly" << endl;
     m_if.close();
   }
+}
+
+void History::touch() {
+  // should just create a blank history file if none exists
+  ofstream( m_filename.c_str(), std::ios::out | std::ios::app );
 }
 
 void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
@@ -267,6 +279,9 @@ void History::stream_lock() throw(runtime_error)
   if( m_streamlock )
     throw( runtime_error( "History::stream_lock: stream is already locked!" ) );
   
+  struct stat fs;
+  if ( stat( m_filename.c_str(), &fs ) == -1 && errno == ENOENT ) touch();
+
   m_if.open( m_filename.c_str() );
   if( !m_if.is_open() )
     throw runtime_error( string("History::stream_lock: Could not open historyfile for reading: " )
