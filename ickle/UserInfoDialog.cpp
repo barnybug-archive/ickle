@@ -28,6 +28,7 @@
 #include <vector>
 
 using std::ostringstream;
+using std::vector;
 using SigC::slot;
 using namespace ICQ2000;
 
