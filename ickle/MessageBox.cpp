@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.47 2002-03-12 19:43:54 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.48 2002-03-28 18:29:02 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -45,12 +45,16 @@ using Gtk::Text;
 using Gtk::Text_Helpers::Context;
 using SigC::bind;
 using SigC::slot;
+
+using std::string;
 using std::ostringstream;
 using std::endl;
 using std::exception;
 using std::find_if;
 
-MessageBox::MessageBox(Contact *self, Contact *c, History *h)
+using ICQ2000::ContactRef;
+
+MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const ICQ2000::ContactRef& c, History *h)
   : m_self_contact(self),
     m_contact(c),
     m_history(h),
@@ -63,7 +67,11 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
     m_scaleadj(0, 0, 0),
     m_scale(m_scaleadj),
     m_focus(false),
-    m_pending(false)
+    m_pending(false),
+    m_message_queue(mq),
+    m_send_normal("Normal", 0),
+    m_send_urgent("Urgent", 0),
+    m_send_tocontactlist("To Contact List", 0)
 {
   Gtk::Box *hbox;
 
@@ -122,7 +130,7 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   m_tab.set_tab_pos(GTK_POS_LEFT);
 
   if ( c->isICQContact() ) {
-    m_message_type = MessageEvent::Normal;
+    m_message_type = ICQ2000::MessageEvent::Normal;
     m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
 
     // -- normal message tab --
@@ -137,7 +145,7 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
     m_message_text.set_editable(true);
     m_message_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
 
-    l = g_icons.IconForEvent(MessageEvent::Normal);
+    l = g_icons.IconForEvent(ICQMessageEvent::Normal);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
@@ -164,13 +172,13 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 
     url_vbox->pack_start( *url_hbox, false );
 
-    l = g_icons.IconForEvent(MessageEvent::URL);
+    l = g_icons.IconForEvent(ICQMessageEvent::URL);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
     // -------------------------
   } else {
-    m_message_type = MessageEvent::SMS;
+    m_message_type = ICQ2000::MessageEvent::SMS;
   }
 
   // -------- sms tab --------
@@ -201,22 +209,32 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 
   sms_vbox->pack_start( *sms_hbox, false );
 
-  l = g_icons.IconForEvent(MessageEvent::SMS);
+  l = g_icons.IconForEvent(ICQMessageEvent::SMS);
   i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
   m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *sms_vbox, *i )  );
   // -------------------------
 
-  m_pane.pack2(m_tab, false, true);
+  Gtk::VBox *pane_vbox = manage( new Gtk::VBox() );
+  pane_vbox->pack_start(m_tab);
+  
+  // -- sending modes --
+  
+  hbox = manage( new Gtk::HBox() );
+  m_send_urgent.set_group( m_send_normal.group() );
+  m_send_tocontactlist.set_group( m_send_normal.group() );
+
+  hbox->pack_end( m_send_normal, false );
+  hbox->pack_end( m_send_urgent, false );
+  hbox->pack_end( m_send_tocontactlist, false );
+
+  pane_vbox->pack_start( *hbox, false );
+
+  m_pane.pack2(*pane_vbox, false, true);
 
   m_vbox_top.pack_start(m_pane,true,true);
 
   // -- button bar --
-
-  m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
-  m_close_button.clicked.connect( destroy.slot() );
-  m_tooltips.set_tip(m_send_button, "Send Message\nShortcuts: Ctrl-Enter or Alt-S");
-  m_tooltips.set_tip(m_close_button, "Close window\nShortcuts: Alt-C or Escape");
 
   hbox = manage( new Gtk::HBox() );
 
@@ -236,6 +254,12 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   m_vbox_top.pack_start(*hbox, false);
 
   hbox = manage( new Gtk::HButtonBox() );
+
+  m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
+  m_close_button.clicked.connect( destroy.slot() );
+  m_tooltips.set_tip(m_send_button, "Send Message\nShortcuts: Ctrl-Enter or Alt-S");
+  m_tooltips.set_tip(m_close_button, "Close window\nShortcuts: Alt-C or Escape");
+
   hbox->pack_start(m_send_button);
   hbox->pack_end(m_close_button);
   m_vbox_top.pack_start(*hbox,false);
@@ -246,8 +270,8 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   m_url_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_url_text ) );
   m_sms_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_sms_text ) );
   
-  m_histconn = m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
-  m_settingsconn = g_settings.settings_changed.connect( slot(this, &MessageBox::settings_changed_cb) );
+  m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
+  g_settings.settings_changed.connect( slot(this, &MessageBox::settings_changed_cb) );
 
   g_icons.icons_changed.connect( slot(this, &MessageBox::icons_changed_cb) );
   
@@ -268,6 +292,13 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   /* m_history_table height == pane position */
   m_history_table.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
 
+  // -- callbacks for libicq2000   --
+  m_contact->status_change_signal.connect( slot( this, &MessageBox::status_change_cb ) );
+
+  // -- callbacks for MessageQueue --
+  m_message_queue.added.connect( slot( this, &MessageBox::queue_added_cb ) );
+  m_message_queue.removed.connect( slot( this, &MessageBox::queue_removed_cb ) );
+
   Gtk::Main::idle.connect( slot( this, &MessageBox::clear_queue_idle_cb ) );
   /* erk.. this is a kludge if ever I saw one, basically it's not safe
      after popping up a new dialog to clear out the message queue as
@@ -278,8 +309,6 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 }
 
 MessageBox::~MessageBox() {
-  m_histconn.disconnect();
-  m_settingsconn.disconnect();
 }
 
 void MessageBox::raise() const {
@@ -306,7 +335,7 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
 
 void MessageBox::set_contact_title() {
   ostringstream ostr;
-  ostr << m_contact->getAlias();
+  ostr << m_contact->getNameAlias();
   if (m_contact->isICQContact()) {
     ostr << " (" << m_contact->getUIN() << ")";
   }
@@ -314,18 +343,23 @@ void MessageBox::set_contact_title() {
   ostr << m_contact->getStatusStr();
   Gtk::ImageLoader *p;
   
-  if (m_contact->numberPendingMessages() > 0) {
+  if (m_message_queue.get_contact_size(m_contact) > 0) {
     ostr << "*";
-    p = g_icons.IconForEvent( m_contact->getPendingMessage()->getType() );
+    MessageEvent *ev = m_message_queue.get_contact_first_message(m_contact);
+    if (ev->getServiceType() == MessageEvent::ICQ) {
+      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+      p = g_icons.IconForEvent(icq->getICQMessageType());
+    }
+
   } else {
     p = g_icons.IconForStatus( m_contact->getStatus(), m_contact->isInvisible() );
   }
-  
+
   gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
   set_title(ostr.str());
 }
 
-void MessageBox::contactlist_cb(ContactListEvent *ev) {
+void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *ev) {
   if (m_contact->isSMSable()) enable_sms();
   else disable_sms();
 
@@ -368,7 +402,7 @@ void MessageBox::setDisplayTimes(bool d) {
 }
 
 void MessageBox::send_button_update() {
-  if (m_message_type == MessageEvent::SMS) {
+  if (m_message_type == ICQ2000::MessageEvent::SMS) {
     if (m_sms_enabled && m_online && !m_sms_count_over) m_send_button.set_sensitive(true);
     else m_send_button.set_sensitive(false);
   } else {
@@ -380,14 +414,14 @@ void MessageBox::send_button_update() {
 void MessageBox::sms_count_update_cb() {
   guint len = m_sms_text.get_length();
   ostringstream ostr;
-  if (len > SMS_Max_Length) {
+  if (len > ICQ2000::SMS_Max_Length) {
     m_sms_count_over = true;
-    ostr << (len - SMS_Max_Length);
+    ostr << (len - ICQ2000::SMS_Max_Length);
     m_sms_count_label.set_text("chars over");
     send_button_update();
   } else {
     m_sms_count_over = false;
-    ostr << (SMS_Max_Length - len);
+    ostr << (ICQ2000::SMS_Max_Length - len);
     m_sms_count_label.set_text("chars left");
     send_button_update();
   }
@@ -411,20 +445,23 @@ void MessageBox::icons_changed_cb() {
   Gtk::ImageLoader *l;
   Gtk::Pixmap *i;
   if (m_contact->isICQContact()) {
-    l = g_icons.IconForEvent(MessageEvent::Normal);
+    l = g_icons.IconForEvent(ICQMessageEvent::Normal);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
     pl[0]->set_tab( i );
-    l = g_icons.IconForEvent(MessageEvent::URL);
+    l = g_icons.IconForEvent(ICQMessageEvent::URL);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
     pl[1]->set_tab( i );
-    l = g_icons.IconForEvent(MessageEvent::SMS);
+    l = g_icons.IconForEvent(ICQMessageEvent::SMS);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
     pl[2]->set_tab( i );
   } else {
-    l = g_icons.IconForEvent(MessageEvent::SMS);
+    l = g_icons.IconForEvent(ICQMessageEvent::SMS);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
     pl[0]->set_tab( i );
   }
+
+  // update title icon
+  set_contact_title();
 }
 
 void MessageBox::userinfo_toggle_cb() {
@@ -433,13 +470,13 @@ void MessageBox::userinfo_toggle_cb() {
 
 void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
   if (n == 0 && m_contact->isICQContact() ) {
-    m_message_type = MessageEvent::Normal;
+    m_message_type = ICQ2000::MessageEvent::Normal;
     m_message_text.grab_focus();
   } else if ( n == 1 ) {
-    m_message_type = MessageEvent::URL;
+    m_message_type = ICQ2000::MessageEvent::URL;
     m_url_text.grab_focus();
   } else if ( n == 2 || ( n == 0 && !m_contact->isICQContact() ) ) {
-    m_message_type = MessageEvent::SMS;
+    m_message_type = ICQ2000::MessageEvent::SMS;
     m_sms_text.grab_focus();
     sms_count_update_cb();
   }
@@ -474,22 +511,23 @@ void MessageBox::new_entry_cb(History::Entry *ev) {
   set_contact_title();
 }
 
-void MessageBox::messageack_cb(MessageEvent *ev) {
-  Contact *c = ev->getContact();
-  if (c->getUIN() != m_contact->getUIN()) return;
-
-  if (ev->getType() == MessageEvent::AwayMessage) return;
+void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
+  if (ev->getType() == ICQ2000::MessageEvent::AwayMessage) return;
 
   if (ev->isFinished()) {
     if (ev->isDelivered()) {
       
-      if (m_message_type == MessageEvent::Normal) {
+      switch(m_message_type) {
+      case ICQ2000::MessageEvent::Normal:
 	m_message_text.delete_text(0,-1);
-      } else if (m_message_type == MessageEvent::URL) {
+	break;
+      case ICQ2000::MessageEvent::URL:
 	m_url_entry.delete_text(0,-1);
 	m_url_text.delete_text(0,-1);
-      } else if (m_message_type == MessageEvent::SMS) {
+	break;
+      case ICQ2000::MessageEvent::SMS:
 	m_sms_text.delete_text(0,-1);
+	break;
       }
       
       set_status("Sent message successfully");
@@ -497,7 +535,23 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
       if( g_settings.getValueBool( "message_autoclose" ) )
         destroy.emit();
     } else {
-      set_status("Sending message failed");
+      switch(ev->getDeliveryFailureReason()) {
+      case ICQ2000::MessageEvent::Failed_Denied:
+	set_status("Sending message failed - user is ignoring you");
+	break;
+      case ICQ2000::MessageEvent::Failed_Occupied:
+	set_status("Sending message failed - user is occupied");
+	break;
+      case ICQ2000::MessageEvent::Failed_DND:
+	set_status("Sending message failed - user is in do not disturb");
+	break;
+      case ICQ2000::MessageEvent::Failed_NotConnected:
+	set_status("Sending message failed - you are not connected");
+	break;
+      case ICQ2000::MessageEvent::Failed:
+      default:
+	set_status("Sending message failed");
+      }
     }
   } else {
     if (ev->isDirect()) {
@@ -546,26 +600,28 @@ void MessageBox::display_message(History::Entry &e)
     ostr << format_time(e.timestamp) << " ";
 
   ostr << nick << " ";
-  if (e.type == MessageEvent::Normal) {
+  switch(e.type) {
 
+  case ICQ2000::MessageEvent::Normal:
     if ( e.multiparty ) ostr << "[multiparty] ";
     m_history_text.insert( header_context, ostr.str());
     m_history_text.insert( normal_context, e.message);
-      
-  } else if (e.type == MessageEvent::URL) {
-
+    break;
+    
+  case ICQ2000::MessageEvent::URL:
     m_history_text.insert( header_context, ostr.str());
     m_history_text.insert( normal_context, e.URL);
     m_history_text.insert( normal_context, "\n");
     m_history_text.insert( normal_context, e.message);
-      
-  } else if (e.type == MessageEvent::SMS) {
-
+    break;
+    
+  case ICQ2000::MessageEvent::SMS:
     ostr << "[sms] ";
     m_history_text.insert( header_context, ostr.str());
     m_history_text.insert( normal_context, e.message);
+    break;
       
-  } else if (e.type == MessageEvent::SMS_Receipt) {
+  case ICQ2000::MessageEvent::SMS_Receipt:
     if (e.delivered) {
       ostr << "[sms delivered]";
     } else {
@@ -573,11 +629,13 @@ void MessageBox::display_message(History::Entry &e)
     }
     ostr << endl;
     m_history_text.insert( header_context, ostr.str());
-  } else if (e.type == MessageEvent::EmailEx) {
-
+    break;
+    
+  case ICQ2000::MessageEvent::EmailEx:
     ostr << "[email] ";
     m_history_text.insert( header_context, ostr.str());
     m_history_text.insert( normal_context, e.message);
+    break;
       
   }
 
@@ -600,32 +658,40 @@ bool MessageBox::isBlank(const string& s)
 
 void MessageBox::send_clicked_cb() {
 
-  if (m_message_type == MessageEvent::Normal) {
+  if (m_message_type == ICQ2000::MessageEvent::Normal) {
     if (isBlank(m_message_text.get_chars(0,-1))) {
       PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
     
     set_status("Sending message...");
-    NormalMessageEvent *nv = new NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
+    ICQ2000::NormalMessageEvent *nv = new ICQ2000::NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
+    if (m_send_urgent.get_active()) nv->setUrgent(true);
+    if (m_send_tocontactlist.get_active()) nv->setToContactList(true);
     send_event.emit( nv );
-  } else if (m_message_type == MessageEvent::URL) {
+
+  }
+  else if (m_message_type == ICQ2000::MessageEvent::URL) {
     if (isBlank(m_url_entry.get_text())) {
       PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
 
     set_status("Sending URL...");
-    URLMessageEvent *uv = new URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
+    ICQ2000::URLMessageEvent *uv = new ICQ2000::URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
+    if (m_send_urgent.get_active()) uv->setUrgent(true);
+    if (m_send_tocontactlist.get_active()) uv->setToContactList(true);
     send_event.emit( uv );
-  } else if (m_message_type == MessageEvent::SMS) {
+
+  }
+  else if (m_message_type == ICQ2000::MessageEvent::SMS) {
     if (isBlank(m_sms_text.get_chars(0,-1))) {
       PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
 
     set_status("Sending SMS...");
-    SMSMessageEvent *sv = new SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
+    ICQ2000::SMSMessageEvent *sv = new ICQ2000::SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
     send_event.emit( sv );
   }
 
@@ -773,13 +839,27 @@ gint MessageBox::clear_queue_idle_cb()
 
 void MessageBox::clear_queue()
 {
-  // clear message queue
-  while (m_contact->numberPendingMessages() > 0) {
-    MessageEvent *ev = m_contact->getPendingMessage();
-    m_contact->erasePendingMessage(ev);
-  }
-  icqclient.SignalMessageQueueChanged(m_contact);
-
-  set_contact_title();
+  m_message_queue.clear_queue_for_contact(m_contact);
   m_pending = false;
+}
+
+void MessageBox::queue_added_cb(MessageEvent *ev)
+{
+  if (ev->getServiceType() != MessageEvent::ICQ) return;
+  ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+  if (icq->getICQContact()->getUIN() == m_contact->getUIN())
+    set_contact_title();
+}
+
+void MessageBox::queue_removed_cb(MessageEvent *ev)
+{
+  if (ev->getServiceType() != MessageEvent::ICQ) return;
+  ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+  if (icq->getICQContact()->getUIN() == m_contact->getUIN())
+    set_contact_title();
+}
+
+void MessageBox::status_change_cb(ICQ2000::StatusChangeEvent *ev)
+{
+  set_contact_title();
 }

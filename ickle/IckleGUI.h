@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.33 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.34 2002-03-28 18:29:02 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -53,19 +53,17 @@
 #include "History.h"
 #include "SetAutoResponseDialog.h"
 #include "StatusMenu.h"
-
-using std::string;
-using std::map;
-
-using namespace ICQ2000;
+#include "MessageQueue.h"
 
 class IckleGUI : public Gtk::Window {
  private:
+  MessageQueue& m_message_queue;
+
   std::map<unsigned int, MessageBox*> m_message_boxes;
   std::map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
-  Status m_status;
+  ICQ2000::Status m_status;
   bool m_invisible;
-  string auto_response;
+  std::string auto_response;
 
   bool m_display_times;
 
@@ -84,23 +82,28 @@ class IckleGUI : public Gtk::Window {
 
   // --
 
-  void messagebox_popup(Contact *c, History *h);
+  void messagebox_popup(const ICQ2000::ContactRef& c, History *h);
+
+  void set_ickle_title();
 
  public:
-  IckleGUI();
+  IckleGUI(MessageQueue& mq);
   ~IckleGUI();
 
   ContactListView* getContactListView();
 
-  void status_menu_status_changed_cb(Status st);
+  void status_menu_status_changed_cb(ICQ2000::Status st);
   void status_menu_invisible_changed_cb(bool inv);
-  void status_menu_status_inv_changed_cb(Status st, bool inv);
+  void status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv);
 
-  void popup_messagebox(Contact *c, History *h);
-  void userinfo_popup(Contact *c);
-  void message_box_close_cb(Contact *c);
-  void userinfo_dialog_close_cb(Contact *c);
-  void userinfo_dialog_upload_cb(Contact *c);
+  void popup_messagebox(const ICQ2000::ContactRef& c, History *h);
+  void userinfo_popup(const ICQ2000::ContactRef& c);
+
+  // important - this are not passed by reference, as otherwise ref
+  // counting screws up when used inconjunction with SigC::bind
+  void message_box_close_cb(ICQ2000::ContactRef c);
+  void userinfo_dialog_close_cb(ICQ2000::ContactRef c);
+  void userinfo_dialog_upload_cb(ICQ2000::ContactRef c);
   
   // -- menu callbacks --
   void add_user_cb();
@@ -118,33 +121,37 @@ class IckleGUI : public Gtk::Window {
 
   void setDisplayTimes(bool d);
   string getAutoResponse() const;
-  void setAutoResponse(const string& ar);
+  void setAutoResponse(const std::string& ar);
   void setGeometry(int x, int y);
 
   gint ickle_popup_cb(GdkEventButton*);
 
   // -- library callbacks --
-  void contactlist_cb(ContactListEvent* ev);
-  bool message_cb(MessageEvent* ev);
-  void messageack_cb(MessageEvent* ev);
-  void self_event_cb(SelfEvent *ev);
+  void contactlist_cb(ICQ2000::ContactListEvent* ev);
+  void messageack_cb(ICQ2000::MessageEvent* ev);
+  void self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
+  void self_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev);
+
+  // -- MessageQueue callbacks --
+  void queue_added_cb(MessageEvent *ev);
+  void queue_removed_cb(MessageEvent *ev);
 
   // -- other callbacks --
   void settings_cb(bool away);
-  void userinfo_toggle_cb(bool b, Contact *c);
+  void icons_changed_cb();
+  void userinfo_toggle_cb(bool b, ICQ2000::ContactRef c);
   void exit_cb();
-  void userinfo_fetch_cb(Contact *c);
+  void userinfo_fetch_cb(ICQ2000::ContactRef c);
   void my_userinfo_fetch_cb();
-  void settings_changed_cb(const string& k);
+  void settings_changed_cb(const std::string& k);
 
   void spell_check_setup();
 
   // signals
   SigC::Signal0<void> settings_changed;
-  SigC::Signal1<void,Status> status_changed;
-  SigC::Signal1<void,MessageEvent*> send_event;
+  SigC::Signal1<void,ICQ2000::MessageEvent*> send_event;
   SigC::Signal1<void,unsigned int> add_user;
-  SigC::Signal2<void,string,string> add_mobile_user;
+  SigC::Signal2<void,std::string,std::string> add_mobile_user;
   SigC::Signal1<void,unsigned int> user_popup;
   SigC::Signal0<void> exit;
 

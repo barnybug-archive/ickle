@@ -33,8 +33,6 @@
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
 
-using namespace ICQ2000;
-
 class AwayMessageDialog : public Gtk::Window {
  private:
   Gtk::Window *m_main_window;
@@ -46,7 +44,7 @@ class AwayMessageDialog : public Gtk::Window {
   AwayMessageDialog(Gtk::Window *main_window);
   ~AwayMessageDialog();
   
-  void messageack_cb(MessageEvent *ev);
+  void messageack_cb(ICQ2000::MessageEvent *ev);
   gint button_press_cb(GdkEventButton *ev);
   gint delete_event_impl(GdkEventAny *ev);
 };

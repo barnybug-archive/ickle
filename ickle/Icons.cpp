@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.12 2002-03-01 21:53:03 bugcreator Exp $
+/* $Id: Icons.cpp,v 1.13 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,7 +35,6 @@
 #include "url.xpm"
 #include "sms.xpm"
 #include "file.xpm"
-
 
 using ICQ2000::Status;
 
@@ -125,17 +124,17 @@ ImageLoader* Icons::IconForStatus(Status s, bool inv) {
   return p;
 }
 
-ImageLoader* Icons::IconForEvent(MessageEvent::MessageType t) {
+ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
   ImageLoader *p;
   switch(t) {
-  case MessageEvent::Normal:
+  case ICQMessageEvent::Normal:
     p = Icon_Status_Message.get();
     break;
-  case MessageEvent::URL:
+  case ICQMessageEvent::URL:
     p = Icon_Status_URL.get();
     break;
-  case MessageEvent::SMS:
-  case MessageEvent::SMS_Receipt:
+  case ICQMessageEvent::SMS:
+  case ICQMessageEvent::SMS_Receipt:
   default:
     p = Icon_Status_SMS.get();
     break;

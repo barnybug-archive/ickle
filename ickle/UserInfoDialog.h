@@ -38,10 +38,6 @@
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
 
-using ICQ2000::Contact;
-using ICQ2000::MainHomeInfo;
-using ICQ2000::HomepageInfo;
-
 using SigC::Signal0;
 
 class UserInfoDialog : public Gtk::Dialog {
@@ -59,14 +55,15 @@ class UserInfoDialog : public Gtk::Dialog {
   Gtk::Text about_text;
   Gtk::Notebook notebook;
 
-  Contact *contact;
-  bool changed;
+  ICQ2000::ContactRef m_contact;
+  bool m_changed;
   bool m_self;
 
   bool update_contact();
+  void update_from_userinfo();
 
  public:
-  UserInfoDialog(Contact *c, bool self = false);
+  UserInfoDialog(const ICQ2000::ContactRef& c, bool self = false);
   ~UserInfoDialog();
 
   // -- gui callbacks --
@@ -74,8 +71,8 @@ class UserInfoDialog : public Gtk::Dialog {
   void upload_cb();
 
   // -- library callbacks --
-  void userinfochange_cb();
-  void self_event_cb(ICQ2000::SelfEvent *ev);
+  void status_change_cb(ICQ2000::StatusChangeEvent *ev);
+  void userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev);
 
   void spin_changed_cb(Gtk::SpinButton* spin);
 

@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.15 2002-03-12 19:43:54 barnabygray Exp $
+/* $Id: History.cpp,v 1.16 2002-03-28 18:29:02 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -36,18 +36,24 @@ using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
 using ICQ2000::SMSReceiptEvent;
 using ICQ2000::EmailExEvent;
-using ICQ2000::Contact;
+using ICQ2000::ContactRef;
 
+using std::string;
 using std::endl;
 using std::out_of_range;
 using std::runtime_error;
 using std::ostringstream;
 using std::istringstream;
 using std::cerr;
+using std::ifstream;
+using std::ofstream;
+using std::ostream;
+using std::vector;
+using std::streampos;
 
 /**
-  Note the historyfile should be given relative to the current CONTACT_DIR.
-*/
+ *  Note the historyfile should be given relative to the current CONTACT_DIR.
+ */
 History::History(const string &historyfile) {
   m_filename = CONTACT_DIR + historyfile;
   m_builtindex = false;
@@ -69,11 +75,11 @@ void History::touch() {
   ofstream( m_filename.c_str(), std::ios::out | std::ios::app );
 }
 
-void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
+void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error) {
   Entry he;
   ofstream of;
 
-  Contact *c = ev->getContact();
+  ContactRef c = ev->getContact();
 
   of.open( m_filename.c_str(), std::ios::out | std::ios::app );
   if (!of.is_open())
@@ -96,9 +102,9 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
      << "Direction: " << ( received ? "Received" : "Sent" ) << endl;
 
   
-  if (ev->getType() == MessageEvent::Normal) {
+  if (ev->getType() == ICQ2000::MessageEvent::Normal) {
 
-    NormalMessageEvent *nev = static_cast<NormalMessageEvent*>(ev);
+    ICQ2000::NormalMessageEvent *nev = static_cast<ICQ2000::NormalMessageEvent*>(ev);
     he.message = nev->getMessage();
     he.offline = nev->isOfflineMessage();
     he.multiparty = nev->isMultiParty();
@@ -111,9 +117,9 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     quote_output( of, nev->getMessage() );
     of << endl;
       
-  } else if (ev->getType() == MessageEvent::URL) {
+  } else if (ev->getType() == ICQ2000::MessageEvent::URL) {
 
-    URLMessageEvent *uev = static_cast<URLMessageEvent*>(ev);
+    ICQ2000::URLMessageEvent *uev = static_cast<ICQ2000::URLMessageEvent*>(ev);
     he.message = uev->getMessage();
     he.offline = uev->isOfflineMessage();
     he.URL = uev->getURL();
@@ -127,9 +133,9 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     quote_output( of, uev->getURL() );
     of << endl;
       
-  } else if (ev->getType() == MessageEvent::SMS) {
+  } else if (ev->getType() == ICQ2000::MessageEvent::SMS) {
 
-    SMSMessageEvent *sev = static_cast<SMSMessageEvent*>(ev);
+    ICQ2000::SMSMessageEvent *sev = static_cast<ICQ2000::SMSMessageEvent*>(ev);
     he.message = sev->getMessage();
 
     of << "Type: SMS" << endl;
@@ -140,9 +146,10 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     of << "Message: ";
     quote_output( of, sev->getMessage() );
     of << endl;
-  } else if (ev->getType() == MessageEvent::SMS_Receipt) {
 
-    SMSReceiptEvent *srev = static_cast<SMSReceiptEvent*>(ev);
+  } else if (ev->getType() == ICQ2000::MessageEvent::SMS_Receipt) {
+
+    ICQ2000::SMSReceiptEvent *srev = static_cast<ICQ2000::SMSReceiptEvent*>(ev);
     he.message = srev->getMessage();
 
     of << "Type: SMSReceipt" << endl;
@@ -150,9 +157,9 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     of << "Message: ";
     quote_output( of, srev->getMessage() );
     of << endl;
-  } else if (ev->getType() == MessageEvent::EmailEx) {
+  } else if (ev->getType() == ICQ2000::MessageEvent::EmailEx) {
 
-    EmailExEvent *ee = static_cast<EmailExEvent*>(ev);
+    ICQ2000::EmailExEvent *ee = static_cast<ICQ2000::EmailExEvent*>(ev);
     he.message = ee->getMessage();
 
     of << "Type: EmailExpress" << endl
@@ -245,15 +252,15 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
     if( s.find( "Type: " ) != string::npos ) {
       s2 = s.substr( string( "Type: ").size() );
       if( s2 == "Normal" )
-        e.type = MessageEvent::Normal;
+        e.type = ICQ2000::MessageEvent::Normal;
       else if( s2 == "SMS" )
-        e.type = MessageEvent::SMS;
+        e.type = ICQ2000::MessageEvent::SMS;
       else if( s2 == "SMSReceipt" )
-        e.type = MessageEvent::SMS_Receipt;
+        e.type = ICQ2000::MessageEvent::SMS_Receipt;
       else if( s2 == "EmailExpress" )
-        e.type = MessageEvent::EmailEx;
+        e.type = ICQ2000::MessageEvent::EmailEx;
       else if( s2 == "URL" )
-        e.type = MessageEvent::URL;
+        e.type = ICQ2000::MessageEvent::URL;
     }
     else if( s.find( "Time: " ) != string::npos ) {
       istringstream iss( s.substr( string( "Time: ").size() ) );

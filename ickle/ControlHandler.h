@@ -57,8 +57,8 @@ private:
   void endTimeout (int, bool, const string &);
   int timeout_cb (int);
 
-  void self_event_cb (SelfEvent *, int, Status);
-  void messageack_cb (MessageEvent *, int, MessageEvent *);
+  void self_status_change_cb (ICQ2000::StatusChangeEvent *, int, ICQ2000::Status);
+  void messageack_cb         (ICQ2000::MessageEvent *, int, ICQ2000::MessageEvent *);
 
   IckleClient & ickle;
   ControlSocketServer m_socket;

@@ -25,15 +25,16 @@
 #include <gtk--/label.h>
 #include <gtk--/main.h>
 
-PromptDialog::PromptDialog(PromptType t, const string& msg)
+PromptDialog::PromptDialog(PromptType t, const string& msg, bool modal)
   : Gtk::Dialog(),
-    type(t),
-    finish_bool(false)
+    m_type(t),
+    m_finish_bool(false),
+    m_modal(modal)
 {
-  set_modal(true);
+  set_modal(modal);
   set_position(GTK_WIN_POS_MOUSE);
 
-  destroy.connect( Gtk::Main::quit.slot() );
+  if (modal) destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
   Gtk::Button *button;
@@ -82,22 +83,22 @@ PromptDialog::PromptDialog(PromptType t, const string& msg)
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *label, true, true );
 
+  set_default_size(300,100);
   set_border_width(10);
-  //  set_usize(300,150);
   show_all();
 }
 
 bool PromptDialog::run() {
   Gtk::Main::run();
-  return finish_bool;
+  return m_finish_bool;
 }
 
 void PromptDialog::true_cb() {
-  finish_bool = true;
+  m_finish_bool = true;
   destroy.emit();
 }
 
 void PromptDialog::false_cb() {
-  finish_bool = false;
+  m_finish_bool = false;
   destroy.emit();
 }

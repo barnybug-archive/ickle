@@ -39,7 +39,10 @@
 #include <signal.h>
 #include <string.h>
 
-EventSubstituter::EventSubstituter(Contact *c) {
+using ICQ2000::ContactRef;
+using ICQ2000::Status;
+
+EventSubstituter::EventSubstituter(ContactRef c) {
   co = c;
   line_start = true;
   got_special = 0;
@@ -155,9 +158,9 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
         ostringstream::operator<<(timebuf);
 	break;
       // case 'o' would be last time they were online
-      case 'm':
-        ostringstream::operator<<(co->numberPendingMessages());
-	break;
+	//      case 'm':
+	//        ostringstream::operator<<(co->numberPendingMessages());
+	//	break;
       case '%':
         ostringstream::operator<<('%');
 	break;

@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.10 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: Icons.h,v 1.11 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,12 +30,13 @@
 #include "main.h"
 
 #include <libicq2000/constants.h>
-#include <libicq2000/events.h>
+
+#include "MessageEvent.h"
+
+using std::string;
 
 using Gtk::ImageLoader;
 using Gtk::ImageLoaderData;
-using ICQ2000::MessageEvent;
-using std::string;
 
 class Icons {
  private:
@@ -57,7 +58,7 @@ class Icons {
   void setDefaultIcons();
   bool setIcons(const string& dir);
   ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
-  ImageLoader* IconForEvent(MessageEvent::MessageType t);
+  ImageLoader* IconForEvent(ICQMessageEvent::ICQMessageType t);
 
   void settings_changed_cb(const string& key);
 

@@ -135,7 +135,7 @@ int ControlHandler::timeout_cb (int sd)
 
 void ControlHandler::cmdSetStatus (ControlSocket & s)
 {
-  Status status;
+  ICQ2000::Status status;
   int timeout;
   s >> status >> timeout;
 
@@ -147,7 +147,8 @@ void ControlHandler::cmdSetStatus (ControlSocket & s)
   if (timeout != 0) {
     addTimeout ( s.sd(),
                  Gtk::Main::timeout.connect (bind (slot (this, &ControlHandler::timeout_cb), s.sd()), timeout),
-                 icqclient.self_event.connect (bind (slot (this, &ControlHandler::self_event_cb), s.sd(), status)) );
+                 icqclient.self_contact_status_change_signal.connect (bind (slot (this, &ControlHandler::self_status_change_cb),
+									    s.sd(), status)) );
   }
 
   icqclient.setStatus (status);
@@ -158,13 +159,10 @@ void ControlHandler::cmdGetStatus (ControlSocket & s)
   s << icqclient.getStatus ();
 }
 
-void ControlHandler::self_event_cb (SelfEvent * ev, int sd, Status status)
+void ControlHandler::self_status_change_cb (ICQ2000::StatusChangeEvent *ev, int sd, ICQ2000::Status status)
 {
-  if (ev->getType() == SelfEvent::MyStatusChange) {
-    if ((static_cast<MyStatusChangeEvent*>(ev))->getStatus() == status) {
-      endTimeout (sd, true, "");
-    }
-  }
+  if (ev->getStatus() == status)
+    endTimeout (sd, true, "");
 }
 
 // --- invisible ---
@@ -202,9 +200,9 @@ void ControlHandler::cmdAddContact (ControlSocket & s)
   unsigned int uin;
   s >> uin;
 
-  Contact * c = icqclient.getContact (uin);
-  if (c == NULL) {
-    Contact nc (uin);
+  ICQ2000::ContactRef c = icqclient.getContact (uin);
+  if (c.get() == NULL) {
+    ICQ2000::ContactRef nc( new ICQ2000::Contact(uin) );
     icqclient.addContact(nc);
   }
 }
@@ -222,14 +220,14 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
     endTimeout (s.sd(), false, "not connected");
     return;
   }
-  if (!icqclient.getContact (uin)) {
+  if (icqclient.getContact(uin).get() != NULL) {
     ostringstream ostr;
-    ostr << "UIN " << uin << " is not on your contact list";
+    ostr << "UIN " << uin << " is not on your contact list"; // this could be changed now
     endTimeout (s.sd(), false, ostr.str());
     return;
   }
 
-  MessageEvent * ev = new NormalMessageEvent (icqclient.getContact (uin), msg);
+  ICQ2000::MessageEvent *ev = new ICQ2000::NormalMessageEvent (icqclient.getContact(uin), msg);
 
   if (timeout != 0) {
     addTimeout ( s.sd(),
@@ -240,7 +238,7 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
   icqclient.SendEvent (ev);
 }
 
-void ControlHandler::messageack_cb (MessageEvent * ack, int sd, MessageEvent * ev)
+void ControlHandler::messageack_cb (ICQ2000::MessageEvent *ack, int sd, ICQ2000::MessageEvent *ev)
 {
   if (ack == ev) {
     endTimeout (sd, true, "");

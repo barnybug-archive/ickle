@@ -32,12 +32,13 @@
 using std::ostringstream;
 using std::vector;
 using SigC::slot;
+
 using namespace ICQ2000;
 
-UserInfoDialog::UserInfoDialog(Contact *c, bool self)
+UserInfoDialog::UserInfoDialog(const ContactRef& c, bool self)
   : Gtk::Dialog(), m_self(self),
     okay("OK"), cancel("Cancel"), fetchb("Fetch"), uploadb("Upload"),
-    contact(c), changed(false), birth_year_spin((gfloat)1, 0), 
+    m_contact(c), m_changed(false), birth_year_spin((gfloat)1, 0), 
     birth_month_spin((gfloat)1, 0), birth_day_spin((gfloat)1, 0)
 {
   ostringstream ostr;
@@ -275,10 +276,11 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
-  userinfochange_cb(); // fill in values
-
-  icqclient.self_event.connect( slot(this, &UserInfoDialog::self_event_cb) );
-
+  m_contact->status_change_signal.connect( slot(this, &UserInfoDialog::status_change_cb) );
+  m_contact->userinfo_change_signal.connect( slot(this, &UserInfoDialog::userinfo_change_cb) );
+  
+  update_from_userinfo(); // fill in values
+  
   set_border_width(10);
   show_all();
 }
@@ -286,7 +288,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 UserInfoDialog::~UserInfoDialog() { }
 
 bool UserInfoDialog::isChanged() const {
-  return changed;
+  return m_changed;
 }
 
 bool UserInfoDialog::update_contact() 
@@ -295,7 +297,7 @@ bool UserInfoDialog::update_contact()
 
   if (m_self) {
     // self only editable fields
-    MainHomeInfo& mhi = contact->getMainHomeInfo();
+    Contact::MainHomeInfo& mhi = m_contact->getMainHomeInfo();
     
     if (mhi.street != addr_entry.get_text()) {
       ret = true;
@@ -326,7 +328,7 @@ bool UserInfoDialog::update_contact()
       mhi.timezone = timezone;
     }
 
-    HomepageInfo &hpi = contact->getHomepageInfo();
+    Contact::HomepageInfo &hpi = m_contact->getHomepageInfo();
 
     /* Get age from spin */
     unsigned char age = (unsigned char)age_spin.get_value_as_int();
@@ -376,34 +378,34 @@ bool UserInfoDialog::update_contact()
       hpi.lang3 = lang;
     }
 
-    if ( contact->getAboutInfo() != about_text.get_chars(0,-1) ) {
-      contact->setAboutInfo( about_text.get_chars(0,-1) );
+    if ( m_contact->getAboutInfo() != about_text.get_chars(0,-1) ) {
+      m_contact->setAboutInfo( about_text.get_chars(0,-1) );
       ret = true;
     }
 
   } // self info
 
-  if (contact->getAlias() != alias_entry.get_text()) {
+  if (m_contact->getAlias() != alias_entry.get_text()) {
     ret = true;
-    contact->setAlias(alias_entry.get_text());
+    m_contact->setAlias(alias_entry.get_text());
   }
-  if (contact->getMobileNo() != cellular_entry.get_text()) {
+  if (m_contact->getMobileNo() != cellular_entry.get_text()) {
     ret = true;
-    contact->setMobileNo(cellular_entry.get_text());
+    m_contact->setMobileNo(cellular_entry.get_text());
   }
-  if (contact->getFirstName() != firstname_entry.get_text()) {
+  if (m_contact->getFirstName() != firstname_entry.get_text()) {
     ret = true;
-    contact->setFirstName(firstname_entry.get_text());
+    m_contact->setFirstName(firstname_entry.get_text());
   }
-  if (contact->getLastName() != lastname_entry.get_text()) {
+  if (m_contact->getLastName() != lastname_entry.get_text()) {
     ret = true;
-    contact->setLastName(lastname_entry.get_text());
+    m_contact->setLastName(lastname_entry.get_text());
   }
-  if (contact->getEmail() != email_entry1.get_text()) {
+  if (m_contact->getEmail() != email_entry1.get_text()) {
     ret = true;
-    contact->setEmail(email_entry1.get_text());
+    m_contact->setEmail(email_entry1.get_text());
   }
-  MainHomeInfo& mhi = contact->getMainHomeInfo();
+  Contact::MainHomeInfo& mhi = m_contact->getMainHomeInfo();
   if (mhi.phone != phone_entry.get_text()) {
     ret = true;
     mhi.phone = phone_entry.get_text();
@@ -422,13 +424,13 @@ bool UserInfoDialog::update_contact()
 
 void UserInfoDialog::okay_cb() {
   // check if anything was touched
-  changed = update_contact() || changed;
+  m_changed = update_contact() || m_changed;
   destroy.emit();
 }
 
 void UserInfoDialog::upload_cb()
 {
-  changed = update_contact() || changed;
+  m_changed = update_contact() || m_changed;
   upload.emit();
 }
 
@@ -436,44 +438,49 @@ void UserInfoDialog::raise() const {
   get_window().show();
 }
 
-void UserInfoDialog::userinfochange_cb() {
-  if (contact->isICQContact()) uin_entry.set_text( ICQ2000::Contact::UINtoString(contact->getUIN()) );
+void UserInfoDialog::userinfo_change_cb(UserInfoChangeEvent *ev) {
+  update_from_userinfo();
+}
 
-  status_entry.set_text( contact->getStatusStr() );
-  alias_entry.set_text( contact->getAlias() );
-  firstname_entry.set_text( contact->getFirstName() );
-  lastname_entry.set_text( contact->getLastName() );
-  email_entry1.set_text( contact->getEmail() );
-  city_entry.set_text( contact->getMainHomeInfo().city );
-  state_entry.set_text( contact->getMainHomeInfo().state );
-  phone_entry.set_text( contact->getMainHomeInfo().phone );
-  fax_entry.set_text( contact->getMainHomeInfo().fax );
-  addr_entry.set_text( contact->getMainHomeInfo().street );
-  cellular_entry.set_text( contact->getMobileNo() );
-  zip_entry.set_text( contact->getMainHomeInfo().zip );
+void UserInfoDialog::update_from_userinfo() 
+{
+  if (m_contact->isICQContact()) uin_entry.set_text( m_contact->getStringUIN() );
+
+  status_entry.set_text( m_contact->getStatusStr() );
+  alias_entry.set_text( m_contact->getAlias() );
+  firstname_entry.set_text( m_contact->getFirstName() );
+  lastname_entry.set_text( m_contact->getLastName() );
+  email_entry1.set_text( m_contact->getEmail() );
+  city_entry.set_text( m_contact->getMainHomeInfo().city );
+  state_entry.set_text( m_contact->getMainHomeInfo().state );
+  phone_entry.set_text( m_contact->getMainHomeInfo().phone );
+  fax_entry.set_text( m_contact->getMainHomeInfo().fax );
+  addr_entry.set_text( m_contact->getMainHomeInfo().street );
+  cellular_entry.set_text( m_contact->getMobileNo() );
+  zip_entry.set_text( m_contact->getMainHomeInfo().zip );
 
   /* Set language */
   if (m_self) {
-    lang_combo1.get_entry()->set_text( contact->getHomepageInfo().getLanguage(1) );
-    lang_combo2.get_entry()->set_text( contact->getHomepageInfo().getLanguage(2) );
-    lang_combo3.get_entry()->set_text( contact->getHomepageInfo().getLanguage(3) );
+    lang_combo1.get_entry()->set_text( m_contact->getHomepageInfo().getLanguage(1) );
+    lang_combo2.get_entry()->set_text( m_contact->getHomepageInfo().getLanguage(2) );
+    lang_combo3.get_entry()->set_text( m_contact->getHomepageInfo().getLanguage(3) );
   } else {
-    lang_entry1.set_text( contact->getHomepageInfo().getLanguage(1) );
-    lang_entry2.set_text( contact->getHomepageInfo().getLanguage(2) );
-    lang_entry3.set_text( contact->getHomepageInfo().getLanguage(3) );
+    lang_entry1.set_text( m_contact->getHomepageInfo().getLanguage(1) );
+    lang_entry2.set_text( m_contact->getHomepageInfo().getLanguage(2) );
+    lang_entry3.set_text( m_contact->getHomepageInfo().getLanguage(3) );
   }
   
   ostringstream ostr;
-  if (contact->getLanIP() == 0 && contact->getExtIP() == 0) {
+  if (m_contact->getLanIP() == 0 && m_contact->getExtIP() == 0) {
     ostr << "Unknown";
   } else {
-    ostr << IPtoString( contact->getLanIP() )
+    ostr << IPtoString( m_contact->getLanIP() )
 	 << ":"
-	 << contact->getLanPort()
+	 << m_contact->getLanPort()
 	 << " / "
-	 << IPtoString( contact->getExtIP() )
+	 << IPtoString( m_contact->getExtIP() )
 	 << ":"
-	 << contact->getExtPort();
+	 << m_contact->getExtPort();
   }
   
   ip_entry.set_text( ostr.str() );
@@ -482,12 +489,12 @@ void UserInfoDialog::userinfochange_cb() {
      be able to change country. If we're displaying info for another user we do not want to 
      edit country */
   if (m_self) {
-    country_combo.get_entry()->set_text( contact->getMainHomeInfo().getCountry() );
+    country_combo.get_entry()->set_text( m_contact->getMainHomeInfo().getCountry() );
   } else {
-    country_entry.set_text(contact->getMainHomeInfo().getCountry());
+    country_entry.set_text(m_contact->getMainHomeInfo().getCountry());
   }
 
-  signed char timezone = contact->getMainHomeInfo().timezone;
+  signed char timezone = m_contact->getMainHomeInfo().timezone;
   if (m_self) {
     timezone_combo.get_entry()->set_text( ICQ2000::UserInfoHelpers::getTimezoneIDtoString(timezone) );
   } else {
@@ -496,24 +503,24 @@ void UserInfoDialog::userinfochange_cb() {
   
   // About box
   about_text.delete_text(0,-1);
-  about_text.insert( contact->getAboutInfo() );
+  about_text.insert( m_contact->getAboutInfo() );
 
   // More info dialog
   if (m_self) {
-    age_spin.set_value( contact->getHomepageInfo().age );
+    age_spin.set_value( m_contact->getHomepageInfo().age );
   } else {
-    if (contact->getHomepageInfo().age == 0) {
+    if (m_contact->getHomepageInfo().age == 0) {
       age_entry.set_text( "Unspecified" );
     } else {
       ostringstream ostr;
-      ostr << (unsigned int)contact->getHomepageInfo().age;
+      ostr << (unsigned int)m_contact->getHomepageInfo().age;
       age_entry.set_text( ostr.str() );
     }
   }
 
   if (m_self) {
     vector<string> gender;
-    switch( contact->getHomepageInfo().sex ) {
+    switch( m_contact->getHomepageInfo().sex ) {
     case SEX_FEMALE:
       gender.push_back("Female");
       gender.push_back("Male");
@@ -531,7 +538,7 @@ void UserInfoDialog::userinfochange_cb() {
     }
     sex_combo.set_popdown_strings( gender );
   } else {
-    switch( contact->getHomepageInfo().sex ) {
+    switch( m_contact->getHomepageInfo().sex ) {
     case SEX_FEMALE:
       sex_entry.set_text("Female");
       break;
@@ -542,25 +549,21 @@ void UserInfoDialog::userinfochange_cb() {
       sex_entry.set_text("Unspecified");
     }
   }
-  homepage_entry.set_text( contact->getHomepageInfo().homepage );
+  homepage_entry.set_text( m_contact->getHomepageInfo().homepage );
 
   if (m_self) {
-    birth_year_spin.set_value( (gfloat)contact->getHomepageInfo().birth_year );
-    birth_month_spin.set_value( (gfloat)contact->getHomepageInfo().birth_month );
-    birth_day_spin.set_value( (gfloat)contact->getHomepageInfo().birth_day );
+    birth_year_spin.set_value( (gfloat)m_contact->getHomepageInfo().birth_year );
+    birth_month_spin.set_value( (gfloat)m_contact->getHomepageInfo().birth_month );
+    birth_day_spin.set_value( (gfloat)m_contact->getHomepageInfo().birth_day );
   } else {
-    birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
+    birthday_entry.set_text( m_contact->getHomepageInfo().getBirthDate() );
   }
 }
 
-void UserInfoDialog::self_event_cb(SelfEvent *ev)
+void UserInfoDialog::status_change_cb(StatusChangeEvent *ev)
 {
-  if (ev->getType() == SelfEvent::MyStatusChange) {
-    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
-
-    fetchb.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
-    uploadb.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
-  }
+  fetchb.set_sensitive( ev->getStatus() != ICQ2000::STATUS_OFFLINE );
+  uploadb.set_sensitive( ev->getStatus() != ICQ2000::STATUS_OFFLINE );
 }
 
 void UserInfoDialog::spin_changed_cb(Gtk::SpinButton *spin)

@@ -42,8 +42,8 @@
 #include "Settings.h"
 #include "History.h"
 #include "IdleTimer.h"
-
-using std::map;
+#include "MessageQueue.h"
+#include "EventSystem.h"
 
 #ifdef GNOME_ICKLE
 # include "IckleApplet.h"
@@ -57,17 +57,18 @@ using SigC::slot;
 
 using Gtk::Connection;
 
-using namespace ICQ2000;
-
 class IckleClient : public SigC::Object {
 #ifdef CONTROL_SOCKET
   friend class ControlHandler;
 #endif
  private:
+  MessageQueue m_message_queue;
+  EventSystem m_event_system;
+
   IckleGUI gui;
-  Status status;
+  ICQ2000::Status status;
   unsigned int m_retries;
-  string auto_response;
+  std::string auto_response;
 
 #ifdef GNOME_ICKLE
   IckleApplet applet;
@@ -80,7 +81,7 @@ class IckleClient : public SigC::Object {
   IdleTimer m_idletimer;
   
   // setting and history files for each contact, indexed through UINs
-  std::map<unsigned int, string> m_settingsmap; 
+  std::map<unsigned int, std::string> m_settingsmap; 
   std::map<unsigned int, History *> m_histmap;
 
   std::map<int, Connection> m_sockets;
@@ -97,15 +98,16 @@ class IckleClient : public SigC::Object {
   void loadSelfContact();
   void saveSelfContact();
 
-  void loadContact(const string& s, bool self);
-  void saveContact(Contact *c, const string& s);
+  void loadContact(const std::string& s, bool self);
+  void saveContact(ICQ2000::ContactRef c, const std::string& s);
 
-  void event_system(const string& s, Contact * c, time_t t);
-  gint idle_connect_cb(Status s);
+  void event_system(const std::string& s, ICQ2000::ContactRef c, time_t t);
+  gint idle_connect_cb(ICQ2000::Status s);
+  MessageEvent* convert_libicq2000_event(ICQ2000::MessageEvent *ev);
 
-  void SignalLog(LogEvent::LogType type, const string& msg);
+  void SignalLog(ICQ2000::LogEvent::LogType type, const std::string& msg);
 
-  void logger_file_cb(const string& msg);
+  void logger_file_cb(const std::string& msg);
 
   string get_unique_historyname() throw (runtime_error);
   
@@ -119,23 +121,26 @@ class IckleClient : public SigC::Object {
   void quit();
 
   // -- Callbacks for libICQ2000 --
-  void connected_cb(ConnectedEvent *c);
-  void disconnected_cb(DisconnectedEvent *c);
-  void logger_cb(LogEvent *c);
-  void contactlist_cb(ContactListEvent *ev);
-  void self_event_cb(SelfEvent *ev);
-  bool message_cb(MessageEvent* ev);
-  void messageack_cb(MessageEvent* ev);
-  void socket_cb(SocketEvent* ev);
-  void want_auto_resp_cb(AwayMessageEvent *ev);
+  void connected_cb(ICQ2000::ConnectedEvent *c);
+  void disconnected_cb(ICQ2000::DisconnectedEvent *c);
+  void logger_cb(ICQ2000::LogEvent *c);
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
+  void message_cb(ICQ2000::MessageEvent* ev);
+  void messageack_cb(ICQ2000::MessageEvent* ev);
+  void status_change_cb(ICQ2000::StatusChangeEvent* ev);
+  void socket_cb(ICQ2000::SocketEvent* ev);
+  void want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev);
+
+  // -- Callbacks for message queue --
+  void queue_added_cb(MessageEvent *ev);
 
   // -- Callbacks for GUI --
   void user_popup_cb(unsigned int uin);
   void userinfo_cb(unsigned int uin);
-  void send_event_cb(MessageEvent *ev);
+  void send_event_cb(ICQ2000::MessageEvent *ev);
   void add_user_cb(unsigned int uin);
-  void add_mobile_user_cb(string,string);
-  void fetch_cb(Contact *c);
+  void add_mobile_user_cb(std::string, std::string);
+  void fetch_cb(ICQ2000::ContactRef c);
   void exit_cb();
   gint close_cb(GdkEventAny*);
   void settings_changed_cb();

@@ -92,11 +92,11 @@ gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
   return true;
 }
 
-void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
-  if (ev->getType() != MessageEvent::AwayMessage) return;
+void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev) {
+  if (ev->getType() != ICQ2000::MessageEvent::AwayMessage) return;
   if (!ev->isFinished()) return;
 
-  AwayMessageEvent *aev = static_cast<AwayMessageEvent*>(ev);
+  ICQ2000::AwayMessageEvent *aev = static_cast<ICQ2000::AwayMessageEvent*>(ev);
 
   if (!is_visible()) {
     if (g_settings.getValueBool("away_autoposition")) {
@@ -109,7 +109,7 @@ void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
     show();
   }
 
-  Contact *c = ev->getContact();
+  ICQ2000::ContactRef c = ev->getContact();
 
   if (++m_count == 20) {
     m_awaytext.delete_text(0,m_pos);
@@ -141,7 +141,7 @@ void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
   m_awaytext.freeze();
   m_awaytext.insert( header_context, ostr.str());
   if (ev->isDelivered()) {
-    m_awaytext.insert( normal_context, aev->getMessage());
+    m_awaytext.insert( normal_context, aev->getAwayMessage());
   } else {
     m_awaytext.insert( normal_context, "Couldn't fetch away message");
   }

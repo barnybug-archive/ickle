@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.78 2002-03-12 21:39:28 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.79 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -48,6 +48,7 @@
 
 #include <time.h>
 
+using std::string;
 using std::ostringstream;
 using std::istringstream;
 using std::ofstream;
@@ -56,17 +57,20 @@ using std::endl;
 using std::map;
 using std::runtime_error;
 
+using ICQ2000::ContactRef;
+
 IckleClient::IckleClient(int argc, char* argv[])
-  : gui(),
+  : m_message_queue(),
+    gui( m_message_queue ),
 #ifdef CONTROL_SOCKET
     ctrl(*this),
 #endif
-    status(STATUS_OFFLINE)
+    status(ICQ2000::STATUS_OFFLINE)
 {
   // process command line parameters
   processCommandLine(argc,argv);
 
-  // make sure ickle is't already running with the current configuration directory
+  // make sure ickle isn't already running with the current configuration directory
   check_pid_file();
 
 #ifdef GNOME_ICKLE
@@ -93,11 +97,15 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.disconnected.connect(slot(this,&IckleClient::disconnected_cb));
   icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
-  icqclient.self_event.connect(slot(this,&IckleClient::self_event_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
+  icqclient.contact_status_change_signal.connect(slot(this,&IckleClient::status_change_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
   icqclient.want_auto_resp.connect(slot(this,&IckleClient::want_auto_resp_cb));
+
+  // message queue callbacks
+  m_message_queue.added.connect(slot(this,&IckleClient::queue_added_cb));
+  m_message_queue.added.connect(slot(&m_event_system, &EventSystem::queue_added_cb));
 
   // set up GUI callbacks
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
@@ -124,11 +132,11 @@ IckleClient::IckleClient(int argc, char* argv[])
 #endif
   gui.show_all();
 
-  Status st = Status(g_settings.getValueUnsignedInt("autoconnect"));
+  ICQ2000::Status st = ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect"));
   // give gtk some time to breathe before we do an auto connect - dns
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
-  if (st != STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st ) );
+  if (st != ICQ2000::STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st ) );
 
   if( g_settings.getValueUnsignedInt("uin") == 0 ) {
     WizardDialog wiz;
@@ -156,7 +164,7 @@ void IckleClient::loadContactList() {
     try {
       loadContact( *dirit, false );
     } catch(runtime_error& e) {
-      SignalLog(LogEvent::WARN, e.what());
+      SignalLog(ICQ2000::LogEvent::WARN, e.what());
     }
     ++dirit;
   }
@@ -211,8 +219,8 @@ void IckleClient::usageInstructions(const char* progname) {
 }
 
 
-void IckleClient::SignalLog(LogEvent::LogType type, const string& msg) {
-  LogEvent ev(type,msg);
+void IckleClient::SignalLog(ICQ2000::LogEvent::LogType type, const string& msg) {
+  ICQ2000::LogEvent ev(type,msg);
   logger_cb(&ev);
 }
   
@@ -224,7 +232,7 @@ void IckleClient::loadSettings() {
     ostringstream ostr;
     ostr << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
 	 << "This is probably the first time you've run ickle.";
-    SignalLog(LogEvent::WARN, ostr.str());
+    SignalLog(ICQ2000::LogEvent::WARN, ostr.str());
   }
 
   /*
@@ -251,7 +259,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedInt("geometry_y", 50, 0);
 
   /* Default connection/network settings */
-  g_settings.defaultValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE);
+  g_settings.defaultValueUnsignedInt("autoconnect", ICQ2000::STATUS_OFFLINE, ICQ2000::STATUS_ONLINE, ICQ2000::STATUS_OFFLINE);
   g_settings.defaultValueString("network_login_host", "login.icq.com");
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
   g_settings.defaultValueBool("network_override_port", false);
@@ -366,7 +374,7 @@ void IckleClient::saveSettings() {
   } catch(runtime_error& e) {
     ostringstream ostr;
     ostr << "Couldn't save " << BASE_DIR << "ickle.conf";
-    SignalLog(LogEvent::ERROR, ostr.str());
+    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
   }
 
   umask(old_umask);
@@ -375,21 +383,16 @@ void IckleClient::saveSettings() {
   if ( chmod( ickle_conf.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
     ostringstream ostr;
     ostr << "The permissions on " << ickle_conf << " couldn't be set to 0600. Your ICQ password is vulnerable!";
-    SignalLog(LogEvent::ERROR, ostr.str());
+    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
   }
+
+  // save self-contact
+  saveSelfContact();
 
   // save contact-specific settings
   for( map<unsigned int, string>::iterator itr = m_settingsmap.begin(); itr != m_settingsmap.end(); ++itr ) {
-    if( itr->first != icqclient.getUIN() ) {
-      Settings st;
-      try {
-	st.load( itr->second );
-	st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
-	st.save( itr->second );
-      } catch(runtime_error& e) {
-	SignalLog(LogEvent::ERROR, e.what());
-      }
-    }
+    ContactRef c = icqclient.getContact( itr->first );
+    if (c.get() != NULL) saveContact( c, itr->second );
   }
 }
 
@@ -399,7 +402,7 @@ void IckleClient::exit_cb() {
    * still exists, in IckleClient::quit is too late
    */
   saveSettings();
-  icqclient.setStatus(STATUS_OFFLINE);
+  icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
 }
 
 gint IckleClient::close_cb(GdkEventAny*) {
@@ -420,7 +423,7 @@ void IckleClient::quit() {
 #endif
 }
 
-void IckleClient::connected_cb(ConnectedEvent *c) {
+void IckleClient::connected_cb(ICQ2000::ConnectedEvent *c) {
   /* the library needs to be polled regularly
    * to ensure timeouts are respected and the server is pinged every minute
    * A 5 second interval is sensible for this
@@ -429,42 +432,41 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 
   if( !g_settings.getValueBool("initial_userinfo_done") ) {
-    Contact *self = icqclient.getSelfContact();
     gui.my_user_info_cb();
     g_settings.setValue("initial_userinfo_done", true );
   }
 }
 
-void IckleClient::disconnected_cb(DisconnectedEvent *c) {
-  if (c->getReason() == DisconnectedEvent::REQUESTED) {
-    SignalLog(LogEvent::INFO, "Disconnected as requested");
+void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
+  if (c->getReason() == ICQ2000::DisconnectedEvent::REQUESTED) {
+    SignalLog(ICQ2000::LogEvent::INFO, "Disconnected as requested");
   } else {
     ostringstream ostr;
     ostr << "Problem connecting: ";
     switch(c->getReason()) {
-    case DisconnectedEvent::FAILED_LOWLEVEL:
+    case ICQ2000::DisconnectedEvent::FAILED_LOWLEVEL:
       ostr << "Socket problems";
       break;
-    case DisconnectedEvent::FAILED_BADUSERNAME:
+    case ICQ2000::DisconnectedEvent::FAILED_BADUSERNAME:
       ostr << "Bad Username";
       break;
-    case DisconnectedEvent::FAILED_TURBOING:
+    case ICQ2000::DisconnectedEvent::FAILED_TURBOING:
       ostr << "Turboing";
       break;
-    case DisconnectedEvent::FAILED_BADPASSWORD:
+    case ICQ2000::DisconnectedEvent::FAILED_BADPASSWORD:
       ostr << "Bad Password";
       break;
-    case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
+    case ICQ2000::DisconnectedEvent::FAILED_MISMATCH_PASSWD:
       ostr << "Username and Password did not match";
       break;
-    case DisconnectedEvent::FAILED_UNKNOWN:
+    case ICQ2000::DisconnectedEvent::FAILED_UNKNOWN:
       ostr << "Unknown";
       break;
-    case DisconnectedEvent::FAILED_DUALLOGIN:
+    case ICQ2000::DisconnectedEvent::FAILED_DUALLOGIN:
       ostr << "Dual login, disconnected";
       break;
     }
-    SignalLog(LogEvent::ERROR, ostr.str() );
+    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str() );
   }
 
   // disconnect PingServer callback
@@ -472,17 +474,17 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   
   // do another switch here since we want to return early for some of these reasons
     switch(c->getReason()) {
-    case DisconnectedEvent::REQUESTED:
+    case ICQ2000::DisconnectedEvent::REQUESTED:
       return;
-    case DisconnectedEvent::FAILED_BADUSERNAME:
-    case DisconnectedEvent::FAILED_BADPASSWORD:
-    case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
+    case ICQ2000::DisconnectedEvent::FAILED_BADUSERNAME:
+    case ICQ2000::DisconnectedEvent::FAILED_BADPASSWORD:
+    case ICQ2000::DisconnectedEvent::FAILED_MISMATCH_PASSWD:
       gui.invalid_login_prompt();
       return;
-    case DisconnectedEvent::FAILED_TURBOING:
+    case ICQ2000::DisconnectedEvent::FAILED_TURBOING:
       gui.turboing_prompt();
       return;
-    case DisconnectedEvent::FAILED_DUALLOGIN:
+    case ICQ2000::DisconnectedEvent::FAILED_DUALLOGIN:
       gui.duallogin_prompt();
       return;
     }
@@ -494,14 +496,14 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   else {
     m_retries = g_settings.getValueUnsignedChar("reconnect_retries"); // reset m_retries
 
-    if( c->getReason() == DisconnectedEvent::FAILED_LOWLEVEL )
+    if( c->getReason() == ICQ2000::DisconnectedEvent::FAILED_LOWLEVEL )
       gui.disconnect_lowlevel_prompt(m_retries);
-    else if( c->getReason() == DisconnectedEvent::FAILED_UNKNOWN )
+    else if( c->getReason() == ICQ2000::DisconnectedEvent::FAILED_UNKNOWN )
       gui.disconnect_unknown_prompt(m_retries);
   }
 }
 
-gint IckleClient::idle_connect_cb(Status s) {
+gint IckleClient::idle_connect_cb(ICQ2000::Status s) {
   icqclient.setStatus( s );
   return 0;
 }
@@ -524,7 +526,7 @@ void IckleClient::logger_file_cb(const string& msg) {
   }
 }
 
-void IckleClient::logger_cb(LogEvent *c) {
+void IckleClient::logger_cb(ICQ2000::LogEvent *c) {
 
   bool log_to_console = g_settings.getValueBool("log_to_console");
   bool log_to_file = g_settings.getValueBool("log_to_file");
@@ -542,19 +544,19 @@ void IckleClient::logger_cb(LogEvent *c) {
   }
 
   switch(c->getType()) {
-  case LogEvent::INFO:
+  case ICQ2000::LogEvent::INFO:
     if (!g_settings.getValueBool("log_info")) return;
     break;
-  case LogEvent::ERROR:
+  case ICQ2000::LogEvent::ERROR:
     if (!g_settings.getValueBool("log_error")) return;
     break;
-  case LogEvent::WARN:
+  case ICQ2000::LogEvent::WARN:
     if (!g_settings.getValueBool("log_warn")) return;
     break;
-  case LogEvent::PACKET:
+  case ICQ2000::LogEvent::PACKET:
     if (!g_settings.getValueBool("log_packet")) return;
     break;
-  case LogEvent::DIRECTPACKET:
+  case ICQ2000::LogEvent::DIRECTPACKET:
     if (!g_settings.getValueBool("log_directpacket")) return;
     break;
   }
@@ -568,19 +570,19 @@ void IckleClient::logger_cb(LogEvent *c) {
   if (log_to_console) {
     cout << time_str;
     switch(c->getType()) {
-    case LogEvent::INFO:
+    case ICQ2000::LogEvent::INFO:
       cout << "[34m (i)  ";
       break;
-    case LogEvent::ERROR:
+    case ICQ2000::LogEvent::ERROR:
       cout << "[31m :-<  ";
       break;
-    case LogEvent::WARN:
+    case ICQ2000::LogEvent::WARN:
       cout << "[36m :-%  ";
       break;
-    case LogEvent::PACKET:
+    case ICQ2000::LogEvent::PACKET:
       cout << "[32m [+]  ";
       break;
-    case LogEvent::DIRECTPACKET:
+    case ICQ2000::LogEvent::DIRECTPACKET:
       cout << "[32m {~}  ";
       break;
     }
@@ -609,7 +611,7 @@ void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
   SignalLog(LogEvent::INFO, ostr.str());
   */
 
-  icqclient.socket_cb(source, (SocketEvent::Mode)cond);
+  icqclient.socket_cb(source, (ICQ2000::SocketEvent::Mode)cond);
 }
 
 int IckleClient::poll_server_cb() {
@@ -618,45 +620,68 @@ int IckleClient::poll_server_cb() {
 }
 
 void IckleClient::user_popup_cb(unsigned int uin) {
-  Contact *c = icqclient.getContact(uin);
-  if (c != NULL) {
+  ContactRef c = icqclient.getContact(uin);
+  if (c.get() != NULL) {
     gui.popup_messagebox(c, m_histmap[c->getUIN()]);
   }
 }
 
 void IckleClient::userinfo_cb(unsigned int uin) {
-  Contact *c = icqclient.getContact(uin);
-  if (c != NULL) {
+  ContactRef c = icqclient.getContact(uin);
+  if (c.get() != NULL) {
     gui.userinfo_popup(c);
   }
 }
 
-void IckleClient::send_event_cb(MessageEvent *ev) {
+void IckleClient::send_event_cb(ICQ2000::MessageEvent *ev) {
   icqclient.SendEvent(ev);
 }
 
-void IckleClient::messageack_cb(MessageEvent *ev) {
-  if (ev->isFinished() && ev->isDelivered() && ev->getType() != MessageEvent::AwayMessage)
-    m_histmap[ev->getContact()->getUIN()]->log(ev, false);
+void IckleClient::messageack_cb(ICQ2000::MessageEvent *ev) {
+  if (ev->isFinished() && ev->isDelivered()
+      && ev->getType() != ICQ2000::MessageEvent::AwayMessage) {
+
+    unsigned int uin = ev->getContact()->getUIN();
+    if (m_histmap.count(uin) == 0) {
+      ostringstream ostr;
+      ostr << "No history object for contact: " << uin;
+      SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+    } else {
+      m_histmap[ev->getContact()->getUIN()]->log(ev, false);
+    }
+
+  }
+
+}
+
+void IckleClient::status_change_cb(ICQ2000::StatusChangeEvent *ev)
+{
+  // this is broken!
+  /*
+  if (ev->getStatus() == ICQ2000::STATUS_ONLINE
+      && ev->getOldStatus() != ICQ2000::STATUS_ONLINE)
+    event_system("event_user_online", ev->getContact(), ev->getTime());
+  */
 }
 
 void IckleClient::add_user_cb(unsigned int uin) {
-  Contact *c = icqclient.getContact(uin);
-  if (c == NULL) {
-    Contact nc(uin);
+  ContactRef c = icqclient.getContact(uin);
+  if (c.get() == NULL) {
+    ContactRef nc(new ICQ2000::Contact(uin));
     icqclient.addContact(nc);
   }
 }
 
 void IckleClient::add_mobile_user_cb(string alias, string mobile_no) {
-  Contact nc( alias, mobile_no );
+  ContactRef nc(new ICQ2000::Contact(alias));
+  nc->setMobileNo(mobile_no);
   icqclient.addContact( nc );
 }
 
-void IckleClient::socket_cb(SocketEvent *ev) {
+void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
   
-  if (dynamic_cast<AddSocketHandleEvent*>(ev) != NULL) {
-    AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
+  if (dynamic_cast<ICQ2000::AddSocketHandleEvent*>(ev) != NULL) {
+    ICQ2000::AddSocketHandleEvent *cev = dynamic_cast<ICQ2000::AddSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
     /*
@@ -670,7 +695,7 @@ void IckleClient::socket_cb(SocketEvent *ev) {
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
-      SignalLog(LogEvent::ERROR, "Problem: file descriptor already connected");
+      SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor already connected");
       m_sockets[fd].disconnect();
       m_sockets.erase(fd);
     }
@@ -681,18 +706,18 @@ void IckleClient::socket_cb(SocketEvent *ev) {
 					      (cev->isWrite() ? GDK_INPUT_WRITE : 0) |
 					      (cev->isException() ? GDK_INPUT_EXCEPTION : 0)));
 
-  } else if (dynamic_cast<RemoveSocketHandleEvent*>(ev) != NULL) {
-    RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
+  } else if (dynamic_cast<ICQ2000::RemoveSocketHandleEvent*>(ev) != NULL) {
+    ICQ2000::RemoveSocketHandleEvent *cev = dynamic_cast<ICQ2000::RemoveSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
     /*
     ostringstream ostr;
     ostr << "Disconnecting socket " << fd;
-    SignalLog(LogEvent::INFO, ostr.str());
+    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
     */
 
     if (m_sockets.count(fd) == 0) {
-      SignalLog(LogEvent::ERROR, "Problem: file descriptor not connected");
+      SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor not connected");
     } else {
       m_sockets[fd].disconnect();
       m_sockets.erase(fd);
@@ -700,35 +725,122 @@ void IckleClient::socket_cb(SocketEvent *ev) {
   }
 }
 
-bool IckleClient::message_cb(MessageEvent *ev) {
-  Contact * c = ev->getContact();
-  time_t t = ev->getTime();
+void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
+  ContactRef c = ev->getContact();
 
-  switch (ev->getType()) {
-    case MessageEvent::Normal: event_system("event_message", c, t); break;
-    case MessageEvent::URL:    event_system("event_url", c, t); break;
-    case MessageEvent::SMS:    event_system("event_sms", c, t); break;
+  /* this behaviour is a client choice - might be nice to make it
+     customisable eventually, for the moment we don't accept in
+     occupied or denied unless it is sent as to contact list or
+     urgent.  ignore lists will be implemented here eventually */
+
+  ICQ2000::Status s = icqclient.getStatus();
+  ICQ2000::ICQMessageEvent *icq = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
+  if (icq != NULL) {
+    if ((s == ICQ2000::STATUS_OCCUPIED || s == ICQ2000::STATUS_DND)
+	&& !(icq->isUrgent() || icq->isToContactList())) {
+      ev->setDelivered(false);
+      
+      if (s == ICQ2000::STATUS_OCCUPIED)
+	ev->setDeliveryFailureReason( ICQ2000::MessageEvent::Failed_Occupied );
+      else
+	ev->setDeliveryFailureReason( ICQ2000::MessageEvent::Failed_DND );
+      
+      // not logged, not signalled, just ignored :-)
+      return;
+    }
   }
-  m_histmap[ev->getContact()->getUIN()]->log(ev, true);
 
-  return false;
+  ev->setDelivered(true);
+
+  // convert to a client event type and add to queue
+  MessageEvent *ickle_ev = convert_libicq2000_event(ev);
+  if (ickle_ev == NULL) {
+    SignalLog(ICQ2000::LogEvent::INFO, "Unhandled libicq2000 event");
+    return;
+  }
+  
+  m_message_queue.add_to_queue(ickle_ev);
+
+  unsigned int uin = ev->getContact()->getUIN();
+  if (m_histmap.count(uin) == 0) {
+    ostringstream ostr;
+    ostr << "No history object for contact: " << uin;
+    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+  } else {
+    m_histmap[ev->getContact()->getUIN()]->log(ev, true);
+  }
+  
 }
 
-void IckleClient::want_auto_resp_cb(AwayMessageEvent *ev) {
-  Contact *c = ev->getContact();
+void IckleClient::queue_added_cb(MessageEvent *ev)
+{
+  // anything ?
+}
+
+MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
+{
+  MessageEvent *ret = NULL;
+  ContactRef c = ev->getContact();
+  
+  switch(ev->getType()) {
+  case ICQ2000::MessageEvent::Normal:
+  {
+    ICQ2000::NormalMessageEvent *cev = static_cast<ICQ2000::NormalMessageEvent*>(ev);
+    ret = new NormalICQMessageEvent( ev->getTime(), c, cev->getMessage(),
+				     cev->getForeground(), cev->getBackground() );
+    break;
+  }
+  case ICQ2000::MessageEvent::URL:
+  {
+    ICQ2000::URLMessageEvent *cev = static_cast<ICQ2000::URLMessageEvent*>(ev);
+    ret = new URLICQMessageEvent( ev->getTime(), c, cev->getMessage(),
+				  cev->getURL() );
+    break;
+  }
+  case ICQ2000::MessageEvent::SMS:
+  {
+    ICQ2000::SMSMessageEvent *cev = static_cast<ICQ2000::SMSMessageEvent*>(ev);
+    ret = new SMSICQMessageEvent( ev->getTime(), c, cev->getMessage() );
+    break;
+  }
+  case ICQ2000::MessageEvent::SMS_Receipt:
+  {
+    ICQ2000::SMSReceiptEvent *cev = static_cast<ICQ2000::SMSReceiptEvent*>(ev);
+    ret = new SMSReceiptICQMessageEvent( ev->getTime(), c, cev->getMessage(),
+					 cev->getMessageId(), cev->getSubmissionTime(),
+					 cev->getDeliveryTime(), cev->delivered());
+    break;
+  }
+  case ICQ2000::MessageEvent::AuthReq:
+  {
+    ICQ2000::AuthReqEvent *cev = static_cast<ICQ2000::AuthReqEvent*>(ev);
+    ret = new AuthReqICQMessageEvent( ev->getTime(), c, cev->getMessage() );
+    break;
+  }
+  case ICQ2000::MessageEvent::AuthAck:
+  {
+    ICQ2000::AuthAckEvent *cev = static_cast<ICQ2000::AuthAckEvent*>(ev);
+    ret = new AuthAckICQMessageEvent( ev->getTime(), c, cev->getMessage(), cev->isGranted() );
+    break;
+  }
+  case ICQ2000::MessageEvent::EmailEx:
+  {
+    ICQ2000::EmailExEvent *cev = static_cast<ICQ2000::EmailExEvent*>(ev);
+    ret = new EmailExICQMessageEvent( ev->getTime(), c, cev->getMessage() );
+    break;
+  }
+  default:
+    ret = NULL;
+  }
+
+  return ret;
+}
+
+void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev) {
+  ContactRef c = ev->getContact();
   EventSubstituter evs(c);
   evs << gui.getAutoResponse();
-  ev->setMessage(evs.str());
-}
-
-void IckleClient::event_system(const string& s, Contact * c, time_t t) {
-  if (!g_settings.getValueString(s).empty()) {
-    EventSubstituter evs(c);
-    evs.set_event_time(t);
-    evs.set_escape_shell(true);
-    evs << g_settings.getValueString(s) << " &";
-    system(evs.str().c_str());
-  }
+  ev->setAwayMessage(evs.str());
 }
 
 bool IckleClient::mkdir_BASE_DIR()
@@ -736,59 +848,55 @@ bool IckleClient::mkdir_BASE_DIR()
   if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
     ostringstream ostr;
     ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
-    SignalLog(LogEvent::ERROR, ostr.str());
+    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
     return false;
   }
   return true;
 }
 
-void IckleClient::contactlist_cb(ContactListEvent *ev) {
-  Contact *c = ev->getContact();
+void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
+  ContactRef c = ev->getContact();
 
-  if (ev->getType() == ContactListEvent::UserAdded ||
-      ev->getType() == ContactListEvent::UserInfoChange) {
+  if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
+    if (m_settingsmap.count(c->getUIN()) > 0) return;
+    ostringstream ostr;
 
-    if (ev->getType() == ContactListEvent::UserAdded) {
-      if (m_settingsmap.count(c->getUIN()) > 0) return;
+    ostr << CONTACT_DIR << c->getUIN() << ".user";
+
+    int n = 0;
+    struct stat fs;
+    string filename;
+    filename = ostr.str();
+
+    // ensure uniqueness
+    while ( stat( filename.c_str(), &fs ) == 0 ) {
       ostringstream ostr;
-
-      ostr << CONTACT_DIR << c->getUIN() << ".user";
-
-      int n = 0;
-      struct stat fs;
-      string filename;
+      n++;
+      ostr << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
       filename = ostr.str();
-
-      // ensure uniqueness
-      while ( stat( filename.c_str(), &fs ) == 0 ) {
-	ostringstream ostr;
-	n++;
-	ostr << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
-	filename = ostr.str();
-      }
-      m_settingsmap[c->getUIN()] = filename;
-      if( c->isICQContact() ) {
-        ostringstream os;
-        os << c->getUIN() << ".history";
-        m_histmap[c->getUIN()] = new History( os.str() );
-      }
-      else
-        m_histmap[c->getUIN()] = new History( get_unique_historyname() );
     }
+    m_settingsmap[c->getUIN()] = filename;
+    if( c->isICQContact() ) {
+      ostringstream os;
+      os << c->getUIN() << ".history";
+      m_histmap[c->getUIN()] = new History( os.str() );
+    }
+    else
+      m_histmap[c->getUIN()] = new History( get_unique_historyname() );
 
     if ( !mkdir_BASE_DIR() ) return;
 
     if ( mkdir( CONTACT_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
       ostringstream ostr;
       ostr << "mkdir " << CONTACT_DIR << " failed: " << strerror(errno);
-      SignalLog(LogEvent::ERROR, ostr.str());
+      SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
       return;
     }
     
     saveContact( c, m_settingsmap[c->getUIN()] );
     
   }
-  else if (ev->getType() == ContactListEvent::UserRemoved) {
+  else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
     // delete .user file for this contact
     unlink( m_settingsmap[c->getUIN()].c_str() );
 
@@ -801,27 +909,16 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     m_settingsmap.erase(c->getUIN());
 
   }
-  else if (ev->getType() == ContactListEvent::StatusChange) {
-    StatusChangeEvent * cev = static_cast<StatusChangeEvent *>(ev);
-
-    if (cev->getStatus() == STATUS_ONLINE && cev->getOldStatus() != STATUS_ONLINE) {
-      event_system("event_user_online", cev->getContact(), cev->getTime());
-    }
-  }
 }
 
 void IckleClient::settings_changed_cb() {
   saveSettings();
 }
 
-void IckleClient::self_event_cb(SelfEvent *ev)
+void IckleClient::saveContact(ContactRef c, const string& s)
 {
-  if (ev->getType() == SelfEvent::MyUserInfoChange)
-    saveSelfContact();
-}
+  cout << "saveContact(" << c->getUIN() << ", " << s << ")" << endl;
 
-void IckleClient::saveContact(Contact *c, const string& s)
-{
   Settings user;
   user.setValue( "alias", c->getAlias() );
   if (c->isICQContact())
@@ -832,7 +929,7 @@ void IckleClient::saveContact(Contact *c, const string& s)
   user.setValue( "email", c->getEmail() );
 
   // Main Home Info
-  MainHomeInfo& mhi = c->getMainHomeInfo();
+  ICQ2000::Contact::MainHomeInfo& mhi = c->getMainHomeInfo();
   user.setValue( "city", mhi.city );
   user.setValue( "state", mhi.state );
   user.setValue( "phone", mhi.phone );
@@ -843,7 +940,7 @@ void IckleClient::saveContact(Contact *c, const string& s)
   user.setValue( "gmt", mhi.timezone );
     
   // Homepage Info
-  HomepageInfo& hpi = c->getHomepageInfo();
+  ICQ2000::Contact::HomepageInfo& hpi = c->getHomepageInfo();
   user.setValue( "age", hpi.age );
   user.setValue( "sex", hpi.sex );
   user.setValue( "homepage", hpi.homepage );
@@ -860,10 +957,9 @@ void IckleClient::saveContact(Contact *c, const string& s)
   try {
     user.save(s);
   } catch(runtime_error& e) {
-    SignalLog(LogEvent::ERROR, e.what());
+    SignalLog(ICQ2000::LogEvent::ERROR, e.what());
   }
 }
- 
 
 void IckleClient::saveSelfContact()
 {
@@ -879,15 +975,15 @@ void IckleClient::loadContact(const string& s, bool self)
   cs.defaultValueUnsignedInt("uin", 0);
   unsigned int uin = cs.getValueUnsignedInt("uin");
 
-  Contact *c;
+  ContactRef c;
   if (self) c = icqclient.getSelfContact();
   else {
     if (uin != 0)
-      c = new Contact(uin); // construct a real contact
+      c = ContactRef( new ICQ2000::Contact(uin) ); // construct a real contact
     else
-      c = new Contact();    // construct a virtual contact
+      c = ContactRef( new ICQ2000::Contact() );    // construct a virtual contact
   }
-      
+
   // only needed for backward compatibility
   // (history_file settingsentry only exists for v >= 0.2.2)
   if (c->isICQContact()) {
@@ -922,7 +1018,7 @@ void IckleClient::loadContact(const string& s, bool self)
   c->setEmail(cs.getValueString("email"));
 	
   // Main Home Info
-  MainHomeInfo& mhi = c->getMainHomeInfo();
+  ICQ2000::Contact::MainHomeInfo& mhi = c->getMainHomeInfo();
   mhi.city = cs.getValueString("city");
   mhi.state = cs.getValueString("state");
   mhi.phone = cs.getValueString("phone");
@@ -933,7 +1029,7 @@ void IckleClient::loadContact(const string& s, bool self)
   mhi.timezone = cs.getValueUnsignedChar("gmt");
 	
   // Homepage Info
-  HomepageInfo& hpi = c->getHomepageInfo();
+  ICQ2000::Contact::HomepageInfo& hpi = c->getHomepageInfo();
   hpi.age = cs.getValueUnsignedChar("age");
   hpi.sex = cs.getValueUnsignedChar("sex");
   hpi.homepage = cs.getValueString("homepage");
@@ -950,8 +1046,7 @@ void IckleClient::loadContact(const string& s, bool self)
   if (!self) {
     m_settingsmap[c->getUIN()] = s;
     m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
-    icqclient.addContact(*c);
-    delete c;
+    icqclient.addContact(c);
   }
 }
 

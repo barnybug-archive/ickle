@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.18 2002-03-01 18:38:36 bugcreator Exp $
+/* $Id: ContactListView.h,v 1.19 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -31,13 +31,11 @@
 #include "main.h"
 #include <libicq2000/ContactList.h>
 #include <libicq2000/Contact.h>
-#include "Icons.h"
 
-using std::string;
+#include "Icons.h"
+#include "MessageQueue.h"
 
 using SigC::Signal1;
-
-using namespace ICQ2000;
 
 class ContactListView : public Gtk::CList {
  private:
@@ -45,14 +43,16 @@ class ContactListView : public Gtk::CList {
 
   struct RowData {
     unsigned int uin;
-    Status status;
+    ICQ2000::Status status;
     unsigned int msgs;
     string alias;
   };
 
   Gtk::Menu rc_popup;
 
-  void UpdateRow(const Contact& c);
+  MessageQueue& m_message_queue;
+
+  void update_row(const ICQ2000::ContactRef& c);
 
   citerator lookupUIN(unsigned int uin);
 
@@ -70,7 +70,7 @@ class ContactListView : public Gtk::CList {
   int m_sort;
 
  public:
-  ContactListView();
+  ContactListView(MessageQueue& mq);
   ~ContactListView();
 
   void setupAccelerators();
@@ -82,14 +82,22 @@ class ContactListView : public Gtk::CList {
 
   gint button_press_cb(GdkEventButton *ev);
 
-  bool message_cb(MessageEvent *ev);
-  void contactlist_cb(ContactListEvent *ev);
+  // -- library callbacks      --
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
+  void contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev);
+  void contact_status_change_cb(ICQ2000::StatusChangeEvent *ev);
+
+  // -- MessageQueue callbacks --
+  void queue_added_cb(MessageEvent *ev);
+  void queue_removed_cb(MessageEvent *ev);
+  
+  // -- gui callbacks          --
   void icons_changed_cb();
-  void settings_changed_cb(const string&);
+  void settings_changed_cb(const std::string&);
 
   void load_sort_column ();
   static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
-  static int status_order (Status);
+  static int status_order(ICQ2000::Status);
 
   // signals
   Signal1<void,unsigned int> user_popup;

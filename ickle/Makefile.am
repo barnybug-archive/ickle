@@ -5,8 +5,8 @@
 EXTRA_PROGRAMS = ickle ickle_applet
 bin_PROGRAMS = @ICKLE_PROGRAM@
 
-AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" -I$(top_srcdir)/share/icons/ickle/  \
-              @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@ @LIBICQ2000_CFLAGS@ \
+AM_CPPFLAGS = -I$(top_srcdir)/share/icons/ickle/ -DPKGDATADIR=\"$(pkgdatadir)\"		\
+              @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@ @LIBICQ2000_CFLAGS@	\
               -I$(top_srcdir)/ctrlsocket
 LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @LIBICQ2000_LIBFLAGS@ @XSS_LIBS@ \
           -L$(top_builddir)/ctrlsocket @LIBICKLE_CTRLSOCKET_FLAG@
@@ -19,7 +19,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
   SetAutoResponseDialog.cpp SearchDialog.cpp AboutDialog.cpp		\
   IdleTimer.cpp gtkspell.cpp StatusMenu.cpp WizardDialog.cpp		\
-  ControlHandler.cpp
+  ControlHandler.cpp MessageEvent.cpp MessageQueue.cpp EventSystem.cpp
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
@@ -28,9 +28,10 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   SettingsDialog.h PromptDialog.h History.h			\
   MobileNoEntry.h Dir.h IckleApplet.h				\
   AwayMessageDialog.h sstream_fix.h				\
-  SetAutoResponseDialog.h EventSubstituter.h SearchDialog.h     \
-  AboutDialog.h IdleTimer.h gtkspell.h StatusMenu.h 		\
-  WizardDialog.h ControlHandler.h
+  SetAutoResponseDialog.h EventSubstituter.h SearchDialog.h	\
+  AboutDialog.h IdleTimer.h gtkspell.h StatusMenu.h		\
+  WizardDialog.h ControlHandler.h MessageEvent.h MessageQueue.h	\
+  EventSystem.h
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
 ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@

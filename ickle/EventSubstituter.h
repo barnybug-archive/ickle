@@ -31,27 +31,21 @@
 
 #include "sstream_fix.h"
 
-using std::string;
-using std::ostringstream;
-
-using namespace ICQ2000;
-
-class EventSubstituter : public ostringstream {
+class EventSubstituter : public std::ostringstream {
  private:
   bool line_start;
   char got_special;  // % or |
   string cmd; // command string buffer
-  Contact *co;
+  ICQ2000::ContactRef co;
   time_t event_time;
   bool escape_shell;
 
-  void sanecat(const string &s);
+  void sanecat(const std::string& s);
   void execute();
 
  public:
-  EventSubstituter(Contact *c);
+  EventSubstituter(ICQ2000::ContactRef c);
   
-  void set_contact(Contact *c) { co = c; }
   void set_event_time(time_t t) { event_time = t; }
   void set_escape_shell(bool e) { escape_shell = e; }
 
@@ -66,7 +60,7 @@ class EventSubstituter : public ostringstream {
   EventSubstituter& operator<<(const signed char *s)
       { return (*this) << (const char*)s; }
 
-  EventSubstituter& operator<<(const string &s);
+  EventSubstituter& operator<<(const std::string& s);
 
   string str();
 };

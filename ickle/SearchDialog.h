@@ -65,13 +65,13 @@ class SearchDialog : public Gtk::Dialog {
   static void clist_data_destroy_cb(gpointer data);
 
  protected:
+
+  // -- GUI button callbacks --
   void ok_cb();
   void search_cb();
   void stop_cb();
   void add_cb();
   void reset_cb();
-  void result_cb(ICQ2000::SearchResultEvent *ev);
-  void self_event_cb(ICQ2000::SelfEvent *ev);
 
   void select_row_cb(gint x, gint y, GdkEvent *ev);
   void unselect_row_cb(gint x, gint y, GdkEvent *ev);
@@ -80,6 +80,10 @@ class SearchDialog : public Gtk::Dialog {
 
   void set_sex(ICQ2000::Sex s);
   void set_agerange(ICQ2000::AgeRange age);
+
+  // -- library callbacks    --
+  void result_cb(ICQ2000::SearchResultEvent *ev);
+  void self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
 
  public:
   SearchDialog();

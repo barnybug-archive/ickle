@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.43 2002-03-12 21:39:28 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.44 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,7 @@
 #include "SearchDialog.h"
 #include "AboutDialog.h"
 #include "PromptDialog.h"
+#include "Icons.h"
 
 #include <libicq2000/Client.h>
 
@@ -35,28 +36,40 @@
 
 using std::map;
 using std::ostringstream;
+
 using SigC::bind;
 
-IckleGUI::IckleGUI()
-  : m_top_vbox(false),
-    m_contact_scroll(),
-    m_contact_list(),
-    m_status(STATUS_OFFLINE),
-    m_invisible(false),
-    m_away_message( this )
+using ICQ2000::ContactRef;
+
+IckleGUI::IckleGUI(MessageQueue& mq)
+  :  m_message_queue(mq),
+     m_top_vbox(false),
+     m_contact_scroll(),
+     m_contact_list(mq),
+     m_status(ICQ2000::STATUS_OFFLINE),
+     m_invisible(false),
+     m_away_message( this )
 {
-  // setup callbacks
-  icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
+  // -- libICQ2000 callbacks
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
-  icqclient.self_event.connect(slot(this,&IckleGUI::self_event_cb));
+  icqclient.self_contact_status_change_signal.connect(slot(this,&IckleGUI::self_status_change_cb));
+  icqclient.self_contact_userinfo_change_signal.connect(slot(this,&IckleGUI::self_userinfo_change_cb));
+
+  // -- MessageQueue callbacks
+  m_message_queue.added.connect(slot(this,&IckleGUI::queue_added_cb));
+  m_message_queue.removed.connect(slot(this,&IckleGUI::queue_removed_cb));
+
+  // -- other callbacks
+  g_icons.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
 
-  set_title("ickle");
   set_wmclass( "ickle_main", "ickle_main" );
   set_border_width(5);
+  realize();
+  set_ickle_title();
 
   m_contact_scroll.set_policy(GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   m_contact_scroll.add(m_contact_list);
@@ -111,20 +124,52 @@ IckleGUI::~IckleGUI() {
   
 }
 
-bool IckleGUI::message_cb(MessageEvent *ev) {
-  Contact *c = ev->getContact();
+void IckleGUI::set_ickle_title()
+{
+  ostringstream ostr;
+  ostr << "ickle";
+
+  ContactRef c = icqclient.getSelfContact();
+  if (c->getUIN() != 0) {
+    ostr << " - " << c->getNameAlias();
+  }
+  Gtk::ImageLoader *p;
+
+  if (m_message_queue.get_size() > 0) {
+    ostr << "*";
+    MessageEvent *ev = m_message_queue.get_first_message();
+    if (ev->getServiceType() == MessageEvent::ICQ) {
+      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+      p = g_icons.IconForEvent(icq->getICQMessageType());
+    }
+
+  } else {
+    p = g_icons.IconForStatus( c->getStatus(), c->isInvisible() );
+  }
+
+  gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
+  set_title(ostr.str());
+}
+
+void IckleGUI::icons_changed_cb()
+{
+  set_ickle_title();
+}
+
+void IckleGUI::queue_added_cb(MessageEvent *ev) {
+  if (ev->getServiceType() != MessageEvent::ICQ) return;
+  ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+    
+  ContactRef c = icq->getICQContact();
   /*
    * FIXME - make properly handling of incoming
    * authorization requests
    */
-  if (ev->getType() == MessageEvent::AuthReq) {     
-    AuthReqEvent *msg = static_cast<AuthReqEvent*>(ev);
-    AuthAckEvent *ack = new AuthAckEvent(c, true);
+  if (icq->getICQMessageType() == ICQMessageEvent::AuthReq) {     
+    AuthReqICQMessageEvent *msg = static_cast<AuthReqICQMessageEvent*>(ev);
+    ICQ2000::AuthAckEvent *ack = new ICQ2000::AuthAckEvent(c, true);
     icqclient.SendEvent( ack );
-    return true;
   }
-
-  m_contact_list.message_cb(ev);
 
   if (m_message_boxes.count(c->getUIN()) == 0) {
     if ( g_settings.getValueBool("message_autopopup") )
@@ -134,41 +179,60 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
       user_popup.emit( c->getUIN() );  // raise existing messagebox
   }
 
-  return false;
+  // update ickle title/icon
+  set_ickle_title();
 }
 
-void IckleGUI::messageack_cb(MessageEvent *ev) {
-  Contact *c = ev->getContact();
+void IckleGUI::queue_removed_cb(MessageEvent *ev) {
+  // update ickle title/icon
+  set_ickle_title();
+}
 
-  if (m_message_boxes.count(c->getUIN()) > 0) {
+void IckleGUI::messageack_cb(ICQ2000::MessageEvent *ev) {
+  ContactRef c = ev->getContact();
+
+  if (m_message_boxes.count(c->getUIN()) > 0)
     m_message_boxes[c->getUIN()]->messageack_cb(ev);
-  }
 
+  if (ev->isFinished() && !ev->isDelivered()) {
+    // popup dialog, informing about non-delivery for messages to
+    // Occupied/DND (for other failure reasons, it is enough to see
+    // the description on the message box status I believe)
+
+    ICQ2000::ICQMessageEvent *icq = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
+    if (icq != NULL &&
+	(ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
+	 || ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_DND)) {
+      ostringstream ostr;
+      ostr << "Your message to " << c->getNameAlias()
+	   << " wasn't received as the user is "
+	   << (ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
+	       ? "Occupied" : "in Do not Disturb")
+	   << "." << endl << endl
+	   << "Their away message is:" << endl
+	   << icq->getAwayMessage() << endl << endl
+	   << "You should resend the message as 'Urgent' or 'to Contact List'" << endl;
+      PromptDialog *p = new PromptDialog(PromptDialog::PROMPT_INFO,
+					 ostr.str(),
+					 false);
+      manage(p);
+    }
+  }
 }
 
-void IckleGUI::contactlist_cb(ContactListEvent *ev) {
-  Contact *c = ev->getContact();
+void IckleGUI::contactlist_cb(ICQ2000::ContactListEvent *ev) {
+  ContactRef c = ev->getContact();
   unsigned int uin = c->getUIN();
-  ContactListEvent::EventType et = ev->getType();
+  ICQ2000::ContactListEvent::EventType et = ev->getType();
 
-  if (m_message_boxes.count(uin) != 0) {
-    MessageBox *m = m_message_boxes[uin];
-
-    if (et == ContactListEvent::UserInfoChange
-	|| et == ContactListEvent::StatusChange) {
-      m->contactlist_cb(ev);
-    } else if (et == ContactListEvent::UserRemoved) {
+  if (et == ICQ2000::ContactListEvent::UserRemoved) {
+    if (m_message_boxes.count(uin) != 0) {
+      MessageBox *m = m_message_boxes[uin];
       m->destroy();
     }
-      
-  }
 
-  if (m_userinfo_dialogs.count(uin) != 0) {
-    UserInfoDialog *d = m_userinfo_dialogs[uin];
-
-    if (et == ContactListEvent::UserInfoChange) {
-      d->userinfochange_cb();
-    } else if (et == ContactListEvent::UserRemoved) {
+    if (m_userinfo_dialogs.count(uin) != 0) {
+      UserInfoDialog *d = m_userinfo_dialogs[uin];
       d->destroy();
     }
   }
@@ -179,10 +243,10 @@ ContactListView* IckleGUI::getContactListView() {
   return &m_contact_list;
 }
 
-void IckleGUI::messagebox_popup(Contact *c, History *h) {
+void IckleGUI::messagebox_popup(const ContactRef& c, History *h) {
   if (m_message_boxes.count(c->getUIN()) == 0) {
-    Contact *self = icqclient.getSelfContact();
-    MessageBox *m = new MessageBox(self, c, h);
+    ContactRef self = icqclient.getSelfContact();
+    MessageBox *m = new MessageBox(m_message_queue, self, c, h);
     manage(m);
     /*
      * gtkmm doesn't delete it on destroy event unless it's managed
@@ -194,7 +258,7 @@ void IckleGUI::messagebox_popup(Contact *c, History *h) {
     m->userinfo_dialog.connect(bind(slot(this,&IckleGUI::userinfo_toggle_cb), c));
     m_message_boxes[c->getUIN()] = m;
 
-    if (m_status == STATUS_OFFLINE) m->offline();
+    if (m_status == ICQ2000::STATUS_OFFLINE) m->offline();
     else m->online();
 
     if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
@@ -211,7 +275,7 @@ void IckleGUI::messagebox_popup(Contact *c, History *h) {
   }
 }
 
-void IckleGUI::popup_messagebox(Contact *c, History *h) {
+void IckleGUI::popup_messagebox(const ContactRef& c, History *h) {
   messagebox_popup(c,h);
 }
 
@@ -241,9 +305,9 @@ int IckleGUI::delete_event_impl(GdkEventAny*) {
 #endif
 }
 
-void IckleGUI::status_menu_status_changed_cb(Status st) {
+void IckleGUI::status_menu_status_changed_cb(ICQ2000::Status st) {
   
-  if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
+  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE) {
     SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
     manage(d);
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
@@ -252,9 +316,9 @@ void IckleGUI::status_menu_status_changed_cb(Status st) {
   icqclient.setStatus(st);
 }
 
-void IckleGUI::status_menu_status_inv_changed_cb(Status st, bool inv) {
+void IckleGUI::status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv) {
   
-  if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
+  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE) {
     SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
     manage(d);
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
@@ -268,61 +332,54 @@ void IckleGUI::status_menu_invisible_changed_cb(bool inv)
   icqclient.setInvisible(inv);
 }
 
-void IckleGUI::self_event_cb(SelfEvent *ev) {
-  Contact *c = ev->getSelfContact();
-
-  if (ev->getType() == SelfEvent::MyStatusChange) {
-    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
-
-    Status st = mev->getStatus();
-    bool inv = mev->getInvisible();
-
-    m_status_menu.status_changed_cb( st, inv );
-    m_status = st;
-    m_invisible = inv;
-    
-    map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-    while (i != m_message_boxes.end()) {
-      if (st == STATUS_OFFLINE) (*i).second->offline();
-      else (*i).second->online();
-      ++i;
-    }
-
-    // update connection dependent menu entry
-    mi_search_for_contacts->set_sensitive(st != STATUS_OFFLINE);
-    
-  } else if (ev->getType() == SelfEvent::MyUserInfoChange) {
-    if (m_userinfo_dialogs.count(c->getUIN()) != 0) {
-      UserInfoDialog *d = m_userinfo_dialogs[c->getUIN()];
-      d->userinfochange_cb();
-    }
+void IckleGUI::self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
+{
+  ICQ2000::Status st = ev->getContact()->getStatus();
+  bool inv = ev->getContact()->isInvisible();
+  
+  m_status_menu.status_changed_cb( st, inv );
+  m_status = st;
+  m_invisible = inv;
+  
+  map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+  while (i != m_message_boxes.end()) {
+    if (st == ICQ2000::STATUS_OFFLINE) (*i).second->offline();
+    else (*i).second->online();
+    ++i;
   }
+  
+  // update connection dependent menu entry
+  mi_search_for_contacts->set_sensitive(st != ICQ2000::STATUS_OFFLINE);
+
+  // update window title & icon
+  set_ickle_title();
 }
 
-void IckleGUI::message_box_close_cb(Contact *c) {
+void IckleGUI::self_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
+{
+  // update window title & icon
+  set_ickle_title();
+}
+
+void IckleGUI::message_box_close_cb(ContactRef c) {
   unsigned int uin = c->getUIN();
   if (m_message_boxes.count(uin) != 0) m_message_boxes.erase(uin);
   if (m_userinfo_dialogs.count(uin) != 0) m_userinfo_dialogs[uin]->destroy();
 }
 
-void IckleGUI::userinfo_dialog_close_cb(Contact *c) {
+void IckleGUI::userinfo_dialog_close_cb(ContactRef c) {
   unsigned int uin = c->getUIN();
-  if (m_userinfo_dialogs.count(uin) != 0) {
-    if (m_userinfo_dialogs[uin]->isChanged()) icqclient.SignalUserInfoChange(c);
+  if (m_userinfo_dialogs.count(uin) != 0)
     m_userinfo_dialogs.erase(uin);
-  }
 
-  if (m_message_boxes.count(uin) != 0) {
+  if (m_message_boxes.count(uin) != 0)
     m_message_boxes[uin]->userinfo_dialog_cb(false);
-  }
 }
 
-void IckleGUI::userinfo_dialog_upload_cb(Contact *c) {
+void IckleGUI::userinfo_dialog_upload_cb(ContactRef c) {
   unsigned int uin = c->getUIN();
-  if (m_userinfo_dialogs.count(uin) != 0) {
-    if (m_userinfo_dialogs[uin]->isChanged()) icqclient.SignalUserInfoChange(c);
+  if (m_userinfo_dialogs.count(uin) != 0)
     icqclient.uploadSelfDetails();
-  }
 }
 
 void IckleGUI::add_user_cb() {
@@ -339,7 +396,7 @@ void IckleGUI::search_user_cb()
 
 void IckleGUI::my_user_info_cb()
 {
-  Contact *self = icqclient.getSelfContact();
+  ContactRef self = icqclient.getSelfContact();
   unsigned int uin = self->getUIN();
   
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
@@ -357,7 +414,7 @@ void IckleGUI::my_user_info_cb()
   }
 }
 
-void IckleGUI::userinfo_fetch_cb(Contact *c)
+void IckleGUI::userinfo_fetch_cb(ContactRef c)
 {
   icqclient.fetchDetailContactInfo(c);
 }
@@ -450,7 +507,7 @@ string IckleGUI::getAutoResponse() const
   return auto_response;
 }
 
-void IckleGUI::userinfo_toggle_cb(bool b, Contact *c) {
+void IckleGUI::userinfo_toggle_cb(bool b, ContactRef c) {
   unsigned int uin = c->getUIN();
   if ( b && m_userinfo_dialogs.count(uin) == 0 ) {
     userinfo_popup(c);
@@ -459,7 +516,7 @@ void IckleGUI::userinfo_toggle_cb(bool b, Contact *c) {
   }
 }
 
-void IckleGUI::userinfo_popup(Contact *c) {
+void IckleGUI::userinfo_popup(const ContactRef& c) {
   unsigned int uin = c->getUIN();
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
     UserInfoDialog *d = new UserInfoDialog(c);
@@ -485,14 +542,14 @@ void IckleGUI::settings_cb(bool away) {
     if (dialog.getUIN() != icqclient.getUIN() ||
 	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
 
-    if (reconnect) icqclient.setStatus(STATUS_OFFLINE);
+    if (reconnect) icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
     
     dialog.updateSettings();
 
     if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
     if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
   
-    if (reconnect) status_menu_status_changed_cb(STATUS_ONLINE);
+    if (reconnect) status_menu_status_changed_cb(ICQ2000::STATUS_ONLINE);
 
     settings_changed.emit();
   }

@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.9 2002-01-02 21:41:27 nordman Exp $
+/* $Id: History.h,v 1.10 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -35,28 +35,19 @@
 
 #include <libicq2000/events.h>
 
-using ICQ2000::MessageEvent;
-
-using std::string;
-using std::ifstream;
-using std::ofstream;
-using std::ostream;
-using std::vector;
-using std::streampos;
-
 class History : public SigC::Object {
   
  private:
 
-  ifstream              m_if;
-  bool                  m_streamlock;
-  string                m_filename;
-  guint                 m_size;
-  vector<streampos>     m_index;
-  bool                  m_builtindex;
-  unsigned int          m_uin;
+  std::ifstream           m_if;
+  bool                    m_streamlock;
+  std::string             m_filename;
+  guint                   m_size;
+  std::vector<streampos>  m_index;
+  bool                    m_builtindex;
+  unsigned int            m_uin;
 
-  void                  quote_output    (ostream& ostr, const string& text);
+  void                  quote_output    (ostream& ostr, const std::string& text);
   void                  build_index     ();
 
   void                  touch           ();
@@ -69,27 +60,27 @@ class History : public SigC::Object {
       SENT
     };
   
-    MessageEvent::MessageType type;
+    ICQ2000::MessageEvent::MessageType type;
     time_t timestamp;
     Direction dir;
     bool offline;
     bool multiparty;
-    string message;
-    string URL;
+    std::string message;
+    std::string URL;
     bool receipt;
     bool delivered; // for SMS receipts
   };
 
-  History(const string &historyfile);
+  History(const std::string& historyfile);
   ~History();
 
-  void                  log             (MessageEvent *ev, bool received) throw (std::runtime_error);
+  void                  log             (ICQ2000::MessageEvent *ev, bool received) throw (std::runtime_error);
   void                  get_msg         (guint index, Entry &he)
     throw(std::out_of_range, std::runtime_error);
 
   void                  stream_lock     () throw (std::runtime_error);
   void                  stream_release  () throw (std::runtime_error);
-  string                getFilename     () const;
+  std::string           getFilename     () const;
   guint                 size            ();
 
   SigC::Signal1<void,Entry *> new_entry;

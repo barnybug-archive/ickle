@@ -1,6 +1,8 @@
-/*
- * PromptDialog
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+/* $Id: EventSystem.h,v 1.1 2002-03-28 18:29:02 barnabygray Exp $
+ *
+ * EventSystem
+ *
+ * Copyright (C) 2002 Barnaby Gray <barnaby@beedesign.co.uk>,
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,36 +20,27 @@
  *
  */
 
-#ifndef PROMPTDIALOG_H
-#define PROMPTDIALOG_H
-
-#include <gtk--/dialog.h>
+#ifndef EVENTSYSTEM_H
+#define EVENTSYSTEM_H
 
 #include <string>
 
-using std::string;
+#include "MessageEvent.h"
 
-class PromptDialog : public Gtk::Dialog {
- public:
-  enum PromptType {
-    PROMPT_WARNING,
-    PROMPT_CONFIRM,
-    PROMPT_QUESTION,
-    PROMPT_INFO
-  };
+// ============================================================================
+//  EventSystem
+// ============================================================================
 
+class EventSystem : public SigC::Object
+{
  private:
-  PromptType m_type;
-  bool m_finish_bool;
-  bool m_modal;
-
+  void event_system(const std::string& s, const ICQ2000::ContactRef& c, time_t t);
+  
  public:
-  PromptDialog(PromptType t, const string& msg, bool modal = true);
+  EventSystem();
 
-  bool run();
-
-  void true_cb();
-  void false_cb();
+  void queue_added_cb(MessageEvent *ev);
 };
 
 #endif
+

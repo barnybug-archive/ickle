@@ -281,7 +281,7 @@ SearchDialog::SearchDialog()
   // connect to Search Result signal on icqclient
   icqclient.search_result.connect( slot( this, &SearchDialog::result_cb ) );
 
-  icqclient.self_event.connect( slot( this, &SearchDialog::self_event_cb ) );
+  icqclient.self_contact_status_change_signal.connect( slot( this, &SearchDialog::self_status_change_cb ) );
 }
 
 void SearchDialog::ok_cb()
@@ -350,8 +350,8 @@ void SearchDialog::result_cb(SearchResultEvent *ev)
 
       ContactList& cl = m_ev->getContactList();
 
-      Contact *c = m_ev->getLastContactAdded();
-      if (c != NULL) {
+      ContactRef c = m_ev->getLastContactAdded();
+      if (c.get() != NULL) {
 	vector<string> row_array;
 	row_array.push_back("");                // status icon
 	row_array.push_back( c->getAlias() );
@@ -369,7 +369,9 @@ void SearchDialog::result_cb(SearchResultEvent *ev)
 	ImageLoader *p = g_icons.IconForStatus(c->getStatus(),false);
 	(*r)[0].set_pixmap( p->pix(), p->bit() );
 
-	Contact *cc = new Contact(*c);
+	/* the ContactRef needs to be dynamically allocated here
+	   and deleted on clist destroy */
+	ContactRef *cc = new ContactRef(c);
 	(*r).set_data( cc, clist_data_destroy_cb );
 
 	m_clist.columns_autosize();
@@ -401,13 +403,9 @@ void SearchDialog::result_cb(SearchResultEvent *ev)
   
 }
 
-void SearchDialog::self_event_cb(SelfEvent *ev)
+void SearchDialog::self_status_change_cb(StatusChangeEvent *ev)
 {
-  if (ev->getType() == SelfEvent::MyStatusChange) {
-    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
-
-    m_search_button.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
-  }
+  m_search_button.set_sensitive( ev->getStatus() != ICQ2000::STATUS_OFFLINE );
 }
 
 void SearchDialog::stop_cb()
@@ -426,13 +424,13 @@ void SearchDialog::add_cb()
   if (sl.empty()) return;
 
   const Row& row = sl.front();
-  Contact *c = static_cast<Contact*>(row.get_data());
+  ContactRef *c = static_cast<ContactRef*>(row.get_data());
   icqclient.addContact( *c );
 }
 
 void SearchDialog::clist_data_destroy_cb(gpointer data)
 {
-  delete (Contact*)data;
+  delete (ContactRef*)data;
 }
 
 void SearchDialog::select_row_cb(gint x, gint y, GdkEvent *ev) 

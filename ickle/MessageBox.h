@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.19 2002-02-18 19:15:36 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.20 2002-03-28 18:29:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,6 +35,7 @@
 #include <gtk--/adjustment.h>
 #include <gtk--/scale.h>
 #include <gtk--/tooltips.h>
+#include <gtk--/radiobutton.h>
 
 #include <string>
 #include <time.h>
@@ -43,19 +44,16 @@
 
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
+
 #include "Icons.h"
 #include "History.h"
-
-using namespace ICQ2000;
-
-using std::string;
+#include "MessageQueue.h"
 
 class MessageBox : public Gtk::Window {
  private:
-  Contact *m_self_contact, *m_contact;
+  ICQ2000::ContactRef m_self_contact, m_contact;
 
   History *m_history;
-  SigC::Connection m_histconn;
 
   Gtk::Adjustment m_scaleadj;
   Gtk::HScale m_scale;
@@ -87,6 +85,8 @@ class MessageBox : public Gtk::Window {
   bool m_sms_enabled, m_online;
   bool m_display_times;
   
+  Gtk::RadioButton m_send_normal, m_send_urgent, m_send_tocontactlist;
+
   Gtk::VPaned m_pane;
   Gtk::ToggleButton *m_userinfo_toggle;
 
@@ -94,15 +94,15 @@ class MessageBox : public Gtk::Window {
   Gtk::Statusbar m_status;
   guint m_status_context;
 
-  MessageEvent::MessageType m_message_type;
+  ICQ2000::MessageEvent::MessageType m_message_type;
 
-  SigC::Connection m_settingsconn;
+  MessageQueue& m_message_queue;
 
   void send_button_update();
   void set_contact_title();
-  string format_time(time_t t);
+  std::string format_time(time_t t);
   void display_message(History::Entry &he);
-  void set_status( const string& text );
+  void set_status( const std::string& text );
   void redraw_history();
   guint update_scalelabel(guint i);
   void scaleadj_value_changed_cb();
@@ -116,14 +116,21 @@ class MessageBox : public Gtk::Window {
   static bool isBlank(const std::string& s);
 
  public:
-  MessageBox(Contact *self, Contact *c, History *h);
+  MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const ICQ2000::ContactRef& c, History *h);
   ~MessageBox();
 
   void popup();
 
   void new_entry_cb(History::Entry *ev);
-  void messageack_cb(MessageEvent *ev);
-  void contactlist_cb(ContactListEvent *ev);
+
+  // -- libICQ2000 callbacks   --
+  void messageack_cb(ICQ2000::MessageEvent *ev);
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
+  void status_change_cb(ICQ2000::StatusChangeEvent *ev);
+
+  // -- MessageQueue callbacks --
+  void queue_added_cb(MessageEvent *ev);
+  void queue_removed_cb(MessageEvent *ev);
 
   void enable_sms();
   void disable_sms();
@@ -141,7 +148,7 @@ class MessageBox : public Gtk::Window {
   void spell_detach();
 
   // signals
-  SigC::Signal1<void,MessageEvent *> send_event;
+  SigC::Signal1<void,ICQ2000::MessageEvent *> send_event;
   SigC::Signal1<void,bool> userinfo_dialog;
 
   void resized_cb(GtkAllocation*);
@@ -151,7 +158,7 @@ class MessageBox : public Gtk::Window {
   void userinfo_toggle_cb();
   void sms_count_update_cb();
   void icons_changed_cb();
-  void settings_changed_cb(const string &key);
+  void settings_changed_cb(const std::string &key);
   gint key_press_cb(GdkEventKey*);
   virtual gint delete_event_impl(GdkEventAny *ev);
 };

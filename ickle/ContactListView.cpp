@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.33 2002-03-16 18:10:03 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.34 2002-03-28 18:29:02 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,9 +39,11 @@ using std::transform;
 using std::inserter;
 using std::ostringstream;
 
-ContactListView::ContactListView()
+using ICQ2000::ContactRef;
+
+ContactListView::ContactListView(MessageQueue& mq)
   : CList(2), m_single_click(false),
-    m_check_away_click(false)
+    m_check_away_click(false), m_message_queue(mq)
 {
   column(0).set_title("S");
   column(0).set_width(15);
@@ -51,8 +53,16 @@ ContactListView::ContactListView()
   column(1).set_resizable(false);
   column_titles_show();
 
-  // callbacks
+  // -- library callbacks      --
   icqclient.contactlist.connect(slot(this,&ContactListView::contactlist_cb));
+  icqclient.contact_status_change_signal.connect(slot(this,&ContactListView::contact_status_change_cb));
+  icqclient.contact_userinfo_change_signal.connect(slot(this,&ContactListView::contact_userinfo_change_cb));
+
+  // -- MessageQueue callbacks --
+  m_message_queue.added.connect(slot(this, &ContactListView::queue_added_cb));
+  m_message_queue.removed.connect(slot(this, &ContactListView::queue_removed_cb));
+
+  // -- gui callbacks          --
   g_icons.icons_changed.connect(slot(this,&ContactListView::icons_changed_cb));
   g_settings.settings_changed.connect(slot(this,&ContactListView::settings_changed_cb));
 
@@ -128,16 +138,16 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
   return 0;
 }
 
-int ContactListView::status_order (Status s)
+int ContactListView::status_order (ICQ2000::Status s)
 {
   switch (s) {
-    case STATUS_ONLINE:       return 1;
-    case STATUS_FREEFORCHAT:  return 2;
-    case STATUS_OCCUPIED:     return 3;
-    case STATUS_DND:          return 4;
-    case STATUS_AWAY:         return 5;
-    case STATUS_NA:           return 6;
-    case STATUS_OFFLINE:      return 7;
+    case ICQ2000::STATUS_ONLINE:       return 1;
+    case ICQ2000::STATUS_FREEFORCHAT:  return 2;
+    case ICQ2000::STATUS_OCCUPIED:     return 3;
+    case ICQ2000::STATUS_DND:          return 4;
+    case ICQ2000::STATUS_AWAY:         return 5;
+    case ICQ2000::STATUS_NA:           return 6;
+    case ICQ2000::STATUS_OFFLINE:      return 7;
   }
 }
 
@@ -209,8 +219,8 @@ void ContactListView::userinfo_cb() {
 
 void ContactListView::remove_user_cb() {
   unsigned int uin = current_selection_uin();
-  Contact *c = icqclient.getContact(uin);
-  if (c != NULL) {
+  ContactRef c = icqclient.getContact(uin);
+  if (c.get() != NULL) {
     ostringstream ostr;
     ostr << "Are you sure you want to remove " << c->getAlias();
     if (c->isICQContact()) ostr << " (" << uin << ")";
@@ -221,9 +231,11 @@ void ContactListView::remove_user_cb() {
 }
 
 void ContactListView::fetch_away_msg_cb() {
-  Contact *c = icqclient.getContact( current_selection_uin() );
-  if (c != NULL && c->getStatus() != STATUS_ONLINE && c->getStatus() != STATUS_OFFLINE)
-    icqclient.SendEvent( new AwayMessageEvent(c) );
+  ContactRef c = icqclient.getContact( current_selection_uin() );
+  if (c.get() != NULL
+      && c->getStatus() != ICQ2000::STATUS_ONLINE
+      && c->getStatus() != ICQ2000::STATUS_OFFLINE)
+    icqclient.SendEvent( new ICQ2000::AwayMessageEvent(c) );
 }
 
 unsigned int ContactListView::current_selection_uin() {
@@ -242,7 +254,7 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
   if (rw == -1) return false;
 
   RowData *p = (RowData*)get_row_data(rw);
-  Contact *c;
+  ContactRef c;
     
   if (ev->button == 3) {
     row(rw).select();
@@ -259,8 +271,10 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
 
     if (col == 0 && m_check_away_click == true) {
       c = icqclient.getContact( p->uin );
-      if (c != NULL && c->getStatus() != STATUS_ONLINE && c->getStatus() != STATUS_OFFLINE)
-	icqclient.SendEvent( new AwayMessageEvent(c) );
+      if (c.get() != NULL
+	  && c->getStatus() != ICQ2000::STATUS_ONLINE
+	  && c->getStatus() != ICQ2000::STATUS_OFFLINE)
+	icqclient.SendEvent( new ICQ2000::AwayMessageEvent(c) );
 
       return true;
     }
@@ -285,41 +299,42 @@ ContactListView::citerator ContactListView::lookupUIN(unsigned int uin) {
   return rows().end();
 }
 
-void ContactListView::UpdateRow(const Contact& c) {
+void ContactListView::update_row(const ContactRef& c) {
 
-  citerator row = lookupUIN(c.getUIN());
+  citerator row = lookupUIN(c->getUIN());
   if (row == rows().end()) return;
 
   RowData *rp = (RowData*)(*row).get_data();
-  rp->status = c.getStatus();
-  rp->msgs = c.numberPendingMessages();
-
+  rp->status = c->getStatus();
+  rp->msgs = 0;
   ImageLoader *p;
+
+  rp->msgs = m_message_queue.get_contact_size(c);
+
   if (rp->msgs > 0) {
-    MessageEvent *ev = c.getPendingMessage();
-    p = g_icons.IconForEvent(ev->getType());
+
+    MessageEvent *ev = m_message_queue.get_contact_first_message(c);
+    if (ev->getServiceType() == MessageEvent::ICQ) {
+      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+      p = g_icons.IconForEvent(icq->getICQMessageType());
+    }
+    
   } else {
-    p = g_icons.IconForStatus(c.getStatus(),c.isInvisible());
+    p = g_icons.IconForStatus(c->getStatus(),c->isInvisible());
   }
   
   (*row)[0].set_pixmap( p->pix(), p->bit() );
-  string alias = c.getAlias();
-  if (alias.empty()) {
-    alias = c.getFirstName() + " " + c.getLastName();
-    if (alias == " ") {
-      if (c.isICQContact()) alias = c.getStringUIN();
-      else alias = c.getMobileNo();
-    }
-  }
+
+  string alias = c->getNameAlias();
   transform( alias.begin(), alias.end(), inserter(rp->alias, rp->alias.begin()), tolower );
   (*row)[1].set_text( alias );
 }
 
-void ContactListView::contactlist_cb(ContactListEvent *ev) {
-  Contact *c = ev->getContact();
+void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev) {
+  ContactRef c = ev->getContact();
   unsigned int uin = c->getUIN();
 
-  if (ev->getType() == ContactListEvent::UserAdded) {
+  if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
     vector<string> a;
     a.push_back("");
     a.push_back("");
@@ -330,12 +345,12 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     p->uin = c->getUIN();
     (*cr).set_data(p);
 
-    UpdateRow(*c);
+    update_row(c);
 
     columns_autosize();
     sort();
 
-  } else if (ev->getType() == ContactListEvent::UserRemoved) {
+  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
 
     citerator cr = lookupUIN(uin);
     RowData *p = (RowData*)(*cr).get_data();
@@ -343,32 +358,27 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     rows().erase(cr);
     columns_autosize();
     sort();
-
-  } else if (ev->getType() == ContactListEvent::MessageQueueChanged
-	     || ev->getType() == ContactListEvent::StatusChange 
-	     || ev->getType() == ContactListEvent::UserInfoChange) {
-
-    UpdateRow(*c);
-    columns_autosize();
-    sort();
   }
 }
 
-bool ContactListView::message_cb(MessageEvent *ev) {
-  Contact *c = ev->getContact();
-
-  UpdateRow(*c);
+void ContactListView::contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
+{
+  update_row(ev->getContact());
   sort();
+}
 
-  return false; // return false because the message shouldn't be swallowed yet
+void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
+{
+  update_row(ev->getContact());
+  sort();
 }
 
 void ContactListView::icons_changed_cb() {
   citerator curr = rows().begin();
   while (curr != rows().end()) {
     RowData *rp = (RowData*)(*curr).get_data();
-    Contact *c = icqclient.getContact( rp->uin );
-    if (c != NULL) UpdateRow(*c);
+    ContactRef c = icqclient.getContact( rp->uin );
+    if (c.get() != NULL) update_row(c);
     ++curr;
   }
 }
@@ -378,4 +388,18 @@ void ContactListView::settings_changed_cb(const string& key) {
     m_single_click = g_settings.getValueBool(key);
   else if (key == "mouse_check_away_click")
     m_check_away_click = g_settings.getValueBool(key);
+}
+
+void ContactListView::queue_added_cb(MessageEvent *ev)
+{
+  if (ev->getServiceType() != MessageEvent::ICQ) return;
+  ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+  update_row(icq->getICQContact());
+}
+
+void ContactListView::queue_removed_cb(MessageEvent *ev)
+{
+  if (ev->getServiceType() != MessageEvent::ICQ) return;
+  ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+  update_row(icq->getICQContact());
 }
