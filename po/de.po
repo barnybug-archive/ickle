@@ -7,25 +7,26 @@
 # Online	:	Online
 # Offline	:	Offline
 # Away		:	Abwesend
-# N/A		: 	Nicht Verfügbar
+# N/A		: 	Nicht VerfÃ¼gbar
 # Ocupied	:	Besetzt
-# DND		: 	Nicht Stören
-# Free for chat	:	Frei für Chat
+# DND		: 	Nicht StÃ¶ren
+# Free for chat	:	Frei fÃ¼r Chat
 msgid ""
 msgstr ""
 "Project-Id-Version: ickle 0.3.2\n"
-"POT-Creation-Date: 2003-03-12 11:26+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-11-04 19:49+0100\n"
 "PO-Revision-Date: 2003-02-05 23:55+0100\n"
 "Last-Translator: Christian Borntraeger <christian@borntraeger.net>\n"
 "Language-Team: Christian Borntraeger <christian@borntraeger.net>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=ISO-8859-15\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: ickle/AboutDialog.cpp:36
 msgid "About ickle"
-msgstr "Über ickle"
+msgstr "Ãœber ickle"
 
 #: ickle/AboutDialog.cpp:61
 msgid "Version: %1\n"
@@ -33,7 +34,7 @@ msgstr "Version: %1\n"
 
 #: ickle/AboutDialog.cpp:66
 msgid "Compiled on: %1\n"
-msgstr "Übersetzt am: %1\n"
+msgstr "Ãœbersetzt am: %1\n"
 
 #: ickle/AboutDialog.cpp:70
 msgid "libicq2000 version: %1\n"
@@ -56,26 +57,30 @@ msgid "* Nils Nordman <nino@nforced.com> ICQ: 778602\n"
 msgstr "* Nils Nordman <nino@nforced.com> ICQ: 778602\n"
 
 #: ickle/AboutDialog.cpp:76
-msgid "* Dominic Sacr <bugcreator@gmx.de> ICQ: 102496033\n"
-msgstr "* Dominic Sacr <bugcreator@gmx.de> ICQ: 102496033\n"
+msgid "* Dominic SacrÃ© <bugcreator@gmx.de> ICQ: 102496033\n"
+msgstr "* Dominic SacrÃ© <bugcreator@gmx.de> ICQ: 102496033\n"
 
 #: ickle/AboutDialog.cpp:77
-msgid ""
-"* Alex Antropoff <alex@tirastel.md>\n"
-"\n"
-msgstr ""
-"* Alex Antropoff <alex@tirastel.md>\n"
-"\n"
+msgid "* Alex Antropoff <alex@tirastel.md>\n"
+msgstr "* Alex Antropoff <alex@tirastel.md>\n"
 
 #: ickle/AboutDialog.cpp:78
+msgid ""
+"* Christian BorntrÃ¤ger <linux@borntraeger.net> ICQ: 113774556\n"
+"\n"
+msgstr ""
+"* Christian BorntrÃ¤ger <linux@borntraeger.net> ICQ: 113774556\n"
+"\n"
+
+#: ickle/AboutDialog.cpp:79
 msgid ""
 "Further contributions by many other developers are listed in the THANKS "
 "file.\n"
 msgstr ""
-"Weitere Beiträge von vielen weiteren Entwicklern sind in der THANKS-Datei "
+"Weitere BeitrÃ¤ge von vielen weiteren Entwicklern sind in der THANKS-Datei "
 "verzeichnet\n"
 
-#: ickle/AboutDialog.cpp:79
+#: ickle/AboutDialog.cpp:80
 msgid ""
 "\n"
 "Further information\n"
@@ -83,20 +88,20 @@ msgstr ""
 "\n"
 "Weitere Informationen\n"
 
-#: ickle/AboutDialog.cpp:81
+#: ickle/AboutDialog.cpp:82
 msgid ""
 "If you'd like to comment on ickle, contribute to the project or file a bug "
 "report please see the README for more information.\n"
 msgstr ""
-"Für Kommentare, Beiträge oder Fehlerberichte bitte die Informationen in der "
-"Datei README beachten. Deutsche Übersetzung von Christian Bornträger "
+"FÃ¼r Kommentare, BeitrÃ¤ge oder Fehlerberichte bitte die Informationen in der "
+"Datei README beachten. Deutsche Ãœbersetzung von Christian BorntrÃ¤ger "
 "<linux@borntraeger.net> ICQ: 113774556\n"
 
-#: ickle/AddContactDialog.cpp:34 ickle/ContactListView.cpp:170
-#: ickle/ContactListView.cpp:191 ickle/ContactListView.cpp:200
-#: ickle/IckleGUI.cpp:96
+#: ickle/AddContactDialog.cpp:34 ickle/ContactListView.cpp:174
+#: ickle/ContactListView.cpp:195 ickle/ContactListView.cpp:204
+#: ickle/IckleGUI.cpp:97
 msgid "Add Contact"
-msgstr "Kontakt hinzufügen"
+msgstr "Kontakt hinzufÃ¼gen"
 
 #: ickle/AddContactDialog.cpp:35
 msgid "An ICQ contact (has a uin)"
@@ -130,7 +135,8 @@ msgstr "Mobile Kontakte"
 msgid "Group"
 msgstr "Gruppe"
 
-#: ickle/AddContactDialog.cpp:43
+#: ickle/AddContactDialog.cpp:43 ickle/SearchDialog.cpp:96
+#: ickle/SearchDialog.cpp:284
 msgid "Alias"
 msgstr "Alias"
 
@@ -138,21 +144,22 @@ msgstr "Alias"
 msgid "Mobile Number"
 msgstr "Handynummer"
 
-#: ickle/AddContactDialog.cpp:143 ickle/AddContactDialog.cpp:215
-#: ickle/AddContactDialog.cpp:225 ickle/AddContactDialog.cpp:300
-#: ickle/IckleClient.cpp:787 ickle/IckleClient.cpp:793
-#: ickle/IckleClient.cpp:1263 ickle/IckleClient.cpp:1270
+#: ickle/AddContactDialog.cpp:142 ickle/AddContactDialog.cpp:214
+#: ickle/AddContactDialog.cpp:224 ickle/AddContactDialog.cpp:299
+#: ickle/IckleClient.cpp:823 ickle/IckleClient.cpp:829
+#: ickle/IckleClient.cpp:1306 ickle/IckleClient.cpp:1313
+#: ickle/SearchDialog.cpp:367
 msgid "New"
 msgstr "Neu"
 
-#: ickle/AddContactDialog.cpp:150
+#: ickle/AddContactDialog.cpp:149 ickle/SearchDialog.cpp:373
 msgid "Add to group"
-msgstr "Der Gruppe hinzufügen"
+msgstr "Der Gruppe hinzufÃ¼gen"
 
-#: ickle/AddGroupDialog.cpp:35 ickle/ContactListView.cpp:173
-#: ickle/ContactListView.cpp:194 ickle/ContactListView.cpp:203
+#: ickle/AddGroupDialog.cpp:35 ickle/ContactListView.cpp:177
+#: ickle/ContactListView.cpp:198 ickle/ContactListView.cpp:207
 msgid "Add Group"
-msgstr "Gruppe hinzufügen"
+msgstr "Gruppe hinzufÃ¼gen"
 
 #: ickle/AddGroupDialog.cpp:51
 msgid "Group label"
@@ -164,7 +171,7 @@ msgstr "Authorisations-Antwort"
 
 #: ickle/AuthRespDialog.cpp:35
 msgid "Grant"
-msgstr "Gewähren"
+msgstr "GewÃ¤hren"
 
 #: ickle/AuthRespDialog.cpp:35
 msgid "Refuse"
@@ -179,8 +186,8 @@ msgid ""
 "%1 is requesting authorisation.\n"
 "You should grant or refuse the request.\n"
 msgstr ""
-"%1 möchte authorisiert werden.\n"
-"Sie können annehmen oder ablehnen.\n"
+"%1 mÃ¶chte authorisiert werden.\n"
+"Sie kÃ¶nnen annehmen oder ablehnen.\n"
 
 #: ickle/AuthRespDialog.cpp:52
 msgid ""
@@ -200,7 +207,7 @@ msgstr "Antwort Senden"
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: ickle/AwayMessageDialog.cpp:43 ickle/SettingsDialog.cpp:484
+#: ickle/AwayMessageDialog.cpp:43 ickle/SettingsDialog.cpp:808
 msgid "Away Messages"
 msgstr "Abwesenheits-Nachrichten"
 
@@ -208,51 +215,55 @@ msgstr "Abwesenheits-Nachrichten"
 msgid "Couldn't fetch away message"
 msgstr "Konnte keine Abwesenheits-Nachricht erhalten."
 
-#: ickle/ContactListView.cpp:107
+#: ickle/ContactListView.cpp:108
 msgid "Contacts"
 msgstr "Kontakte"
 
-#: ickle/ContactListView.cpp:152
+#: ickle/ContactListView.cpp:153
 msgid "Check away message"
 msgstr "Abwesenheits-Nachricht abfragen"
 
-#: ickle/ContactListView.cpp:156
+#: ickle/ContactListView.cpp:157
 msgid "User Info"
 msgstr "Kontaktinformationen"
 
-#: ickle/ContactListView.cpp:159
+#: ickle/ContactListView.cpp:160
+msgid "Send File"
+msgstr "Datei senden"
+
+#: ickle/ContactListView.cpp:163
 msgid "Send Auth Request"
 msgstr "Authorisierungsanfrage stellen"
 
-#: ickle/ContactListView.cpp:162 ickle/ContactListView.cpp:378
+#: ickle/ContactListView.cpp:166 ickle/ContactListView.cpp:389
 msgid "Use encoding"
 msgstr "Zeichensatz"
 
-#: ickle/ContactListView.cpp:166 ickle/RemoveContactDialog.cpp:34
+#: ickle/ContactListView.cpp:170 ickle/RemoveContactDialog.cpp:34
 msgid "Remove Contact"
 msgstr "Kontakt entfernen"
 
-#: ickle/ContactListView.cpp:176
+#: ickle/ContactListView.cpp:180
 msgid "Move to Group"
 msgstr "verschieben in Gruppe"
 
-#: ickle/ContactListView.cpp:183 ickle/RenameGroupDialog.cpp:35
+#: ickle/ContactListView.cpp:187 ickle/RenameGroupDialog.cpp:35
 msgid "Rename Group"
 msgstr "Gruppe umbenennen"
 
-#: ickle/ContactListView.cpp:184 ickle/RemoveGroupDialog.cpp:43
+#: ickle/ContactListView.cpp:188 ickle/RemoveGroupDialog.cpp:43
 msgid "Remove Group"
 msgstr "Gruppe entfernen"
 
-#: ickle/ContactListView.cpp:187
+#: ickle/ContactListView.cpp:191
 msgid "Check all away messages"
 msgstr "Alle Abwesenheits-Nachrichten abfragen"
 
-#: ickle/ContactListView.cpp:370
+#: ickle/ContactListView.cpp:381
 msgid "Use encoding (%1)"
 msgstr "Zeichensatz (%1)"
 
-#: ickle/ContactListView.cpp:543
+#: ickle/ContactListView.cpp:554
 msgid "%1/%2"
 msgstr "%1/%2"
 
@@ -272,90 +283,86 @@ msgstr "nicht verbunden"
 msgid "UIN %1 is not on your contact list"
 msgstr "UIN %1 ist nicht auf ihrer Kontaktliste"
 
-#: ickle/History.cpp:76
+#: ickle/History.cpp:78
 msgid "Warning: History::~History: stream was not released properly"
 msgstr ""
-"Warnung: History::~History: stream wurde nicht ordnungsgemäß freigegeben"
+"Warnung: History::~History: stream wurde nicht ordnungsgemÃ¤ÃŸ freigegeben"
 
-#: ickle/History.cpp:119
+#: ickle/History.cpp:122
 msgid "History::log: Could not open historyfile for writing: %1"
-msgstr "History::log: Konnte Verlaufsdatei nicht schreibend öffnen: %1"
+msgstr "History::log: Konnte Verlaufsdatei nicht schreibend Ã¶ffnen: %1"
 
-#: ickle/History.cpp:276
+#: ickle/History.cpp:279
 msgid "Could not open historyfile for reading: %1"
-msgstr "Konnte Verlaufsdatei nicht lesend öffnen: %1"
+msgstr "Konnte Verlaufsdatei nicht lesend Ã¶ffnen: %1"
 
-#: ickle/History.cpp:327
+#: ickle/History.cpp:330 ickle/History.cpp:442
 msgid "History::get_msg illegal index: %1"
 msgstr "History::get_msg illegaler Index: %1"
 
-#: ickle/History.cpp:334
+#: ickle/History.cpp:337 ickle/History.cpp:449 ickle/History.cpp:539
 msgid "History::get_msg: Could not open historyfile for reading: %1"
-msgstr "History::get_msg: Konnte Verlaufsdatei nicht lesend öffnen: %1"
+msgstr "History::get_msg: Konnte Verlaufsdatei nicht lesend Ã¶ffnen: %1"
 
-#: ickle/History.cpp:433
+#: ickle/History.cpp:485
 msgid "History::stream_lock: stream is already locked!"
 msgstr "History::stream_lock: Stream ist bereits gesperrt!"
 
-#: ickle/History.cpp:440
+#: ickle/History.cpp:492
 msgid "History::stream_lock: Could not open historyfile for reading: %1"
-msgstr "History::stream_lock: Konnte Verlaufsdatei %1 nicht lesend öffnen"
+msgstr "History::stream_lock: Konnte Verlaufsdatei %1 nicht lesend Ã¶ffnen"
 
-#: ickle/History.cpp:449
+#: ickle/History.cpp:501
 msgid "History::stream_release: stream is not locked!"
 msgstr "History::stream_release: Stream ist nicht gesperrt!"
 
-#: ickle/IckleClient.cpp:206
+#: ickle/IckleClient.cpp:208
 msgid "ickle version %1"
 msgstr "ickle Version %1"
 
-#: ickle/IckleClient.cpp:207
+#: ickle/IckleClient.cpp:209
 msgid "Usage: %1 [-h] [-b dir]"
 msgstr "Bedienung: %1 [-h] [-b dir]"
 
-#: ickle/IckleClient.cpp:208
+#: ickle/IckleClient.cpp:210
 msgid " -h : the help screen you are seeing"
 msgstr " -h : diesen Hilfetext anzeigen"
 
-#: ickle/IckleClient.cpp:209
+#: ickle/IckleClient.cpp:211
 msgid ""
 " -b : use a different configuration directory (~/.ickle/ is the default)"
 msgstr ""
 " -b : eine andere Konfigurationsdatei verwenden (~/.ickle/ als Standard)"
 
-#: ickle/IckleClient.cpp:230
+#: ickle/IckleClient.cpp:232
 #, c-format
 msgid ""
 "Couldn't open %1ickle.conf, using default settings\n"
 "This is probably the first time you've run ickle.\n"
 msgstr ""
-"Konnte %1ickle.conf nicht öffnen. Die Standardeinstellungen werden benutzt.\n"
+"Konnte %1ickle.conf nicht Ã¶ffnen. Die Standardeinstellungen werden benutzt.\n"
 "Dies ist wahrscheinlich der erste Start von ickle\n"
 
-#: ickle/IckleClient.cpp:302
-msgid ""
-"User is currently not available\n"
-"You can leave him/her a message"
-msgstr ""
-"Der Kontakt im Moment nicht verfügbar.\n"
-"Sie können ihm/ihr eine Nachricht hinterlassen."
+#: ickle/IckleClient.cpp:305
+msgid "I really enjoy the default away message of ickle %v"
+msgstr "I mag die Standardabwesenheitsnachricht von ickle %v"
 
-#: ickle/IckleClient.cpp:314 ickle/SettingsDialog.cpp:428
-#: ickle/UserInfoHelpers.cpp:55
+#: ickle/IckleClient.cpp:317 ickle/SettingsDialog.cpp:653
+#: ickle/UserInfoHelpers.cpp:56
 msgid "Away"
 msgstr "Abwesend"
 
-#: ickle/IckleClient.cpp:315
+#: ickle/IckleClient.cpp:318
 #, c-format
 msgid "Hello %a, I'm away at the moment."
 msgstr "Hallo %a, Ich bin gerade nicht da."
 
-#: ickle/IckleClient.cpp:437
+#: ickle/IckleClient.cpp:449
 #, c-format
 msgid "Couldn't save %1ickle.conf"
 msgstr "Konnte %1ickle.conf nicht speichern"
 
-#: ickle/IckleClient.cpp:446
+#: ickle/IckleClient.cpp:458
 msgid ""
 "The permissions on %1 couldn't be set to 0600. Your ICQ password is "
 "vulnerable!"
@@ -363,45 +370,45 @@ msgstr ""
 "Die Rechte von %1 konnten nicht auf 0600 gesetzt werden. Ihr ICQ-Passwort "
 "ist von anderen Nutzern auslesbar!"
 
-#: ickle/IckleClient.cpp:501
+#: ickle/IckleClient.cpp:513
 msgid "Disconnected as requested"
 msgstr "Trennung auf Verlangen"
 
-#: ickle/IckleClient.cpp:506
+#: ickle/IckleClient.cpp:518
 msgid "Socket problems"
 msgstr "Socket-Probleme"
 
-#: ickle/IckleClient.cpp:509
+#: ickle/IckleClient.cpp:521
 msgid "Bad Username"
 msgstr "Falscher Nutzername"
 
-#: ickle/IckleClient.cpp:512
+#: ickle/IckleClient.cpp:524
 msgid "Turboing"
 msgstr "Turboing"
 
-#: ickle/IckleClient.cpp:515
+#: ickle/IckleClient.cpp:527
 msgid "Bad Password"
 msgstr "Falsches Passwort"
 
-#: ickle/IckleClient.cpp:518
+#: ickle/IckleClient.cpp:530
 msgid "Username and Password did not match"
 msgstr "Nutzername und Passwort passen nicht"
 
-#: ickle/IckleClient.cpp:521 ickle/IckleClient.cpp:527
+#: ickle/IckleClient.cpp:533 ickle/IckleClient.cpp:539
 #: ickle/UserInfoDialog.cpp:594 ickle/UserInfoDialog.cpp:700
 #: ickle/UserInfoDialog.cpp:708
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: ickle/IckleClient.cpp:524
+#: ickle/IckleClient.cpp:536
 msgid "Dual login, disconnected"
 msgstr "Doppeltes Login, Trennung"
 
-#: ickle/IckleClient.cpp:531
+#: ickle/IckleClient.cpp:543
 msgid "Problem connecting: %1"
 msgstr "Problem beim Verbinden: %1"
 
-#: ickle/IckleClient.cpp:595
+#: ickle/IckleClient.cpp:607
 msgid ""
 "The permissions on %1 couldn't be set to 0600. Your ICQ password may be "
 "logged in this file, so it could be vulnerable!"
@@ -409,85 +416,85 @@ msgstr ""
 "Die Rechte von %1 konnten nicht auf 0600 gesetzt werden. Ihr ICQ-Passwort "
 "ist von anderen Nutzern auslesbar!"
 
-#: ickle/IckleClient.cpp:673
+#: ickle/IckleClient.cpp:685
 msgid "Could not generate temporary filename for history"
-msgstr "Konnte keine temporäre Verlaufsdatei anlegen"
+msgstr "Konnte keine temporÃ¤re Verlaufsdatei anlegen"
 
-#: ickle/IckleClient.cpp:707 ickle/IckleClient.cpp:812
+#: ickle/IckleClient.cpp:719 ickle/IckleClient.cpp:848
 msgid "No history object for contact: %1"
 msgstr "Kein Verlaufsobjekt for den Kontakt: %1"
 
-#: ickle/IckleClient.cpp:730
+#: ickle/IckleClient.cpp:742
 msgid "Problem: file descriptor already connected"
 msgstr "Problem: Dateideskriptor bereits verbunden"
 
-#: ickle/IckleClient.cpp:745
+#: ickle/IckleClient.cpp:757
 msgid "Problem: file descriptor not connected"
 msgstr "Problem: Dateideskriptornicht verbunden"
 
-#: ickle/IckleClient.cpp:802
+#: ickle/IckleClient.cpp:838
 msgid "Unhandled libicq2000 event"
 msgstr "Unbehandeltes libicq2000-Ereignis"
 
-#: ickle/IckleClient.cpp:923 ickle/IckleClient.cpp:980
+#: ickle/IckleClient.cpp:966 ickle/IckleClient.cpp:1023
 msgid "mkdir %1 failed: %2"
 msgstr "Verzeichnis %1 konnte nicht erstellt werden: %2"
 
-#: ickle/IckleClient.cpp:1303
+#: ickle/IckleClient.cpp:1346
 msgid "ickle left behind a stale lockfile (%1)"
 msgstr "ickle hat eine alte Sperrdatei hinterlassen(%1)"
 
-#: ickle/IckleClient.cpp:1320
+#: ickle/IckleClient.cpp:1363
 msgid "Could not create pid_file (%1)"
 msgstr "Konnte pid-Datei nicht erstellen (%1)"
 
-#: ickle/IckleGUI.cpp:99 ickle/UserInfoDialog.cpp:60
+#: ickle/IckleGUI.cpp:100 ickle/UserInfoDialog.cpp:60
 msgid "My User Info"
 msgstr "Meine Kontaktinformationen"
 
-#: ickle/IckleGUI.cpp:102
+#: ickle/IckleGUI.cpp:103
 msgid "Search for Contacts"
 msgstr "Nach Kontakten suchen"
 
-#: ickle/IckleGUI.cpp:107 ickle/SetAutoResponseDialog.cpp:40
+#: ickle/IckleGUI.cpp:108 ickle/SetAutoResponseDialog.cpp:40
 #: ickle/SetAutoResponseDialog.cpp:114
 msgid "Set Auto Response"
 msgstr "Automatische Antwort festlegen"
 
-#: ickle/IckleGUI.cpp:111
+#: ickle/IckleGUI.cpp:112
 msgid "Show offline contacts"
 msgstr "Offline-Kontakte anzeigen"
 
-#: ickle/IckleGUI.cpp:115 ickle/LogWindow.cpp:45
+#: ickle/IckleGUI.cpp:116 ickle/LogWindow.cpp:45
 msgid "Log Window"
 msgstr "Protokollfenster"
 
-#: ickle/IckleGUI.cpp:120 ickle/UserInfoDialog.cpp:294
+#: ickle/IckleGUI.cpp:121 ickle/UserInfoDialog.cpp:294
 msgid "About"
-msgstr "Über"
+msgstr "Ãœber"
 
-#: ickle/IckleGUI.cpp:133 ickle/IckleGUI.cpp:176
+#: ickle/IckleGUI.cpp:134 ickle/IckleGUI.cpp:177
 msgid "ickle"
 msgstr "ickle"
 
-#: ickle/IckleGUI.cpp:180
+#: ickle/IckleGUI.cpp:181
 #, c-format
 msgid "ickle - %1%2"
 msgstr "ickle - %1%2"
 
-#: ickle/IckleGUI.cpp:331
+#: ickle/IckleGUI.cpp:347
 msgid "%1 has added you to their contact list."
 msgstr "Sie wurden in die Kontaktliste von %1 aufgenommen."
 
-#: ickle/IckleGUI.cpp:348
+#: ickle/IckleGUI.cpp:370
 msgid "%1 has granted your request for authorisation."
-msgstr "%1 hat ihre Authorisierungsanfrage bestätigt."
+msgstr "%1 hat ihre Authorisierungsanfrage bestÃ¤tigt."
 
-#: ickle/IckleGUI.cpp:350
+#: ickle/IckleGUI.cpp:372
 msgid "%1 has refused your request for authorisation."
 msgstr "%1 hat ihre Authorisierungsanfrage abgelehnt."
 
-#: ickle/IckleGUI.cpp:356
+#: ickle/IckleGUI.cpp:378
 msgid ""
 "Their refusal message was:\n"
 "\n"
@@ -497,7 +504,7 @@ msgstr ""
 "\n"
 "%1\n"
 
-#: ickle/IckleGUI.cpp:594
+#: ickle/IckleGUI.cpp:618
 msgid ""
 "You have not entered a valid UIN and Password. Go to Settings and correct "
 "the details."
@@ -505,7 +512,7 @@ msgstr ""
 "Sie haben keine korrektes UIN und Passwort angegeben. Gehen sie in die "
 "Einstellungen und korrigieren sie die Details."
 
-#: ickle/IckleGUI.cpp:602
+#: ickle/IckleGUI.cpp:626
 msgid ""
 "The server says you have been turboing. This means you've been connecting "
 "and disconnecting to the server too quickly and so it has blocked you "
@@ -514,54 +521,54 @@ msgid ""
 "up to an hour."
 msgstr ""
 "Der ICQ-Server meint, dass Sie sich zu oft verbunden und getrennt haben. "
-"Deshalb hat der Server Sie vorübergehend blockiert. Dies ist kein Grund yur "
+"Deshalb hat der Server Sie vorÃ¼bergehend blockiert. Dies ist kein Grund yur "
 "Sorge, warten sie mindestens 5 Minuten bevor sie sich wieder verbinden. "
-"Sollte es dann immer noch nicht funktionieren, müssen sie etwas länger "
-"warten, möglicherweise bis yu einer Stunde."
+"Sollte es dann immer noch nicht funktionieren, mÃ¼ssen sie etwas lÃ¤nger "
+"warten, mÃ¶glicherweise bis yu einer Stunde."
 
-#: ickle/IckleGUI.cpp:613
+#: ickle/IckleGUI.cpp:637
 msgid ""
 "The server recieved multiple simultaneous login for this account.\n"
 "Do you have multiple clients running with the same account?"
 msgstr ""
 "Der Server hat mehrere gleichzeitige Logins festgestellt.\n"
-"Haben Sie mehrere ICQ-Programme für diese Kennung ?"
+"Haben Sie mehrere ICQ-Programme fÃ¼r diese Kennung ?"
 
-#: ickle/IckleGUI.cpp:621
+#: ickle/IckleGUI.cpp:645
 msgid ""
 "ickle appears to be already running (process id %1).\n"
 "Either kill this process (if it is actually ickle), or remove the lockfile:\n"
 "%2"
 msgstr ""
 "ickle scheint bereits zu laufen. (Prozess-Id %1).\n"
-"Beenden sie diesen Prozess, sofern es ickle ist oder löschen sie die "
+"Beenden sie diesen Prozess, sofern es ickle ist oder lÃ¶schen sie die "
 "Sperrdatei:\n"
 "%2"
 
-#: ickle/IckleGUI.cpp:630
+#: ickle/IckleGUI.cpp:654
 msgid ""
 "There occured a networking error while communicating with the server, and as "
 "a result you were disconnected."
 msgstr ""
-"Ein Netzwerkfehler ist aufgetreten während der Kommunikation. Sie wurden aus "
+"Ein Netzwerkfehler ist aufgetreten wÃ¤hrend der Kommunikation. Sie wurden aus "
 "diesem Grund getrennt."
 
-#: ickle/IckleGUI.cpp:634 ickle/IckleGUI.cpp:651
+#: ickle/IckleGUI.cpp:658 ickle/IckleGUI.cpp:675
 msgid ""
 " Ickle tried to reconnect %1 times, unfortunately with little success.\n"
 "You will have to manually attempt to reconnect, preferably after waiting a "
 "short while."
 msgstr ""
 " Ickle hat %1 mal versucht sich zu verbinden, leider ohne Erfolg.\n"
-"Sie müssen sich manuell wieder verbinden, vorzugsweise nachdem sie eine "
+"Sie mÃ¼ssen sich manuell wieder verbinden, vorzugsweise nachdem sie eine "
 "kurze Zeit gewartet haben."
 
-#: ickle/IckleGUI.cpp:647
+#: ickle/IckleGUI.cpp:671
 msgid ""
 "There occured an unknown error while communicating with the server, and as a "
 "result you were disconnected."
 msgstr ""
-"Es ist ein unbekannter Fehler während der Kommunikation aufgetreten. Sie "
+"Es ist ein unbekannter Fehler wÃ¤hrend der Kommunikation aufgetreten. Sie "
 "wurden ausdiesem Grund getrennt."
 
 #: ickle/LogWindow.cpp:41
@@ -584,132 +591,152 @@ msgstr "Pakete"
 msgid "Direct Packet"
 msgstr "Direkte Pakete"
 
-#: ickle/main.cpp:80
+#: ickle/main.cpp:85
 msgid "Exiting abnormally: %1"
 msgstr "Abnormer Abbruch: %1"
 
-#: ickle/main.cpp:84
+#: ickle/main.cpp:89
 msgid "Exiting abnormally"
 msgstr "Abnomer Abbruch"
 
-#: ickle/MessageBox.cpp:74
+#: ickle/MessageBox.cpp:77
 msgid "Normal"
 msgstr "Normal"
 
-#: ickle/MessageBox.cpp:75
+#: ickle/MessageBox.cpp:78
 msgid "Urgent"
 msgstr "Dringend"
 
-#: ickle/MessageBox.cpp:76
+#: ickle/MessageBox.cpp:79
 msgid "To Contact List"
-msgstr "Zur Kontaktliste hinzufügen"
+msgstr "Zur Kontaktliste hinzufÃ¼gen"
 
-#: ickle/MessageBox.cpp:165
+#: ickle/MessageBox.cpp:170
 msgid "URL:"
 msgstr "URL:"
 
-#: ickle/MessageBox.cpp:253
+#: ickle/MessageBox.cpp:258
 msgid "Popup User Information Dialog"
 msgstr "Kontaktinformationen anzeigen"
 
-#: ickle/MessageBox.cpp:258
+#: ickle/MessageBox.cpp:263
 msgid "Show/Hide Delivery urgency options"
 msgstr "Dringlichkeitsoptionen anzeigen"
 
 #: ickle/MessageBox.cpp:267
 msgid ""
+"Find Text in History\n"
+"Shortcut: Ctrl-F "
+msgstr ""
+"Textsuche im Verlauf\n"
+"TastenkÃ¼rzel: Strg-F"
+
+#: ickle/MessageBox.cpp:279
+msgid ""
 "Send Message\n"
 "Shortcuts: Ctrl-Enter or Alt-S"
 msgstr ""
 "Nachricht abschicken\n"
-" Tastenkürzel: Strg-Enter oder Alt-S"
+" TastenkÃ¼rzel: Strg-Enter oder Alt-S"
 
-#: ickle/MessageBox.cpp:271
+#: ickle/MessageBox.cpp:283
 msgid ""
 "Close window\n"
 "Shortcuts: Alt-C or Escape"
 msgstr ""
-"Fenster schließen\n"
-"Tastenkürzel: Alt-C oder Escape"
+"Fenster schlieÃŸen\n"
+"TastenkÃ¼rzel: Alt-C oder Escape"
 
-#: ickle/MessageBox.cpp:568
+#: ickle/MessageBox.cpp:610
 msgid "chars over"
 msgstr "Zeichen zu viel"
 
-#: ickle/MessageBox.cpp:575
+#: ickle/MessageBox.cpp:617
 msgid "chars left"
 msgstr "Zeichen frei"
 
-#: ickle/MessageBox.cpp:700
+#: ickle/MessageBox.cpp:681
+msgid "Full Text Search"
+msgstr "Volltextsuche"
+
+#: ickle/MessageBox.cpp:681
+msgid "Please enter your search text"
+msgstr "Bitte den Suchtext eingeben"
+
+#: ickle/MessageBox.cpp:703
+msgid "Your search was not found!"
+msgstr "Ihre Suche wurde nicht gefunden!"
+
+#: ickle/MessageBox.cpp:786
 msgid "Sent message direct"
 msgstr "Nachricht wurde direkt verschickt"
 
-#: ickle/MessageBox.cpp:708
+#: ickle/MessageBox.cpp:794
 msgid "Sent message offline"
 msgstr "Nachricht wurde offline verschickt"
 
-#: ickle/MessageBox.cpp:710
+#: ickle/MessageBox.cpp:796
 msgid "Sent message through server"
-msgstr "Nachricht wurde über den Server verschickt"
+msgstr "Nachricht wurde Ã¼ber den Server verschickt"
 
-#: ickle/MessageBox.cpp:720
+#: ickle/MessageBox.cpp:806
 msgid "Sending message failed - user is ignoring you"
 msgstr "Nachricht konnte nicht versand werden - der Kontakt ignoriert sie"
 
-#: ickle/MessageBox.cpp:723
+#: ickle/MessageBox.cpp:809
 msgid "Sending message failed - user is occupied"
 msgstr "Nachricht konnte nicht versand werden - der Kontakt ist besetzt"
 
-#: ickle/MessageBox.cpp:726
+#: ickle/MessageBox.cpp:812
 msgid "Sending message failed - user is in do not disturb"
 msgstr ""
-"Nachricht konnte nicht versand werden - der Kontakt ist im Nicht-Stören-Modus"
+"Nachricht konnte nicht versand werden - der Kontakt ist im Nicht-StÃ¶ren-Modus"
 
-#: ickle/MessageBox.cpp:729
+#: ickle/MessageBox.cpp:815
 msgid "Sending message failed - you are not connected"
 msgstr "Nachricht konnte nicht versand werden - Sie sind nicht verbunden"
 
-#: ickle/MessageBox.cpp:733
+#: ickle/MessageBox.cpp:819
 msgid "Sending message failed"
 msgstr "Versenden der Nachricht ist fehlgeschlagen"
 
-#: ickle/MessageBox.cpp:738
+#: ickle/MessageBox.cpp:824
 msgid "Sending direct failed, sending through server"
 msgstr "Direktes Versenden ist fehlgeschlagen, nutze den Server."
 
-#: ickle/MessageBox.cpp:740
+#: ickle/MessageBox.cpp:826
 msgid "Server acknowledged message"
-msgstr "Der Server bestätigt die Nachricht"
+msgstr "Der Server bestÃ¤tigt die Nachricht"
 
-#: ickle/MessageBox.cpp:794
+#: ickle/MessageBox.cpp:881
 msgid "[urgent] "
 msgstr "[dringend]"
 
-#: ickle/MessageBox.cpp:802
+#: ickle/MessageBox.cpp:889
 msgid "[multiparty] "
 msgstr "[Gruppe]"
 
-#: ickle/MessageBox.cpp:814
+#: ickle/MessageBox.cpp:898
 msgid "[sms] "
 msgstr "[SMS]"
 
-#: ickle/MessageBox.cpp:820
+#: ickle/MessageBox.cpp:903
 msgid "[sms delivered]\n"
 msgstr "[SMS verschickt]\n"
 
-#: ickle/MessageBox.cpp:822
+#: ickle/MessageBox.cpp:905
 msgid "[sms not delivered] \n"
 msgstr "[SMS nicht verschickt]\n"
 
-#: ickle/MessageBox.cpp:827
+#: ickle/MessageBox.cpp:909
 msgid "[email] "
 msgstr "[Email]"
 
-#: ickle/MessageBox.cpp:832
+#: ickle/MessageBox.cpp:913
 msgid "[pager] "
 msgstr "[Pager]"
 
-#: ickle/MessageBox.cpp:867 ickle/MessageBox.cpp:890 ickle/MessageBox.cpp:914
+#: ickle/MessageBox.cpp:955 ickle/MessageBox.cpp:978 ickle/MessageBox.cpp:1002
 msgid ""
 "You are about to send a blank message.\n"
 "Are you sure you wish to send it?"
@@ -717,27 +744,27 @@ msgstr ""
 "Sie versuchen eine leere Nachricht zu verschicken,\n"
 " sind Sie sicher?"
 
-#: ickle/MessageBox.cpp:871
+#: ickle/MessageBox.cpp:959
 msgid "Sending message..."
 msgstr "Versende Nachricht..."
 
-#: ickle/MessageBox.cpp:894
+#: ickle/MessageBox.cpp:982
 msgid "Sending URL..."
 msgstr "Versende URL..."
 
-#: ickle/MessageBox.cpp:918
+#: ickle/MessageBox.cpp:1006
 msgid "Sending SMS..."
 msgstr "Versende SMS..."
 
-#: ickle/MessageBox.cpp:997
+#: ickle/MessageBox.cpp:1091
 msgid "No messages in history"
 msgstr "Keine Nachricht im Verlauf"
 
-#: ickle/MessageBox.cpp:1002
+#: ickle/MessageBox.cpp:1096
 msgid "Message %1 (%2 total)"
 msgstr "Nachricht %1 (%2 insgesamt)"
 
-#: ickle/MessageBox.cpp:1004
+#: ickle/MessageBox.cpp:1098
 msgid "Messages %1 to %2 (%3 total)"
 msgstr "Nachrichten %1 bis %2 (%3 insgesamt)"
 
@@ -783,7 +810,7 @@ msgstr "Alle Kontakte verschieben nach:"
 
 #: ickle/RemoveGroupDialog.cpp:59
 msgid "What would you like to do with the contacts in that group?"
-msgstr "Was möchten Sie mit den Kontakten dieser Gruppe tun?"
+msgstr "Was mÃ¶chten Sie mit den Kontakten dieser Gruppe tun?"
 
 #: ickle/RenameGroupDialog.cpp:41
 msgid "Rename"
@@ -818,24 +845,141 @@ msgid ""
 "\n"
 "You should resend the message as 'Urgent' or 'to Contact List'\n"
 msgstr ""
-"Ihre Nachricht an %1 wurde empfangen während der Kontakt %2 ist.\n"
+"Ihre Nachricht an %1 wurde empfangen wÃ¤hrend der Kontakt %2 ist.\n"
 "\n"
 "Die Abwesenheitsnachricht ist:\n"
 "%2\n"
 "\n"
 "Sie sollten die Nachricht als 'Urgent' oder an die 'Kontaktliste' schicken\n"
 
-#: ickle/ResendDialog.cpp:63 ickle/UserInfoHelpers.cpp:57
+#: ickle/ResendDialog.cpp:63 ickle/UserInfoHelpers.cpp:58
 msgid "Occupied"
 msgstr "Besetzt"
 
 #: ickle/ResendDialog.cpp:63
 msgid "in Do not Disturb"
-msgstr "auf Bitte nicht Stören"
+msgstr "auf Bitte nicht StÃ¶ren"
 
-#: ickle/SearchDialog.cpp:28
+#: ickle/SearchDialog.cpp:47
+msgid "Only Online Users"
+msgstr "Nur Online Kontakte"
+
+#: ickle/SearchDialog.cpp:59
 msgid "Search for contacts"
 msgstr "Nach Kontakten suchen"
+
+#: ickle/SearchDialog.cpp:92 ickle/SearchDialog.cpp:342
+msgid "Details"
+msgstr "Details"
+
+#: ickle/SearchDialog.cpp:100 ickle/SearchDialog.cpp:300
+msgid "First name"
+msgstr "Vorname"
+
+#: ickle/SearchDialog.cpp:104 ickle/SearchDialog.cpp:308
+msgid "Last name"
+msgstr "Nachname"
+
+#: ickle/SearchDialog.cpp:108
+msgid "Email"
+msgstr "Email"
+
+#: ickle/SearchDialog.cpp:112
+msgid "Sex"
+msgstr "Geschlecht"
+
+#: ickle/SearchDialog.cpp:128
+msgid "Age Range"
+msgstr "Alter"
+
+#: ickle/SearchDialog.cpp:160
+msgid "Reset"
+msgstr "RÃ¼cksetzen"
+
+#: ickle/SearchDialog.cpp:175
+msgid "Location"
+msgstr "Ort"
+
+#: ickle/SearchDialog.cpp:179
+msgid "City"
+msgstr "Stadt"
+
+#: ickle/SearchDialog.cpp:184
+msgid "State"
+msgstr "Staat"
+
+#: ickle/SearchDialog.cpp:189
+msgid "Country"
+msgstr "Land"
+
+#: ickle/SearchDialog.cpp:207
+msgid "Work"
+msgstr "Arbeit"
+
+#: ickle/SearchDialog.cpp:211
+msgid "Position"
+msgstr "Posten"
+
+#: ickle/SearchDialog.cpp:216
+msgid "Company Name"
+msgstr "Firmenname"
+
+#: ickle/SearchDialog.cpp:221
+msgid "Department"
+msgstr "Abteilung"
+
+#: ickle/SearchDialog.cpp:238
+msgid "Whitepages"
+msgstr "Whitepages"
+
+#: ickle/SearchDialog.cpp:247 ickle/SearchDialog.cpp:252
+#: ickle/SearchDialog.cpp:292 ickle/SettingsDialog.cpp:255
+msgid "UIN"
+msgstr "UIN"
+
+#: ickle/SearchDialog.cpp:261 ickle/SearchDialog.cpp:266
+msgid "Keywords"
+msgstr "SchlÃ¼sselwÃ¶rter"
+
+#: ickle/SearchDialog.cpp:316
+msgid "E-mail"
+msgstr "Email"
+
+#: ickle/SearchDialog.cpp:324
+msgid "Auth. req."
+msgstr "Auth.-Anfrage"
+
+#: ickle/SearchDialog.cpp:335
+msgid "searchdialog"
+msgstr "Suchdialog"
+
+#: ickle/SearchDialog.cpp:337
+msgid "Enter some information to search on above..."
+msgstr "Geben sie oben Informationen ein, nach denen sie suchen...."
+
+#: ickle/SearchDialog.cpp:446
+msgid "Search in progress..."
+msgstr "Suche ist in Bearbeitung...."
+
+#: ickle/SearchDialog.cpp:548
+msgid "Search finished, matches found: "
+msgstr "Suche beendet. Gefundene EintrÃ¤ge: "
+
+#: ickle/SearchDialog.cpp:550
+msgid ", there are a further "
+msgstr ", es gibt weitere "
+
+#: ickle/SearchDialog.cpp:550
+msgid " matches not shown."
+msgstr "EintrÃ¤ge, die nicht angezeigt werden."
+
+#: ickle/SearchDialog.cpp:554
+msgid "Search in progress, matches found so far: "
+msgstr "Suche ist in Bearbeitung, bisher gefunden: "
+
+#: ickle/SearchDialog.cpp:558
+msgid "Search timeout reached."
+msgstr "Timeout abgelaufen"
 
 #: ickle/SendAuthReqDialog.cpp:34
 msgid "Send Authorisation Request"
@@ -852,16 +996,16 @@ msgid ""
 "polite to ask for Authorisation though, if it is required. "
 msgstr ""
 "Hinweis: Die Authorisierung ist nicht zwingend notwendig. Sie wurde nicht "
-"wegen Sicherheit oder Privatsphäre eingeführt. Es ist jedoch im allgemeinen "
-"höflich nach einer Authorisierung zu fragen, wenn diese erwünscht wird."
+"wegen Sicherheit oder PrivatsphÃ¤re eingefÃ¼hrt. Es ist jedoch im allgemeinen "
+"hÃ¶flich nach einer Authorisierung zu fragen, wenn diese erwÃ¼nscht wird."
 
 #: ickle/SetAutoResponseDialog.cpp:65
 msgid "Shortcuts: Ctrl+Enter or Alt-O"
-msgstr "Tastenkürzel: Strg+Enter oder Alt-O "
+msgstr "TastenkÃ¼rzel: Strg+Enter oder Alt-O "
 
 #: ickle/SetAutoResponseDialog.cpp:67
 msgid "Shortcuts: Esc or Alt-C"
-msgstr "Tastenkürzel: Esc oder Alt-C"
+msgstr "TastenkÃ¼rzel: Esc oder Alt-C"
 
 #: ickle/SetAutoResponseDialog.cpp:103
 msgid "Set Auto Response (%1)"
@@ -869,158 +1013,191 @@ msgstr "Automatische Anwort festlegen (%1)"
 
 #: ickle/SetAutoResponseDialog.cpp:203
 msgid "Edit..."
-msgstr "Ändern..."
+msgstr "Ã„ndern..."
 
 #: ickle/Settings.cpp:56
 msgid "Settings::load: Could not open file for reading: %1"
-msgstr "Settings::load: Konnte %1 nicht lesend öffnen"
+msgstr "Settings::load: Konnte %1 nicht lesend Ã¶ffnen"
 
 #: ickle/Settings.cpp:101
 msgid "Settings::save: Could not open temporary settings file to save to: %1"
 msgstr ""
-"Settings::save: Konnte temporäre Datei zum Speichern der Einstelungen nicht "
-"öffnen: %1"
+"Settings::save: Konnte temporÃ¤re Datei zum Speichern der Einstelungen nicht "
+"Ã¶ffnen: %1"
 
 #: ickle/Settings.cpp:130
 msgid "Settings::save: Failed writing to temporary file: %1"
-msgstr "Settings::save: Fehler beim Schreiben der temporären Datei: %1"
+msgstr "Settings::save: Fehler beim Schreiben der temporÃ¤ren Datei: %1"
 
 #: ickle/Settings.cpp:140
 msgid "Settings::save: Failed renaming temporary file to replace old file: %1"
 msgstr ""
-"Settings::save: Fehler beim Umbenennen der temporären Datei um das Orginal "
+"Settings::save: Fehler beim Umbenennen der temporÃ¤ren Datei um das Orginal "
 "zu ersetzen: %"
 
-#: ickle/SettingsDialog.cpp:58
+#: ickle/SettingsDialog.cpp:63
 msgid "ickle Preferences"
 msgstr "ickle Einstellungen"
 
-#: ickle/SettingsDialog.cpp:212 ickle/SettingsDialog.cpp:297
+#: ickle/SettingsDialog.cpp:252 ickle/SettingsDialog.cpp:338
 msgid "Login"
 msgstr "Login"
 
-#: ickle/SettingsDialog.cpp:215
-msgid "UIN"
-msgstr "UIN"
-
-#: ickle/SettingsDialog.cpp:222
-msgid "UIN is the unique number that identifies the user"
+#: ickle/SettingsDialog.cpp:262
+msgid "UIN is your unique number that identifies you on ICQ"
 msgstr "UIN ist die eindeutige Nummer, die den Kontakt identifiziert"
 
-#: ickle/SettingsDialog.cpp:225
+#: ickle/SettingsDialog.cpp:265
 msgid "Password"
 msgstr "Passwort"
 
-#: ickle/SettingsDialog.cpp:230
-msgid "the password for the account"
-msgstr "Das Passwort für den Account"
+#: ickle/SettingsDialog.cpp:270
+msgid "The password for your account"
+msgstr "Das Passwort fÃ¼r den Account"
 
-#: ickle/SettingsDialog.cpp:240
+#: ickle/SettingsDialog.cpp:280
 msgid "Auto connect"
 msgstr "Automatisches Verbinden"
 
-#: ickle/SettingsDialog.cpp:242
+#: ickle/SettingsDialog.cpp:282
 msgid "Auto connect to"
 msgstr "Automatisch verbinden in Status"
 
-#: ickle/SettingsDialog.cpp:246
-msgid "Specifies the state for auto connect"
-msgstr "Legt den Status für das automatische Verbinden fest"
+#: ickle/SettingsDialog.cpp:286
+msgid "Specifies the status to connect as when ickle is first loaded"
+msgstr "Legt den Status fest, in den sich ickle beim Laden verbindet"
 
-#: ickle/SettingsDialog.cpp:271 ickle/SettingsDialog.cpp:273
+#: ickle/SettingsDialog.cpp:311 ickle/SettingsDialog.cpp:313
 msgid "Auto reconnect"
 msgstr "Automatisch neu verbinden"
 
-#: ickle/SettingsDialog.cpp:275
-msgid "Determines if ickle tries to reconnect after an error."
+#: ickle/SettingsDialog.cpp:316
+msgid ""
+"Determines if ickle will attempt to reconnect when disconnected prematurely"
 msgstr ""
 "Diese Einstellung legt fest, ob sich ickle nach einem Fehler erneut "
 "verbindet."
 
-#: ickle/SettingsDialog.cpp:278
+#: ickle/SettingsDialog.cpp:319
 msgid "Reconnect retries"
 msgstr "Anzahl der erneuten Verbindungsversuche"
 
-#: ickle/SettingsDialog.cpp:284
-msgid "Specifies how often ickle tries to reconnect after an error."
+#: ickle/SettingsDialog.cpp:325
+msgid "Specifies how many attempts ickle will make at reconnecting"
 msgstr ""
 "Legt fest, wie oft ickle versucht, sich erneut zu verbinden falls ein Fehler "
 "aufgetreten ist"
 
-#: ickle/SettingsDialog.cpp:304
+#: ickle/SettingsDialog.cpp:345
+msgid "Messagebox fonts"
+msgstr "Schriftart der Nachrichtenfenster"
+
+#: ickle/SettingsDialog.cpp:348
+msgid "Header font"
+msgstr "Vorspannschriftart"
+
+#: ickle/SettingsDialog.cpp:355
+msgid "Text font"
+msgstr "Textschriftart"
+
+#: ickle/SettingsDialog.cpp:365
 msgid "Look'n'feel"
 msgstr "Erscheinungsbild"
 
-#: ickle/SettingsDialog.cpp:316
+#: ickle/SettingsDialog.cpp:377
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: ickle/SettingsDialog.cpp:319
+#: ickle/SettingsDialog.cpp:380
 msgid "Auto close after sending a message"
 msgstr "Automatisches Schliessen nach Senden einer Nachricht"
 
-#: ickle/SettingsDialog.cpp:323
-msgid "If checked the messagebox is closed after sending a message."
+#: ickle/SettingsDialog.cpp:384
+msgid "If checked the message window is closed after sending a message"
 msgstr ""
 "Wenn gesetzt, wird das Nachrichtenfensternach dem Senden einer Nachricht "
 "automatisch geschlossen."
 
-#: ickle/SettingsDialog.cpp:325
+#: ickle/SettingsDialog.cpp:386
 msgid "Auto popup on incoming message"
-msgstr "Nachrichtenfenster automatisch öffnen"
+msgstr "Nachrichtenfenster automatisch Ã¶ffnen"
 
-#: ickle/SettingsDialog.cpp:329
+#: ickle/SettingsDialog.cpp:390
 msgid ""
-"If checked the message window will popup in case of  an incoming message."
+"If checked the message window will popup when an incoming message is received"
 msgstr ""
 "Wenn gesetzt, wird das Nachrichtenfenster bei einer eingehenden "
-"Nachrichtautomatisch geöffnet."
+"Nachrichtautomatisch geÃ¶ffnet."
 
-#: ickle/SettingsDialog.cpp:331
+#: ickle/SettingsDialog.cpp:392
 msgid "Auto raise on incoming message"
 msgstr "Nachrichenfenster automatisch in den Vordergrund"
 
-#: ickle/SettingsDialog.cpp:335
+#: ickle/SettingsDialog.cpp:396
 msgid ""
-"If checked an existing message window will be raised in case of an incoming "
-"message."
+"If checked open message windows for contacts will be raised on an incoming "
+"message"
 msgstr ""
 "Wenn gesetzt, wird das Nachrichtenfenster bei einer eingehenden "
 "Nachrichtautomatisch in den Vordergrund gebracht."
 
-#: ickle/SettingsDialog.cpp:342
+#: ickle/SettingsDialog.cpp:403
 msgid "History"
 msgstr "Verlauf"
 
-#: ickle/SettingsDialog.cpp:346
+#: ickle/SettingsDialog.cpp:407
 msgid "Messages per page"
 msgstr "Nachrichten pro Seite"
 
-#: ickle/SettingsDialog.cpp:353
+#: ickle/SettingsDialog.cpp:414
 msgid "Defines the number of messages per page in the message window history"
 msgstr "Legt die Anzahl der Nachrichten je Seite im Nachrichtenfenster fest"
 
-#: ickle/SettingsDialog.cpp:364
+#: ickle/SettingsDialog.cpp:425
 msgid "Message window"
 msgstr "Nachrichtenfenster"
 
-#: ickle/SettingsDialog.cpp:370
+#: ickle/SettingsDialog.cpp:431
+msgid "Clicking"
+msgstr "Anklicken"
+
+#: ickle/SettingsDialog.cpp:435
+msgid "Check away message with click on icon"
+msgstr "Abwesenheits-Nachricht abfragen"
+
+#: ickle/SettingsDialog.cpp:437
+msgid ""
+"Single clicking the icon for a contact on your contact list will check their "
+"away message (TODO)"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:440
+msgid "Open message window with single click"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:442
+msgid ""
+"Single clicking on a contact on your contact list will open a message window "
+"for them (TODO)"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:451
 msgid "Contact list"
 msgstr "Kontaktliste"
 
-#: ickle/SettingsDialog.cpp:377 ickle/SettingsDialog.cpp:416
+#: ickle/SettingsDialog.cpp:458 ickle/SettingsDialog.cpp:497
 msgid "Character set"
 msgstr "Zeichensatz"
 
-#: ickle/SettingsDialog.cpp:386
+#: ickle/SettingsDialog.cpp:467
 msgid "Default"
 msgstr "Standard"
 
-#: ickle/SettingsDialog.cpp:393
+#: ickle/SettingsDialog.cpp:474
 msgid "<b>Valid</b>"
-msgstr "<b>Gültig</b>"
+msgstr "<b>GÃ¼ltig</b>"
 
-#: ickle/SettingsDialog.cpp:400
+#: ickle/SettingsDialog.cpp:481
 msgid ""
 "This setting determines the global default character set used when sending "
 "and receiving to the <i>ICQ</i> network. You can set per-contact encodings "
@@ -1033,99 +1210,359 @@ msgid ""
 "\n"
 msgstr ""
 "Diese Einstellung bestimmt den Standardzeichensatz bei der Kommunikation mit "
-"dem <i>ICQ</i>-Server. Sie können den Zeichensatz kontaktspezifisch "
+"dem <i>ICQ</i>-Server. Sie kÃ¶nnen den Zeichensatz kontaktspezifisch "
 "einstellen, indem sie die entsprechende Option durch Rechtsklick in der "
-"Kontaktliste wählen.\n"
+"Kontaktliste wÃ¤hlen.\n"
 "\n"
-"Sie sollten einen Zeichensatz verwenden, der von iconv unterstützt wird. Mit "
+"Sie sollten einen Zeichensatz verwenden, der von iconv unterstÃ¼tzt wird. Mit "
 "dem Kommando\n"
 "<tt>iconv --list</tt>\n"
-"können Sie sich eine Liste der verfügbaren Zeichensätze anzeigen lassen.\n"
+"kÃ¶nnen Sie sich eine Liste der verfÃ¼gbaren ZeichensÃ¤tze anzeigen lassen.\n"
 
-#: ickle/SettingsDialog.cpp:422
+#: ickle/SettingsDialog.cpp:503 ickle/SettingsDialog.cpp:559
 msgid "Icons"
 msgstr "Symbole"
 
-#: ickle/SettingsDialog.cpp:439
-msgid "Away/Idle"
-msgstr "Abwesenheitsschaltung"
+#: ickle/SettingsDialog.cpp:566
+msgid "Commands"
+msgstr "Befehle"
 
-#: ickle/SettingsDialog.cpp:443
-msgid "Auto-away (minutes)"
-msgstr "Auto-Abwesend (Minuten)"
+#: ickle/SettingsDialog.cpp:569
+msgid "Message events"
+msgstr "Nachrichtenereignisse"
 
-#: ickle/SettingsDialog.cpp:450
-msgid "After this time ickle will switch its mode to away. 0 to disable"
+#: ickle/SettingsDialog.cpp:572 ickle/SettingsDialog.cpp:578
+#: ickle/SettingsDialog.cpp:584 ickle/SettingsDialog.cpp:590
+#: ickle/SettingsDialog.cpp:596 ickle/SettingsDialog.cpp:610
+msgid "todo"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:575
+msgid "SMS events"
+msgstr "SMS-Ereignisse"
+
+#: ickle/SettingsDialog.cpp:581
+msgid "System events"
+msgstr "Systemereignisse"
+
+#: ickle/SettingsDialog.cpp:587
+msgid "URL events"
+msgstr "URL-Ereignisse"
+
+#: ickle/SettingsDialog.cpp:593
+msgid "User online events"
+msgstr "Nutzer-online-Ereignisse"
+
+#: ickle/SettingsDialog.cpp:604
+msgid "Repetition"
+msgstr "Wiederholungen"
+
+#: ickle/SettingsDialog.cpp:608
+msgid "Run repeated events"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:613
+msgid "Run all events"
+msgstr "Alle Ereignisse ausfÃ¼hren"
+
+#: ickle/SettingsDialog.cpp:615
+msgid ""
+"Always executes the commands above, even if they're below the threshold. You "
+"can then use the %r substitution to check for repeated events."
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:622
+msgid "Events"
+msgstr "Ereignisse"
+
+#: ickle/SettingsDialog.cpp:629
+msgid "Response dialog"
+msgstr "Antwortdialog"
+
+#: ickle/SettingsDialog.cpp:641
+msgid "Invisibility"
+msgstr "Unsichtbarkeit"
+
+#: ickle/SettingsDialog.cpp:664
+msgid "Idleing"
+msgstr "Ruheschaltung"
+
+#: ickle/SettingsDialog.cpp:668
+msgid "Auto-away"
+msgstr "Auto-Abwesend"
+
+#: ickle/SettingsDialog.cpp:675
+msgid "After this length of idle time ickle will switch to away"
 msgstr ""
 "Nach dieser festgelegten Zeit wird ickle in den Modus 'Abwesend' gesetzt. 0 "
 "zum deaktivieren. "
 
-#: ickle/SettingsDialog.cpp:453
-msgid "Auto-N/A (minutes)"
-msgstr "Auto-Nicht-Verfügbar (Minuten)"
+#: ickle/SettingsDialog.cpp:677 ickle/SettingsDialog.cpp:689
+msgid "minutes"
+msgstr "Minuten"
 
-#: ickle/SettingsDialog.cpp:460
-msgid ""
-"After this time ickle will switch its mode to Not Available. 0 to disable"
+#: ickle/SettingsDialog.cpp:680
+msgid "Auto-N/A"
+msgstr "Auto-Nicht-VerfÃ¼gbar"
+
+#: ickle/SettingsDialog.cpp:687
+msgid "After this length of idle time ickle will switch to N/A"
 msgstr ""
-"Nach dieser festgelegten Zeit wird ickle in den Modus 'Nicht Verfügbar' "
-"gesetzt. 0 zum deaktivieren."
+"Nach dieser festgelegten Zeit wird ickle in den Modus 'Abwesend' gesetzt. 0 "
+"zum deaktivieren. "
 
-#: ickle/SettingsDialog.cpp:464
-msgid "Automatically return (from Auto-away or Auto-N/A)"
-msgstr "Automatische Rückkehr aus 'Auto-Abwesend' und 'Auto-N/V'"
+#: ickle/SettingsDialog.cpp:699
+msgid "Returning"
+msgstr "RÃ¼ckkehr"
 
-#: ickle/SettingsDialog.cpp:466
+#: ickle/SettingsDialog.cpp:703
+msgid "Automatically return"
+msgstr "Automische RÃ¼ckkehr"
+
+#: ickle/SettingsDialog.cpp:705
 msgid ""
-"Determines if ickle will return from Auto-away or Auto-N/A after pressing a "
-"key or moving the mouse."
+"Determines if ickle will return from auto-away or auto-N/A when idleing is "
+"over"
 msgstr ""
-"Legt fest, ob ickle bei Bewegen der Maus oder beim Drücken einer Taste aus "
-"Auto-Abwesend oder Auto-N/V zurückkehrt."
+"Legt fest, ob ickle bei Bewegen der Maus oder beim DrÃ¼cken einer Taste aus "
+"Auto-Abwesend oder Auto-N/V zurÃ¼ckkehrt."
 
-#: ickle/SettingsDialog.cpp:475
+#: ickle/SettingsDialog.cpp:715
 msgid "Idle"
 msgstr "Ruheschaltung"
 
-#: ickle/SettingsDialog.cpp:490
-msgid "Advanced"
-msgstr "Erweitert"
+#: ickle/SettingsDialog.cpp:725
+msgid "Preset messages"
+msgstr "Standardantorten"
 
-#: ickle/SettingsDialog.cpp:502
-msgid "Security"
-msgstr "Sicherheit"
+#: ickle/SettingsDialog.cpp:755
+msgid "Move the selected message up in the list"
+msgstr "AusgewÃ¤hlte Nachricht in der Liste nach oben bewegen"
 
-#: ickle/SettingsDialog.cpp:509 ickle/SettingsDialog.cpp:535
-msgid "Server"
-msgstr "Server"
+#: ickle/SettingsDialog.cpp:760
+msgid "Delete the selected message"
+msgstr "AusgewÃ¤hlte Nachricht lÃ¶schen"
 
-#: ickle/SettingsDialog.cpp:513
+#: ickle/SettingsDialog.cpp:765
+msgid "Move the selected message down in the list"
+msgstr "AusgewÃ¤hlte Nachricht in der Liste nach unten bewegen"
+
+#: ickle/SettingsDialog.cpp:770
+msgid "Create a new preset message"
+msgstr "Neue Stadardantwort erstellen"
+
+#: ickle/SettingsDialog.cpp:797
+msgid ""
+"Note: When ickle idles and changes to away or N/A the first of these "
+"messages will be used as the default auto response."
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:815
+msgid "Network"
+msgstr "Netzwerk"
+
+#: ickle/SettingsDialog.cpp:819
 msgid "Server name"
 msgstr "Servername"
 
-#: ickle/SettingsDialog.cpp:517
-msgid "Specifies the name of the login server"
-msgstr "Legt den DNS-Namen des Loginservers fest"
+#: ickle/SettingsDialog.cpp:824
+msgid "Specifies the name of the login server (IP or DNS name)"
+msgstr "Legt den Namen des Loginservers fest (IP oder DNS)"
 
-#: ickle/SettingsDialog.cpp:520
+#: ickle/SettingsDialog.cpp:827 ickle/SettingsDialog.cpp:940
 msgid "Server port"
 msgstr "Serverport"
 
-#: ickle/SettingsDialog.cpp:526
-msgid "Specifies the port of the login server. Default is 5190"
+#: ickle/SettingsDialog.cpp:835
+msgid "Specifies the port of the login server. The default is 5190"
 msgstr "Legt den Serverport fest. Standard ist 5190"
 
-#: ickle/SettingsDialog.cpp:540
+#: ickle/SettingsDialog.cpp:845
+msgid "Advanced"
+msgstr "Erweitert"
+
+#: ickle/SettingsDialog.cpp:857
+msgid "Connections"
+msgstr "Verbindungen"
+
+#: ickle/SettingsDialog.cpp:861
+msgid "Allow incoming direct connections"
+msgstr "Eingehende Nachrichten erlauben"
+
+#: ickle/SettingsDialog.cpp:864
+msgid ""
+"Enable if you would like ickle to listen on a port to receive incoming "
+"direct connections"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:867
+msgid "Allow outgoing direct connections"
+msgstr "Ausgehende Direktverbindungen nutzen"
+
+#: ickle/SettingsDialog.cpp:870
+msgid ""
+"Enable if you would like ickle to attempt to make outgoing direct "
+"connections to contacts"
+msgstr "Aktivieren sie diese Option, wenn sie ausgehende Nachricht direkt, "
+"ohne Serverkontakt, verschicken mÃ¶chten." 
+
+#: ickle/SettingsDialog.cpp:873
+msgid "Specify port range for incoming connections"
+msgstr "Legt den Portbereich fÃ¼r eigehende Direktverbindungen fest"
+
+#: ickle/SettingsDialog.cpp:877
+msgid ""
+"You can specify a port range to use when picking the local port to listen "
+"on. Useful if you need to forward those fixed ports from your firewall onto "
+"your internal machine"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:881
+msgid "Local direct connection listening port from"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:890
+msgid "The lower value to use when picking a local port to bind to"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:893
+msgid "to"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:902
+msgid "The upper value to use when picking a local port to bind to"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:912
+msgid "Security"
+msgstr "Sicherheit"
+
+#: ickle/SettingsDialog.cpp:918 ickle/SettingsDialog.cpp:958
 msgid "SMTP"
 msgstr "SMTP"
 
-#: ickle/SettingsDialog.cpp:545
+#: ickle/SettingsDialog.cpp:922
+msgid "Use SMTP server"
+msgstr "SMTP-Server benutzen"
+
+#: ickle/SettingsDialog.cpp:927
+msgid ""
+"Use SMTP server. When sending SMS messages some mobile networks are "
+"supported through sending messages through an email gateway by the provider. "
+"For these cases ickle will need an SMTP server to send these emails through"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:932
+msgid "SMTP server"
+msgstr "SMTP Server"
+
+#: ickle/SettingsDialog.cpp:937
+msgid "Specifies the SMTP Server"
+msgstr "Legt den DNS-Namen des SMTP-Servers fest"
+
+#: ickle/SettingsDialog.cpp:948
+msgid "Specifies the port of the SMTP server"
+msgstr "Legt den Port des SMTP-Servers fest"
+
+#: ickle/SettingsDialog.cpp:963
+msgid "Where"
+msgstr "Wo"
+
+#: ickle/SettingsDialog.cpp:966
+msgid "Console"
+msgstr "Konsole"
+
+#: ickle/SettingsDialog.cpp:968
+msgid "Choose to log messages to the console (ie. stdout)"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:971
+msgid "File"
+msgstr "Datei"
+
+#: ickle/SettingsDialog.cpp:974
+msgid "Choose to log messages to a log file"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:977
+msgid "Log file"
+msgstr "Logdatei"
+
+#: ickle/SettingsDialog.cpp:981
+msgid "Specify the location of the the log file to log to"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:991
+msgid "What"
+msgstr "Was"
+
+#: ickle/SettingsDialog.cpp:994
+msgid "Direct packets"
+msgstr "Direkte Pakete"
+
+#: ickle/SettingsDialog.cpp:996
+msgid "Log packet data from direct connection packets"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:999
+msgid "Errors"
+msgstr "Fehler"
+
+#: ickle/SettingsDialog.cpp:1001
+msgid "Log error messages"
+msgstr "Fehler loggen"
+
+#: ickle/SettingsDialog.cpp:1004
+msgid "Infos"
+msgstr "Information"
+
+#: ickle/SettingsDialog.cpp:1006
+msgid "Log informational messages"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:1009
+msgid "Packets"
+msgstr "Pakete"
+
+#: ickle/SettingsDialog.cpp:1011
+msgid "Log client to server communication packets"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:1014
+msgid "Warnings"
+msgstr "Warnungen"
+
+#: ickle/SettingsDialog.cpp:1016
+msgid "Log warnings"
+msgstr "Warnungen loggen"
+
+#: ickle/SettingsDialog.cpp:1025
 msgid "Logging"
 msgstr "Logging"
 
-#: ickle/SettingsDialog.cpp:778
+#: ickle/SettingsDialog.cpp:1372
 msgid "\"%1\" is not a valid encoding on your system."
-msgstr "\"%1\" ist kein gültiger Zeichensatz auf Ihrem System."
+msgstr "\"%1\" ist kein gÃ¼ltiger Zeichensatz auf Ihrem System."
+
+#: ickle/SettingsDialog.cpp:1451
+msgid "Error in SettingsDialog::toggle_dc. Unknown option "
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:1524
+msgid "Enter your away response here."
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:1525
+msgid "New message"
+msgstr "Neue Nachricht"
+
+#: ickle/SettingsDialog.cpp:1565
+msgid "Set header font"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:1577
+msgid "Set text font"
+msgstr ""
 
 #: ickle/StatusMenu.cpp:58 ickle/StatusMenu.cpp:87 ickle/StatusMenu.cpp:163
 msgid "Invisible"
@@ -1265,7 +1702,7 @@ msgstr "Mehr"
 
 #: ickle/UserInfoDialog.cpp:280
 msgid "About:"
-msgstr "Über:"
+msgstr "Ãœber:"
 
 #: ickle/UserInfoDialog.cpp:300
 msgid "Signon time:"
@@ -1298,8 +1735,8 @@ msgstr "%1 / %2"
 #: ickle/UserInfoDialog.cpp:638 ickle/UserInfoDialog.cpp:653
 #: ickle/UserInfoDialog.cpp:658 ickle/UserInfoDialog.cpp:661
 #: ickle/UserInfoDialog.cpp:719 ickle/UserInfoDialog.cpp:734
-#: ickle/UserInfoHelpers.cpp:63 ickle/UserInfoHelpers.cpp:125
-#: ickle/UserInfoHelpers.cpp:444
+#: ickle/UserInfoHelpers.cpp:64 ickle/UserInfoHelpers.cpp:126
+#: ickle/UserInfoHelpers.cpp:445
 msgid "Unspecified"
 msgstr "Unbestimmt"
 
@@ -1308,14 +1745,14 @@ msgid "%1 years"
 msgstr "%1 Jahre"
 
 #: ickle/UserInfoDialog.cpp:651 ickle/UserInfoDialog.cpp:657
-#: ickle/UserInfoDialog.cpp:663 ickle/UserInfoHelpers.cpp:443
+#: ickle/UserInfoDialog.cpp:663 ickle/UserInfoHelpers.cpp:444
 msgid "Female"
 msgstr "Weiblich"
 
 #: ickle/UserInfoDialog.cpp:652 ickle/UserInfoDialog.cpp:656
-#: ickle/UserInfoDialog.cpp:662 ickle/UserInfoHelpers.cpp:442
+#: ickle/UserInfoDialog.cpp:662 ickle/UserInfoHelpers.cpp:443
 msgid "Male"
-msgstr "Männlich"
+msgstr "MÃ¤nnlich"
 
 #: ickle/UserInfoDialog.cpp:711
 msgid "%1:?"
@@ -1325,1493 +1762,1493 @@ msgstr "%1:?"
 msgid "%1:%2"
 msgstr "%1:%2"
 
-#: ickle/UserInfoHelpers.cpp:54
+#: ickle/UserInfoHelpers.cpp:55
 msgid "Online"
 msgstr "Online"
 
-#: ickle/UserInfoHelpers.cpp:56
+#: ickle/UserInfoHelpers.cpp:57
 msgid "N/A"
-msgstr "Nicht Verfügbar"
-
-#: ickle/UserInfoHelpers.cpp:58
-msgid "DND"
-msgstr "Nicht Stören"
+msgstr "Nicht VerfÃ¼gbar"
 
 #: ickle/UserInfoHelpers.cpp:59
-msgid "Free for chat"
-msgstr "Frei für Chat"
+msgid "DND"
+msgstr "Nicht StÃ¶ren"
 
 #: ickle/UserInfoHelpers.cpp:60
+msgid "Free for chat"
+msgstr "Frei fÃ¼r Chat"
+
+#: ickle/UserInfoHelpers.cpp:61
 msgid "Offline"
 msgstr "Offline"
 
-#: ickle/UserInfoHelpers.cpp:64
+#: ickle/UserInfoHelpers.cpp:65
 msgid "Arabic"
 msgstr "arabisch"
 
-#: ickle/UserInfoHelpers.cpp:65
+#: ickle/UserInfoHelpers.cpp:66
 msgid "Bhojpuri"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:66
+#: ickle/UserInfoHelpers.cpp:67
 msgid "Bulgarian"
 msgstr "bulgarisch"
 
-#: ickle/UserInfoHelpers.cpp:67
+#: ickle/UserInfoHelpers.cpp:68
 msgid "Burmese"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:68
+#: ickle/UserInfoHelpers.cpp:69
 msgid "Cantonese"
 msgstr "kantonesisch"
 
-#: ickle/UserInfoHelpers.cpp:69
+#: ickle/UserInfoHelpers.cpp:70
 msgid "Catalan"
 msgstr "katalanisch"
 
-#: ickle/UserInfoHelpers.cpp:70
+#: ickle/UserInfoHelpers.cpp:71
 msgid "Chinese"
 msgstr "chinesisch"
 
-#: ickle/UserInfoHelpers.cpp:71
+#: ickle/UserInfoHelpers.cpp:72
 msgid "Croatian"
 msgstr "kroatisch"
 
-#: ickle/UserInfoHelpers.cpp:72
+#: ickle/UserInfoHelpers.cpp:73
 msgid "Czech"
 msgstr "tschechisch"
 
-#: ickle/UserInfoHelpers.cpp:73
-msgid "Danish"
-msgstr "dänisch"
-
 #: ickle/UserInfoHelpers.cpp:74
-msgid "Dutch"
-msgstr "holländisch"
+msgid "Danish"
+msgstr "dÃ¤nisch"
 
 #: ickle/UserInfoHelpers.cpp:75
+msgid "Dutch"
+msgstr "hollÃ¤ndisch"
+
+#: ickle/UserInfoHelpers.cpp:76
 msgid "English"
 msgstr "englisch"
 
-#: ickle/UserInfoHelpers.cpp:76
+#: ickle/UserInfoHelpers.cpp:77
 msgid "Esperanto"
 msgstr "esperanto"
 
-#: ickle/UserInfoHelpers.cpp:77
+#: ickle/UserInfoHelpers.cpp:78
 msgid "Estonian"
 msgstr "estnisch"
 
-#: ickle/UserInfoHelpers.cpp:78
+#: ickle/UserInfoHelpers.cpp:79
 msgid "Farsi"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:79
+#: ickle/UserInfoHelpers.cpp:80
 msgid "Finnish"
 msgstr "finnisch"
 
-#: ickle/UserInfoHelpers.cpp:80
-msgid "French"
-msgstr "französisch"
-
 #: ickle/UserInfoHelpers.cpp:81
-msgid "Gaelic"
-msgstr "gälisch"
+msgid "French"
+msgstr "franzÃ¶sisch"
 
 #: ickle/UserInfoHelpers.cpp:82
+msgid "Gaelic"
+msgstr "gÃ¤lisch"
+
+#: ickle/UserInfoHelpers.cpp:83
 msgid "German"
 msgstr "deutsch"
 
-#: ickle/UserInfoHelpers.cpp:83
+#: ickle/UserInfoHelpers.cpp:84
 msgid "Greek"
 msgstr "griechisch"
 
-#: ickle/UserInfoHelpers.cpp:84
-msgid "Hebrew"
-msgstr "hebräisch"
-
 #: ickle/UserInfoHelpers.cpp:85
+msgid "Hebrew"
+msgstr "hebrÃ¤isch"
+
+#: ickle/UserInfoHelpers.cpp:86
 msgid "Hindi"
 msgstr "hindi"
 
-#: ickle/UserInfoHelpers.cpp:86
+#: ickle/UserInfoHelpers.cpp:87
 msgid "Hungarian"
 msgstr "ungarisch"
 
-#: ickle/UserInfoHelpers.cpp:87
-msgid "Icelandic"
-msgstr "isländisch"
-
 #: ickle/UserInfoHelpers.cpp:88
+msgid "Icelandic"
+msgstr "islÃ¤ndisch"
+
+#: ickle/UserInfoHelpers.cpp:89
 msgid "Indonesian"
 msgstr "indonesisch"
 
-#: ickle/UserInfoHelpers.cpp:89
+#: ickle/UserInfoHelpers.cpp:90
 msgid "Italian"
 msgstr "italienisch"
 
-#: ickle/UserInfoHelpers.cpp:90
+#: ickle/UserInfoHelpers.cpp:91
 msgid "Japanese"
 msgstr "japanisch"
 
-#: ickle/UserInfoHelpers.cpp:91
+#: ickle/UserInfoHelpers.cpp:92
 msgid "Khmer"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:92
+#: ickle/UserInfoHelpers.cpp:93
 msgid "Korean"
 msgstr "koreanisch"
 
-#: ickle/UserInfoHelpers.cpp:93
+#: ickle/UserInfoHelpers.cpp:94
 msgid "Lao"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:94
+#: ickle/UserInfoHelpers.cpp:95
 msgid "Latvian"
 msgstr "lettisch"
 
-#: ickle/UserInfoHelpers.cpp:95
+#: ickle/UserInfoHelpers.cpp:96
 msgid "Lithuanian"
 msgstr "litauisch"
 
-#: ickle/UserInfoHelpers.cpp:96
+#: ickle/UserInfoHelpers.cpp:97
 msgid "Malay"
 msgstr "malaiisch"
 
-#: ickle/UserInfoHelpers.cpp:97
+#: ickle/UserInfoHelpers.cpp:98
 msgid "Norwegian"
 msgstr "norwegisch"
 
-#: ickle/UserInfoHelpers.cpp:98
+#: ickle/UserInfoHelpers.cpp:99
 msgid "Polish"
 msgstr "polnisch"
 
-#: ickle/UserInfoHelpers.cpp:99
+#: ickle/UserInfoHelpers.cpp:100
 msgid "Portuguese"
 msgstr "portugiesisch"
 
-#: ickle/UserInfoHelpers.cpp:100
-msgid "Romanian"
-msgstr "rumänisch"
-
 #: ickle/UserInfoHelpers.cpp:101
+msgid "Romanian"
+msgstr "rumÃ¤nisch"
+
+#: ickle/UserInfoHelpers.cpp:102
 msgid "Russian"
 msgstr "russisch"
 
-#: ickle/UserInfoHelpers.cpp:102
+#: ickle/UserInfoHelpers.cpp:103
 msgid "Serbian"
 msgstr "serbisch"
 
-#: ickle/UserInfoHelpers.cpp:103
+#: ickle/UserInfoHelpers.cpp:104
 msgid "Slovak"
 msgstr "slowakisch"
 
-#: ickle/UserInfoHelpers.cpp:104
+#: ickle/UserInfoHelpers.cpp:105
 msgid "Slovenian"
 msgstr "slowenisch"
 
-#: ickle/UserInfoHelpers.cpp:105
+#: ickle/UserInfoHelpers.cpp:106
 msgid "Somali"
 msgstr "somalisch"
 
-#: ickle/UserInfoHelpers.cpp:106
+#: ickle/UserInfoHelpers.cpp:107
 msgid "Spanish"
 msgstr "spanisch"
 
-#: ickle/UserInfoHelpers.cpp:107
+#: ickle/UserInfoHelpers.cpp:108
 msgid "Swahili"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:108
+#: ickle/UserInfoHelpers.cpp:109
 msgid "Swedish"
 msgstr "schwedisch"
 
-#: ickle/UserInfoHelpers.cpp:109
+#: ickle/UserInfoHelpers.cpp:110
 msgid "Tagalog"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:110
+#: ickle/UserInfoHelpers.cpp:111
 msgid "Tatar"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:111
+#: ickle/UserInfoHelpers.cpp:112
 msgid "Thai"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:112
-msgid "Turkish"
-msgstr "türkisch"
-
 #: ickle/UserInfoHelpers.cpp:113
+msgid "Turkish"
+msgstr "tÃ¼rkisch"
+
+#: ickle/UserInfoHelpers.cpp:114
 msgid "Ukrainian"
 msgstr "ukrainisch"
 
-#: ickle/UserInfoHelpers.cpp:114
+#: ickle/UserInfoHelpers.cpp:115
 msgid "Urdu"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:115
+#: ickle/UserInfoHelpers.cpp:116
 msgid "Vietnamese"
 msgstr "Vietnamesisch"
 
-#: ickle/UserInfoHelpers.cpp:116
+#: ickle/UserInfoHelpers.cpp:117
 msgid "Yiddish"
 msgstr "Jiddisch"
 
-#: ickle/UserInfoHelpers.cpp:117
+#: ickle/UserInfoHelpers.cpp:118
 msgid "Yoruba"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:118
+#: ickle/UserInfoHelpers.cpp:119
 msgid "Taiwanese"
 msgstr "taiwanesisch"
 
-#: ickle/UserInfoHelpers.cpp:119
+#: ickle/UserInfoHelpers.cpp:120
 msgid "Afrikaans"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:120
+#: ickle/UserInfoHelpers.cpp:121
 msgid "Persian"
 msgstr "persisch"
 
-#: ickle/UserInfoHelpers.cpp:121
+#: ickle/UserInfoHelpers.cpp:122
 msgid "Albanian"
 msgstr "albanisch"
 
-#: ickle/UserInfoHelpers.cpp:122
+#: ickle/UserInfoHelpers.cpp:123
 msgid "Armenian"
 msgstr "armenisch"
 
-#: ickle/UserInfoHelpers.cpp:126
+#: ickle/UserInfoHelpers.cpp:127
 msgid "Afghanistan"
 msgstr "Afghanistan"
 
-#: ickle/UserInfoHelpers.cpp:127
+#: ickle/UserInfoHelpers.cpp:128
 msgid "Albania"
 msgstr "Albanien"
 
-#: ickle/UserInfoHelpers.cpp:128
+#: ickle/UserInfoHelpers.cpp:129
 msgid "Algeria"
 msgstr "Algerien"
 
-#: ickle/UserInfoHelpers.cpp:129
+#: ickle/UserInfoHelpers.cpp:130
 msgid "American Samoa"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:130
+#: ickle/UserInfoHelpers.cpp:131
 msgid "Andorra"
 msgstr "Andorra"
 
-#: ickle/UserInfoHelpers.cpp:131
+#: ickle/UserInfoHelpers.cpp:132
 msgid "Angola"
 msgstr "Angola"
 
-#: ickle/UserInfoHelpers.cpp:132
+#: ickle/UserInfoHelpers.cpp:133
 msgid "Anguilla"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:133
+#: ickle/UserInfoHelpers.cpp:134
 msgid "Antigua"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:134
+#: ickle/UserInfoHelpers.cpp:135
 msgid "Argentina"
 msgstr "Argentinien"
 
-#: ickle/UserInfoHelpers.cpp:135
+#: ickle/UserInfoHelpers.cpp:136
 msgid "Armenia"
 msgstr "Armenien"
 
-#: ickle/UserInfoHelpers.cpp:136
+#: ickle/UserInfoHelpers.cpp:137
 msgid "Aruba"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:137
+#: ickle/UserInfoHelpers.cpp:138
 msgid "Ascension Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:138
+#: ickle/UserInfoHelpers.cpp:139
 msgid "Australia"
 msgstr "Australien"
 
-#: ickle/UserInfoHelpers.cpp:139
+#: ickle/UserInfoHelpers.cpp:140
 msgid "Australian Antarctic Territory"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:140
-msgid "Austria"
-msgstr "Österreich"
-
 #: ickle/UserInfoHelpers.cpp:141
+msgid "Austria"
+msgstr "Ã–sterreich"
+
+#: ickle/UserInfoHelpers.cpp:142
 msgid "Azerbaijan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:142
+#: ickle/UserInfoHelpers.cpp:143
 msgid "Bahamas"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:143
+#: ickle/UserInfoHelpers.cpp:144
 msgid "Bahrain"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:144
+#: ickle/UserInfoHelpers.cpp:145
 msgid "Bangladesh"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:145
+#: ickle/UserInfoHelpers.cpp:146
 msgid "Barbados"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:146
+#: ickle/UserInfoHelpers.cpp:147
 msgid "Barbuda"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:147
+#: ickle/UserInfoHelpers.cpp:148
 msgid "Belarus"
 msgstr "Weissrussland"
 
-#: ickle/UserInfoHelpers.cpp:148
+#: ickle/UserInfoHelpers.cpp:149
 msgid "Belgium"
 msgstr "Belgien"
 
-#: ickle/UserInfoHelpers.cpp:149
+#: ickle/UserInfoHelpers.cpp:150
 msgid "Belize"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:150
+#: ickle/UserInfoHelpers.cpp:151
 msgid "Benin"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:151
+#: ickle/UserInfoHelpers.cpp:152
 msgid "Bermuda"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:152
+#: ickle/UserInfoHelpers.cpp:153
 msgid "Bhutan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:153
+#: ickle/UserInfoHelpers.cpp:154
 msgid "Bolivia"
 msgstr "Bolivien"
 
-#: ickle/UserInfoHelpers.cpp:154
+#: ickle/UserInfoHelpers.cpp:155
 msgid "Bosnia and Herzegovina"
 msgstr "Bosnien Herzegovina"
 
-#: ickle/UserInfoHelpers.cpp:155
+#: ickle/UserInfoHelpers.cpp:156
 msgid "Botswana"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:156
+#: ickle/UserInfoHelpers.cpp:157
 msgid "Brazil"
 msgstr "Brasilien"
 
-#: ickle/UserInfoHelpers.cpp:157
+#: ickle/UserInfoHelpers.cpp:158
 msgid "British Virgin Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:158
+#: ickle/UserInfoHelpers.cpp:159
 msgid "Brunei"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:159
+#: ickle/UserInfoHelpers.cpp:160
 msgid "Bulgaria"
 msgstr "Bulgarien"
 
-#: ickle/UserInfoHelpers.cpp:160
+#: ickle/UserInfoHelpers.cpp:161
 msgid "Burkina Faso"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:161
+#: ickle/UserInfoHelpers.cpp:162
 msgid "Burundi"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:162
+#: ickle/UserInfoHelpers.cpp:163
 msgid "Cambodia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:163
+#: ickle/UserInfoHelpers.cpp:164
 msgid "Cameroon"
 msgstr "Kamerun"
 
-#: ickle/UserInfoHelpers.cpp:164
+#: ickle/UserInfoHelpers.cpp:165
 msgid "Canada"
 msgstr "Kanada"
 
-#: ickle/UserInfoHelpers.cpp:165
+#: ickle/UserInfoHelpers.cpp:166
 msgid "Cape Verde Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:166
+#: ickle/UserInfoHelpers.cpp:167
 msgid "Cayman Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:167
+#: ickle/UserInfoHelpers.cpp:168
 msgid "Central African Republic"
 msgstr "Zentralafrika"
 
-#: ickle/UserInfoHelpers.cpp:168
+#: ickle/UserInfoHelpers.cpp:169
 msgid "Chad"
 msgstr "Tschad"
 
-#: ickle/UserInfoHelpers.cpp:169
+#: ickle/UserInfoHelpers.cpp:170
 msgid "Chile"
 msgstr "Chile"
 
-#: ickle/UserInfoHelpers.cpp:170
+#: ickle/UserInfoHelpers.cpp:171
 msgid "China"
 msgstr "China"
 
-#: ickle/UserInfoHelpers.cpp:171
+#: ickle/UserInfoHelpers.cpp:172
 msgid "Christmas Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:172
+#: ickle/UserInfoHelpers.cpp:173
 msgid "Cocos-Keeling Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:173
+#: ickle/UserInfoHelpers.cpp:174
 msgid "Colombia"
 msgstr "Kolumbien"
 
-#: ickle/UserInfoHelpers.cpp:174
+#: ickle/UserInfoHelpers.cpp:175
 msgid "Comoros"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:175
+#: ickle/UserInfoHelpers.cpp:176
 msgid "Congo"
 msgstr "Kongo"
 
-#: ickle/UserInfoHelpers.cpp:176
+#: ickle/UserInfoHelpers.cpp:177
 msgid "Cook Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:177
+#: ickle/UserInfoHelpers.cpp:178
 msgid "Costa Rica"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:178
-msgid "Croatia"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:179
+msgid "Croatia"
+msgstr "Kroatien"
+
+#: ickle/UserInfoHelpers.cpp:180
 msgid "Cuba"
 msgstr "Kuba"
 
-#: ickle/UserInfoHelpers.cpp:180
+#: ickle/UserInfoHelpers.cpp:181
 msgid "Cyprus"
 msgstr "Zypern"
 
-#: ickle/UserInfoHelpers.cpp:181
+#: ickle/UserInfoHelpers.cpp:182
 msgid "Czech Republic"
 msgstr "Tschechien"
 
-#: ickle/UserInfoHelpers.cpp:182
-msgid "Denmark"
-msgstr "Dänemark"
-
 #: ickle/UserInfoHelpers.cpp:183
+msgid "Denmark"
+msgstr "DÃ¤nemark"
+
+#: ickle/UserInfoHelpers.cpp:184
 msgid "Diego Garcia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:184
+#: ickle/UserInfoHelpers.cpp:185
 msgid "Djibouti"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:185
+#: ickle/UserInfoHelpers.cpp:186
 msgid "Dominica"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:186
+#: ickle/UserInfoHelpers.cpp:187
 msgid "Dominican Republic"
 msgstr "Dominikanische Republik"
 
-#: ickle/UserInfoHelpers.cpp:187
+#: ickle/UserInfoHelpers.cpp:188
 msgid "Ecuador"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:188
-msgid "Egypt"
-msgstr "Ägypten"
-
 #: ickle/UserInfoHelpers.cpp:189
+msgid "Egypt"
+msgstr "Ã„gypten"
+
+#: ickle/UserInfoHelpers.cpp:190
 msgid "El Salvador"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:190
+#: ickle/UserInfoHelpers.cpp:191
 msgid "Equatorial Guinea"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:191
+#: ickle/UserInfoHelpers.cpp:192
 msgid "Eritrea"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:192
+#: ickle/UserInfoHelpers.cpp:193
 msgid "Estonia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:193
-msgid "Ethiopia"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:194
+msgid "Ethiopia"
+msgstr "Ã„thiopien"
+
+#: ickle/UserInfoHelpers.cpp:195
 msgid "Faeroe Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:195
-msgid "Falkland Islands"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:196
+msgid "Falkland Islands"
+msgstr "Falkland Inseln"
+
+#: ickle/UserInfoHelpers.cpp:197
 msgid "Fiji Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:197
+#: ickle/UserInfoHelpers.cpp:198
 msgid "Finland"
 msgstr "Finnland"
 
-#: ickle/UserInfoHelpers.cpp:198
+#: ickle/UserInfoHelpers.cpp:199
 msgid "France"
 msgstr "Frankreich"
 
-#: ickle/UserInfoHelpers.cpp:199
+#: ickle/UserInfoHelpers.cpp:200
 msgid "French Antilles"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:200
+#: ickle/UserInfoHelpers.cpp:201
 msgid "French Guiana"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:201
+#: ickle/UserInfoHelpers.cpp:202
 msgid "French Polynesia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:202
+#: ickle/UserInfoHelpers.cpp:203
 msgid "Gabon"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:203
+#: ickle/UserInfoHelpers.cpp:204
 msgid "Gambia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:204
+#: ickle/UserInfoHelpers.cpp:205
 msgid "Georgia"
 msgstr "Georgien"
 
-#: ickle/UserInfoHelpers.cpp:205
+#: ickle/UserInfoHelpers.cpp:206
 msgid "Germany"
 msgstr "Deutschland"
 
-#: ickle/UserInfoHelpers.cpp:206
+#: ickle/UserInfoHelpers.cpp:207
 msgid "Ghana"
 msgstr "Ghana"
 
-#: ickle/UserInfoHelpers.cpp:207
+#: ickle/UserInfoHelpers.cpp:208
 msgid "Gibraltar"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:208
+#: ickle/UserInfoHelpers.cpp:209
 msgid "Greece"
 msgstr "Griechenland"
 
-#: ickle/UserInfoHelpers.cpp:209
+#: ickle/UserInfoHelpers.cpp:210
 msgid "Greenland"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:210
+#: ickle/UserInfoHelpers.cpp:211
 msgid "Grenada"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:211
+#: ickle/UserInfoHelpers.cpp:212
 msgid "Guadeloupe"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:212
+#: ickle/UserInfoHelpers.cpp:213
 msgid "Guam"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:213
+#: ickle/UserInfoHelpers.cpp:214
 msgid "Guantanamo Bay"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:214
+#: ickle/UserInfoHelpers.cpp:215
 msgid "Guatemala"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:215
+#: ickle/UserInfoHelpers.cpp:216
 msgid "Guinea"
 msgstr "Guinea"
 
-#: ickle/UserInfoHelpers.cpp:216
+#: ickle/UserInfoHelpers.cpp:217
 msgid "Guinea-Bissau"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:217
+#: ickle/UserInfoHelpers.cpp:218
 msgid "Guyana"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:218
+#: ickle/UserInfoHelpers.cpp:219
 msgid "Haiti"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:219
+#: ickle/UserInfoHelpers.cpp:220
 msgid "Honduras"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:220
+#: ickle/UserInfoHelpers.cpp:221
 msgid "Hong Kong"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:221
+#: ickle/UserInfoHelpers.cpp:222
 msgid "Hungary"
 msgstr "Ungarn"
 
-#: ickle/UserInfoHelpers.cpp:222
+#: ickle/UserInfoHelpers.cpp:223
 msgid "INMARSAT (Atlantic-East)"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:223
+#: ickle/UserInfoHelpers.cpp:224
 msgid "INMARSAT (Atlantic-West)"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:224
+#: ickle/UserInfoHelpers.cpp:225
 msgid "INMARSAT (Indian)"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:225
+#: ickle/UserInfoHelpers.cpp:226
 msgid "INMARSAT (Pacific)"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:226
+#: ickle/UserInfoHelpers.cpp:227
 msgid "INMARSAT"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:227
+#: ickle/UserInfoHelpers.cpp:228
 msgid "Iceland"
 msgstr "Island"
 
-#: ickle/UserInfoHelpers.cpp:228
+#: ickle/UserInfoHelpers.cpp:229
 msgid "India"
 msgstr "Indien"
 
-#: ickle/UserInfoHelpers.cpp:229
+#: ickle/UserInfoHelpers.cpp:230
 msgid "Indonesia"
 msgstr "Indonesien"
 
-#: ickle/UserInfoHelpers.cpp:230
+#: ickle/UserInfoHelpers.cpp:231
 msgid "International Freephone Service"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:231
+#: ickle/UserInfoHelpers.cpp:232
 msgid "Iran"
 msgstr "Iran"
 
-#: ickle/UserInfoHelpers.cpp:232
+#: ickle/UserInfoHelpers.cpp:233
 msgid "Iraq"
 msgstr "Irak"
 
-#: ickle/UserInfoHelpers.cpp:233
+#: ickle/UserInfoHelpers.cpp:234
 msgid "Ireland"
 msgstr "Irland"
 
-#: ickle/UserInfoHelpers.cpp:234
+#: ickle/UserInfoHelpers.cpp:235
 msgid "Israel"
 msgstr "Israel"
 
-#: ickle/UserInfoHelpers.cpp:235
+#: ickle/UserInfoHelpers.cpp:236
 msgid "Italy"
 msgstr "Italien"
 
-#: ickle/UserInfoHelpers.cpp:236
+#: ickle/UserInfoHelpers.cpp:237
 msgid "Ivory Coast"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:237
+#: ickle/UserInfoHelpers.cpp:238
 msgid "Jamaica"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:238
+#: ickle/UserInfoHelpers.cpp:239
 msgid "Japan"
 msgstr "Japan"
 
-#: ickle/UserInfoHelpers.cpp:239
+#: ickle/UserInfoHelpers.cpp:240
 msgid "Jordan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:240
+#: ickle/UserInfoHelpers.cpp:241
 msgid "Kazakhstan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:241
+#: ickle/UserInfoHelpers.cpp:242
 msgid "Kenya"
 msgstr "Kenja"
 
-#: ickle/UserInfoHelpers.cpp:242
+#: ickle/UserInfoHelpers.cpp:243
 msgid "Kiribati Republic"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:243
+#: ickle/UserInfoHelpers.cpp:244
 msgid "Korea (North)"
 msgstr "Nordkorea"
 
-#: ickle/UserInfoHelpers.cpp:244
-msgid "Korea (Republic of)"
-msgstr "Südkorea"
-
 #: ickle/UserInfoHelpers.cpp:245
+msgid "Korea (Republic of)"
+msgstr "SÃ¼dkorea"
+
+#: ickle/UserInfoHelpers.cpp:246
 msgid "Kuwait"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:246
+#: ickle/UserInfoHelpers.cpp:247
 msgid "Kyrgyz Republic"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:247
+#: ickle/UserInfoHelpers.cpp:248
 msgid "Laos"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:248
+#: ickle/UserInfoHelpers.cpp:249
 msgid "Latvia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:249
+#: ickle/UserInfoHelpers.cpp:250
 msgid "Lebanon"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:250
+#: ickle/UserInfoHelpers.cpp:251
 msgid "Lesotho"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:251
+#: ickle/UserInfoHelpers.cpp:252
 msgid "Liberia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:252
+#: ickle/UserInfoHelpers.cpp:253
 msgid "Libya"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:253
+#: ickle/UserInfoHelpers.cpp:254
 msgid "Liechtenstein"
 msgstr "Liechtenstein"
 
-#: ickle/UserInfoHelpers.cpp:254
+#: ickle/UserInfoHelpers.cpp:255
 msgid "Lithuania"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:255
+#: ickle/UserInfoHelpers.cpp:256
 msgid "Luxembourg"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:256
+#: ickle/UserInfoHelpers.cpp:257
 msgid "Macau"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:257
+#: ickle/UserInfoHelpers.cpp:258
 msgid "Madagascar"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:258
+#: ickle/UserInfoHelpers.cpp:259
 msgid "Malawi"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:259
+#: ickle/UserInfoHelpers.cpp:260
 msgid "Malaysia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:260
+#: ickle/UserInfoHelpers.cpp:261
 msgid "Maldives"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:261
+#: ickle/UserInfoHelpers.cpp:262
 msgid "Mali"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:262
+#: ickle/UserInfoHelpers.cpp:263
 msgid "Malta"
 msgstr "Malta"
 
-#: ickle/UserInfoHelpers.cpp:263
+#: ickle/UserInfoHelpers.cpp:264
 msgid "Marshall Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:264
+#: ickle/UserInfoHelpers.cpp:265
 msgid "Martinique"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:265
+#: ickle/UserInfoHelpers.cpp:266
 msgid "Mauritania"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:266
+#: ickle/UserInfoHelpers.cpp:267
 msgid "Mauritius"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:267
+#: ickle/UserInfoHelpers.cpp:268
 msgid "Mayotte Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:268
+#: ickle/UserInfoHelpers.cpp:269
 msgid "Mexico"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:269
+#: ickle/UserInfoHelpers.cpp:270
 msgid "Micronesia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:270
+#: ickle/UserInfoHelpers.cpp:271
 msgid "Moldova"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:271
+#: ickle/UserInfoHelpers.cpp:272
 msgid "Monaco"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:272
+#: ickle/UserInfoHelpers.cpp:273
 msgid "Mongolia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:273
+#: ickle/UserInfoHelpers.cpp:274
 msgid "Montserrat"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:274
+#: ickle/UserInfoHelpers.cpp:275
 msgid "Morocco"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:275
+#: ickle/UserInfoHelpers.cpp:276
 msgid "Mozambique"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:276
+#: ickle/UserInfoHelpers.cpp:277
 msgid "Myanmar"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:277
+#: ickle/UserInfoHelpers.cpp:278
 msgid "Namibia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:278
+#: ickle/UserInfoHelpers.cpp:279
 msgid "Nauru"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:279
+#: ickle/UserInfoHelpers.cpp:280
 msgid "Nepal"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:280
+#: ickle/UserInfoHelpers.cpp:281
 msgid "Netherlands Antilles"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:281
+#: ickle/UserInfoHelpers.cpp:282
 msgid "Netherlands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:282
+#: ickle/UserInfoHelpers.cpp:283
 msgid "Nevis"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:283
+#: ickle/UserInfoHelpers.cpp:284
 msgid "New Caledonia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:284
+#: ickle/UserInfoHelpers.cpp:285
 msgid "New Zealand"
 msgstr "Neuseeland"
 
-#: ickle/UserInfoHelpers.cpp:285
+#: ickle/UserInfoHelpers.cpp:286
 msgid "Nicaragua"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:286
+#: ickle/UserInfoHelpers.cpp:287
 msgid "Niger"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:287
+#: ickle/UserInfoHelpers.cpp:288
 msgid "Nigeria"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:288
+#: ickle/UserInfoHelpers.cpp:289
 msgid "Niue"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:289
+#: ickle/UserInfoHelpers.cpp:290
 msgid "Norfolk Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:290
+#: ickle/UserInfoHelpers.cpp:291
 msgid "Norway"
 msgstr "Norwegen"
 
-#: ickle/UserInfoHelpers.cpp:291
+#: ickle/UserInfoHelpers.cpp:292
 msgid "Oman"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:292
+#: ickle/UserInfoHelpers.cpp:293
 msgid "Pakistan"
 msgstr "Pakistan"
 
-#: ickle/UserInfoHelpers.cpp:293
+#: ickle/UserInfoHelpers.cpp:294
 msgid "Palau"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:294
+#: ickle/UserInfoHelpers.cpp:295
 msgid "Panama"
 msgstr "Panama"
 
-#: ickle/UserInfoHelpers.cpp:295
+#: ickle/UserInfoHelpers.cpp:296
 msgid "Papua New Guinea"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:296
+#: ickle/UserInfoHelpers.cpp:297
 msgid "Paraguay"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:297
+#: ickle/UserInfoHelpers.cpp:298
 msgid "Peru"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:298
+#: ickle/UserInfoHelpers.cpp:299
 msgid "Philippines"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:299
+#: ickle/UserInfoHelpers.cpp:300
 msgid "Poland"
 msgstr "Polen"
 
-#: ickle/UserInfoHelpers.cpp:300
+#: ickle/UserInfoHelpers.cpp:301
 msgid "Portugal"
 msgstr "Portugal"
 
-#: ickle/UserInfoHelpers.cpp:301
+#: ickle/UserInfoHelpers.cpp:302
 msgid "Puerto Rico"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:302
+#: ickle/UserInfoHelpers.cpp:303
 msgid "Qatar"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:303
+#: ickle/UserInfoHelpers.cpp:304
 msgid "Republic of Macedonia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:304
+#: ickle/UserInfoHelpers.cpp:305
 msgid "Reunion Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:305
+#: ickle/UserInfoHelpers.cpp:306
 msgid "Romania"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:306
+#: ickle/UserInfoHelpers.cpp:307
 msgid "Rota Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:307
+#: ickle/UserInfoHelpers.cpp:308
 msgid "Russia"
 msgstr "Russland"
 
-#: ickle/UserInfoHelpers.cpp:308
+#: ickle/UserInfoHelpers.cpp:309
 msgid "Rwanda"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:309
+#: ickle/UserInfoHelpers.cpp:310
 msgid "Saint Lucia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:310
+#: ickle/UserInfoHelpers.cpp:311
 msgid "Saipan Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:311
+#: ickle/UserInfoHelpers.cpp:312
 msgid "San Marino"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:312
+#: ickle/UserInfoHelpers.cpp:313
 msgid "Sao Tome and Principe"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:313
+#: ickle/UserInfoHelpers.cpp:314
 msgid "Saudi Arabia"
 msgstr "Saudi-Arabien"
 
-#: ickle/UserInfoHelpers.cpp:314
+#: ickle/UserInfoHelpers.cpp:315
 msgid "Senegal Republic"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:315
+#: ickle/UserInfoHelpers.cpp:316
 msgid "Seychelle Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:316
+#: ickle/UserInfoHelpers.cpp:317
 msgid "Sierra Leone"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:317
+#: ickle/UserInfoHelpers.cpp:318
 msgid "Singapore"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:318
+#: ickle/UserInfoHelpers.cpp:319
 msgid "Slovak Republic"
 msgstr "Slowakei"
 
-#: ickle/UserInfoHelpers.cpp:319
+#: ickle/UserInfoHelpers.cpp:320
 msgid "Slovenia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:320
+#: ickle/UserInfoHelpers.cpp:321
 msgid "Solomon Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:321
+#: ickle/UserInfoHelpers.cpp:322
 msgid "Somalia"
 msgstr "Somalia"
 
-#: ickle/UserInfoHelpers.cpp:322
+#: ickle/UserInfoHelpers.cpp:323
 msgid "South Africa"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:323
+#: ickle/UserInfoHelpers.cpp:324
 msgid "Spain"
 msgstr "Spanien"
 
-#: ickle/UserInfoHelpers.cpp:324
+#: ickle/UserInfoHelpers.cpp:325
 msgid "Sri Lanka"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:325
+#: ickle/UserInfoHelpers.cpp:326
 msgid "St. Helena"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:326
+#: ickle/UserInfoHelpers.cpp:327
 msgid "St. Kitts"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:327
+#: ickle/UserInfoHelpers.cpp:328
 msgid "St. Pierre and Miquelon"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:328
+#: ickle/UserInfoHelpers.cpp:329
 msgid "St. Vincent and the Grenadines"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:329
+#: ickle/UserInfoHelpers.cpp:330
 msgid "Sudan"
 msgstr "Sudan"
 
-#: ickle/UserInfoHelpers.cpp:330
+#: ickle/UserInfoHelpers.cpp:331
 msgid "Suriname"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:331
+#: ickle/UserInfoHelpers.cpp:332
 msgid "Swaziland"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:332
+#: ickle/UserInfoHelpers.cpp:333
 msgid "Sweden"
 msgstr "Schweden"
 
-#: ickle/UserInfoHelpers.cpp:333
+#: ickle/UserInfoHelpers.cpp:334
 msgid "Switzerland"
 msgstr "Schweiz"
 
-#: ickle/UserInfoHelpers.cpp:334
+#: ickle/UserInfoHelpers.cpp:335
 msgid "Syria"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:335
+#: ickle/UserInfoHelpers.cpp:336
 msgid "Taiwan"
 msgstr "Taiwan"
 
-#: ickle/UserInfoHelpers.cpp:336
+#: ickle/UserInfoHelpers.cpp:337
 msgid "Tajikistan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:337
+#: ickle/UserInfoHelpers.cpp:338
 msgid "Tanzania"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:338
+#: ickle/UserInfoHelpers.cpp:339
 msgid "Thailand"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:339
+#: ickle/UserInfoHelpers.cpp:340
 msgid "Tinian Island"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:340
+#: ickle/UserInfoHelpers.cpp:341
 msgid "Togo"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:341
+#: ickle/UserInfoHelpers.cpp:342
 msgid "Tokelau"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:342
+#: ickle/UserInfoHelpers.cpp:343
 msgid "Tonga"
 msgstr "Tonga"
 
-#: ickle/UserInfoHelpers.cpp:343
+#: ickle/UserInfoHelpers.cpp:344
 msgid "Trinidad and Tobago"
 msgstr "Trinidad und Tobago"
 
-#: ickle/UserInfoHelpers.cpp:344
+#: ickle/UserInfoHelpers.cpp:345
 msgid "Tunisia"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:345
-msgid "Turkey"
-msgstr "Türkei"
-
 #: ickle/UserInfoHelpers.cpp:346
+msgid "Turkey"
+msgstr "TÃ¼rkei"
+
+#: ickle/UserInfoHelpers.cpp:347
 msgid "Turkmenistan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:347
+#: ickle/UserInfoHelpers.cpp:348
 msgid "Turks and Caicos Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:348
+#: ickle/UserInfoHelpers.cpp:349
 msgid "Tuvalu"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:349
+#: ickle/UserInfoHelpers.cpp:350
 msgid "USA"
 msgstr "USA"
 
-#: ickle/UserInfoHelpers.cpp:350
+#: ickle/UserInfoHelpers.cpp:351
 msgid "Uganda"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:351
+#: ickle/UserInfoHelpers.cpp:352
 msgid "Ukraine"
 msgstr "Ukraine"
 
-#: ickle/UserInfoHelpers.cpp:352
+#: ickle/UserInfoHelpers.cpp:353
 msgid "United Arab Emirates"
 msgstr "Vereinigte Arabische Emirate"
 
-#: ickle/UserInfoHelpers.cpp:353
-msgid "United Kingdom"
-msgstr "Großbritannien"
-
 #: ickle/UserInfoHelpers.cpp:354
+msgid "United Kingdom"
+msgstr "GroÃŸbritannien"
+
+#: ickle/UserInfoHelpers.cpp:355
 msgid "United States Virgin Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:355
+#: ickle/UserInfoHelpers.cpp:356
 msgid "Uruguay"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:356
+#: ickle/UserInfoHelpers.cpp:357
 msgid "Uzbekistan"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:357
+#: ickle/UserInfoHelpers.cpp:358
 msgid "Vanuatu"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:358
+#: ickle/UserInfoHelpers.cpp:359
 msgid "Vatican City"
 msgstr "Vatikan Stadt"
 
-#: ickle/UserInfoHelpers.cpp:359
+#: ickle/UserInfoHelpers.cpp:360
 msgid "Venezuela"
 msgstr "Venezuela"
 
-#: ickle/UserInfoHelpers.cpp:360
+#: ickle/UserInfoHelpers.cpp:361
 msgid "Vietnam"
 msgstr "Vietnam"
 
-#: ickle/UserInfoHelpers.cpp:361
+#: ickle/UserInfoHelpers.cpp:362
 msgid "Wallis and Futuna Islands"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:362
+#: ickle/UserInfoHelpers.cpp:363
 msgid "Western Samoa"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:363
+#: ickle/UserInfoHelpers.cpp:364
 msgid "Yemen"
 msgstr "Jemen"
 
-#: ickle/UserInfoHelpers.cpp:364
+#: ickle/UserInfoHelpers.cpp:365
 msgid "Yugoslavia"
 msgstr "Jugoslawien"
 
-#: ickle/UserInfoHelpers.cpp:365
-msgid "Zaire"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:366
+msgid "Zaire"
+msgstr "Zaire"
+
+#: ickle/UserInfoHelpers.cpp:367
 msgid "Zambia"
 msgstr "Sambia"
 
-#: ickle/UserInfoHelpers.cpp:367
+#: ickle/UserInfoHelpers.cpp:368
 msgid "Zimbabwe"
 msgstr "Simbabwe"
 
-#: ickle/UserInfoHelpers.cpp:370
+#: ickle/UserInfoHelpers.cpp:371
 msgid "Art"
 msgstr "Kunst"
 
-#: ickle/UserInfoHelpers.cpp:371
+#: ickle/UserInfoHelpers.cpp:372
 msgid "Cars"
 msgstr "Autos"
 
-#: ickle/UserInfoHelpers.cpp:372
+#: ickle/UserInfoHelpers.cpp:373
 msgid "Celebrity Fans"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:373
+#: ickle/UserInfoHelpers.cpp:374
 msgid "Collections"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:374
+#: ickle/UserInfoHelpers.cpp:375
 msgid "Computers"
 msgstr "Computer"
 
-#: ickle/UserInfoHelpers.cpp:375
+#: ickle/UserInfoHelpers.cpp:376
 msgid "Culture"
 msgstr "Kultur"
 
-#: ickle/UserInfoHelpers.cpp:376
-msgid "Fitness"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:377
+msgid "Fitness"
+msgstr "Fitness"
+
+#: ickle/UserInfoHelpers.cpp:378
 msgid "Games"
 msgstr "Spiele"
 
-#: ickle/UserInfoHelpers.cpp:378
+#: ickle/UserInfoHelpers.cpp:379
 msgid "Hobbies"
 msgstr "Hobbies"
 
-#: ickle/UserInfoHelpers.cpp:379
+#: ickle/UserInfoHelpers.cpp:380
 msgid "ICQ - Help"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:380
+#: ickle/UserInfoHelpers.cpp:381
 msgid "Internet"
 msgstr "Internet"
 
-#: ickle/UserInfoHelpers.cpp:381
+#: ickle/UserInfoHelpers.cpp:382
 msgid "Lifestyle"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:382
+#: ickle/UserInfoHelpers.cpp:383
 msgid "Movies and TV"
 msgstr "Film und Fernsehen"
 
-#: ickle/UserInfoHelpers.cpp:383
+#: ickle/UserInfoHelpers.cpp:384
 msgid "Music"
 msgstr "Musik"
 
-#: ickle/UserInfoHelpers.cpp:384
+#: ickle/UserInfoHelpers.cpp:385
 msgid "Outdoors"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:385
+#: ickle/UserInfoHelpers.cpp:386
 msgid "Parenting"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:386
+#: ickle/UserInfoHelpers.cpp:387
 msgid "Pets and Animals"
 msgstr "(Haus)Tiere"
 
-#: ickle/UserInfoHelpers.cpp:387
+#: ickle/UserInfoHelpers.cpp:388
 msgid "Religion"
 msgstr "Religion"
 
-#: ickle/UserInfoHelpers.cpp:388
+#: ickle/UserInfoHelpers.cpp:389
 msgid "Science"
 msgstr "Wissenschaft"
 
-#: ickle/UserInfoHelpers.cpp:389
+#: ickle/UserInfoHelpers.cpp:390
 msgid "Skills"
 msgstr "Fertigkeiten"
 
-#: ickle/UserInfoHelpers.cpp:390
+#: ickle/UserInfoHelpers.cpp:391
 msgid "Sports"
 msgstr "Sport"
 
-#: ickle/UserInfoHelpers.cpp:391
+#: ickle/UserInfoHelpers.cpp:392
 msgid "Web Design"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:392
-msgid "Ecology"
-msgstr "Ökologie"
-
 #: ickle/UserInfoHelpers.cpp:393
+msgid "Ecology"
+msgstr "Ã–kologie"
+
+#: ickle/UserInfoHelpers.cpp:394
 msgid "News and Media"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:394
+#: ickle/UserInfoHelpers.cpp:395
 msgid "Government"
 msgstr "Regierung"
 
-#: ickle/UserInfoHelpers.cpp:395
+#: ickle/UserInfoHelpers.cpp:396
 msgid "Business"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:396
+#: ickle/UserInfoHelpers.cpp:397
 msgid "Mystics"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:397
+#: ickle/UserInfoHelpers.cpp:398
 msgid "Travel"
 msgstr "Reisen"
 
-#: ickle/UserInfoHelpers.cpp:398
+#: ickle/UserInfoHelpers.cpp:399
 msgid "Astronomy"
 msgstr "Astronomie"
 
-#: ickle/UserInfoHelpers.cpp:399
+#: ickle/UserInfoHelpers.cpp:400
 msgid "Space"
 msgstr "Weltraum"
 
-#: ickle/UserInfoHelpers.cpp:400
+#: ickle/UserInfoHelpers.cpp:401
 msgid "Clothing"
 msgstr "Kleidung"
 
-#: ickle/UserInfoHelpers.cpp:401
+#: ickle/UserInfoHelpers.cpp:402
 msgid "Parties"
 msgstr "Feiern"
 
-#: ickle/UserInfoHelpers.cpp:402
+#: ickle/UserInfoHelpers.cpp:403
 msgid "Women"
 msgstr "Frauen"
 
-#: ickle/UserInfoHelpers.cpp:403
+#: ickle/UserInfoHelpers.cpp:404
 msgid "Social science"
 msgstr "Sozialwissenschaft"
 
-#: ickle/UserInfoHelpers.cpp:404
+#: ickle/UserInfoHelpers.cpp:405
 msgid "60's"
 msgstr "60er"
 
-#: ickle/UserInfoHelpers.cpp:405
+#: ickle/UserInfoHelpers.cpp:406
 msgid "70's"
 msgstr "70er"
 
-#: ickle/UserInfoHelpers.cpp:406
+#: ickle/UserInfoHelpers.cpp:407
 msgid "80's"
 msgstr "80er"
 
-#: ickle/UserInfoHelpers.cpp:407
+#: ickle/UserInfoHelpers.cpp:408
 msgid "50's"
 msgstr "50er"
 
-#: ickle/UserInfoHelpers.cpp:408
+#: ickle/UserInfoHelpers.cpp:409
 msgid "Finance and Corporate"
 msgstr "Finanzen und Wirtschaft"
 
-#: ickle/UserInfoHelpers.cpp:409
+#: ickle/UserInfoHelpers.cpp:410
 msgid "Entertainment"
 msgstr "Unterhaltung"
 
-#: ickle/UserInfoHelpers.cpp:410
-msgid "Consumer Electronics"
-msgstr ""
-
 #: ickle/UserInfoHelpers.cpp:411
+msgid "Consumer Electronics"
+msgstr "Unterhaltungselektronik"
+
+#: ickle/UserInfoHelpers.cpp:412
 msgid "Retail Stores"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:412
-msgid "Health and Beauty"
-msgstr "Schönheit und Gesundheit"
-
 #: ickle/UserInfoHelpers.cpp:413
+msgid "Health and Beauty"
+msgstr "SchÃ¶nheit und Gesundheit"
+
+#: ickle/UserInfoHelpers.cpp:414
 msgid "Media"
 msgstr "Medien"
 
-#: ickle/UserInfoHelpers.cpp:414
+#: ickle/UserInfoHelpers.cpp:415
 msgid "Household Products"
 msgstr "Haushaltsprodukte"
 
-#: ickle/UserInfoHelpers.cpp:415
+#: ickle/UserInfoHelpers.cpp:416
 msgid "Mail Order Catalog"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:416
+#: ickle/UserInfoHelpers.cpp:417
 msgid "Business Services"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:417
+#: ickle/UserInfoHelpers.cpp:418
 msgid "Audio and Visual"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:418
+#: ickle/UserInfoHelpers.cpp:419
 msgid "Sporting and Athletics"
 msgstr "Sport"
 
-#: ickle/UserInfoHelpers.cpp:419
+#: ickle/UserInfoHelpers.cpp:420
 msgid "Publishing"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:420
+#: ickle/UserInfoHelpers.cpp:421
 msgid "Home Automation"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:423
-msgid "University"
-msgstr "Universität"
-
 #: ickle/UserInfoHelpers.cpp:424
+msgid "University"
+msgstr "UniversitÃ¤t"
+
+#: ickle/UserInfoHelpers.cpp:425
 msgid "High school"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:425
+#: ickle/UserInfoHelpers.cpp:426
 msgid "College"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:426
+#: ickle/UserInfoHelpers.cpp:427
 msgid "Elementary School"
 msgstr ""
 
-#: ickle/UserInfoHelpers.cpp:427
-msgid "Military"
-msgstr "Militär"
-
 #: ickle/UserInfoHelpers.cpp:428
+msgid "Military"
+msgstr "MilitÃ¤r"
+
+#: ickle/UserInfoHelpers.cpp:429
 msgid "Other"
 msgstr "Anderes"
 
-#: ickle/UserInfoHelpers.cpp:429
+#: ickle/UserInfoHelpers.cpp:430
 msgid "Past Organization"
 msgstr "Ehemalige Organisationen"
 
-#: ickle/UserInfoHelpers.cpp:430
+#: ickle/UserInfoHelpers.cpp:431
 msgid "Past Work Place"
-msgstr "Ehemalige Arbeitstätten"
+msgstr "Ehemalige ArbeitstÃ¤tten"
 
-#: ickle/UserInfoHelpers.cpp:433
+#: ickle/UserInfoHelpers.cpp:434
 msgid "none"
 msgstr "egal"
 
-#: ickle/UserInfoHelpers.cpp:434
+#: ickle/UserInfoHelpers.cpp:435
 msgid "18-22"
 msgstr "18-22"
 
-#: ickle/UserInfoHelpers.cpp:435
+#: ickle/UserInfoHelpers.cpp:436
 msgid "23-29"
 msgstr "23-29"
 
-#: ickle/UserInfoHelpers.cpp:436
+#: ickle/UserInfoHelpers.cpp:437
 msgid "30-39"
 msgstr "30-39"
 
-#: ickle/UserInfoHelpers.cpp:437
+#: ickle/UserInfoHelpers.cpp:438
 msgid "40-49"
 msgstr "40-49"
 
-#: ickle/UserInfoHelpers.cpp:438
+#: ickle/UserInfoHelpers.cpp:439
 msgid "50-59"
 msgstr "50-59"
 
-#: ickle/UserInfoHelpers.cpp:439
+#: ickle/UserInfoHelpers.cpp:440
 msgid "60-above"
-msgstr "60 und älter"
+msgstr "60 und Ã¤lter"
 
 #: ickle/utils.cpp:202
 msgid "%B %e, %G"
@@ -2827,14 +3264,14 @@ msgstr "Weiter >>"
 
 #: ickle/WizardDialog.cpp:44
 msgid "<< Previous"
-msgstr "<< Zurück"
+msgstr "<< ZurÃ¼ck"
 
 #: ickle/WizardDialog.cpp:56
 msgid ""
 "Register a new account. Choose this if you haven't used ICQ before to create "
 "a new account."
 msgstr ""
-"Ein neues Nutzerkonto anlegen. Falls sie ICQ noch nie benutzt haben, wählen "
+"Ein neues Nutzerkonto anlegen. Falls sie ICQ noch nie benutzt haben, wÃ¤hlen "
 "sie diese Option um einen Nutzer anzulegen."
 
 #: ickle/WizardDialog.cpp:58
@@ -2843,7 +3280,7 @@ msgid ""
 "that you would like to use."
 msgstr ""
 "Bestehendes Nutzerkonto. Falls sie ein bereits bestehendes Nutzerkonto "
-"nutzen wollen, wählen sie diese Option."
+"nutzen wollen, wÃ¤hlen sie diese Option."
 
 #: ickle/WizardDialog.cpp:73
 msgid "Account registration"
@@ -2868,7 +3305,7 @@ msgid ""
 "it can be because the password you entered was too simple. Try to make up "
 "more complicated password by mixing numbers and letters."
 msgstr ""
-"Bitte geben Sie das Passwort ein. Sie müssen es zweimal eingeben, um Fehler "
+"Bitte geben Sie das Passwort ein. Sie mÃ¼ssen es zweimal eingeben, um Fehler "
 "zu vermeiden. Klicken auf Weiter wird ickle veranlassen, mit dem Server zu "
 "kommunizieren und das Nutzerkonto anzumelden. Stellen Sie deshalb sicher, "
 "dass sie mit dem Internet verbunden sind. Hinweis: Sollte die Anmeldung "
@@ -2909,14 +3346,14 @@ msgid ""
 "\n"
 "Your UIN:"
 msgstr ""
-"Glückwunsch!\n"
+"GlÃ¼ckwunsch!\n"
 "\n"
-"Sie haben ickle erfolgreich konfiguriert. Unten können Sie Ihre zugewiesene "
-"Nutzernummer (UNI) sehen. Sie ist später auch in den Einstellungen "
+"Sie haben ickle erfolgreich konfiguriert. Unten kÃ¶nnen Sie Ihre zugewiesene "
+"Nutzernummer (UNI) sehen. Sie ist spÃ¤ter auch in den Einstellungen "
 "einsehbar. Wenn sie sich das erste Mal mit dem ICQ-Netzwerk verbinden, weren "
-"Sie aufgefordert, Ihre persönlichen Informationen einzugeben.\n"
+"Sie aufgefordert, Ihre persÃ¶nlichen Informationen einzugeben.\n"
 " Ickle wird jetzt versuchen, sich  mit diesem Nutzerkonto am ICQ-Netzwerk "
-"anzumelden. Drücken Sie auf Weiter um fortzufahren.\n"
+"anzumelden. DrÃ¼cken Sie auf Weiter um fortzufahren.\n"
 "\n"
 "Ihre UIN:"
 
@@ -2926,12 +3363,12 @@ msgstr "Sind Sie sicher, dass sie den Dialog beenden wollen? "
 
 #: ickle/WizardDialog.cpp:241
 msgid "You must supply a password before registering the account"
-msgstr "Vor der Anmeldung müssen sie ein Passwort angeben"
+msgstr "Vor der Anmeldung mÃ¼ssen sie ein Passwort angeben"
 
 #: ickle/WizardDialog.cpp:247 ickle/WizardDialog.cpp:289
 msgid "The given passwords do not match, please correct this and try again"
 msgstr ""
-"Die beiden Passwörter passen nicht zueinander. Bitte versuchen es erneut"
+"Die beiden PasswÃ¶rter passen nicht zueinander. Bitte versuchen es erneut"
 
 #: ickle/WizardDialog.cpp:252
 msgid "Process:"
@@ -2943,19 +3380,19 @@ msgstr "Melde neues Konto an..."
 
 #: ickle/WizardDialog.cpp:277
 msgid "You must supply an UIN before continuing!"
-msgstr "Sie müssen eine UNI angeben, bevor Sie fortsetzen können."
+msgstr "Sie mÃ¼ssen eine UNI angeben, bevor Sie fortsetzen kÃ¶nnen."
 
 #: ickle/WizardDialog.cpp:283
 msgid "You must supply a password before continuing!"
-msgstr "Sie müssen ein Passwort angeben, bevor Sie fortsetzen können."
+msgstr "Sie mÃ¼ssen ein Passwort angeben, bevor Sie fortsetzen kÃ¶nnen."
 
 #: ickle/WizardDialog.cpp:297
 msgid "'%1' is not a valid UIN, please correct this and try again"
-msgstr "'%1' ist keine gültige UIN. Bitte korrigieren sie den Fehler."
+msgstr "'%1' ist keine gÃ¼ltige UIN. Bitte korrigieren sie den Fehler."
 
 #: ickle/WizardDialog.cpp:364
 msgid "Registration attempt timed out. Would you like to retry?"
-msgstr "Die Anmeldung überschritt das Timeout. Wollen Sie es erneut versuchen?"
+msgstr "Die Anmeldung Ã¼berschritt das Timeout. Wollen Sie es erneut versuchen?"
 
 #: ickle/WizardDialog.cpp:367 ickle/WizardDialog.cpp:391
 msgid "Registering new account...[Retry]"
@@ -2965,25 +3402,37 @@ msgstr "Melde neues Konto an...[Neuversuch]"
 msgid "Registration attempt failed. Would you like to retry?"
 msgstr "Die Anmeldung schlug fehl. Wollen Sie es noch einmal versuchen? "
 
+#: ickle/FindTextDialog.cpp:42
+msgid "Case sensitive"
+msgstr "Gross-und Kleinschreibung beachten"
+
+#: ickle/FindTextDialog.cpp:47
+msgid "What text are you looking for?"
+msgstr "Wonach suchen sie?"
+
+#: ickle/FindTextDialog.cpp:54
+msgid "_Find Next"
+msgstr ""
+
 #: control/CommandLineParser.cpp:33 control/CommandLineParser.cpp:83
 msgid "Invalid option %1"
-msgstr "Ungültige Option %1"
+msgstr "UngÃ¼ltige Option %1"
 
 #: control/CommandLineParser.cpp:63
 msgid "Option %1 requires %2 arguments"
-msgstr "Option %1 benötigt %2 Argumente"
+msgstr "Option %1 benÃ¶tigt %2 Argumente"
 
 #: control/CommandLineParser.cpp:67
 msgid "Option %1 at least %2 arguments"
-msgstr "Option %1 benötigt mindestes %2 Argumente"
+msgstr "Option %1 benÃ¶tigt mindestes %2 Argumente"
 
 #: control/CommandLineParser.cpp:71
 msgid "Option %1 doesn't take more than %2 arguments"
-msgstr "Option %1 benötigt nicht mehr als 2 Argumente"
+msgstr "Option %1 benÃ¶tigt nicht mehr als 2 Argumente"
 
 #: control/IckleControl.cpp:104
 msgid "Is ickle running?"
-msgstr "Läuft ickle?"
+msgstr "LÃ¤uft ickle?"
 
 #: control/IckleControl.cpp:146
 msgid "Usage: ickle_control OPTIONS..."
@@ -3012,21 +3461,21 @@ msgid ""
 "  -v, --version             Display ickle version and exit"
 msgstr ""
 "Optionen:\n"
-"  -r, --running             Stellt fest, ob ickle läuft\n"
+"  -r, --running             Stellt fest, ob ickle lÃ¤uft\n"
 "  -b, --configdir DIR       Nutye DIR als ickles Konfigurationsverzeichnis.\n"
 "                            Standard ist ~/.ickle/\n"
-"  -t, --timeout [TIMEOUT]   Warte höchsten TIMEOUT Sekunden für den "
-"nächstenBefehl\n"
-"                            Kein TIMEOUT für sofortige Rückkehr\n"
+"  -t, --timeout [TIMEOUT]   Warte hÃ¶chsten TIMEOUT Sekunden fÃ¼r den "
+"nÃ¤chstenBefehl\n"
+"                            Kein TIMEOUT fÃ¼r sofortige RÃ¼ckkehr\n"
 "  -s, --status [STATUS]     Setzt oder Liest den Status. STATUS kann sein: "
 "online,away,\n"
 "                            away, na, occupied, dnd, freeforchat, offline\n"
 "  -i, --invisible [BOOL]    Unsichtbarkeit lesen oder setzen\n"
 "  -a, --away [\"MESSAGE\"]  away-Nachricht lesen oder setzen\n"
-"  -c, --addcontact UIN      Neuen Kontakt hinyufügen\n"
+"  -c, --addcontact UIN      Neuen Kontakt hinyufÃ¼gen\n"
 "  -m, --send UIN \"MESSAGE\"  Nachricht MESSAGE an Kontakt UIN schicken\n"
 "  -o, --sms UIN \"MESSAGE\"   Eine SMS MESSAGE an Kontakt UIN schicken\n"
-"  -S, --setting KEY [VALUE] Lesen oder Setzen des Schlüssels. >>Vorsicht!<<\n"
+"  -S, --setting KEY [VALUE] Lesen oder Setzen des SchlÃ¼ssels. >>Vorsicht!<<\n"
 "  -q, --quit                Beendet ickle\n"
 "  -h, --help                Zeigt diese Hilfe an\n"
 "  -v, --version             Zeigt die Version von ickle"
@@ -3037,27 +3486,27 @@ msgstr "ickle %1"
 
 #: control/IckleControl.cpp:185
 msgid "Invalid timeout value %1"
-msgstr "Ungültiger Timemout %1"
+msgstr "UngÃ¼ltiger Timemout %1"
 
 #: control/IckleControl.cpp:213
 msgid "Invalid status %1"
-msgstr "Ungültiger Status %1"
+msgstr "UngÃ¼ltiger Status %1"
 
 #: control/IckleControl.cpp:227
 msgid "Failed setting status to %1"
-msgstr "Fehler beim Ändern des Status nach %1"
+msgstr "Fehler beim Ã„ndern des Status nach %1"
 
 #: control/IckleControl.cpp:231
 msgid "Failed setting status to %1 (%2)"
-msgstr "Fehler beim Ändern des Status nach %1 (%2)"
+msgstr "Fehler beim Ã„ndern des Status nach %1 (%2)"
 
 #: control/IckleControl.cpp:270
 msgid "Invalid boolean value %1"
-msgstr "Ungültiger Boolscher Wert %1"
+msgstr "UngÃ¼ltiger Boolscher Wert %1"
 
 #: control/IckleControl.cpp:313 control/IckleControl.cpp:328
 msgid "Invalid UIN %1"
-msgstr "Ungültige UNI %1"
+msgstr "UngÃ¼ltige UNI %1"
 
 #: control/IckleControl.cpp:340
 msgid "Failed sending message to %1"
@@ -3070,3 +3519,22 @@ msgstr "Nachricht an  %1 konnte nicht versand werden (%2)"
 #: control/IckleControl.cpp:361 control/IckleControl.cpp:375
 msgid "No such setting %1"
 msgstr "Einstellung %1 existiert nicht"
+
+#~ msgid ""
+#~ "User is currently not available\n"
+#~ "You can leave him/her a message"
+#~ msgstr ""
+#~ "Der Kontakt im Moment nicht verfÃ¼gbar.\n"
+#~ "Sie kÃ¶nnen ihm/ihr eine Nachricht hinterlassen."
+
+#~ msgid "Away/Idle"
+#~ msgstr "Abwesenheitsschaltung"
+
+#~ msgid ""
+#~ "After this time ickle will switch its mode to Not Available. 0 to disable"
+#~ msgstr ""
+#~ "Nach dieser festgelegten Zeit wird ickle in den Modus 'Nicht VerfÃ¼gbar' "
+#~ "gesetzt. 0 zum deaktivieren."
+
+#~ msgid "Automatically return (from Auto-away or Auto-N/A)"
+#~ msgstr "Automatische RÃ¼ckkehr aus 'Auto-Abwesend' und 'Auto-N/V'"
