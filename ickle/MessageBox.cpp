@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.28 2001-12-13 23:04:55 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.29 2001-12-16 14:38:42 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -65,6 +65,7 @@ MessageBox::MessageBox(Contact *c, History *h)
   m_history_table.set_usize(400,140);
   m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
 			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+  m_history_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
 
   // scrollbars
   scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
