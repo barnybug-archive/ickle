@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.47 2002-03-31 23:15:33 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.48 2002-04-01 00:46:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -514,7 +514,7 @@ void IckleGUI::disconnect_lowlevel_prompt(int retries) {
   os << "There occured a networking error while communicating with the server, and as a "
     "result you were disconnected.";
   if( retries ) {
-    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success."
+    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success. "
        << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
   }
   
@@ -527,7 +527,7 @@ void IckleGUI::disconnect_unknown_prompt(int retries) {
   os << "There occured an unknown error while communicating with the server, and as a "
     "result you were disconnected.";
   if( retries ) {
-    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success."
+    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success. "
        << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
   }
   

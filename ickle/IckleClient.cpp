@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.84 2002-03-31 20:35:42 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.85 2002-04-01 00:46:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -492,7 +492,7 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
 
   if (m_retries > 0) {
     --m_retries;
-    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), icqclient.getStatus() ) );
+    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE ) );
   }
   else {
     m_retries = g_settings.getValueUnsignedChar("reconnect_retries"); // reset m_retries

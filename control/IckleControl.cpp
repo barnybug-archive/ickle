@@ -114,6 +114,7 @@ bool IckleControl::runCommands (CommandLineParser & p)
     else if (o->isOption ("addcontact", "c",  1)) { if (!cmdAddContact (o->argument())) return false; }
     else if (o->isOption ("send",       "m",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1))) return false; }
     else if (o->isOption ("quit",       "q",  0)) { cmdQuit (); }
+    else if (o->isOption ("configdir",  "b",  1)) { /* nop here */ }
     else {
       o->invalid ();
     }
