@@ -41,18 +41,13 @@ class AddMobileUserDialog : public Gtk::Dialog {
   Gtk::Entry alias_entry;
   MobileNoEntry mobileno_entry;
 
-  bool finished_okay;
-
  public:
   AddMobileUserDialog();
 
-  bool run();
-
-  string getMobileNo() const;
-  string getAlias() const;
-
   void okay_cb();
   void cancel_cb();
+
+  SigC::Signal2<void, std::string, std::string> add_mobile_user;
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.26 2002-01-26 14:24:24 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.27 2002-02-05 18:49:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -105,6 +105,8 @@ class SettingsDialog : public Gtk::Dialog {
   string getPassword() const;
 
   void updateSettings();
+
+  gint delete_event_impl(GdkEventAny*);
 };
 
 #endif

@@ -38,10 +38,10 @@ class AddUserDialog : public Gtk::Dialog {
  public:
   AddUserDialog();
 
-  unsigned int run();
-
   void okay_cb();
   void cancel_cb();
+
+  SigC::Signal1<void, unsigned int> add_user;
 };
 
 #endif

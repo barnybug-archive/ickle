@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.5 2002-01-27 23:56:16 nordman Exp $
+/* $Id: AboutDialog.cpp,v 1.6 2002-02-05 18:49:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -41,6 +41,8 @@ AboutDialog::AboutDialog()
   
   set_title("About ickle");
   set_modal(true);
+
+  destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
 

@@ -27,6 +27,8 @@ AddUserDialog::AddUserDialog()
   set_title("Add User");
   set_modal(true);
 
+  destroy.connect( Gtk::Main::quit.slot() );
+
   okay.clicked.connect(slot(this,&AddUserDialog::okay_cb));
   cancel.clicked.connect(slot(this,&AddUserDialog::cancel_cb));
 
@@ -43,17 +45,12 @@ AddUserDialog::AddUserDialog()
   show_all();
 }
 
-unsigned int AddUserDialog::run() {
-  Gtk::Main::run();
-  return ICQ2000::Contact::StringtoUIN(entry.get_text());
-}
-
 void AddUserDialog::okay_cb() {
-  Gtk::Main::quit();
+  unsigned int uin = ICQ2000::Contact::StringtoUIN(entry.get_text());
+  if (uin != 0) add_user.emit(uin);
+  destroy.emit();
 }
 
 void AddUserDialog::cancel_cb() {
-  entry.set_text("");
-  Gtk::Main::quit();
+  destroy.emit();
 }
-

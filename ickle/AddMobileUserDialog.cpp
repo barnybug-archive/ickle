@@ -53,30 +53,14 @@ AddMobileUserDialog::AddMobileUserDialog()
   show_all();
 }
 
-bool AddMobileUserDialog::run() {
-  Gtk::Main::run();
-  if (finished_okay) {
-    if (mobileno_entry.get_text().empty()) return false;
-    return true;
-  } else {
-    return false;
-  }
-}
-
-string AddMobileUserDialog::getAlias() const {
-  return alias_entry.get_text();
-}
-
-string AddMobileUserDialog::getMobileNo() const {
-  return mobileno_entry.get_text();
-}
-
 void AddMobileUserDialog::okay_cb() {
-  Gtk::Main::quit();
-  finished_okay = true;
+  if (!mobileno_entry.get_text().empty()) {
+    add_mobile_user.emit( alias_entry.get_text(), mobileno_entry.get_text() );
+  }
+  
+  destroy.emit();
 }
 
 void AddMobileUserDialog::cancel_cb() {
-  Gtk::Main::quit();
-  finished_okay = false;
+  destroy.emit();
 }

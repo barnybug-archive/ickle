@@ -27,10 +27,13 @@
 
 PromptDialog::PromptDialog(PromptType t, const string& msg)
   : Gtk::Dialog(),
-    type(t)
+    type(t),
+    finish_bool(false)
 {
   set_modal(true);
   set_position(GTK_WIN_POS_MOUSE);
+
+  destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
   Gtk::Button *button;
@@ -90,11 +93,11 @@ bool PromptDialog::run() {
 }
 
 void PromptDialog::true_cb() {
-  Gtk::Main::quit();
   finish_bool = true;
+  destroy.emit();
 }
 
 void PromptDialog::false_cb() {
-  Gtk::Main::quit();
   finish_bool = false;
+  destroy.emit();
 }

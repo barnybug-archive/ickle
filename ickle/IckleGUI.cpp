@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.37 2002-01-30 22:13:11 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.38 2002-02-05 18:49:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -316,11 +316,9 @@ void IckleGUI::userinfo_dialog_upload_cb(Contact *c) {
 }
 
 void IckleGUI::add_user_cb() {
-  AddUserDialog dialog;
-  unsigned int uid = dialog.run();
-  if (uid != 0) {
-    add_user.emit(uid);
-  }
+  AddUserDialog *dialog = new AddUserDialog();
+  manage( dialog );
+  dialog->add_user.connect( add_user.slot() );
 }
 
 void IckleGUI::search_user_cb() 
@@ -366,10 +364,9 @@ void IckleGUI::about_cb()
 }
 
 void IckleGUI::add_mobile_user_cb() {
-  AddMobileUserDialog dialog;
-  if (dialog.run()) {
-    add_mobile_user.emit( dialog.getAlias(), dialog.getMobileNo() );
-  }
+  AddMobileUserDialog *dialog = new AddMobileUserDialog();
+  manage( dialog );
+  dialog->add_mobile_user.connect( add_mobile_user.slot() );
 }
 
 void IckleGUI::invalid_login_prompt() {

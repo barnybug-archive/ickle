@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.30 2002-01-26 14:24:24 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.31 2002-02-05 18:49:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -67,7 +67,8 @@ SettingsDialog::SettingsDialog()
     spell_check_aspell("Use aspell instead of ispell", 0),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
-    history_shownr_label("Number of messages to display per history-page", 0)
+    history_shownr_label("Number of messages to display per history-page", 0),
+    finished_okay(false)
 {
   
   set_title("Settings Dialog");
@@ -590,16 +591,17 @@ void SettingsDialog::reconnect_toggle_cb() {
 }
 
 void SettingsDialog::okay_cb() {
-  Gtk::Main::quit();
   finished_okay = true;
+  Gtk::Main::quit();
 }
 
 void SettingsDialog::cancel_cb() {
-  Gtk::Main::quit();
   finished_okay = false;
 
   // restore icons
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
+  
+  Gtk::Main::quit();
 }
 
 void SettingsDialog::subs_cb()
@@ -688,4 +690,10 @@ string SettingsDialog::getIconsFilename() {
   string filename = dynamic_cast<Gtk::Label*>((*iter)->get_child())->get();
   if (filename != "Default") filename = ICONS_DIR + filename + "/";
   return filename;
+}
+
+gint SettingsDialog::delete_event_impl(GdkEventAny*)
+{
+  Gtk::Main::quit();
+  return false;
 }
