@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.21 2001-12-18 19:45:10 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.22 2001-12-18 22:16:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -38,7 +38,7 @@ IckleGUI::IckleGUI()
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
   icqclient.statuschanged.connect(slot(this,&IckleGUI::status_change_cb));
 
-  g_settings.settings_changed.connect( slot( this, &IckleGUI::settings_changed_cb ) );
+  g_icons.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
@@ -353,9 +353,7 @@ void IckleGUI::settings_cb() {
 
 }
 
-void IckleGUI::settings_changed_cb(const string &key) {
-  if( key == "icons_dir" ) {
-    menu_status_update();
-    m_contact_list.icons_changed_cb();
-  }
+void IckleGUI::icons_changed_cb() {
+  menu_status_update();
+  m_contact_list.icons_changed_cb();
 }

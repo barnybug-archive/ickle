@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.6 2001-12-18 20:02:31 nordman Exp $
+/* $Id: Icons.h,v 1.7 2001-12-18 22:16:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -22,6 +22,7 @@
 #define ICONS_H
 
 #include <gtk--/imageloader.h>
+#include <sigc++/signal_system.h>
 
 #include <string>
 
@@ -55,6 +56,11 @@ class Icons {
   void FreeIcons();
   ImageLoader* IconForStatus(Status s,bool inv);
   ImageLoader* IconForEvent(MessageEvent::MessageType t);
+
+  void settings_changed_cb(const string& key);
+
+  SigC::Signal0<void> icons_changed;
+
 };
 
 #endif

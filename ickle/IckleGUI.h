@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.17 2001-12-18 19:45:10 nordman Exp $
+/* $Id: IckleGUI.h,v 1.18 2001-12-18 22:16:52 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -123,7 +123,7 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
-  void settings_changed_cb(const string &key);
+  void icons_changed_cb();
   void userinfo_toggle_cb(bool b, Contact *c);
   void status_change_cb(MyStatusChangeEvent *ev);
 

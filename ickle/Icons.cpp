@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.7 2001-12-18 19:45:10 nordman Exp $
+/* $Id: Icons.cpp,v 1.8 2001-12-18 22:16:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -53,19 +53,20 @@ void Icons::setDefaultIcons() {
   Icon_Status_URL = new ImageLoaderData(url_xpm);
   Icon_Status_SMS = new ImageLoaderData(sms_xpm);
   Icon_Status_Invisible = new ImageLoaderData(invisible_xpm);
-  g_settings.setValue("icons_dir", "Default");
 }
 
-/*
-  Sets the icons to the set given by dir.
+void Icons::settings_changed_cb(const string& key) {
+  if (key == "icons_dir") {
+    setIcons( g_settings.getValueString("icons_dir") );
+  }
+}
 
-  Note: This also automatically updates the settings for the icons.
-*/
 bool Icons::setIcons(const string &dir) {
   FreeIcons();
 
   if (dir == "" || dir == "Default") {
     setDefaultIcons();
+    icons_changed.emit();
     return true;
   }
 
@@ -80,7 +81,7 @@ bool Icons::setIcons(const string &dir) {
   Icon_Status_URL = new ImageLoader( dir + "url.xpm" );
   Icon_Status_SMS = new ImageLoader( dir + "sms.xpm" );
   Icon_Status_Invisible = new ImageLoader( dir + "invisible.xpm" );
-  g_settings.setValue("icons_dir", dir);
+  icons_changed.emit();
   return true;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.13 2001-12-18 19:45:10 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.14 2001-12-18 22:16:52 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -173,16 +173,14 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 }
 
 
-void IckleApplet::settings_changed_cb(const string &key)
+void IckleApplet::icons_changed_cb()
 {
-  if( key == "icons_dir" ) {
-    Gtk::ImageLoader *il;
-    if( !m_nr_msgs )
-      il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
-    else // we don't keep track of the exact event so just use normal
-      il = g_icons.IconForEvent( MessageEvent::Normal );
-    m_pm.set( il->pix(), il->bit() );
-  }
+  Gtk::ImageLoader *il;
+  if( !m_nr_msgs )
+    il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
+  else // we don't keep track of the exact event so just use normal
+    il = g_icons.IconForEvent( MessageEvent::Normal );
+  m_pm.set( il->pix(), il->bit() );
 }
 
 
@@ -290,7 +288,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   icqclient.messaged.connect(slot(this,&IckleApplet::icq_messaged_cb));
   icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
 
-  g_settings.settings_changed.connect( slot(this, &IckleApplet::settings_changed_cb) );
+  g_icons.icons_changed.connect( slot(this, &IckleApplet::icons_changed_cb) );
 
   // create applet
 
