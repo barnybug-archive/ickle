@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.55 2003-01-18 12:00:15 nordman Exp $
+/* $Id: ContactListView.cpp,v 1.56 2003-01-18 15:56:09 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -409,6 +409,8 @@ void ContactListView::update_list()
     
     ++curr;
   }
+
+  sort();
 }
 
 void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
