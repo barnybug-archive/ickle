@@ -199,7 +199,8 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
     }
   }
 
-  if (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c)
+  if ( (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c ) ||
+       ev->keyval == GDK_Escape)
     destroy.emit();
 
   return false;
