@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.7 2001-12-10 00:12:33 nordman Exp $
+/* $Id: MessageBox.h,v 1.8 2001-12-10 19:19:03 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -98,6 +98,7 @@ class MessageBox : public Gtk::Window {
   void display_message(History::Entry &he);
   void set_status( const string& text );
   void scaleadj_value_changed_cb();
+  gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
 
  public:
   MessageBox(Contact *c, History *h);

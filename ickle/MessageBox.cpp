@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.24 2001-12-10 02:04:33 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.25 2001-12-10 19:19:03 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -31,7 +31,9 @@
 #include <gtk--/toolbar.h>
 #include <gdk/gdkkeysyms.h>
 
-
+using Gtk::Text;
+using SigC::bind;
+using SigC::slot;
 using std::ostringstream;
 using std::endl;
 
@@ -220,6 +222,12 @@ MessageBox::MessageBox(Contact *c, History *h)
   hbox->pack_end(m_close_button);
   m_vbox_top.pack_start(*hbox,false);
 
+  // hook up for mousewheel support
+  m_history_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_history_text ) );
+  m_message_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_message_text ) );
+  m_url_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_url_text ) );
+  m_sms_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_sms_text ) );
+  
   m_histconn = m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
   
   add(m_vbox_top);
@@ -548,4 +556,24 @@ void MessageBox::scaleadj_value_changed_cb()
   
   adj = m_history_text.get_vadjustment();
   adj->set_value( adj->get_upper() );
+}
+
+// provides mousewheel support for Gtk::Text controls
+gint MessageBox::text_button_press_cb(GdkEventButton *b, Text *t) {
+  Gtk::Adjustment *adj;
+  gfloat val;
+
+  if( b->button != 4 && b->button != 5 )
+    return FALSE;
+  
+  adj = t->get_vadjustment();
+  val = adj->get_value();
+  if( b->button == 4 ) {
+    val -= adj->get_page_increment();
+  }
+  else if( b->button = 5 ) {
+    val += adj->get_page_increment();
+  }
+  adj->set_value( val );
+  return TRUE;
 }
