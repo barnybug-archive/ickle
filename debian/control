@@ -45,7 +45,7 @@ Description: An ICQ2000 client for GTK+ with GNOME applet
 
 Package: ickle-control
 Architecture: any
-Depends: (ickle (= ${Source-Version}) | ickle-gnome (=${Source-Version})), ${shlibs:Depends}
+Depends: ickle (= ${Source-Version}) | ickle-gnome (=${Source-Version}), ${shlibs:Depends}
 Description: An ICQ2000 client for GTK+
  Ickle is an ICQ client which is able to communicate with ICQ servers
  using the new ICQ2000 protocol. This offers much better reliability
