@@ -34,6 +34,8 @@
 using std::ostringstream;
 using std::endl;
 
+using Gtk::Text_Helpers::Context;
+
 AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
   : m_pos(0), m_count(0), m_main_window(main_window)
 {
@@ -100,35 +102,32 @@ void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
     m_count = 0;
   }
 
-  Gdk_Font normal_font;
-  Gdk_Font header_font;
+  Context normal_context, header_context;
   string message_text_font = g_settings.getValueString("message_text_font");
   string message_header_font = g_settings.getValueString("message_header_font");
   if ( !message_text_font.empty() ) {
-    normal_font = Gdk_Font( message_text_font );
+    normal_context.set_font( Gdk_Font( message_text_font ) );
   }
   if ( !message_header_font.empty() ) {
-    header_font = Gdk_Font( message_header_font );
+    header_context.set_font( Gdk_Font( message_header_font ) );
   }
-  Gdk_Color nickc("red");
-  Gdk_Color white("white");
-  Gdk_Color black("black");
+  header_context.set_foreground( Gdk_Color("red") );
     
   Gtk::Adjustment *adj = m_awaytext.get_vadjustment();
   gfloat bot = adj->get_upper();
     
   if (m_awaytext.get_point() > 0)
-    m_awaytext.insert( normal_font, black, white, "\n", -1);
+    m_awaytext.insert( normal_context, "\n");
 
   ostringstream ostr;
   ostr << format_time( ev->getTime() ) << " "
        << c->getAlias() << endl;
   m_awaytext.freeze();
-  m_awaytext.insert( header_font, nickc, white, ostr.str(), -1);
+  m_awaytext.insert( header_context, ostr.str());
   if (ev->isDelivered()) {
-    m_awaytext.insert( normal_font, black, white, aev->getMessage(), -1);
+    m_awaytext.insert( normal_context, aev->getMessage());
   } else {
-    m_awaytext.insert( normal_font, black, white, "Couldn't fetch away message", -1);
+    m_awaytext.insert( normal_context, "Couldn't fetch away message");
   }
   m_awaytext.thaw();
   adj->set_value( bot );

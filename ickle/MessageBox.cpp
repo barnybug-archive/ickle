@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.40 2002-01-22 14:05:53 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.41 2002-01-25 15:03:23 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,6 +34,7 @@
 #include "gtkspell.h"
 
 using Gtk::Text;
+using Gtk::Text_Helpers::Context;
 using SigC::bind;
 using SigC::slot;
 using std::ostringstream;
@@ -476,25 +477,25 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
 
 void MessageBox::display_message(History::Entry &e)
 {
-  Gdk_Font normal_font;
-  Gdk_Font header_font;
+  Context header_context, normal_context;
+  
   string message_text_font = g_settings.getValueString("message_text_font");
   string message_header_font = g_settings.getValueString("message_header_font");
   if ( !message_text_font.empty() ) {
-    normal_font = Gdk_Font( message_text_font );
+    normal_context.set_font( Gdk_Font( message_text_font ) );
   }
   if ( !message_header_font.empty() ) {
-    header_font = Gdk_Font( message_header_font );
+    header_context.set_font( Gdk_Font( message_header_font ) );
   }
-  Gdk_Color nickc;
+
   string nick;
   
   if( e.dir == History::Entry::SENT ) {
-    nickc = Gdk_Color("blue");
+    header_context.set_foreground( Gdk_Color("blue") );
     nick = m_self_contact->getAlias();
   }
   else {
-    nickc = Gdk_Color("red");
+    header_context.set_foreground( Gdk_Color("red") );
     nick = m_contact->getAlias();
   }
 
@@ -502,7 +503,7 @@ void MessageBox::display_message(History::Entry &e)
   Gdk_Color black("black");
   
   if (m_history_text.get_point() > 0)
-    m_history_text.insert( normal_font, black, white, "\n", -1);
+    m_history_text.insert( normal_context, "\n");
 
   ostringstream ostr;
   if (m_display_times)
@@ -512,21 +513,21 @@ void MessageBox::display_message(History::Entry &e)
   if (e.type == MessageEvent::Normal) {
 
     if ( e.multiparty ) ostr << "[multiparty] ";
-    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, e.message, -1);
+    m_history_text.insert( header_context, ostr.str());
+    m_history_text.insert( normal_context, e.message);
       
   } else if (e.type == MessageEvent::URL) {
 
-    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, e.URL, -1);
-    m_history_text.insert( normal_font, black, white, "\n", -1);
-    m_history_text.insert( normal_font, black, white, e.message, -1);
+    m_history_text.insert( header_context, ostr.str());
+    m_history_text.insert( normal_context, e.URL);
+    m_history_text.insert( normal_context, "\n");
+    m_history_text.insert( normal_context, e.message);
       
   } else if (e.type == MessageEvent::SMS) {
 
     ostr << "[sms] ";
-    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, e.message, -1);
+    m_history_text.insert( header_context, ostr.str());
+    m_history_text.insert( normal_context, e.message);
       
   } else if (e.type == MessageEvent::SMS_Receipt) {
     if (e.delivered) {
@@ -535,7 +536,7 @@ void MessageBox::display_message(History::Entry &e)
       ostr << "[sms not delivered]";
     }
     ostr << endl;
-    m_history_text.insert( header_font, nickc, white, ostr.str(), -1);
+    m_history_text.insert( header_context, ostr.str());
   }
 
 }
