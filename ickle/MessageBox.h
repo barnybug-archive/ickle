@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.22 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.23 2002-06-15 13:44:41 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -62,7 +62,7 @@ class MessageBox : public Gtk::Window {
   Gtk::VBox m_vbox_top;
   Gtk::Button m_send_button, m_close_button;
 
-  Gtk::Table m_history_table;
+  Gtk::VBox m_history_vbox;
   Gtk::Text m_history_text;
   guchar m_nr_shown;
 

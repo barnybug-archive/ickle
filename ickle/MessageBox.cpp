@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.65 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.66 2002-06-15 13:44:41 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,7 +60,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_history(h),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
-    m_history_table(2,3,false),
+    m_history_vbox(false, 0),
     m_sms_count_label("", 0),
     m_sms_count_over(false),
     m_sms_enabled(true),
@@ -74,6 +74,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_send_tocontactlist("To Contact List", 0),
     m_last_ev(NULL)
 {
+  Gtk::Box *history_hbox;
   Gtk::Box *hbox;
 
   set_border_width(10);
@@ -85,14 +86,12 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
 
   Gtk::Scrollbar *scrollbar;
   
-  m_history_table.set_usize(400,100);
-  m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
-			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-  m_history_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+  history_hbox = manage( new Gtk::HBox() );
 
   // scrollbars
   scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
-  m_history_table.attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+  history_hbox->pack_start(m_history_text, true, true);
+  history_hbox->pack_start(*scrollbar, false, false);
 
   // initial scale adjustment
   m_scaleadj.set_lower(0);
@@ -109,13 +108,15 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scale.set_draw_value( false );
   m_scale.set_update_policy(GTK_UPDATE_DELAYED);
   m_scale.set_digits(0);
-  m_history_table.attach( m_scalelabel, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL );
-  m_history_table.attach( m_scale, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
+
+  m_history_vbox.pack_start(*history_hbox, true, true);
+  m_history_vbox.pack_start(m_scalelabel, false, false);
+  m_history_vbox.pack_start(m_scale, false, false);
 
   m_history_text.set_editable(false);
   m_history_text.set_word_wrap(true);
 
-  m_pane.pack1(m_history_table, true, false);
+  m_pane.pack1(m_history_vbox, true, false);
 
   // -- bottom pane --
 
@@ -289,8 +290,9 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_pane.set_position( message_box_pane_position );
   }
   size_allocate.connect( slot(this, &MessageBox::resized_cb) );
+
   /* m_history_table height == pane position */
-  m_history_table.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
+  m_history_vbox.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
 
   // -- callbacks for libicq2000   --
   m_contact->status_change_signal.connect( slot( this, &MessageBox::status_change_cb ) );
@@ -904,7 +906,7 @@ void MessageBox::resized_cb(GtkAllocation *allocation) {
 
 void MessageBox::pane_position_changed_cb(GtkAllocation *allocation) {
   /* Pane position is the same as m_history_table.height() */
-  g_settings.setValue("message_box_pane_position", m_history_table.height());
+  g_settings.setValue("message_box_pane_position", m_history_vbox.height());
 }
 
 gint MessageBox::focus_in_event_impl(GdkEventFocus* p0)
