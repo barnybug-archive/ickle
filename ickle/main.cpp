@@ -18,10 +18,13 @@
  *
  */
 
+
 #include <iostream>
 
 #include <gtkmm/main.h>
 
+#include "ickle.h"
+#include "ucompose.h"
 #include "main.h"
 #include "IckleClient.h"
 
@@ -43,8 +46,18 @@ string TRANSLATIONS_DIR;
 string ICONS_DIR;
 string PID_FILENAME;
 
-int main(int argc, char* argv[]) {
-  try {
+int main(int argc, char* argv[])
+{
+  try
+  {
+#ifdef ENABLE_NLS
+    /* initialise gettext */
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(PACKAGE, "UTF-8");
+    textdomain(PACKAGE);
+#endif
+
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();
     
@@ -56,11 +69,13 @@ int main(int argc, char* argv[]) {
 
     return 0;
   }
-  catch( std::exception &e ) {
-    cout << "Exiting abnormally: " << e.what() << endl;
+  catch( std::exception &e )
+  {
+    cout << String::ucompose(_("Exiting abnormally: %1"), e.what()) << endl;
   }
-  catch( ... ) {
-    cout << "Exiting abnormally" << endl;
+  catch( ... )
+  {
+    cout << Glib::ustring(_("Exiting abnormally")) << endl;
   }
   return 1;
 }

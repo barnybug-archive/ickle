@@ -4,11 +4,16 @@
 
 bin_PROGRAMS = ickle
 
+# set gettext LOCALEDIR
+datadir = @datadir@
+localedir = $(datadir)/locale
 AM_CPPFLAGS = -I$(top_srcdir)/share/icons/ickle/ -DPKGDATADIR=\"$(pkgdatadir)\"		\
               @GTKMM_CFLAGS@ @LIBICQ2000_CFLAGS@	\
-              -I$(top_srcdir)/ctrlsocket
+              -I$(top_srcdir)/ctrlsocket -DLOCALEDIR=\"$(localedir)\"
+
 LDFLAGS = @GTKMM_LIBS@ @LIBICQ2000_LIBS@ @XSS_LIBS@ \
-          -L$(top_builddir)/ctrlsocket @LIBICKLE_CTRLSOCKET_FLAG@
+          -L$(top_builddir)/ctrlsocket @LIBICKLE_CTRLSOCKET_FLAG@ \
+          @LIBINTL@
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   Settings.cpp ContactListView.cpp MessageBox.cpp			\
@@ -39,3 +44,4 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h		\
 
 man_MANS = ickle.1
 EXTRA_DIST = ickle.1
+

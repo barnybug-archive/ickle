@@ -89,6 +89,9 @@ if test $sstream != yes ; then
   AC_MSG_ERROR([Your libstdc++ installation does not have the sstream or strstream classes])
 fi
 
+# Check for std::locale() in libstdc++
+ICKLE_CXX_HAVE_STD_LOCALE()
+
 AC_LANG_RESTORE
 
 # Checks for libraries.

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.116 2003-01-02 16:39:56 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.117 2003-01-02 21:30:33 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -38,6 +38,8 @@
 #include <signal.h>
 #include "sstream_fix.h"
 
+#include "ickle.h"
+#include "ucompose.h"
 #include "main.h"
 #include "Icons.h"
 #include "Dir.h"
@@ -201,10 +203,10 @@ void IckleClient::processCommandLine(int argc, char* argv[])
 
 void IckleClient::usageInstructions(const char* progname)
 {
-  cout << "ickle version " << ICKLE_VERSION << endl
-       << "Usage: " << progname << " [-h] [-b dir]" << endl << endl
-       << " -h : the help screen you are seeing" << endl
-       << " -b : use a different configuration directory (~/.ickle/ is the default)" << endl
+  cout << String::ucompose(_("ickle version %1"), ICKLE_VERSION) << endl
+       << String::ucompose(_("Usage: %1 [-h] [-b dir]"), progname) << endl << endl
+       << Glib::ustring(_(" -h : the help screen you are seeing")) << endl
+       << Glib::ustring(_(" -b : use a different configuration directory (~/.ickle/ is the default)")) << endl
        << endl;
 }
 

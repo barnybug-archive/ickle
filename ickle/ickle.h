@@ -1,6 +1,7 @@
 /*
- * main.h
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * ickle.h
+ * Global header - only absolutely necessary globals!
+ * Copyright (C) 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,25 +19,19 @@
  *
  */
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef ICKLE_H
+#define ICKLE_H
 
-#include <string>
+#include "config.h"
 
-namespace ICQ2000
-{
-  class Client;
-}
+/* gettext support */
+#include "gettext.h"
 
-extern class ICQ2000::Client icqclient;
-extern class Settings g_settings;
-extern class Icons g_icons;
-
-extern std::string BASE_DIR;
-extern std::string CONTACT_DIR;
-extern std::string DATA_DIR;
-extern std::string TRANSLATIONS_DIR;
-extern std::string ICONS_DIR;
-extern std::string PID_FILENAME;
-
+#define _(x) gettext(x)
+#ifdef gettext_noop
+#  define N_(String) gettext_noop (String)
+#else
+#  define N_(String) (String)
 #endif
+
+#endif /* ICKLE_H */
