@@ -16,7 +16,9 @@
 #ifndef CONTROLSOCKET_H
 #define CONTROLSOCKET_H
 
+#include <sys/socket.h>
 #include <sys/un.h>
+
 #include <string>
 #include <set>
 
