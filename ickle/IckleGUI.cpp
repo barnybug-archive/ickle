@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.48 2002-04-01 00:46:35 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.49 2002-04-01 11:25:50 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -371,6 +371,12 @@ void IckleGUI::status_menu_status_changed_cb(ICQ2000::Status st) {
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
     d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
   }
+
+  // this forces a reconnect if setting status whilst already connecting, this is the usual
+  // behaviour the user wants, as TCP connections can hang, etc.. on dodgy links
+  if (st != ICQ2000::STATUS_OFFLINE && icqclient.getStatus() == ICQ2000::STATUS_OFFLINE)
+    icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
+  
   icqclient.setStatus(st);
 }
 
@@ -382,6 +388,12 @@ void IckleGUI::status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv) {
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
     d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
   }
+
+  // this forces a reconnect if setting status whilst already connecting, this is the usual
+  // behaviour the user wants, as TCP connections can hang, etc.. on dodgy links
+  if (st != ICQ2000::STATUS_OFFLINE && icqclient.getStatus() == ICQ2000::STATUS_OFFLINE)
+    icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
+  
   icqclient.setStatus(st, inv);
 }
 

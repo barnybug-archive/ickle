@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.17 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: History.cpp,v 1.18 2002-04-01 11:25:50 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -110,6 +110,10 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
   of << "Time: " << ev->getTime() << endl 
      << "Direction: " << ( received ? "Received" : "Sent" ) << endl;
 
+  ICQ2000::ICQMessageEvent *icq = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
+  if (icq != NULL && icq->isUrgent()) {
+    of << "Urgent: Yes" << endl;
+  }
   
   if (ev->getType() == ICQ2000::MessageEvent::Normal) {
 
@@ -248,6 +252,7 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
   e.multiparty = false;
   e.dir = Entry::SENT;
   e.offline = false;
+  e.urgent = false;
   e.receipt = false;
   e.delivered = true;
   e.message.erase();
@@ -296,6 +301,9 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
     }
     else if( s.find( "Delivered: " ) != string::npos ) {
       e.delivered = s.substr( string( "Delivered: ").size() ) == "Yes";
+    }
+    else if( s.find( "Urgent: " ) != string::npos ) {
+      e.urgent = s.substr( string( "Urgent: ").size() ) == "Yes";
     }
     else if( s.find( "Message: " ) != string::npos ) {
       int start = string( "Message: ").size();

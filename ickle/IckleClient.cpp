@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.85 2002-04-01 00:46:35 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.86 2002-04-01 11:25:50 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -776,15 +776,17 @@ void IckleClient::queue_added_cb(MessageEvent *ev)
 
 MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
 {
-  MessageEvent *ret = NULL;
+  ICQMessageEvent *ret = NULL;
   ContactRef c = ev->getContact();
   
   switch(ev->getType()) {
   case ICQ2000::MessageEvent::Normal:
   {
     ICQ2000::NormalMessageEvent *cev = static_cast<ICQ2000::NormalMessageEvent*>(ev);
-    ret = new NormalICQMessageEvent( ev->getTime(), c, cev->getMessage(),
-				     cev->getForeground(), cev->getBackground() );
+    NormalICQMessageEvent *ret2 = new NormalICQMessageEvent( ev->getTime(), c, cev->getMessage(),
+							     cev->getForeground(), cev->getBackground() );
+    ret2->setMultiParty( cev->isMultiParty() );
+    ret = ret2;
     break;
   }
   case ICQ2000::MessageEvent::URL:
@@ -834,6 +836,14 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   }
   default:
     ret = NULL;
+  }
+
+  ICQ2000::ICQMessageEvent *icq = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
+  if (ret != NULL && icq != NULL) {
+    ret->setUrgent( icq->isUrgent() );
+    ret->setToContactList( icq->isToContactList() );
+    ret->setDirect( icq->isDirect() );
+    ret->setOffline( icq->isOfflineMessage() );
   }
 
   return ret;

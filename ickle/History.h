@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.10 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: History.h,v 1.11 2002-04-01 11:25:50 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -69,6 +69,7 @@ class History : public SigC::Object {
     std::string URL;
     bool receipt;
     bool delivered; // for SMS receipts
+    bool urgent;
   };
 
   History(const std::string& historyfile);

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.50 2002-03-31 22:01:54 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.51 2002-04-01 11:25:50 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -600,6 +600,8 @@ void MessageBox::display_message(History::Entry &e)
     ostr << format_time(e.timestamp) << " ";
 
   ostr << nick << " ";
+  if (e.urgent) ostr << "[urgent] ";
+
   switch(e.type) {
 
   case ICQ2000::MessageEvent::Normal:
