@@ -186,16 +186,18 @@ namespace ICQ2000 {
   class NormalMessageEvent : public MessageEvent {
    private:
     string m_message;
-    bool m_offline;
+    bool m_offline, m_multi;
     
    public:
     NormalMessageEvent(Contact* c, const string& msg);
-    NormalMessageEvent(Contact* c, const string& msg, time_t t);
+    NormalMessageEvent(Contact* c, const string& msg, bool multi);
+    NormalMessageEvent(Contact* c, const string& msg, time_t t, bool multi);
 
     string getMessage() const;
     MessageType getType() const;
     unsigned int getSenderUIN() const;
     bool isOfflineMessage() const;
+    bool isMultiParty() const;
   };
   
   class URLMessageEvent : public MessageEvent {

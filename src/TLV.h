@@ -51,6 +51,8 @@ namespace ICQ2000 {
   const unsigned short MSG_Type_AuthReq = 0x0006;
   const unsigned short MSG_Type_SMS     = 0x001a;
 
+  const unsigned short MSG_Type_Multi   = 0x8001;
+
   // ------------- TLV numerical constants ------------
 
   /*
@@ -499,12 +501,14 @@ namespace ICQ2000 {
    private:
     string m_message;
     unsigned int m_destination;
+    bool m_multi;
     
    public:
-    NormalICQSubType();
+    NormalICQSubType(bool multi);
     NormalICQSubType(const string& msg, unsigned int destination);
 
     string getMessage() const;
+    bool isMultiParty() const;
     void setMessage(const string& message);
     unsigned int getDestination() const;
     void setDestination(unsigned int uin);

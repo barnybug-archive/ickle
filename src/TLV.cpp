@@ -395,13 +395,16 @@ namespace ICQ2000 {
     ICQSubType *ist;
     switch(type) {
     case MSG_Type_Normal:
-      ist = new NormalICQSubType();
+      ist = new NormalICQSubType(false);
       break;
     case MSG_Type_URL:
       ist = new URLICQSubType();
       break;
     case MSG_Type_SMS:
       ist = new SMSICQSubType();
+      break;
+    case MSG_Type_Multi:
+      ist = new NormalICQSubType(true);
       break;
     default:
       throw ParseException("Unknown ICQ Subtype");
@@ -428,12 +431,15 @@ namespace ICQ2000 {
     }
   }
 
-  NormalICQSubType::NormalICQSubType() { }
+  NormalICQSubType::NormalICQSubType(bool multi)
+    : m_multi(multi) { }
 
   NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin)
     : m_message(msg), m_destination(uin) { }
 
   string NormalICQSubType::getMessage() const { return m_message; }
+  
+  bool NormalICQSubType::isMultiParty() const { return m_multi; }
 
   void NormalICQSubType::setMessage(const string& msg) { m_message = msg; }
 

@@ -143,7 +143,7 @@ namespace ICQ2000 {
       unsigned int uin = userinfo.getUIN();
       contact = lookupICQ(uin);
       e = new NormalMessageEvent(contact,
-				 nst->getMessage());
+				 nst->getMessage(), nst->isMultiParty() );
 
     } else if (st->getType() == MSG_Type_URL) {
       URLICQSubType *ust = static_cast<URLICQSubType*>(st);
@@ -206,7 +206,7 @@ namespace ICQ2000 {
 	NormalICQSubType *nst = static_cast<NormalICQSubType*>(st);
 	e = new NormalMessageEvent(contact,
 				   nst->getMessage(),
-				   snac->getTime());
+				   snac->getTime(), nst->isMultiParty() );
       } else if (st->getType() == MSG_Type_URL) {
 	URLICQSubType *ust = static_cast<URLICQSubType*>(st);
 	e = new URLMessageEvent(contact,

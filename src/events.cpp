@@ -104,8 +104,11 @@ namespace ICQ2000 {
   NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg)
     : MessageEvent(c), m_message(msg), m_offline(false) { }
 
-  NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, time_t t)
-    : MessageEvent(c), m_message(msg), m_offline(true) {
+  NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg, bool multi)
+    : MessageEvent(c), m_message(msg), m_multi(multi), m_offline(false) { }
+
+  NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, time_t t, bool multi)
+    : MessageEvent(c), m_message(msg), m_offline(true), m_multi(multi) {
     m_time = t;
   }
 
@@ -114,6 +117,10 @@ namespace ICQ2000 {
   unsigned int NormalMessageEvent::getSenderUIN() const { return m_contact->getUIN(); }
 
   string NormalMessageEvent::getMessage() const { return m_message; }
+
+  bool NormalMessageEvent::isOfflineMessage() const { return m_offline; }
+
+  bool NormalMessageEvent::isMultiParty() const { return m_multi; }
 
   // ---------------- URL Message ---------------------
 

@@ -298,6 +298,7 @@ bool MessageBox::message_cb(MessageEvent *ev) {
   if (ev->getType() == MessageEvent::Normal) {
     NormalMessageEvent *msg = static_cast<NormalMessageEvent*>(ev);
 
+    if ( msg->isMultiParty() ) ostr << "[multiparty] ";
     m_history_text.insert( bold_font, red, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, msg->getMessage(), -1);
       

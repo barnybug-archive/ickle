@@ -443,7 +443,7 @@ namespace ICQ2000 {
 
 	MessageDataTLV *t = (MessageDataTLV*)tlvlist[TLV_MessageData];
 	// coerce this into the NormalICQSubType
-	NormalICQSubType *nst = new NormalICQSubType();
+	NormalICQSubType *nst = new NormalICQSubType(false);
 	nst->setMessage( t->getMessage() );
 	m_icqsubtype = nst;
 
