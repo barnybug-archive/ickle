@@ -34,20 +34,27 @@ void History::log(MessageEvent *ev, bool received) {
   if (of) {
 
     if (ev->getType() == MessageEvent::Normal) {
+      NormalMessageEvent *nev = static_cast<NormalMessageEvent*>(ev);
+
       of << "Type: Normal" << endl
 	 << "Time: " << ev->getTime() << endl 
 	 << "Direction: " << ( received ? "Received" : "Sent" ) << endl
+	 << "Offline: " << ( nev->isOfflineMessage() ? "Yes" : "No" ) << endl
+	 << "Multiparty: " << ( nev->isMultiParty() ? "Yes" : "No" ) << endl
 	 << "Message: ";
-      NormalMessageEvent *nev = static_cast<NormalMessageEvent*>(ev);
+
       quote_output( of, nev->getMessage() );
       of << endl;
       
     } else if (ev->getType() == MessageEvent::URL) {
+      URLMessageEvent *uev = static_cast<URLMessageEvent*>(ev);
+
       of << "Type: URL" << endl
 	 << "Time: " << ev->getTime() << endl 
 	 << "Direction: " << ( received ? "Received" : "Sent" ) << endl
+	 << "Offline: " << ( uev->isOfflineMessage() ? "Yes" : "No" ) << endl
 	 << "Message: ";
-      URLMessageEvent *uev = static_cast<URLMessageEvent*>(ev);
+
       quote_output( of, uev->getMessage() );
       of << "URL: ";
       quote_output( of, uev->getURL() );

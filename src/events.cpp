@@ -140,6 +140,8 @@ namespace ICQ2000 {
 
   string URLMessageEvent::getURL() const { return m_url; }
 
+  bool URLMessageEvent::isOfflineMessage() const { return m_offline; }
+
   // ---------------- SMS Message ------------------------
 
   SMSMessageEvent::SMSMessageEvent(Contact *c, const string& msg, const string& source,
