@@ -167,7 +167,7 @@ AC_OUTPUT([Makefile ickle/Makefile share/Makefile \
            share/icons/doors/Makefile share/icons/icq/Makefile \
            share/icons/new/Makefile share/icons/gnomeicu/Makefile \
 	   share/icons/eureka/Makefile share/translations/Makefile \
-           share/icons/kit/Makefile macros/Makefile])
+           share/icons/kit/Makefile macros/Makefile pixmaps/Makefile])
 
 $ECHO
 $ECHO "-----------------------------------------------------------------"
