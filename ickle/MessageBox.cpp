@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.56 2002-04-19 15:52:46 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.57 2002-04-20 15:06:42 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -71,7 +71,8 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_message_queue(mq),
     m_send_normal("Normal", 0),
     m_send_urgent("Urgent", 0),
-    m_send_tocontactlist("To Contact List", 0)
+    m_send_tocontactlist("To Contact List", 0),
+    m_last_ev(NULL)
 {
   Gtk::Box *hbox;
 
@@ -584,23 +585,11 @@ void MessageBox::new_entry_cb(History::Entry *ev) {
 }
 
 void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
+  if (ev != m_last_ev) return;
   if (ev->getType() == ICQ2000::MessageEvent::AwayMessage) return;
 
   if (ev->isFinished()) {
     if (ev->isDelivered()) {
-      
-      switch(m_message_type) {
-      case ICQ2000::MessageEvent::Normal:
-	m_message_text.delete_text(0,-1);
-	break;
-      case ICQ2000::MessageEvent::URL:
-	m_url_entry.delete_text(0,-1);
-	m_url_text.delete_text(0,-1);
-	break;
-      case ICQ2000::MessageEvent::SMS:
-	m_sms_text.delete_text(0,-1);
-	break;
-      }
       
       string method;
       if (ev->isDirect()) {
@@ -754,7 +743,8 @@ void MessageBox::send_clicked_cb() {
     if (m_send_urgent.get_active()) nv->setUrgent(true);
     if (m_send_tocontactlist.get_active()) nv->setToContactList(true);
     send_event.emit( nv );
-
+    m_message_text.delete_text(0,-1);
+    m_last_ev = nv;
   }
   else if (m_message_type == ICQ2000::MessageEvent::URL) {
     if (isBlank(m_url_entry.get_text())) {
@@ -767,7 +757,9 @@ void MessageBox::send_clicked_cb() {
     if (m_send_urgent.get_active()) uv->setUrgent(true);
     if (m_send_tocontactlist.get_active()) uv->setToContactList(true);
     send_event.emit( uv );
-
+    m_url_entry.delete_text(0,-1);
+    m_url_text.delete_text(0,-1);
+    m_last_ev = uv;
   }
   else if (m_message_type == ICQ2000::MessageEvent::SMS) {
     if (isBlank(m_sms_text.get_chars(0,-1))) {
@@ -778,6 +770,8 @@ void MessageBox::send_clicked_cb() {
     set_status("Sending SMS...");
     ICQ2000::SMSMessageEvent *sv = new ICQ2000::SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
     send_event.emit( sv );
+    m_sms_text.delete_text(0,-1);
+    m_last_ev = sv;
   }
 
 }

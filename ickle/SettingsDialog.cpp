@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.48 2002-04-18 22:07:32 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.49 2002-04-20 15:06:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -911,7 +911,8 @@ void SettingsDialog::subs_cb()
                   "%t\tTimestamp for the event\n"
                   "%T\tTimestamp for the event with timezone\n"
                   "%r\tWhether the event is repeated\n"
-//                  "%m\tnumber of pending messages for the contact\n"
+		  "%m\tNumber of pending messages for the contact\n"
+		  "%o\tWhen the contact went online\n"
                   );
   pd.run();
 }

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.97 2002-04-19 15:46:23 bugcreator Exp $
+/* $Id: IckleClient.cpp,v 1.98 2002-04-20 15:06:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -62,7 +62,9 @@ using ICQ2000::ContactRef;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : m_message_queue(),
+    m_event_system(m_message_queue),
     gui( m_message_queue ),
+    
 #ifdef GNOME_ICKLE
     applet(m_message_queue),
 #endif
@@ -863,7 +865,7 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
 
 void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev) {
   ContactRef c = ev->getContact();
-  EventSubstituter evs(c);
+  EventSubstituter evs(m_message_queue, c);
   evs << gui.getAutoResponse();
   ev->setAwayMessage(evs.str());
 }

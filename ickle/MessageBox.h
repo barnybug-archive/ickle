@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.21 2002-04-07 11:50:09 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.22 2002-04-20 15:06:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -94,6 +94,7 @@ class MessageBox : public Gtk::Window {
   Gtk::Statusbar m_status;
   guint m_status_context;
 
+  ICQ2000::MessageEvent *m_last_ev;
   ICQ2000::MessageEvent::MessageType m_message_type;
 
   MessageQueue& m_message_queue;

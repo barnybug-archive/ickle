@@ -44,7 +44,9 @@ using std::ostringstream;
 using ICQ2000::ContactRef;
 using ICQ2000::Status;
 
-EventSubstituter::EventSubstituter(ContactRef c) {
+EventSubstituter::EventSubstituter(MessageQueue& mq, const ContactRef& c)
+  : m_message_queue(mq)
+{
   co = c;
   line_start = true;
   got_special = 0;
@@ -84,7 +86,7 @@ void EventSubstituter::execute()
 {
   // we have the entire pipe command in `cmd' now.
   // Make % substitutions.
-  EventSubstituter cmdsub(co);
+  EventSubstituter cmdsub(m_message_queue, co);
   cmdsub.set_event_time(event_time);
   cmdsub.set_escape_shell(true);
   cmdsub << cmd.c_str();
@@ -160,10 +162,16 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
         strftime(timebuf, 100, "%b %d %R %Z", localtime(&event_time));
         ostringstream::operator<<(timebuf);
 	break;
-      // case 'o' would be last time they were online
-	//      case 'm':
-	//        ostringstream::operator<<(co->numberPendingMessages());
-	//	break;
+      case 'o':
+      {
+	time_t tmp = co->get_last_online_time();
+        strftime(timebuf, 100, "%b %d %R %Z", localtime(&tmp));
+	ostringstream::operator<<(timebuf);
+	break;
+      }
+      case 'm':
+	ostringstream::operator<<(m_message_queue.get_contact_size(co));
+	break;
       case 'r':
         sanecat(repeated ? "true" : "false");
         break;

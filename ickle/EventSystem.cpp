@@ -1,4 +1,4 @@
-/* $Id: EventSystem.cpp,v 1.5 2002-04-04 21:45:21 bugcreator Exp $
+/* $Id: EventSystem.cpp,v 1.6 2002-04-20 15:06:42 barnabygray Exp $
  *
  * EventSystem
  *
@@ -38,8 +38,8 @@ using ICQ2000::ContactRef;
 //  MessageQueue
 // ============================================================================
 
-EventSystem::EventSystem()
-  : m_last_event_time (0.0)
+EventSystem::EventSystem(MessageQueue& mq)
+  : m_message_queue(mq), m_last_event_time (0.0)
 { }
 
 void EventSystem::queue_added_cb(MessageEvent *ev)
@@ -102,7 +102,7 @@ void EventSystem::event_system(const string& s, const ContactRef& c, time_t t)
     bool repeated = (threshold != 0 && current_time < m_last_event_time + double(threshold)/1000);
         
     if ((!repeated) || g_settings.getValueBool("event_execute_all")) {
-      EventSubstituter evs(c);
+      EventSubstituter evs(m_message_queue, c);
       evs.set_event_time(t);
       evs.set_escape_shell(true);
       evs.set_repeated(repeated);

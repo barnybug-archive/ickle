@@ -1,4 +1,4 @@
-/* $Id: EventSystem.h,v 1.3 2002-04-04 17:59:35 bugcreator Exp $
+/* $Id: EventSystem.h,v 1.4 2002-04-20 15:06:42 barnabygray Exp $
  *
  * EventSystem
  *
@@ -26,6 +26,8 @@
 #include <string>
 
 #include "MessageEvent.h"
+#include "MessageQueue.h"
+
 #include <libicq2000/events.h>
 
 // ============================================================================
@@ -35,12 +37,13 @@
 class EventSystem : public SigC::Object
 {
  private:
+  MessageQueue& m_message_queue;
+  double m_last_event_time;
+
   void event_system(const std::string& s, const ICQ2000::ContactRef& c, time_t t);
 
-  double m_last_event_time;
-  
  public:
-  EventSystem();
+  EventSystem(MessageQueue& mq);
 
   void queue_added_cb(MessageEvent *ev);
   void status_change_cb(ICQ2000::StatusChangeEvent *ev);

@@ -29,6 +29,7 @@
 
 #include <libicq2000/Contact.h>
 
+#include "MessageQueue.h"
 #include "sstream_fix.h"
 
 class EventSubstituter : public std::ostringstream {
@@ -37,6 +38,7 @@ class EventSubstituter : public std::ostringstream {
   char got_special;  // % or |
   string cmd; // command string buffer
   ICQ2000::ContactRef co;
+  MessageQueue& m_message_queue;
   time_t event_time;
   bool escape_shell;
   bool repeated;
@@ -45,7 +47,7 @@ class EventSubstituter : public std::ostringstream {
   void execute();
 
  public:
-  EventSubstituter(ICQ2000::ContactRef c);
+  EventSubstituter(MessageQueue& mq, const ICQ2000::ContactRef& c);
   
   void set_event_time(time_t t) { event_time = t; }
   void set_escape_shell(bool e) { escape_shell = e; }
