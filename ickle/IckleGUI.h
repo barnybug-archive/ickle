@@ -60,6 +60,7 @@
 using namespace SigC;
 using namespace Gtk;
 using namespace ICQ2000;
+using namespace std;
 
 class IckleGUI : public Gtk::Window {
  private:

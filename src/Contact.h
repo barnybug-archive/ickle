@@ -29,6 +29,8 @@
 #include "events.h"
 #include "constants.h"
 
+using namespace std;
+
 namespace ICQ2000 {
 
   class Contact {

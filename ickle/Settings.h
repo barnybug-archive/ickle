@@ -30,6 +30,8 @@
 #include <fstream>
 #include <sstream>
 
+using namespace std;
+
 class _HashString {
  public:
   size_t operator()(string const &str) const { return hash<char const *>()(str.c_str()); }

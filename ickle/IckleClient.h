@@ -50,6 +50,7 @@
 using SigC::slot;
 
 using namespace ICQ2000;
+using namespace std;
 
 class IckleClient : public SigC::Object {
  private:

@@ -31,6 +31,8 @@
 
 #include <string>
 
+using namespace std;
+
 class AddMobileUserDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel;

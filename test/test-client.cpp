@@ -20,6 +20,8 @@ using ICQ2000::SMSReceiptEvent;
 using ICQ2000::ContactListEvent;
 using ICQ2000::StatusChangeEvent;
 
+using namespace std;
+
 /*
  * Test Client class
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.

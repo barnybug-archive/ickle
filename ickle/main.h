@@ -23,6 +23,8 @@
 
 #include <string>
 
+using namespace std;
+
 namespace ICQ2000 {
   class Client;
 }

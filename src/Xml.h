@@ -28,6 +28,8 @@
 #include <list>
 #include <ctype.h>
 
+using namespace std;
+
 class XmlNode {
  private:
   static string parseTag(string::iterator& curr, string::iterator end);

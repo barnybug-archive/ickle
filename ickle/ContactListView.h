@@ -42,6 +42,7 @@
 using namespace Gtk;
 using namespace ICQ2000;
 using namespace SigC;
+using namespace std;
 
 class ContactListView : public Gtk::CList {
  private:

@@ -38,6 +38,8 @@
 
 #include "buffer.h"
 
+using namespace std;
+
 class TCPSocket {
  private:
   static const unsigned int max_receive_size = 4096;

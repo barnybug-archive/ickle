@@ -48,6 +48,8 @@
 
 using namespace ICQ2000;
 using namespace Gtk;
+using namespace std;
+
 
 class MessageBox : public Gtk::Window {
  private:

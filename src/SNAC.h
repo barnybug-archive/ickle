@@ -35,6 +35,8 @@
 #include "ContactList.h"
 #include "exceptions.h"
 
+using namespace std;
+
 namespace ICQ2000 {
  
   // ------------- SNAC numerical constants ------------

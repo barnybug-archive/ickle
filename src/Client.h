@@ -40,6 +40,7 @@
 #include "custom_marshal.h"
 
 using namespace SigC;
+using namespace std;
 
 namespace ICQ2000 {
 

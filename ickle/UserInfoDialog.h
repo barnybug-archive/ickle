@@ -33,6 +33,8 @@
 
 #include "Contact.h"
 
+using namespace std;
+
 using ICQ2000::Contact;
 
 class UserInfoDialog : public Gtk::Dialog {

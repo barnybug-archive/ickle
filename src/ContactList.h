@@ -26,6 +26,8 @@
 
 #include "Contact.h"
 
+using namespace std;
+
 namespace ICQ2000 {
 
   class _ContactList_iterator {

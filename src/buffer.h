@@ -28,6 +28,8 @@
 #include <iterator>
 #include <algorithm>
 
+using namespace std;
+
 
 class Buffer {
  public:

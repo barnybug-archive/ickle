@@ -25,6 +25,8 @@
 #include <exception>
 #include <string>
 
+using namespace std;
+
 namespace ICQ2000 {
 
   class ParseException : exception {

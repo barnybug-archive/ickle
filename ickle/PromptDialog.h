@@ -31,6 +31,8 @@
 
 #include <string>
 
+using namespace std;
+
 class PromptDialog : public Gtk::Dialog {
  public:
   enum PromptType {
