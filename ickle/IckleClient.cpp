@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.81 2002-03-29 23:52:23 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.82 2002-03-30 23:09:29 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -927,8 +927,6 @@ void IckleClient::settings_changed_cb() {
 
 void IckleClient::saveContact(ContactRef c, const string& s)
 {
-  cout << "saveContact(" << c->getUIN() << ", " << s << ")" << endl;
-
   Settings user;
   user.setValue( "alias", c->getAlias() );
   if (c->isICQContact())
