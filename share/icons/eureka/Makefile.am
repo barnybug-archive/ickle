@@ -2,9 +2,9 @@
 ## Process with automake to produce Makefile.in
 ##
 
+include ../icons.conf
+
 icons_eurekadir = $(pkgdatadir)/icons/eureka
-icons_eureka_DATA =  chat.xpm  file.xpm    na.xpm    online.xpm \
-  dnd.xpm   invisible.xpm  occ.xpm   sms.xpm  away.xpm  ffc.xpm \
-  message.xpm   offline.xpm  url.xpm
+icons_eureka_DATA = $(ICONS)
 EXTRA_DIST = $(icons_eureka_DATA)
 

@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.13 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.14 2002-04-10 19:57:58 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,6 +35,7 @@
 #include "url.xpm"
 #include "sms.xpm"
 #include "file.xpm"
+#include "sysmsg.xpm"
 
 using ICQ2000::Status;
 
@@ -56,6 +57,7 @@ void Icons::setDefaultIcons() {
   Icon_Status_Message.reset( new ImageLoaderData(message_xpm) );
   Icon_Status_URL.reset( new ImageLoaderData(url_xpm) );
   Icon_Status_SMS.reset( new ImageLoaderData(sms_xpm) );
+  Icon_Status_SystemMessage.reset( new ImageLoaderData(sysmsg_xpm) );
   Icon_Status_Invisible.reset( new ImageLoaderData(invisible_xpm) );
 }
 
@@ -83,6 +85,7 @@ bool Icons::setIcons(const string &dir) {
   Icon_Status_Message.reset( new ImageLoader( dir + "message.xpm" ) );
   Icon_Status_URL.reset( new ImageLoader( dir + "url.xpm" ) );
   Icon_Status_SMS.reset( new ImageLoader( dir + "sms.xpm" ) );
+  Icon_Status_SystemMessage.reset( new ImageLoader( dir + "sysmsg.xpm" ) );
   Icon_Status_Invisible.reset( new ImageLoader( dir + "invisible.xpm" ) );
   icons_changed.emit();
   return true;
@@ -135,8 +138,14 @@ ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
     break;
   case ICQMessageEvent::SMS:
   case ICQMessageEvent::SMS_Receipt:
-  default:
     p = Icon_Status_SMS.get();
+    break;
+  case ICQMessageEvent::AuthReq:
+  case ICQMessageEvent::AuthAck:
+  case ICQMessageEvent::EmailEx:
+  case ICQMessageEvent::UserAdd:
+  default:
+    p = Icon_Status_SystemMessage.get();
     break;
   }
   return p;

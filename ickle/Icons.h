@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.11 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: Icons.h,v 1.12 2002-04-10 19:57:58 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -50,6 +50,7 @@ class Icons {
   std::auto_ptr<ImageLoader> Icon_Status_Message;
   std::auto_ptr<ImageLoader> Icon_Status_URL;
   std::auto_ptr<ImageLoader> Icon_Status_SMS;
+  std::auto_ptr<ImageLoader> Icon_Status_SystemMessage;
   std::auto_ptr<ImageLoader> Icon_Status_Invisible;
 
  public:
