@@ -39,6 +39,7 @@ IckleGUI::IckleGUI()
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
 
   set_title("ickle");
+  set_wmclass( "ickle_main", "ickle_main" );
   set_border_width(5);
 
   m_contact_scroll.set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);

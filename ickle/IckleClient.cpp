@@ -252,7 +252,11 @@ gint IckleClient::close_cb(GdkEventAny*) {
 }
 
 void IckleClient::quit() {
-  Gtk::Main::quit();   
+#ifdef GNOME_ICKLE
+  applet.quit();
+#else
+  Gtk::Main::quit();
+#endif
 }
 
 void IckleClient::connected_cb(ConnectedEvent *c) {

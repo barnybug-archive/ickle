@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.1 2001-11-20 22:04:47 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.2 2001-11-22 14:34:43 nordman Exp $
  * IckleApplet.cpp
  *
  * GNOME applet for ickle.
@@ -64,7 +64,9 @@ void IckleApplet::status_change_cb(Status st)
 void IckleApplet::applet_click_cb()
 {
   if( m_gui->is_visible() ) {
+    
     m_gui->hide();
+
     if( m_nrmsg ) {
       // assume user has read the messages now (FIXME: a lot better handling for this please)
       ostringstream ostr;
@@ -75,8 +77,9 @@ void IckleApplet::applet_click_cb()
       m_nr.set_text( ostr.str() );
     }
   }
-  else
+  else {
     m_gui->show();
+  }
 }
 
 
@@ -101,6 +104,13 @@ void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
       icqclient.Connect();
     icqclient.setStatus( st );
   }
+}
+
+
+gint IckleApplet::applet_delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer data)
+{
+  ((IckleApplet *)data)->m_applet = NULL;
+  return FALSE;
 }
 
 
@@ -138,6 +148,7 @@ IckleApplet::IckleApplet()
   m_nr.set_text( "0" );
   m_nrmsg = 0;
   m_oldstat = STATUS_OFFLINE;
+  m_applet = NULL;
 }
 
 
@@ -165,6 +176,8 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   gtk_widget_realize(m_applet);
   gtk_signal_connect(GTK_OBJECT(m_applet), "button_press_event",
 		     GTK_SIGNAL_FUNC(applet_click_converter), this);
+   gtk_signal_connect(GTK_OBJECT(m_applet), "delete_event",
+  		     GTK_SIGNAL_FUNC(applet_delete_cb), this);
 
 #ifdef HAVE_PANEL_PIXEL_SIZE
   gtk_signal_connect(GTK_OBJECT(m_applet),"change_pixel_size",
@@ -199,4 +212,10 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   update_tooltip();
 
   gtk_widget_show_all(m_applet);
+}
+
+void IckleApplet::quit()
+{
+  if( m_applet != NULL )
+    applet_widget_remove( APPLET_WIDGET(m_applet) );
 }
