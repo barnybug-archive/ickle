@@ -42,7 +42,7 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   SigC::Connection timeout_connection;
 
  public:
-  SetAutoResponseDialog(const string& prev_msg);
+  SetAutoResponseDialog(const std::string& prev_msg);
 
   gint key_press_event_impl(GdkEventKey* ev);
   gint button_press_event_impl(GdkEventButton* ev);
@@ -52,7 +52,7 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   void okay_cb();
   void cancel_cb();
 
-  SigC::Signal1<void, const string&> save_new_msg;
+  SigC::Signal1<void, std::const string&> save_new_msg;
 };
 
 #endif
