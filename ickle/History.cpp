@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.13 2002-01-21 01:45:28 oizoken Exp $
+/* $Id: History.cpp,v 1.14 2002-01-25 18:01:01 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -79,6 +79,7 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     throw runtime_error( string("History::log: Could not open historyfile for writing: ") + m_filename );
 
   // add to index
+  of.seekp( 0, std::ios::end );
   if( m_builtindex ) {
     if( m_size >= m_index.size() )
       m_index.resize( m_index.size() + 100 );
