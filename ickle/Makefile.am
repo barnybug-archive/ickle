@@ -2,12 +2,13 @@
 ## Process with automake to produce Makefile.in
 ##
 
-bin_PROGRAMS = ickle
+EXTRA_PROGRAMS = ickle ickle_applet
+bin_PROGRAMS = @ICKLE_PROGRAM@
 
 AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
-LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@
+LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @GNOME_LIBS@
 INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/share/icons/ickle/  \
-           @SIGC_CFLAGS@ @GTKMM_CFLAGS@
+           @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_CFLAGS@
 
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp \
@@ -21,7 +22,12 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
                  ContactListView.h MessageBox.h AddUserDialog.h \
                  Icons.h UserInfoDialog.h AddMobileUserDialog.h \
 		 SettingsDialog.h PromptDialog.h History.h \
-		 MobileNoEntry.h Dir.h
+		 MobileNoEntry.h Dir.h IckleApplet.h
 ickle_LDADD = $(top_srcdir)/src/libicq2000.la
-ickle_DEPENDENCIES = $(top_srcdir)/src/libicq2000.la
+ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
+ickle_applet_LDADD = $(ickle_LDADD)
 
+corbadir = $(sysconfdir)/CORBA/servers
+desktopdir = $(datadir)/applets/Network
+corba_DATA= @CORBA_FILES@
+desktop_DATA= @DESKTOP_FILES@
