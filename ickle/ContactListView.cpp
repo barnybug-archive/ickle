@@ -43,6 +43,7 @@ ContactListView::ContactListView()
   set_row_height(18);
 
   set_sort_column(0);
+  set_auto_sort(false);
   set_compare_func(&ContactListView::sort_func);
 
   button_press_event.connect(slot(this,&ContactListView::button_press_cb));
@@ -85,16 +86,15 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
    * customisable
    */
   
-  return ((s1 < s2)
-	  ? -1
-	  : (s1 > s2)
-	  ? 1
-	  : // s1 == s2
-	  (m1 > m2)
+  return ((m1 > m2)
 	  ? -1
 	  : (m2 > m1)
 	  ? 1
-	  : 0
+	  : (s1 < s2)
+	  ? -1
+	  : (s1 > s2)
+	  ? 1
+	  : 0 // s1 == s2
 	  );
 }
 
@@ -217,8 +217,8 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     sort();
 
   } else if (ev->getType() == ContactListEvent::MessageQueueChanged
-	  || ev->getType() == ContactListEvent::StatusChange 
-	  || ev->getType() == ContactListEvent::UserInfoChange) {
+	     || ev->getType() == ContactListEvent::StatusChange 
+	     || ev->getType() == ContactListEvent::UserInfoChange) {
 
     UpdateRow(*c);
     sort();

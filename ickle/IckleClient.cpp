@@ -66,6 +66,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
+  icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
   icqclient.away_message.connect(slot(this,&IckleClient::away_message_cb));
 
@@ -366,7 +367,11 @@ void IckleClient::user_info_cb(unsigned int uin) {
 
 void IckleClient::send_event_cb(MessageEvent *ev) {
   icqclient.SendEvent(ev);
-  m_histmap[ev->getContact()->getUIN()].log(ev, false); // fix
+}
+
+void IckleClient::messageack_cb(MessageEvent *ev) {
+  if (ev->isFinished() && ev->isDelivered())
+    m_histmap[ev->getContact()->getUIN()].log(ev, false);
 }
 
 void IckleClient::add_user_cb(unsigned int uin) {

@@ -93,6 +93,7 @@ class IckleClient : public SigC::Object {
   void logger_cb(LogEvent *c);
   void contactlist_cb(ContactListEvent *ev);
   bool message_cb(MessageEvent* ev);
+  void messageack_cb(MessageEvent* ev);
   void socket_cb(SocketEvent* ev);
   void away_message_cb(AwayMsgEvent* ev);
 
