@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.56 2002-04-19 15:46:23 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.57 2002-04-27 10:22:23 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -371,7 +371,7 @@ void IckleGUI::setGeometry(int x, int y, int w, int h)
 
 void IckleGUI::show_impl() {
   set_uposition(geometry_x, geometry_y);
-  get_window().resize(geometry_w, geometry_h);
+  set_default_size(geometry_w, geometry_h);
   Window::show_impl();
 }
 
