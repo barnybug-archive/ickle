@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.6 2001-11-26 20:36:11 nordman Exp $
+/* $Id: IckleApplet.h,v 1.7 2001-11-26 23:58:30 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -72,6 +72,7 @@ class IckleApplet : public SigC::Object {
   bool          icq_messaged_cb         (MessageEvent *ev);
   void          icq_statuschanged_cb    (MyStatusChangeEvent *ev);
   void          icq_contactlist_cb      (ContactListEvent *ev);
+  void          icons_changed_cb        ();
   
   // misc
   void          set_applet_size         (int size, PanelOrientType orient);

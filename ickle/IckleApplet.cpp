@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.7 2001-11-26 23:45:29 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.8 2001-11-26 23:58:30 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -175,6 +175,18 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 }
 
 
+void IckleApplet::icons_changed_cb()
+{
+  Gtk::ImageLoader *il;
+  if( !m_nr_msgs )
+    il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
+  else // we don't keep track of the exact event so just use normal
+    il = g_icons.IconForEvent( MessageEvent::Normal );
+  m_pm.set( il->pix(), il->bit() );
+  
+}
+
+
 void IckleApplet::set_applet_size(int size, PanelOrientType orient)
 {
   int width, height;
@@ -278,6 +290,8 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   icqclient.statuschanged.connect( slot(this, &IckleApplet::icq_statuschanged_cb) );
   icqclient.messaged.connect(slot(this,&IckleApplet::icq_messaged_cb));
   icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
+
+  g_icons.icons_changed.connect( slot(this, &IckleApplet::icons_changed_cb) );
 
   // create applet
 
