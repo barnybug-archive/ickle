@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.41 2002-02-26 17:21:34 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.42 2002-03-01 19:36:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -42,9 +42,7 @@ IckleGUI::IckleGUI()
     m_contact_scroll(),
     m_contact_list(),
     m_status(STATUS_OFFLINE),
-    m_status_wanted(STATUS_OFFLINE),
     m_invisible(false),
-    m_invisible_wanted(false),
     m_away_message( this )
 {
   // setup callbacks
@@ -83,6 +81,7 @@ IckleGUI::IckleGUI()
     mbl.push_front( m_status_menu );
     m_status_menu.status_changed_status.connect( slot( this, &IckleGUI::status_menu_status_changed_cb ) );
     m_status_menu.status_changed_invisible.connect( slot( this, &IckleGUI::status_menu_invisible_changed_cb ) );
+    m_status_menu.status_changed_status_inv.connect( slot( this, &IckleGUI::status_menu_status_inv_changed_cb ) );
     
     mbl.front()->right_justify();
     mbl.push_front(MenuElem("ickle",m_ickle_menu));
@@ -243,7 +242,6 @@ int IckleGUI::delete_event_impl(GdkEventAny*) {
 }
 
 void IckleGUI::status_menu_status_changed_cb(Status st) {
-  m_status_wanted = st;
   
   if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
     SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
@@ -251,13 +249,23 @@ void IckleGUI::status_menu_status_changed_cb(Status st) {
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
     d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
   }
-  icqclient.setStatus(m_status_wanted, m_invisible_wanted);
+  icqclient.setStatus(st);
+}
+
+void IckleGUI::status_menu_status_inv_changed_cb(Status st, bool inv) {
+  
+  if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
+    SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
+    manage(d);
+    d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
+    d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
+  }
+  icqclient.setStatus(st, inv);
 }
 
 void IckleGUI::status_menu_invisible_changed_cb(bool inv)
 {
-  m_invisible_wanted = inv;
-  icqclient.setStatus(m_status_wanted, m_invisible_wanted);
+  icqclient.setInvisible(inv);
 }
 
 void IckleGUI::self_event_cb(SelfEvent *ev) {

@@ -173,7 +173,7 @@ void ControlHandler::cmdSetInvisible (ControlSocket & s)
 {
   bool inv;
   s >> inv;
-  icqclient.setStatus (icqclient.getStatus(), inv);
+  icqclient.setInvisible (inv);
 }
 
 void ControlHandler::cmdGetInvisible (ControlSocket & s)

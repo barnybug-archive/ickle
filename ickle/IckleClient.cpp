@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.74 2002-03-01 18:38:36 bugcreator Exp $
+/* $Id: IckleClient.cpp,v 1.75 2002-03-01 19:36:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -221,6 +221,10 @@ void IckleClient::loadSettings() {
     SignalLog(LogEvent::WARN, ostr.str());
   }
 
+  /*
+   * Default settings & limits to numerical values
+   * 
+   */
   g_settings.defaultValueBool("away_autoposition", true);
   g_settings.defaultValueUnsignedShort("auto_away", 0, 0, 65535);
   g_settings.defaultValueUnsignedShort("auto_na", 0, 0, 65535);
@@ -248,6 +252,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedInt("message_box_width", 0, 0, 2000);
   g_settings.defaultValueUnsignedInt("message_box_height", 0, 0, 2000);
   g_settings.defaultValueUnsignedInt("message_box_pane_position", 0, 0, 2000);
+
+  g_settings.defaultValueBool("status_classic_invisibility", false);
 
   g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
   g_settings.defaultValueBool("set_away_response_timeout", true);

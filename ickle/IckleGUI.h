@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.32 2002-02-23 20:06:24 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.33 2002-03-01 19:36:38 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -63,8 +63,8 @@ class IckleGUI : public Gtk::Window {
  private:
   std::map<unsigned int, MessageBox*> m_message_boxes;
   std::map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
-  Status m_status, m_status_wanted;
-  bool m_invisible, m_invisible_wanted;
+  Status m_status;
+  bool m_invisible;
   string auto_response;
 
   bool m_display_times;
@@ -94,6 +94,7 @@ class IckleGUI : public Gtk::Window {
 
   void status_menu_status_changed_cb(Status st);
   void status_menu_invisible_changed_cb(bool inv);
+  void status_menu_status_inv_changed_cb(Status st, bool inv);
 
   void popup_messagebox(Contact *c, History *h);
   void userinfo_popup(Contact *c);

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.34 2002-02-23 19:44:16 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.35 2002-03-01 19:36:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -54,6 +54,7 @@ SettingsDialog::SettingsDialog()
     okay("OK"), cancel("Cancel"),
     subs_b("Substitutions legend"),
     away_autoposition("Autoposition away messages dialog", 0),
+    status_cl_inv("Classic Invisibility (behaves like any other status)", 0),
     reconnect_checkbox("Auto Reconnect", 0),
     reconnect_label( "Retries", 0),
     log_info("Information", 0),
@@ -308,24 +309,27 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Away Status ------------------------
 
-  table = manage( new Gtk::Table( 2, 3, false ) );
+  table = manage( new Gtk::Table( 2, 4, false ) );
   
   away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
   table->attach( away_autoposition, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+
+  status_cl_inv.set_active( g_settings.getValueBool("status_classic_invisibility") );
+  table->attach( status_cl_inv, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Auto-away after this number of minutes (0 disables)", 0 ) );
   unsigned short time = g_settings.getValueUnsignedShort( "auto_away" );
   adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
   autoaway_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
-  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
-  table->attach( *autoaway_spinner, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *autoaway_spinner, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Auto-N/A after this number of minutes (0 disables)", 0 ) );
   time = g_settings.getValueUnsignedShort( "auto_na" );
   adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
   autona_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
-  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
-  table->attach( *autona_spinner, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *autona_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -615,6 +619,7 @@ void SettingsDialog::updateSettings() {
 
   // ------------ Away Status tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
+  g_settings.setValue("status_classic_invisibility", status_cl_inv.get_active() );
   g_settings.setValue("auto_away", (unsigned short)autoaway_spinner->get_value_as_int());
   g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
 

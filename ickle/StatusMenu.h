@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.h,v 1.1 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: StatusMenu.h,v 1.2 2002-03-01 19:36:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -33,7 +33,9 @@ class StatusMenuItem : public Gtk::MenuItem
  public:
   StatusMenuItem();
   StatusMenuItem(ICQ2000::Status st, bool inv);
+  StatusMenuItem(const std::string& label, ICQ2000::Status st, bool inv);
 
+  void add_status(const std::string& label, ICQ2000::Status st, bool inv);
   void add_status(ICQ2000::Status st, bool inv);
 };
 
@@ -51,18 +53,24 @@ class StatusMenu : public StatusMenuItem {
   Gtk::Menu m_menu;
 
  protected:
-  Gtk::MenuItem* menu_status_widget(ICQ2000::Status st);
+  Gtk::MenuItem* menu_status_widget(ICQ2000::Status st, bool set_inv);
+  Gtk::MenuItem* menu_status_nice_inv_widget();
   Gtk::MenuItem* menu_status_inv_widget();
 
   void inv_toggled_cb(InvisibleStatusMenuItem *mi);
   void menu_activate_cb(ICQ2000::Status st);
+  void menu_activate_inv_cb(ICQ2000::Status st, bool inv);
+
+  void build_list();
 
  public:
   StatusMenu();
   
   void icons_changed_cb();
+  void settings_changed_cb(const std::string& s);
   void status_changed_cb(ICQ2000::Status st, bool inv);
 
+  SigC::Signal2<void,ICQ2000::Status,bool> status_changed_status_inv;
   SigC::Signal1<void,ICQ2000::Status> status_changed_status;
   SigC::Signal1<void,bool> status_changed_invisible;
 };
