@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.63 2003-02-09 19:55:24 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.64 2003-03-09 15:02:20 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -198,8 +198,18 @@ void SettingsDialog::init_pages()
 
 void SettingsDialog::init_login_page()
 {
-  Gtk::VBox * vbox = new Gtk::VBox();
-  
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  add_page( _("Login"), vbox, true );
+  // sub-pages
+  init_login_uin_page();
+  init_login_connect_page();
+  init_login_reconnect_page();
+}
+
+void SettingsDialog::init_login_uin_page()
+{
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+    
   SectionFrame * frame = manage( new SectionFrame( _("UIN/Password") ) );
   
   Gtk::Table * table = new Gtk::Table( 2, 2 );
@@ -227,7 +237,63 @@ void SettingsDialog::init_login_page()
 
   vbox->pack_start( *frame );
   
-  add_page( _("Login"), vbox, true );
+  add_page( _("UNI/Password"), vbox, false );
+}
+
+
+void SettingsDialog::init_login_connect_page()
+{
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Auto connect") ) );
+  
+  Gtk::Table * table = new Gtk::Table( 1, 1 );
+
+  m_auto_connect.set_label(_("Auto connect"));
+  m_auto_connect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_connect,_("Determines if ickle will automatically connect to the ICQ network"));
+  table->attach( m_auto_connect, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  table->set_border_width(10);
+  
+  frame->add( * table );
+  
+  vbox->pack_start( *frame );
+  //todo: autoconnect into which state? Online, Invisible, DND, etc...
+  
+  add_page( _("Auto connect"), vbox, false );
+}
+
+void SettingsDialog::init_login_reconnect_page()
+{
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Auto reconnect") ) );
+  
+  Gtk::Table * table = new Gtk::Table( 2, 2 );
+
+  table->attach( * manage( new Gtk::Label( _("Reconnect retries"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+  m_reconnect_retries.set_range(1, 10);
+  m_reconnect_retries.set_digits(0);
+  m_reconnect_retries.set_increments(1, 1);
+  m_reconnect_retries.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_reconnect_retries,_("Specifies how often ickle tries to reconnect after an error."));
+  table->attach( m_reconnect_retries, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+  
+  m_auto_reconnect.set_label(_("Auto reconnect"));
+  m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
+  table->attach( m_auto_reconnect, 0, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+    
+  table->set_border_width(10);
+    
+  frame->add( * table );
+  
+  vbox->pack_start( *frame );
+  
+  add_page( _("Auto reconnect"), vbox, false );
 }
 
 void SettingsDialog::init_look_page()
@@ -433,30 +499,43 @@ void SettingsDialog::load_pages()
 {
   load_login_page();
   load_look_page();
-  load_look_message_page();
-  load_look_contact_list_page();
-  load_look_icons_page();
-  load_look_charset_page();
   load_away_page();
-  load_away_idle_page();
-  load_away_message_page();
   load_advanced_page();
-  load_advanced_security_page();
-  load_advanced_server_page();
-  load_advanced_smtp_page();
-  load_advanced_logging_page();
-
   m_apply_button.set_sensitive(false);
 }
 
+
 void SettingsDialog::load_login_page()
+{
+  load_login_uin_page();
+  load_login_connect_page();
+  load_login_reconnect_page();
+}
+
+void SettingsDialog::load_login_uin_page()
 {
   m_login_uin.set_value((double)g_settings.getValueUnsignedInt("uin") );
   m_login_pass.set_text( g_settings.getValueString("password") );
 }
 
+void SettingsDialog::load_login_connect_page()
+{
+  m_auto_connect.set_active(g_settings.getValueBool("autoconnect") );
+}
+
+void SettingsDialog::load_login_reconnect_page()
+{
+  m_auto_reconnect.set_active(g_settings.getValueBool("auto_reconnect") );
+  m_reconnect_retries.set_value((double)g_settings.getValueUnsignedInt("reconnect_retries") );
+}
+
+
 void SettingsDialog::load_look_page()
 {
+  load_look_message_page();
+  load_look_contact_list_page();
+  load_look_icons_page();
+  load_look_charset_page();
 }
 
 void SettingsDialog::load_look_message_page()
@@ -478,6 +557,8 @@ void SettingsDialog::load_look_charset_page()
 
 void SettingsDialog::load_away_page()
 {
+  load_away_idle_page();
+  load_away_message_page();
 }
 
 void SettingsDialog::load_away_idle_page()
@@ -493,6 +574,10 @@ void SettingsDialog::load_away_message_page()
 
 void SettingsDialog::load_advanced_page()
 {
+  load_advanced_security_page();
+  load_advanced_server_page();
+  load_advanced_smtp_page();
+  load_advanced_logging_page();
 }
 
 void SettingsDialog::load_advanced_security_page()
@@ -519,29 +604,44 @@ void SettingsDialog::save_pages()
 {
   save_login_page();
   save_look_page();
+  save_away_page();
+  save_advanced_page();
+}
+
+//Saves the settings of the login page
+void SettingsDialog::save_login_page()
+{
+  save_login_uin_page();
+  save_login_connect_page();
+  save_login_reconnect_page();
+}
+
+void SettingsDialog::save_login_uin_page()
+{
+  g_settings.setValue( "uin", (unsigned int) m_login_uin.get_value() );
+  g_settings.setValue( "password", m_login_pass.get_text() );
+}
+
+void SettingsDialog::save_login_connect_page()
+{
+  g_settings.setValue( "autoconnect", m_auto_connect.get_active() );
+}
+
+void SettingsDialog::save_login_reconnect_page()
+{
+  g_settings.setValue( "autoreconnect", m_auto_reconnect.get_active() );
+  g_settings.setValue( "reconnect_retries", (unsigned int) m_reconnect_retries.get_value() );
+}
+
+
+
+//Saves the settings of the look page
+void SettingsDialog::save_look_page()
+{
   save_look_message_page();
   save_look_contact_list_page();
   save_look_icons_page();
   save_look_charset_page();
-  save_away_page();
-  save_away_idle_page();
-  save_away_message_page();
-  save_advanced_page();
-  save_advanced_security_page();
-  save_advanced_server_page();
-  save_advanced_smtp_page();
-  save_advanced_logging_page();
-}
-
-void SettingsDialog::save_login_page()
-{
-  g_settings.setValue( "uin", (unsigned int) m_login_uin.get_value() );
-  g_settings.setValue( "password", m_login_pass.get_text() );
-
-}
-
-void SettingsDialog::save_look_page()
-{
 }
 
 void SettingsDialog::save_look_message_page()
@@ -561,8 +661,14 @@ void SettingsDialog::save_look_charset_page()
   g_settings.setValue( "encoding", m_lnf_charset.get_text() );
 }
 
+
+
+
+//Saves the settings of the look page
 void SettingsDialog::save_away_page()
 {
+  save_away_idle_page();
+  save_away_message_page();
 }
 
 void SettingsDialog::save_away_idle_page()
@@ -576,8 +682,15 @@ void SettingsDialog::save_away_message_page()
 {
 }
 
+
+
+//Saves the settings of the look page
 void SettingsDialog::save_advanced_page()
 {
+  save_advanced_security_page();
+  save_advanced_server_page();
+  save_advanced_smtp_page();
+  save_advanced_logging_page();
 }
 
 void SettingsDialog::save_advanced_security_page()
