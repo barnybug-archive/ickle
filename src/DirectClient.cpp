@@ -456,7 +456,7 @@ namespace ICQ2000 {
   DirectClientException::DirectClientException() { }
   DirectClientException::DirectClientException(const string& text) : m_errortext(text) { }
 
-  const char* DirectClientException::what() const { return m_errortext.c_str(); }
+  const char* DirectClientException::what() const throw() { return m_errortext.c_str(); }
 
   DisconnectedException::DisconnectedException(const string& text) : DirectClientException(text) { }
   

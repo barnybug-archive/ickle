@@ -106,8 +106,9 @@ namespace ICQ2000 {
    public:
     DirectClientException();
     DirectClientException(const string& text);
-    
-    const char* what() const;
+    ~DirectClientException() throw() { }
+
+    const char* what() const throw();
   };
   
   class DisconnectedException : DirectClientException {
