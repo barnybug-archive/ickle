@@ -32,6 +32,7 @@
 #include <gtk--/buttonbox.h>
 #include <gtk--/notebook.h>
 #include <gtk--/entry.h>
+#include <gtk--/statusbar.h>
 
 #include <time.h>
 
@@ -56,6 +57,7 @@ using Gtk::Entry;
 using Gtk::Label;
 using Gtk::VPaned;
 using Gtk::Notebook;
+using Gtk::Statusbar;
 
 class MessageBox : public Gtk::Window {
  private:
@@ -87,7 +89,8 @@ class MessageBox : public Gtk::Window {
   
   VPaned m_pane;
 
-  Entry m_status;
+  Statusbar m_status;
+  guint m_status_context;
 
   MessageEvent::MessageType m_message_type;
 
@@ -95,6 +98,7 @@ class MessageBox : public Gtk::Window {
   void set_contact_title();
   string format_time(time_t t);
   void display_message(MessageEvent *ev, bool sent, const string& nick);
+  void set_status( const string& text );
 
  public:
   MessageBox(Contact *c);

@@ -163,10 +163,6 @@ MessageBox::MessageBox(Contact *c)
 
   m_vbox_top.pack_start(m_pane,true,true);
 
-  m_status.set_editable(false);
-  m_status.set_sensitive(false);
-  m_vbox_top.pack_start(m_status);
-
   // -- button bar --
 
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
@@ -176,6 +172,9 @@ MessageBox::MessageBox(Contact *c)
   m_hbox_buttons.pack_end(m_close_button);
 
   m_vbox_top.pack_start(m_hbox_buttons,false);
+
+  m_vbox_top.pack_start(m_status, TRUE, TRUE, 0);
+  m_status_context = m_status.get_context_id("messagebox");
 
   add(m_vbox_top);
 
@@ -315,9 +314,9 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
 	m_sms_text.delete_text(0,-1);
       }
       
-      m_status.set_text("Sent message successfully");
+      set_status("Sent message successfully");
     } else {
-      m_status.set_text("Sending message timed out");
+      set_status("Sending message timed out");
     }
   }
 
@@ -404,7 +403,7 @@ bool MessageBox::message_cb(MessageEvent *ev) {
   
 void MessageBox::send_clicked_cb() {
 
-  m_status.set_text("Sending message...");
+  set_status("Sending message...");
 
   if (m_message_type == MessageEvent::Normal) {
     NormalMessageEvent *nv = new NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
@@ -428,4 +427,11 @@ string MessageBox::format_time(time_t t) {
 
 gint MessageBox::delete_event_impl(GdkEventAny *ev) {
   return false;
+}
+
+void MessageBox::set_status( const string& text )
+{
+  if( m_status.messages().size() )
+    m_status.pop( m_status_context );
+  m_status.push( m_status_context, text);
 }
