@@ -1,45 +1,27 @@
-Stuff to do:
-(This are in rough order of when they will get done, most pressing first)
 
-L = work required library side
-G = work required GUI side
+,--------------------------------------------------------------------,
+|                                                                    |
+|                  ickle - A Gtk-- ICQ2000 Client                    |
+|                                                                    |
+`--------------------------------------------------------------------'
 
-* (G) Autoaway setting
+Rough order of when they will get done, most pressing first.
+                            (% denotes support in libicq2000 is needed)
 
-* (G/L) Limit message length
+* File transfer (%)
 
-* (L) Parse Message too long error responses
+* Server-based contact lists (%)
 
-* (G) Authorisation request/responses
+* Contact list sending/receiving (%)
 
-* (G/L) Contact list sending/receiving
+* History Searching support
 
-* (G) History Searching support
+* Foreground/background colour support for sending/receiving messages (%)
 
-* (G/ L?) Foreground/background colour support for sending/receiving messages
-      there is some support library side for this
+* Grouping contacts (CTree widget)
 
-* (G/L) Even More User info (some of the extended info isn't handled)
-
-* (G/L) Setting/Retrieving owner's user info
-
-* (L) Non-blocking DNS lookup at startup
-
-* (G) Better way of indicating messaged
-
-* (G) Grouping contacts (CTree widget)
-
-* (G/L) Web presence enable/disable
-
-* (G/L) Support for emailexpress messages ICQ sub type
-
-* (L) Implement all of the login procedure - Requesting rights
-      information, advert servers, etc..
-
-Things that are likely to not be included for a while at least:
-
-* (G/L) File transfer (use FTP/HTTP!)
+* Web presence enable/disable
 
 Things that are likely never to be included:
 
-* (G/L) Chat (use IRC!)
+* Chat (use IRC!) (%)

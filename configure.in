@@ -99,7 +99,7 @@ AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR([You need to have the libsigc++ libraries 
 
 AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.5 and above - see the README for more information])])
 # libicq2000 checks
-AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed - see the README for more information])])
+AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed. You can get libicq2000 from http://libicq2000.sourceforge.net/. A direct link to the source tarball for 0.3.0 should be: http://prdownloads.sourceforge.net/libicq2000/libicq2000-0.3.0.tar.gz - see the README for more information])])
 
 # Switch to C++ mode - on some systems with the gtkmm libs they need libstdc++
 AC_LANG_SAVE

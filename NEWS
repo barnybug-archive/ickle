@@ -1,3 +1,35 @@
+16th April 2002
+(it's been a long time, I know..)
+
+The long awaited version 0.3.0 of ickle is released.
+
+Changes since 0.2 (it's a biggy):
+
+* Added support for Authorisation Requests
+* Support for `user added you' requests
+* Support for your own away message
+* Predefined away messages
+* More icon sets
+* SMTP delivery of SMS messages where required
+* Title and icon indication of messages on the main ickle window,
+  and on contact windows.
+* Better handling of when a message is 'read'
+* Statistics for contacts in user info
+* Whitepage searches (detailed, UIN and Keyword)
+* Invisibility
+* Auto-away on idle time
+* Retrieving/setting own info
+* About box
+* gcc 3.0 fixes - message history problems mainly
+* Urgent and `To Contact List' delivery modes
+* Sorting of contact list
+* Extensively more Settings
+  (Direct connection control, Servers, Logging.. )
+* More README
+* Registering new UINs and a Wizard to help too
+* Spell checking in Message box (with ispell/aspell)
+* Probably more stuff..
+
 26th December 2001
 
 ickle version 0.2.1 released.

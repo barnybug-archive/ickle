@@ -6,7 +6,7 @@
 `--------------------------------------------------------------------'
 
    Version 0.3.0                     http://ickle.sourceforge.net/
-
+  (Codename: bob)
 
 
 
@@ -57,16 +57,23 @@ ickle supports:
 - Status changes
 - Fetching user info from server
 - Fetching/setting away messages
+- Custom away messages
+- Authorisation Requests
+- "User Added You" messages
 
 Features:
 - Autoconnect, autoreconnect and retries
 - Easy history browsing
 - GNOME applet
+- Command-line control
+  (through ickle_control)
+- Autoaway on timer
+- Executing shell-commands on events
 
 See the TODO for information about planned features in
 progress. Please don't duplicate requests for features already
 mentioned in the TODO. Send legitimate feature requests to the
-ickle-users mailing list on sourceforge ideally, the address is
+ickle-users mailing list on sourceforge, the address is
 <ickle-users@lists.sourceforge.net> and you don't need to subscribe to
 post.
 
@@ -83,6 +90,7 @@ ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
    ------------------------------------------------------------------
 
 You will need:
+- libicq2000 (was once part of ickle)
 - libstdc++ library
 - gtkmm version (1.2.5 or above)
 - gtk+ library
@@ -136,11 +144,12 @@ Debian         libstdc++2.10 and libstdc++2.10-dev
  etc..)        libsigc++0 and libsigc++-dev
 
 Sources for these libraries can be found at the following addresses:
-libstdc++: http://www.gnu.org/software/gcc/libstdc++/ 
-           (should have come with your version of gcc)
-gtk:       http://www.gtk.org/
-gtkmm:     http://gtkmm.sourceforge.net/
-libsigc++: http://libsigc.sourceforge.net/
+libicq2000: http://libicq2000.sourceforge.net/
+libstdc++:  http://www.gnu.org/software/gcc/libstdc++/ 
+            (should have come with your version of gcc)
+gtk:        http://www.gtk.org/
+gtkmm:      http://gtkmm.sourceforge.net/
+libsigc++:  http://libsigc.sourceforge.net/
 
 GNOME applet:
 
@@ -249,6 +258,7 @@ then choose from the list. You are welcome to design you own set (or
 improve on mine) and contribute them.
 
 
+
  --------------------------------------------------------------------
  - Sounds + Noises on events                                        -
  --------------------------------------------------------------------
@@ -260,7 +270,7 @@ support is left to your choice of tools which best fit the job of
 playing sound. Here are some suggestions of shell commands to make
 some noise:
 
-1. use 'echo -e "\a"' - these usually produces a beep on the bell, but
+1. use 'echo -e "\a"' - this usually produces a beep on the bell, but
    doesn't work reliably across different platforms.
 
 2. use 'play wavfile.wav' - the play utility is a standard utility to
@@ -286,10 +296,10 @@ some noise:
  - Importing contacts                                               -
  --------------------------------------------------------------------
 
-I've written a simple perl script in scripts/licq2ickle.pl that you
-can run and will convert your licq contacts over to ickle. There is
-also a similar script the micq. I might write something similar for
-windows if I get any requests for it.
+There are three simple perl scripts in the scripts directory to
+convert from gnomeicu, licq and micq contact lists across to ickle. I
+might write something similar for windows if I get any requests for
+it.
 
 
 
@@ -372,23 +382,6 @@ The modulename is ickle. Once you have checked out the sources, you
 must run the autogen.sh file to generate configure. You need autoconf
 > 2.5, automake > 1.5  and libtool 1.4.2.
 
-IMPORTANT NOTE: The CVS is provided primarily for developers and
-developers alone. The fact anyone can check it out anonymously I just
-view as a convenience for these developers. If you believe it to be
-'elite' running a CVS version of a program or like running the
-'cutting-edge' then I strongly discourage use of the CVS. Timely
-releases are made of ickle when it is sufficiently stable for the
-general public. If you decide to go against this advice then be sure
-to know I will not support you in any problems you have compiling the
-CVS and I will not answer stupid/repeat questions that have been
-discussed on ickle-devel. I spend enough time supporting people who
-should be using releases on releases let alone supporting people who
-should be using releases on CVS.
-DO NOT POST QUESTIONS ABOUT THE CVS VERSION TO THE SOURCEFORGE FORUMS.
-I want discussion of CVS confined to ickle-devel. Don't let this
-dissuade legitimate developers wanting to get into the project, we are
-happy to welcome you in and help you get into the project. (End of rant).
-
 Beware though - the CVS is often unstable inbetween releases. Please
 subscribe to the ickle-devel mailing list on sourceforge to stay up to
 date on what is going on in CVS. You will also probably want to
@@ -397,24 +390,20 @@ the source. If you find a problem in CVS please check back in the
 archives for ickle-devel to check it hasn't already been
 acknowledged/solved.
 
+
+
    ------------------------------------------------------------------
    - Alternative client developers                                  -
    ------------------------------------------------------------------
 
 ickle is actually split into two parts, the ickle GUI and the
 libicq2000 library. If you are interested in developing your own
-client you can use just the libicq2000 on it's own. I have an example
-use of it like this as a simple command-line autoresponder in the
-examples/ directory. There's no proper documentation for the library
-yet, looking through the header files and source code is your best bet
-at the moment. I will at some point split off the library into a
-separate project and change the licensing to LGPL for that component.
+client you can use just the libicq2000 on it's own.
 
-Note: splitting the library off from ickle is complete now, you should
-look at the libicq2000 project on sourceforge:
+You should see the libicq2000 project homepage:
  http://libicq2000.sourceforge.net/
-The next major release of ickle will be distributed with the library
-separately.
+
+
 
  --------------------------------------------------------------------
  - Comments, bug reports, etc..                                     -
@@ -456,4 +445,4 @@ ickle is released under the GNU GPL license, see COPYING for copying
 conditions.
 
 
-Thank you, and goodnight.
+Thank you, and good morrow.
