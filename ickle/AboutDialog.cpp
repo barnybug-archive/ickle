@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.2 2002-01-16 19:12:09 oizoken Exp $
+/* $Id: AboutDialog.cpp,v 1.3 2002-01-16 19:30:51 oizoken Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -56,15 +56,15 @@ AboutDialog::AboutDialog()
 
 
   std::ostringstream ostr1;
-  ostr1 << "Version: " << ICKLE_VERSION << endl;
+  ostr1 << "Version: " << ICKLE_VERSION << std::endl;
   text->insert(p, ostr1.str() );
 
   std::ostringstream ostr2;
-  ostr2 << "Compiled on: " << __DATE__ << endl;
+  ostr2 << "Compiled on: " << __DATE__ << std::endl;
   text->insert(p, ostr2.str() );
 
   std::ostringstream ostr3;
-  ostr3 << "libicq2000 Version: " << libicq2000_version << endl;
+  ostr3 << "libicq2000 Version: " << libicq2000_version << std::endl;
   text->insert(p, ostr3.str() );
 
   text->insert(hd, "\nDevelopers\n");
