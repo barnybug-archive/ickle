@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ickle 0.3.2\n"
-"POT-Creation-Date: 2003-02-06 20:35+0100\n"
+"POT-Creation-Date: 2003-02-08 19:32+0100\n"
 "PO-Revision-Date: 2003-02-05 23:55+0100\n"
 "Last-Translator: Christian Borntraeger <christian@borntraeger.net>\n"
 "Language-Team: Christian Borntraeger <christian@borntraeger.net>\n"
@@ -380,8 +380,8 @@ msgid "Username and Password did not match"
 msgstr "Nutzername und Passwort passen nicht"
 
 #: ickle/IckleClient.cpp:518 ickle/IckleClient.cpp:524
-#: ickle/UserInfoDialog.cpp:593 ickle/UserInfoDialog.cpp:697
-#: ickle/UserInfoDialog.cpp:705
+#: ickle/UserInfoDialog.cpp:593 ickle/UserInfoDialog.cpp:699
+#: ickle/UserInfoDialog.cpp:707
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -1154,8 +1154,9 @@ msgstr "%1 / %2"
 
 #: ickle/UserInfoDialog.cpp:637 ickle/UserInfoDialog.cpp:652
 #: ickle/UserInfoDialog.cpp:657 ickle/UserInfoDialog.cpp:660
-#: ickle/UserInfoDialog.cpp:723 ickle/UserInfoHelpers.cpp:63
-#: ickle/UserInfoHelpers.cpp:125 ickle/UserInfoHelpers.cpp:444
+#: ickle/UserInfoDialog.cpp:718 ickle/UserInfoDialog.cpp:733
+#: ickle/UserInfoHelpers.cpp:63 ickle/UserInfoHelpers.cpp:125
+#: ickle/UserInfoHelpers.cpp:444
 msgid "Unspecified"
 msgstr "Unbestimmt"
 
@@ -1173,11 +1174,11 @@ msgstr "Weiblich"
 msgid "Male"
 msgstr "Männlich"
 
-#: ickle/UserInfoDialog.cpp:708
+#: ickle/UserInfoDialog.cpp:710
 msgid "%1:?"
 msgstr ""
 
-#: ickle/UserInfoDialog.cpp:710
+#: ickle/UserInfoDialog.cpp:712
 msgid "%1:%2"
 msgstr ""
 
@@ -1219,7 +1220,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:68
 msgid "Cantonese"
-msgstr ""
+msgstr "kantonesisch"
 
 #: ickle/UserInfoHelpers.cpp:69
 msgid "Catalan"
@@ -1347,7 +1348,7 @@ msgstr "portugiesisch"
 
 #: ickle/UserInfoHelpers.cpp:100
 msgid "Romanian"
-msgstr ""
+msgstr "rumänisch"
 
 #: ickle/UserInfoHelpers.cpp:101
 msgid "Russian"
@@ -1723,11 +1724,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:197
 msgid "Finland"
-msgstr ""
+msgstr "Finnland"
 
 #: ickle/UserInfoHelpers.cpp:198
 msgid "France"
-msgstr ""
+msgstr "Frankreich"
 
 #: ickle/UserInfoHelpers.cpp:199
 msgid "French Antilles"
@@ -1751,7 +1752,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:204
 msgid "Georgia"
-msgstr ""
+msgstr "Georgien"
 
 #: ickle/UserInfoHelpers.cpp:205
 msgid "Germany"
@@ -1767,7 +1768,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:208
 msgid "Greece"
-msgstr ""
+msgstr "Griechenland"
 
 #: ickle/UserInfoHelpers.cpp:209
 msgid "Greenland"
@@ -1819,7 +1820,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:221
 msgid "Hungary"
-msgstr ""
+msgstr "Ungarn"
 
 #: ickle/UserInfoHelpers.cpp:222
 msgid "INMARSAT (Atlantic-East)"
@@ -1843,15 +1844,15 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:227
 msgid "Iceland"
-msgstr ""
+msgstr "Island"
 
 #: ickle/UserInfoHelpers.cpp:228
 msgid "India"
-msgstr ""
+msgstr "Indien"
 
 #: ickle/UserInfoHelpers.cpp:229
 msgid "Indonesia"
-msgstr ""
+msgstr "Indonesien"
 
 #: ickle/UserInfoHelpers.cpp:230
 msgid "International Freephone Service"
@@ -1867,15 +1868,15 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:233
 msgid "Ireland"
-msgstr ""
+msgstr "Irland"
 
 #: ickle/UserInfoHelpers.cpp:234
 msgid "Israel"
-msgstr ""
+msgstr "Israel"
 
 #: ickle/UserInfoHelpers.cpp:235
 msgid "Italy"
-msgstr ""
+msgstr "Italien"
 
 #: ickle/UserInfoHelpers.cpp:236
 msgid "Ivory Coast"
@@ -1887,7 +1888,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:238
 msgid "Japan"
-msgstr ""
+msgstr "Japan"
 
 #: ickle/UserInfoHelpers.cpp:239
 msgid "Jordan"
@@ -1899,7 +1900,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:241
 msgid "Kenya"
-msgstr ""
+msgstr "Kenja"
 
 #: ickle/UserInfoHelpers.cpp:242
 msgid "Kiribati Republic"
@@ -1907,11 +1908,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:243
 msgid "Korea (North)"
-msgstr ""
+msgstr "Nordkorea"
 
 #: ickle/UserInfoHelpers.cpp:244
 msgid "Korea (Republic of)"
-msgstr ""
+msgstr "Südkorea"
 
 #: ickle/UserInfoHelpers.cpp:245
 msgid "Kuwait"
@@ -1947,7 +1948,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:253
 msgid "Liechtenstein"
-msgstr ""
+msgstr "Liechtenstein"
 
 #: ickle/UserInfoHelpers.cpp:254
 msgid "Lithuania"
@@ -2071,7 +2072,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:284
 msgid "New Zealand"
-msgstr ""
+msgstr "Neuseeland"
 
 #: ickle/UserInfoHelpers.cpp:285
 msgid "Nicaragua"
@@ -2103,7 +2104,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:292
 msgid "Pakistan"
-msgstr ""
+msgstr "Pakistan"
 
 #: ickle/UserInfoHelpers.cpp:293
 msgid "Palau"
@@ -2111,7 +2112,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:294
 msgid "Panama"
-msgstr ""
+msgstr "Panama"
 
 #: ickle/UserInfoHelpers.cpp:295
 msgid "Papua New Guinea"
@@ -2131,11 +2132,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:299
 msgid "Poland"
-msgstr ""
+msgstr "Polen"
 
 #: ickle/UserInfoHelpers.cpp:300
 msgid "Portugal"
-msgstr ""
+msgstr "Portugal"
 
 #: ickle/UserInfoHelpers.cpp:301
 msgid "Puerto Rico"
@@ -2163,7 +2164,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:307
 msgid "Russia"
-msgstr ""
+msgstr "Russland"
 
 #: ickle/UserInfoHelpers.cpp:308
 msgid "Rwanda"
@@ -2187,7 +2188,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:313
 msgid "Saudi Arabia"
-msgstr ""
+msgstr "Saudi-Arabien"
 
 #: ickle/UserInfoHelpers.cpp:314
 msgid "Senegal Republic"
@@ -2207,7 +2208,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:318
 msgid "Slovak Republic"
-msgstr ""
+msgstr "Slowakei"
 
 #: ickle/UserInfoHelpers.cpp:319
 msgid "Slovenia"
@@ -2227,7 +2228,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:323
 msgid "Spain"
-msgstr ""
+msgstr "Spanien"
 
 #: ickle/UserInfoHelpers.cpp:324
 msgid "Sri Lanka"
@@ -2331,7 +2332,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:349
 msgid "USA"
-msgstr ""
+msgstr "USA"
 
 #: ickle/UserInfoHelpers.cpp:350
 msgid "Uganda"
@@ -2339,7 +2340,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:351
 msgid "Ukraine"
-msgstr ""
+msgstr "Ukraine"
 
 #: ickle/UserInfoHelpers.cpp:352
 msgid "United Arab Emirates"
@@ -2347,7 +2348,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:353
 msgid "United Kingdom"
-msgstr ""
+msgstr "Großbritannien"
 
 #: ickle/UserInfoHelpers.cpp:354
 msgid "United States Virgin Islands"
@@ -2399,11 +2400,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:366
 msgid "Zambia"
-msgstr ""
+msgstr "Sambia"
 
 #: ickle/UserInfoHelpers.cpp:367
 msgid "Zimbabwe"
-msgstr ""
+msgstr "Simbabwe"
 
 #: ickle/UserInfoHelpers.cpp:370
 msgid "Art"
@@ -2423,11 +2424,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:374
 msgid "Computers"
-msgstr ""
+msgstr "Computer"
 
 #: ickle/UserInfoHelpers.cpp:375
 msgid "Culture"
-msgstr ""
+msgstr "Kultur"
 
 #: ickle/UserInfoHelpers.cpp:376
 msgid "Fitness"
@@ -2439,7 +2440,7 @@ msgstr "Spiele"
 
 #: ickle/UserInfoHelpers.cpp:378
 msgid "Hobbies"
-msgstr ""
+msgstr "Hobbies"
 
 #: ickle/UserInfoHelpers.cpp:379
 msgid "ICQ - Help"
@@ -2447,7 +2448,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:380
 msgid "Internet"
-msgstr ""
+msgstr "Internet"
 
 #: ickle/UserInfoHelpers.cpp:381
 msgid "Lifestyle"
@@ -2455,11 +2456,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:382
 msgid "Movies and TV"
-msgstr ""
+msgstr "Film und Fernsehen"
 
 #: ickle/UserInfoHelpers.cpp:383
 msgid "Music"
-msgstr ""
+msgstr "Musik"
 
 #: ickle/UserInfoHelpers.cpp:384
 msgid "Outdoors"
@@ -2475,19 +2476,19 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:387
 msgid "Religion"
-msgstr ""
+msgstr "Religion"
 
 #: ickle/UserInfoHelpers.cpp:388
 msgid "Science"
-msgstr ""
+msgstr "Wissenschaft"
 
 #: ickle/UserInfoHelpers.cpp:389
 msgid "Skills"
-msgstr ""
+msgstr "Fertigkeiten"
 
 #: ickle/UserInfoHelpers.cpp:390
 msgid "Sports"
-msgstr ""
+msgstr "Sport"
 
 #: ickle/UserInfoHelpers.cpp:391
 msgid "Web Design"
@@ -2495,7 +2496,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:392
 msgid "Ecology"
-msgstr ""
+msgstr "Ökologie"
 
 #: ickle/UserInfoHelpers.cpp:393
 msgid "News and Media"
@@ -2515,11 +2516,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:397
 msgid "Travel"
-msgstr ""
+msgstr "Reisen"
 
 #: ickle/UserInfoHelpers.cpp:398
 msgid "Astronomy"
-msgstr ""
+msgstr "Astronomie"
 
 #: ickle/UserInfoHelpers.cpp:399
 msgid "Space"
@@ -2535,11 +2536,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:402
 msgid "Women"
-msgstr ""
+msgstr "Frauen"
 
 #: ickle/UserInfoHelpers.cpp:403
 msgid "Social science"
-msgstr ""
+msgstr "Sozialwissenschaft"
 
 #: ickle/UserInfoHelpers.cpp:404
 msgid "60's"
@@ -2563,7 +2564,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:409
 msgid "Entertainment"
-msgstr ""
+msgstr "Unterhaltung"
 
 #: ickle/UserInfoHelpers.cpp:410
 msgid "Consumer Electronics"
@@ -2611,7 +2612,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:423
 msgid "University"
-msgstr ""
+msgstr "Universität"
 
 #: ickle/UserInfoHelpers.cpp:424
 msgid "High school"
@@ -2627,11 +2628,11 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:427
 msgid "Military"
-msgstr ""
+msgstr "Militär"
 
 #: ickle/UserInfoHelpers.cpp:428
 msgid "Other"
-msgstr ""
+msgstr "Anderes"
 
 #: ickle/UserInfoHelpers.cpp:429
 msgid "Past Organization"
@@ -2647,31 +2648,35 @@ msgstr "egal"
 
 #: ickle/UserInfoHelpers.cpp:434
 msgid "18-22"
-msgstr ""
+msgstr "18-22"
 
 #: ickle/UserInfoHelpers.cpp:435
 msgid "23-29"
-msgstr ""
+msgstr "23-29"
 
 #: ickle/UserInfoHelpers.cpp:436
 msgid "30-39"
-msgstr ""
+msgstr "30-39"
 
 #: ickle/UserInfoHelpers.cpp:437
 msgid "40-49"
-msgstr ""
+msgstr "40-49"
 
 #: ickle/UserInfoHelpers.cpp:438
 msgid "50-59"
-msgstr ""
+msgstr "50-59"
 
 #: ickle/UserInfoHelpers.cpp:439
 msgid "60-above"
 msgstr "60 und älter"
 
+#: ickle/utils.cpp:202
+msgid "%B %e, %G"
+msgstr "%d. %B %G"
+
 #: ickle/WizardDialog.cpp:42
 msgid "Ickle Wizard"
-msgstr ""
+msgstr "Ickle Einrichtung"
 
 #: ickle/WizardDialog.cpp:43
 msgid "Next >>"
@@ -2686,16 +2691,20 @@ msgid ""
 "Register a new account. Choose this if you haven't used ICQ before to create "
 "a new account."
 msgstr ""
+"Ein neues Nutzerkonto anlegen. Falls sie ICQ noch nie benutzt haben, wählen sie "
+"diese Option um einen Nutzer anzulegen."
 
 #: ickle/WizardDialog.cpp:58
 msgid ""
 "Existing account. Choose this if you already have an existing ICQ account "
 "that you would like to use."
 msgstr ""
+"Bestehendes Nutzerkonto. Falls sie ein bereits bestehendes Nutzerkonto "
+"nutzen wollen, wählen sie diese Option."
 
 #: ickle/WizardDialog.cpp:73
 msgid "Account registration"
-msgstr ""
+msgstr "Nutzerkonto einrichten"
 
 #: ickle/WizardDialog.cpp:78
 msgid ""
@@ -2703,6 +2712,9 @@ msgid ""
 "\n"
 "This wizard will help you to get started with ickle."
 msgstr ""
+"Herzlich Willkommen zu ickle!\n"
+"\n"
+"Dieser Dialog wird Ihnen helfen, ickle einzurichten."
 
 #: ickle/WizardDialog.cpp:88
 msgid ""
@@ -2713,6 +2725,13 @@ msgid ""
 "it can be because the password you entered was too simple. Try to make up "
 "more complicated password by mixing numbers and letters."
 msgstr ""
+"Bitte geben Sie das Passwort ein. Sie müssen es zweimal eingeben, "
+"um Fehler zu vermeiden. Klicken auf Weiter wird ickle veranlassen, "
+"mit dem Server zu kommunizieren und das Nutzerkonto anzumelden. "
+"Stellen Sie deshalb sicher, dass sie mit dem Internet verbunden sind. "
+"Hinweis: Sollte die Anmeldung fehlschlagen, kann es daran liegen, "
+"dass das Passwort zu einfach war. Versuchen Sie dann ein koplexeres "
+"Passwort einzugeben, indem sie Buchstaben und Zahlen verwenden."
 
 #: ickle/WizardDialog.cpp:101 ickle/WizardDialog.cpp:127
 msgid "Password:"
@@ -2727,10 +2746,13 @@ msgid ""
 "Please enter your existing UIN and your password below.\n"
 "You will need to enter the password twice to ensure it's correct."
 msgstr ""
+"Bitte geben Sie Ihre bestehende Kennnummer (UIN) und Ihr Passwort\n"
+"ein. Es muss zweimal eigegeben werden, um Fehler zu vermeiden."
+
 
 #: ickle/WizardDialog.cpp:122
 msgid "Existing UIN:"
-msgstr ""
+msgstr "Bestehende UNI:"
 
 #: ickle/WizardDialog.cpp:139
 msgid ""
@@ -2748,15 +2770,15 @@ msgstr ""
 
 #: ickle/WizardDialog.cpp:220 ickle/WizardDialog.cpp:350
 msgid "Are you sure you want to exit the wizard?"
-msgstr ""
+msgstr "Sind Sie sicher, dass sie den Dialog beenden wollen? "
 
 #: ickle/WizardDialog.cpp:241
 msgid "You must supply a password before registering the account"
-msgstr ""
+msgstr "Vor der Anmeldung müssen sie ein Passwort angeben"
 
 #: ickle/WizardDialog.cpp:247 ickle/WizardDialog.cpp:289
 msgid "The given passwords do not match, please correct this and try again"
-msgstr ""
+msgstr "Die beiden Passwörter passen nicht zueinander. Bitte versuchen es erneut"
 
 #: ickle/WizardDialog.cpp:252
 msgid "Process:"
@@ -2768,27 +2790,27 @@ msgstr ""
 
 #: ickle/WizardDialog.cpp:277
 msgid "You must supply an UIN before continuing!"
-msgstr ""
+msgstr "Sie müssen eine UNI angeben, bevor Sie fortsetzen können."
 
 #: ickle/WizardDialog.cpp:283
 msgid "You must supply a password before continuing!"
-msgstr ""
+msgstr "Sie müssen ein Passwort angeben, bevor Sie fortsetzen können."
 
 #: ickle/WizardDialog.cpp:297
 msgid "'%1' is not a valid UIN, please correct this and try again"
-msgstr ""
+msgstr "'%1' ist keine gültige UIN. Bitte korrigieren sie den Fehler."
 
 #: ickle/WizardDialog.cpp:364
 msgid "Registration attempt timed out. Would you like to retry?"
-msgstr ""
+msgstr "Die Anmeldung überschritt das Timeout. Wollen Sie es erneut versuchen?"
 
 #: ickle/WizardDialog.cpp:367 ickle/WizardDialog.cpp:391
 msgid "Registering new account...[Retry]"
-msgstr ""
+msgstr "Melde neues Konto an...[Neuversuch]"
 
 #: ickle/WizardDialog.cpp:388
 msgid "Registration attempt failed. Would you like to retry?"
-msgstr ""
+msgstr "Die Anmeldung schlug fehl. Wollen Sie es noch einmal versuchen? "
 
 #: control/CommandLineParser.cpp:33 control/CommandLineParser.cpp:83
 msgid "Invalid option %1"
@@ -2804,11 +2826,11 @@ msgstr ""
 
 #: control/CommandLineParser.cpp:71
 msgid "Option %1 doesn't take more than %2 arguments"
-msgstr ""
+msgstr "Option %1 benötigt nicht mehr als 2 Argumente"
 
 #: control/IckleControl.cpp:104
 msgid "Is ickle running?"
-msgstr ""
+msgstr "Läuft ickle?"
 
 #: control/IckleControl.cpp:146
 msgid "Usage: ickle_control OPTIONS..."
@@ -2858,23 +2880,23 @@ msgstr ""
 
 #: control/IckleControl.cpp:172
 msgid "ickle %1"
-msgstr ""
+msgstr "ickle %1"
 
 #: control/IckleControl.cpp:185
 msgid "Invalid timeout value %1"
-msgstr ""
+msgstr "Ungültiger Timemout %1"
 
 #: control/IckleControl.cpp:213
 msgid "Invalid status %1"
-msgstr ""
+msgstr "Ungültiger Status %1"
 
 #: control/IckleControl.cpp:227
 msgid "Failed setting status to %1"
-msgstr ""
+msgstr "Fehler beim Ändern des Status nach %1"
 
 #: control/IckleControl.cpp:231
 msgid "Failed setting status to %1 (%2)"
-msgstr ""
+msgstr "Fehler beim Ändern des Status nach %1 (%2)"
 
 #: control/IckleControl.cpp:270
 msgid "Invalid boolean value %1"
