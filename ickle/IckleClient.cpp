@@ -52,6 +52,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 #ifdef GNOME_ICKLE
   // initialize GNOME applet
   applet.init(argc, argv, gui);
+  applet.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
 #endif
 
   // let us know when the gui is destroyed

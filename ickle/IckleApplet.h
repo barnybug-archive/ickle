@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.7 2001-11-26 23:58:30 nordman Exp $
+/* $Id: IckleApplet.h,v 1.8 2001-12-07 23:48:56 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -88,6 +88,8 @@ class IckleApplet : public SigC::Object {
 
   void          init            (int argc, char* argv[], IckleGUI &gui);
   void          quit            ();
+
+  Signal1<void,unsigned int> user_popup;
 };
 
 #endif // ICKLEAPPLET_H

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.10 2001-11-27 18:41:58 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.11 2001-12-07 23:48:56 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -57,7 +57,7 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
   if( !m_nr_msgs || ev->state & GDK_SHIFT_MASK )
     toggle_gui();
   else
-    m_gui->user_popup( m_pending.front().contact );
+    user_popup.emit( m_pending.front().contact->getUIN() );
 }
 
 
