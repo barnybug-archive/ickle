@@ -1,3 +1,12 @@
+2001-11-20 23:25  nordman
+
+	* configure.ac ickle/IckleApplet.h ickle/IckleApplet.cpp
+	ickle/main.cpp ickle/IckleClient.h ickle/IckleClient.cpp
+	ickle/Makefile.am ickle/ickle_applet.desktop
+	ickle/ickle_applet.gnorba:
+
+	Added GNOME applet to the tree.
+	
 2001-11-07 15:12  barnabygray
 
 	* README: CVS instructions updated.
