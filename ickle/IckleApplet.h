@@ -1,8 +1,8 @@
-/* $Id: IckleApplet.h,v 1.16 2002-02-01 20:30:56 nordman Exp $
+/* $Id: IckleApplet.h,v 1.17 2002-02-20 23:48:58 nordman Exp $
  *
  * GNOME applet for ickle.
  *
- * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
+ * Copyright (C) 2001-2002 Nils Nordman <nino@nforced.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,9 +47,10 @@ class IckleApplet : public SigC::Object {
 
   class msg_entry {
   public:
-    msg_entry(Contact *c) : contact(c), nr_msgs(1) {}
+    msg_entry(Contact *c, MessageEvent::MessageType t) : contact(c), nr_msgs(1), type(t) {}
     Contact *contact;
     int nr_msgs;
+    MessageEvent::MessageType type;
   };
 
   std::list<msg_entry> m_pending;       /* list of pending msg's */
@@ -76,6 +77,7 @@ class IckleApplet : public SigC::Object {
   
   // misc
   void          set_applet_size         (int size, PanelOrientType orient);
+  void          update_applet_icon      ();
   void          update_applet_tooltip   ();
   void          update_applet_number    ();
   void          reset_applet_box        ();

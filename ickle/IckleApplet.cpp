@@ -1,8 +1,8 @@
-/* $Id: IckleApplet.cpp,v 1.24 2002-02-01 20:30:57 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.25 2002-02-20 23:48:58 nordman Exp $
  *
  * GNOME applet for ickle.
  *
- * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
+ * Copyright (C) 2001-2002 Nils Nordman <nino@nforced.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, 
 void IckleApplet::applet_sizechange_converter(GtkWidget *w, int size, gpointer data)
 {
     ((IckleApplet *)data)->set_applet_size(size,
-                                           applet_widget_get_panel_orient( APPLET_WIDGET(w) ) );
+                                           applet_widget_get_panel_orient(APPLET_WIDGET(w) ) );
 }
  
 
@@ -55,17 +55,17 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
   if (!ev || ev->button != 1 || ev->type != GDK_BUTTON_PRESS)
     return;
   
-  if( !m_nr_msgs || ev->state & GDK_SHIFT_MASK )
+  if (!m_nr_msgs || ev->state & GDK_SHIFT_MASK)
     toggle_gui();
   else
-    user_popup.emit( m_pending.front().contact->getUIN() );
+    user_popup.emit(m_pending.front().contact->getUIN());
 }
 
 
 void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
 {
   Status st = (Status)(int)data;
-  icqclient.setStatus( st );
+  icqclient.setStatus(st);
 }
 
 
@@ -80,7 +80,7 @@ gint IckleApplet::applet_delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer
   IckleApplet *appl = ((IckleApplet *)data);
   appl->m_applet = NULL;
   delete appl->m_box;
-  if( appl->m_gui->is_realized() )
+  if (appl->m_gui->is_realized())
     appl->exit.emit();
   return FALSE;
 }
@@ -91,34 +91,33 @@ void IckleApplet::applet_orientchange_cb(PanelOrientType orient)
   int size = 48;
 
 #ifdef HAVE_PANEL_PIXEL_SIZE
-  size = applet_widget_get_panel_pixel_size( APPLET_WIDGET(m_applet) );
+  size = applet_widget_get_panel_pixel_size(APPLET_WIDGET(m_applet));
 #endif
   reset_applet_box();
-  set_applet_size( size, orient );
+  set_applet_size(size, orient);
 }
 
 
 bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 {
-  if( !m_applet )
+  if (!m_applet)
     return false;
   
   Contact *c = ev->getContact();
   ostringstream ostr;
   
-  if( !m_nr_msgs++ ) {
-    Gtk::ImageLoader *il = g_icons.IconForEvent( ev->getType() );
-    m_pm.set( il->pix(), il->bit() );
-  }
-
   // record in msg list
   list<msg_entry>::iterator itr = m_pending.begin();
-  for( ; itr->contact != c && itr != m_pending.end(); ++itr );
-  if( itr == m_pending.end() )
-    m_pending.push_back( msg_entry(c) );
-  else
+  for (; itr->contact != c && itr != m_pending.end(); ++itr);
+  if (itr == m_pending.end())
+    m_pending.push_back(msg_entry(c, ev->getType()));
+  else {
     ++itr->nr_msgs;
-  
+    itr->type = ev->getType();
+  }
+
+  m_nr_msgs++;
+  update_applet_icon();
   update_applet_number();
   update_applet_tooltip();
   return false;
@@ -127,63 +126,67 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 
 void IckleApplet::icq_selfevent_cb(SelfEvent *ev)
 {
-  if( !m_applet || ev->getType() != SelfEvent::MyStatusChange )
+  if (!m_applet || ev->getType() != SelfEvent::MyStatusChange)
     return;
 
-  Gtk::ImageLoader *il;
   MyStatusChangeEvent *sev = dynamic_cast<MyStatusChangeEvent *>(ev);
 
-  if( !sev )
-    g_error( "Can't cast to MyStatusChangeEvent *" );
+  if (!sev)
+    g_error("Can't cast to MyStatusChangeEvent *");
 
-  if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgs > 0)
-    il = g_icons.IconForStatus( sev->getStatus(), icqclient.getInvisible() );
-    m_pm.set( il->pix(), il->bit() );
-  }
+  if (!m_nr_msgs) // we don't even display the status for (m_nr_msgs > 0)
+    update_applet_icon();
+
   update_applet_tooltip();
 }
 
 
 void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 {
-  if( !m_applet )
+  if (!m_applet)
     return;
 
   Contact *c = ev->getContact();
   
-  if( ev->getType() == ContactListEvent::StatusChange ) {
+  if (ev->getType() == ContactListEvent::StatusChange) {
     StatusChangeEvent *sc = dynamic_cast<StatusChangeEvent *>(ev);
-    if( !sc )
-      g_error( "Can't cast to StatusChangeEvent *" );
-    if( sc->getOldStatus() == STATUS_OFFLINE )
-      m_online_users.push_back( c->getUIN() );
-    else if (sc->getStatus() == STATUS_OFFLINE )
-      m_online_users.remove( c->getUIN() );
+    if(!sc)
+      g_error("Can't cast to StatusChangeEvent *" );
+    if(sc->getOldStatus() == STATUS_OFFLINE)
+      m_online_users.push_back(c->getUIN());
+    else if (sc->getStatus() == STATUS_OFFLINE)
+      m_online_users.remove(c->getUIN());
   }
-  else if( ev->getType() == ContactListEvent::UserAdded ) {
+  else if (ev->getType() == ContactListEvent::UserAdded) {
     ++m_nr_users;
   }
-  else if( ev->getType() == ContactListEvent::UserRemoved ) {
+  else if (ev->getType() == ContactListEvent::UserRemoved) {
     --m_nr_users;
-    m_online_users.remove( c->getUIN() );
+    m_online_users.remove(c->getUIN());
+
+    for (list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr) {
+      if (itr->contact->getUIN() == c->getUIN()) {
+        m_nr_msgs -= itr->nr_msgs;
+        update_applet_icon();
+        m_pending.erase(itr);
+        break;
+      }
+    }
   }
-  else if( ev->getType() == ContactListEvent::MessageQueueChanged ) {
+  else if (ev->getType() == ContactListEvent::MessageQueueChanged) {
     
     // find entry for this contact in msg list
     list<msg_entry>::iterator itr = m_pending.begin();
-    for( ; itr->contact != c && itr != m_pending.end(); ++itr );
+    for (; itr->contact != c && itr != m_pending.end(); ++itr);
 
-    if( itr != m_pending.end() ) {
+    if (itr != m_pending.end()) {
       m_nr_msgs -= (itr->nr_msgs - c->numberPendingMessages());
-      if( !c->numberPendingMessages() ) // no more pending messages from this contact
-        m_pending.erase( itr );
+      if (!c->numberPendingMessages()) // no more pending messages from this contact
+        m_pending.erase(itr);
       else
         itr->nr_msgs = c->numberPendingMessages();
       
-      if( !m_nr_msgs ) { // last msg read, switch icon
-        Gtk::ImageLoader *il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
-        m_pm.set( il->pix(), il->bit() );
-      }
+      update_applet_icon();
     }
   }
   update_applet_number();
@@ -193,15 +196,10 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 
 void IckleApplet::icons_changed_cb()
 {
-  if( !m_applet )
+  if (!m_applet)
     return;
 
-  Gtk::ImageLoader *il;
-  if( !m_nr_msgs )
-    il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
-  else // we don't keep track of the exact event so just use normal
-    il = g_icons.IconForEvent( MessageEvent::Normal );
-  m_pm.set( il->pix(), il->bit() );
+  update_applet_icon();
 }
 
 
@@ -211,13 +209,25 @@ void IckleApplet::set_applet_size(int size, PanelOrientType orient)
 
   width = height = -1;
 
-  if( orient == ORIENT_UP || orient == ORIENT_DOWN ) {
+  if (orient == ORIENT_UP || orient == ORIENT_DOWN)
     height = size - (size / 8);
-  }
-  else {
+  else
     width = size - (size / 8);
-  }
-  m_frame.set_usize( width, height );
+
+  m_frame.set_usize(width, height);
+}
+
+
+void IckleApplet::update_applet_icon()
+{
+  Gtk::ImageLoader *il;
+
+  if (!m_nr_msgs)
+    il = g_icons.IconForStatus(icqclient.getStatus(), icqclient.getInvisible());
+  else
+    il = g_icons.IconForEvent(m_pending.front().type);
+
+  m_pm.set(il->pix(), il->bit());
 }
 
 
@@ -227,13 +237,13 @@ void IckleApplet::update_applet_tooltip()
 
   ostr << icqclient.getUIN() << " " << Status_text[icqclient.getStatus()] << endl;
   ostr << m_online_users.size() << " of " << m_nr_users << " users connected" << endl;
-  if( m_nr_msgs ) {
+  if (m_nr_msgs) {
     ostr << m_nr_msgs << ((m_nr_msgs > 1) ? " events" : " event")  << " pending:" << endl;
-    for( list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr ) {
+    for (list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr) {
       ostr << itr->contact->getAlias() << " (" << itr->contact->numberPendingMessages() << ")" << endl;
     }
   }
-  applet_widget_set_tooltip( APPLET_WIDGET(m_applet), ostr.str().c_str() );
+  applet_widget_set_tooltip(APPLET_WIDGET(m_applet), ostr.str().c_str());
 }
 
 
@@ -241,27 +251,27 @@ void IckleApplet::update_applet_number()
 {
   ostringstream ostr;
 
-  if( m_nr_msgs )
+  if (m_nr_msgs)
     ostr << m_nr_msgs;
   else
     ostr << m_online_users.size();
-  m_nr.set_text( ostr.str() );
+  m_nr.set_text(ostr.str());
 }
 
 
 void IckleApplet::reset_applet_box()
 {
   int padding;
-  PanelOrientType orient = applet_widget_get_panel_orient( APPLET_WIDGET(m_applet) );
+  PanelOrientType orient = applet_widget_get_panel_orient(APPLET_WIDGET(m_applet));
 
-  if( m_box ) { // already allocated, free this first
+  if (m_box) { // already allocated, free this first
     m_box->remove(m_pm);
     m_box->remove(m_nr);
     m_frame.remove();
     delete m_box;
   }
 
-  if( orient == ORIENT_UP || orient == ORIENT_DOWN ) {
+  if (orient == ORIENT_UP || orient == ORIENT_DOWN) {
     m_box = new Gtk::HBox(false, 0);
     padding = 3;
   }
@@ -270,8 +280,8 @@ void IckleApplet::reset_applet_box()
     padding = 1;
   }
 
-  m_box->pack_start( m_pm, true, true, padding );
-  m_box->pack_end( m_nr, true, true, padding );
+  m_box->pack_start(m_pm, true, true, padding);
+  m_box->pack_end(m_nr, true, true, padding);
   m_box->show_all();
   m_frame.add(*m_box);
 }
@@ -279,7 +289,7 @@ void IckleApplet::reset_applet_box()
 
 void IckleApplet::toggle_gui()
 {
-  if( m_gui->is_visible() )
+  if (m_gui->is_visible())
     m_gui->hide();
   else
     m_gui->show_all();
@@ -290,7 +300,7 @@ IckleApplet::IckleApplet()
 {
   m_applet = NULL;
   m_box = NULL;
-  m_nr.set_text( "0" );
+  m_nr.set_text("0");
 
   m_nr_msgs = 0;
   m_nr_users = 0;
@@ -309,16 +319,16 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   m_gui = &g;
 
   // setup callbacks
-  icqclient.self_event.connect( slot(this, &IckleApplet::icq_selfevent_cb) );
+  icqclient.self_event.connect(slot(this, &IckleApplet::icq_selfevent_cb));
   icqclient.messaged.connect(slot(this,&IckleApplet::icq_messaged_cb));
   icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
 
-  g_icons.icons_changed.connect( slot(this, &IckleApplet::icons_changed_cb) );
+  g_icons.icons_changed.connect(slot(this, &IckleApplet::icons_changed_cb));
 
   // create applet
   applet_widget_init("ickle_applet", NULL, argc, argv, popts, 0, NULL);
   m_applet = applet_widget_new("ickle_applet");
-  if(!m_applet)
+  if (!m_applet)
     g_error("Can't create applet!\n");
 
   // connect applet signals
@@ -337,30 +347,30 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 #endif
 
   // create context menus
-  applet_widget_register_callback_dir( APPLET_WIDGET(m_applet), "status", _("Status"));
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/online",
+  applet_widget_register_callback_dir(APPLET_WIDGET(m_applet), "status", _("Status"));
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/online",
 				   Status_text[STATUS_ONLINE], applet_status_menu_cb, (void *)STATUS_ONLINE);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/away",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/away",
 				   Status_text[STATUS_AWAY], applet_status_menu_cb, (void *)STATUS_AWAY);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/na",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/na",
 				   Status_text[STATUS_NA], applet_status_menu_cb, (void *)STATUS_NA);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/occupied",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/occupied",
 				   Status_text[STATUS_OCCUPIED], applet_status_menu_cb, (void *)STATUS_OCCUPIED);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/dnd",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/dnd",
 				   Status_text[STATUS_DND], applet_status_menu_cb, (void *)STATUS_DND);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/freeforchat",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/freeforchat",
 				   Status_text[STATUS_FREEFORCHAT], applet_status_menu_cb, (void *)STATUS_FREEFORCHAT);
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/offline",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "status/offline",
 				   Status_text[STATUS_OFFLINE], applet_status_menu_cb, (void *)STATUS_OFFLINE);
 
-  applet_widget_register_callback( APPLET_WIDGET(m_applet), "toogle_gui",
+  applet_widget_register_callback(APPLET_WIDGET(m_applet), "toogle_gui",
 				   "Show/hide main window", applet_toogle_menu_cb, this);
 
   // whip the layout together
-  il = g_icons.IconForStatus( STATUS_OFFLINE, false );
-  m_pm.set( il->pix(), il->bit() );
   reset_applet_box();
-  applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()) );
+  applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()));
+
+  update_applet_icon();
   update_applet_tooltip();
 
   gtk_widget_show_all(m_applet);
@@ -368,6 +378,6 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 
 void IckleApplet::quit()
 {
-  if( m_applet != NULL )
-    applet_widget_remove( APPLET_WIDGET(m_applet) );
+  if (m_applet != NULL)
+    applet_widget_remove(APPLET_WIDGET(m_applet));
 }
