@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.26 2001-12-10 20:28:42 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.27 2001-12-12 22:43:00 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -40,7 +40,6 @@ using std::endl;
 MessageBox::MessageBox(Contact *c, History *h)
   : m_contact(c),
     m_history(h),
-    m_nrmsgs_shown(10),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
     m_history_table(4,1,false),
@@ -72,8 +71,9 @@ MessageBox::MessageBox(Contact *c, History *h)
   m_history_table.attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
 
   // scale adjustment
-  gfloat upper = m_history->size() / m_nrmsgs_shown;
-  if( !(m_history->size() % m_nrmsgs_shown) && upper )
+  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
+  gfloat upper = m_history->size() / nr_shown;
+  if( !(m_history->size() % nr_shown) && upper )
     --upper;
   m_scaleadj.set_lower(0);
   m_scaleadj.set_upper( upper );
@@ -360,8 +360,9 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
 }
 
 void MessageBox::new_entry_cb(History::Entry *ev) {
-  gfloat upper = m_history->size() / m_nrmsgs_shown;
-  if( !(m_history->size() % m_nrmsgs_shown) && upper )
+  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
+  gfloat upper = m_history->size() / nr_shown;
+  if( !(m_history->size() % nr_shown) && upper )
     --upper;
 
   m_scaleadj.set_upper( upper );
@@ -523,6 +524,7 @@ void MessageBox::scaleadj_value_changed_cb()
   guint i, end;
   Gtk::Adjustment *adj;
   ostringstream os;
+  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
 
   m_history_text.freeze();
   
@@ -535,8 +537,8 @@ void MessageBox::scaleadj_value_changed_cb()
   }
 
   m_history_text.delete_text(0,-1);
-  i = m_nrmsgs_shown * (guint)m_scaleadj.get_value();
-  end = i + m_nrmsgs_shown;
+  i = nr_shown * (guint)m_scaleadj.get_value();
+  end = i + nr_shown;
   if( end > m_history->size() )
     end = m_history->size();
 

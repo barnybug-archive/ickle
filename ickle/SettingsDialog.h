@@ -56,8 +56,8 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Notebook notebook;
   Gtk::CheckButton away_autoposition, reconnect_checkbox, network_override_port;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
-  Gtk::SpinButton *reconnect_spinner, *network_port;
-  Gtk::Label *reconnect_label;
+  Gtk::SpinButton *reconnect_spinner, *network_port, *history_shownr_spinner;
+  Gtk::Label reconnect_label, history_shownr_label;
 
   Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
   Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;

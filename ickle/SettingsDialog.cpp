@@ -44,6 +44,7 @@ SettingsDialog::SettingsDialog()
     okay("OK"), cancel("Cancel"),
     away_autoposition("Autoposition away messages dialog", 0),
     reconnect_checkbox("Auto Reconnect", 0),
+    reconnect_label( "Retries", 0),
     log_info("Information", 0),
     log_warn("Warnings", 0),
     log_error("Errors", 0),
@@ -56,7 +57,8 @@ SettingsDialog::SettingsDialog()
     network_override_port("Override server redirect port with login port", 0),
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
-    message_autoclose("Autoclose after sending a message", 0)
+    message_autoclose("Autoclose after sending a message", 0),
+    history_shownr_label("Number of messages to display per history-page", 0)
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -109,7 +111,6 @@ SettingsDialog::SettingsDialog()
 
   unsigned char n_retr = g_settings.getValueUnsignedChar("reconnect_retries");
 
-  reconnect_label = manage( new Gtk::Label( "Retries", 0 ) );
   Gtk::Adjustment *adj = manage( new Gtk::Adjustment( (n_retr == 0 ? 1 : n_retr), 1.0, 10.0 ) );
   reconnect_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
 
@@ -117,12 +118,12 @@ SettingsDialog::SettingsDialog()
   reconnect_checkbox.set_active( n_retr > 0 );
   table->attach( reconnect_checkbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  table->attach( *reconnect_label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( reconnect_label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
 
   table->attach( *reconnect_spinner, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   if ( n_retr == 0 ) {
-    reconnect_label->set_sensitive(false);
+    reconnect_label.set_sensitive(false);
     reconnect_spinner->set_sensitive(false);
   }
 
@@ -225,7 +226,7 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 4, false ) );
+  table = manage( new Gtk::Table( 2, 5, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
   message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
@@ -234,6 +235,12 @@ SettingsDialog::SettingsDialog()
   table->attach( message_autoraise, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
   table->attach( message_autoclose, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
 
+  n_retr = g_settings.getValueUnsignedChar("history_shownr");
+  Gtk::Adjustment *history_shownr_adj = manage( new Gtk::Adjustment( n_retr, 1.0, 255.0 ) );
+  history_shownr_spinner = manage( new Gtk::SpinButton( *history_shownr_adj, 1.0, 0 ) );
+  table->attach( history_shownr_label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( *history_shownr_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  
   hbox = manage( new Gtk::HBox(true, 5) );
 
   message_header_font = g_settings.getValueString("message_header_font");
@@ -248,7 +255,7 @@ SettingsDialog::SettingsDialog()
   button->clicked.connect( bind( slot( this, &SettingsDialog::fontsel_cb ), 1 ) );
   hbox->pack_end( *button, false );
 
-  table->attach( *hbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( *hbox, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0 );
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -423,6 +430,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("message_autopopup", message_autopopup.get_active() );
   g_settings.setValue("message_autoraise", message_autoraise.get_active() );
   g_settings.setValue("message_autoclose", message_autoclose.get_active() );
+  g_settings.setValue("history_shownr", (unsigned char)history_shownr_spinner->get_value_as_int() );
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );
 
@@ -464,10 +472,10 @@ string SettingsDialog::getPassword() const {
 
 void SettingsDialog::reconnect_toggle_cb() {
   if ( reconnect_checkbox.get_active() ) {
-    reconnect_label->set_sensitive(true);
+    reconnect_label.set_sensitive(true);
     reconnect_spinner->set_sensitive(true);
   } else {
-    reconnect_label->set_sensitive(false);
+    reconnect_label.set_sensitive(false);
     reconnect_spinner->set_sensitive(false);
   }
 }

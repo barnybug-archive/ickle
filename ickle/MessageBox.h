@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.8 2001-12-10 19:19:03 nordman Exp $
+/* $Id: MessageBox.h,v 1.9 2001-12-12 22:43:00 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -55,7 +55,6 @@ class MessageBox : public Gtk::Window {
 
   History *m_history;
   SigC::Connection m_histconn;
-  guint m_nrmsgs_shown;
 
   Gtk::Adjustment m_scaleadj;
   Gtk::HScale m_scale;

@@ -248,6 +248,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("message_autopopup", false);
   g_settings.defaultValueBool("message_autoraise", true);
   g_settings.defaultValueBool("message_autoclose", false);
+  g_settings.defaultValueUnsignedInt("history_shownr", 10, 0, 255);
   g_settings.defaultValueString("message_header_font", "-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
   g_settings.defaultValueString("message_text_font", "");
 
