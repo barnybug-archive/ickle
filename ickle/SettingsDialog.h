@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.46 2003-02-09 17:02:29 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.47 2003-02-09 19:55:25 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -77,6 +77,10 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_auto_return;
 
   Gtk::TreeModel::iterator m_row_lnf_charset;
+  
+  // Advanced Page
+  Gtk::Entry m_network_login_host;
+  Gtk::SpinButton m_network_login_port;
 
   // page init functions
   void init_pages();
@@ -91,6 +95,7 @@ class SettingsDialog : public Gtk::Dialog
   void init_away_message_page();
   void init_advanced_page();
   void init_advanced_security_page();
+  void init_advanced_server_page();
   void init_advanced_smtp_page();
   void init_advanced_logging_page();
 
@@ -107,6 +112,7 @@ class SettingsDialog : public Gtk::Dialog
   void load_away_message_page();
   void load_advanced_page();
   void load_advanced_security_page();
+  void load_advanced_server_page();
   void load_advanced_smtp_page();
   void load_advanced_logging_page();
 
@@ -123,6 +129,7 @@ class SettingsDialog : public Gtk::Dialog
   void save_away_message_page();
   void save_advanced_page();
   void save_advanced_security_page();
+  void save_advanced_server_page();
   void save_advanced_smtp_page();
   void save_advanced_logging_page();
 

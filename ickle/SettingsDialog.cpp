@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.62 2003-02-09 17:48:56 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.63 2003-02-09 19:55:24 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -280,7 +280,7 @@ void SettingsDialog::init_look_charset_page()
   vbox2->pack_start( * table, Gtk::PACK_SHRINK );
 
   Gtk::Label * label = manage( new Gtk::Label() );
-
+  
   label->set_markup( _("This setting determines the global default character set used when sending and receiving "
 		       "to the <i>ICQ</i> network. You can set per-contact encodings by choosing the relevant option "
 		       "from the right-click menu for a contact.\n\n"
@@ -375,6 +375,7 @@ void SettingsDialog::init_advanced_page()
 
   // sub-pages
   init_advanced_security_page();
+  init_advanced_server_page();
   init_advanced_smtp_page();
   init_advanced_logging_page();
 }
@@ -383,6 +384,39 @@ void SettingsDialog::init_advanced_security_page()
 {
   Gtk::VBox * vbox = manage( new Gtk::VBox() );
   add_page( _("Security"), vbox, false );
+}
+
+void SettingsDialog::init_advanced_server_page()
+{
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+
+  SectionFrame * frame = manage( new SectionFrame( _("Server") ) );
+  
+  Gtk::Table * table = new Gtk::Table( 2, 2 );
+
+  table->attach( * manage( new Gtk::Label( _("Server name"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  m_network_login_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_network_login_host,_("Specifies the name of the login server"));
+  table->attach( m_network_login_host, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+    
+  table->attach( * manage( new Gtk::Label( _("Server port"), 0.0, 0.5 ) ),
+		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+  m_network_login_port.set_range(0, 0xffff);
+  m_network_login_port.set_digits(0); 
+  m_network_login_port.set_increments(1, 10);
+  m_network_login_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_network_login_port,_("Specifies the port of the login server. Default is 5190"));
+  table->attach( m_network_login_port, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+
+  vbox->pack_start( *frame );
+  add_page( _("Server"), vbox, false );
 }
 void SettingsDialog::init_advanced_smtp_page()
 {
@@ -408,6 +442,7 @@ void SettingsDialog::load_pages()
   load_away_message_page();
   load_advanced_page();
   load_advanced_security_page();
+  load_advanced_server_page();
   load_advanced_smtp_page();
   load_advanced_logging_page();
 
@@ -464,6 +499,13 @@ void SettingsDialog::load_advanced_security_page()
 {
 }
 
+void SettingsDialog::load_advanced_server_page()
+{
+  m_network_login_host.set_text( g_settings.getValueString("network_login_host") );
+  m_network_login_port.set_value((double) g_settings.getValueUnsignedInt("network_login_port") );
+}
+
+
 void SettingsDialog::load_advanced_smtp_page()
 {
 }
@@ -486,12 +528,16 @@ void SettingsDialog::save_pages()
   save_away_message_page();
   save_advanced_page();
   save_advanced_security_page();
+  save_advanced_server_page();
   save_advanced_smtp_page();
   save_advanced_logging_page();
 }
 
 void SettingsDialog::save_login_page()
 {
+  g_settings.setValue( "uin", (unsigned int) m_login_uin.get_value() );
+  g_settings.setValue( "password", m_login_pass.get_text() );
+
 }
 
 void SettingsDialog::save_look_page()
@@ -521,6 +567,9 @@ void SettingsDialog::save_away_page()
 
 void SettingsDialog::save_away_idle_page()
 {
+  g_settings.setValue( "auto_away", (unsigned int) m_auto_away.get_value() );
+  g_settings.setValue( "auto_na", (unsigned int) m_auto_na.get_value() );
+  g_settings.setValue( "auto_return", m_auto_return.get_active() );
 }
 
 void SettingsDialog::save_away_message_page()
@@ -534,6 +583,14 @@ void SettingsDialog::save_advanced_page()
 void SettingsDialog::save_advanced_security_page()
 {
 }
+
+void SettingsDialog::save_advanced_server_page()
+{
+g_settings.setValue( "network_login_host", m_network_login_host.get_text() );
+g_settings.setValue( "network_login_port", (unsigned int) m_network_login_port.get_value() );
+
+}
+
 
 void SettingsDialog::save_advanced_smtp_page()
 {
