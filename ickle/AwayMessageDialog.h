@@ -24,6 +24,7 @@
 #include <gtk--/window.h>
 #include <gtk--/box.h>
 #include <gtk--/text.h>
+#include <gtk--/button.h>
 
 #include <sigc++/signal_system.h>
 
@@ -37,6 +38,7 @@ class AwayMessageDialog : public Gtk::Window {
  private:
   Gtk::Window *m_main_window;
   Gtk::Text m_awaytext;
+  Gtk::Button m_close_button;
   unsigned int m_pos, m_count;
 
   std::string format_time(time_t t);
@@ -46,6 +48,7 @@ class AwayMessageDialog : public Gtk::Window {
   
   void messageack_cb(ICQ2000::MessageEvent *ev);
   gint button_press_cb(GdkEventButton *ev);
+  void close_cb();
   gint delete_event_impl(GdkEventAny *ev);
 };
 

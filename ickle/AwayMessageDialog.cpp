@@ -38,7 +38,9 @@ using std::endl;
 using Gtk::Text_Helpers::Context;
 
 AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
-  : m_main_window(main_window), m_pos(0), m_count(0)
+  : m_main_window(main_window),
+    m_close_button("Close"),
+    m_pos(0), m_count(0)
 {
 
   set_title("Away Messages");
@@ -47,8 +49,8 @@ AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
   m_awaytext.set_word_wrap(true);
   
   icqclient.messageack.connect( slot(this,&AwayMessageDialog::messageack_cb) );
-
   button_release_event.connect(slot(this,&AwayMessageDialog::button_press_cb));
+  m_close_button.clicked.connect( slot(this, &AwayMessageDialog::close_cb) );
 
   Gtk::VBox *box = manage( new Gtk::VBox(false) );
 
@@ -58,7 +60,8 @@ AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
   hbox->pack_start(m_awaytext, true, true, 0);
   hbox->pack_start(*scrollbar, false);
   
-  box->pack_end(*hbox);
+  box->pack_start(*hbox, true, true);
+  box->pack_start(m_close_button, false);
 
   add( *box );
   box->show_all();
@@ -76,11 +79,6 @@ gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
   Gtk::Adjustment *adj;
   gfloat val;
 
-  if( ev->button != 4 && ev->button != 5 ) {
-    hide();
-    return true;
-  }
-  
   adj = m_awaytext.get_vadjustment();
   val = adj->get_value();
   if( ev->button == 4 ) {
@@ -91,6 +89,10 @@ gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
   }
   adj->set_value( val );
   return true;
+}
+
+void AwayMessageDialog::close_cb() {
+  hide();
 }
 
 void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev) {
