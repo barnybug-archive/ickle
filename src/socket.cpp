@@ -65,6 +65,8 @@ TCPSocket::TCPSocket( int fd, struct sockaddr_in addr )
 {
   socklen_t localLen = sizeof(struct sockaddr_in);
   getsockname( socketDescriptor, (struct sockaddr *)&localAddr, &localLen );
+
+  fcntlSetup();
 }
 
 TCPSocket::~TCPSocket() {
