@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.cpp,v 1.3 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: MessageEvent.cpp,v 1.4 2003-05-26 15:52:27 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -344,3 +344,48 @@ ICQMessageEvent::ICQMessageType UserAddICQMessageEvent::getICQMessageType() cons
   return UserAdd;
 }
 
+// ============================================================================
+//  FileTransferICQMessageEvent
+// ============================================================================
+
+FileTransferICQMessageEvent::FileTransferICQMessageEvent(time_t t, const ContactRef& c,
+							 const string& msg, const string& desc,
+							 unsigned int size, ICQ2000::FileTransferEvent *ev)
+  : ICQMessageEvent(t,c), m_message(msg), m_description(desc), m_size(size),
+    m_cancelled(false), m_ev(ev)
+{ }
+
+ICQMessageEvent::ICQMessageType FileTransferICQMessageEvent::getICQMessageType() const
+{
+  return FileTransfer;
+}
+
+string FileTransferICQMessageEvent::getMessage() const
+{
+  return m_message;
+}
+
+string FileTransferICQMessageEvent::getDescription() const
+{
+  return m_description;
+}
+
+unsigned int FileTransferICQMessageEvent::getSize() const
+{
+  return m_size;
+}
+
+ICQ2000::FileTransferEvent* FileTransferICQMessageEvent::getEvent()
+{
+  return m_ev;
+}
+
+bool FileTransferICQMessageEvent::isCancelled() const
+{
+  return m_cancelled;
+}
+
+void FileTransferICQMessageEvent::setCancelled(bool b)
+{
+  m_cancelled = b;
+}

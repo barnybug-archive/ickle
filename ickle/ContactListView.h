@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.38 2003-04-10 08:28:12 cborni Exp $
+/* $Id: ContactListView.h,v 1.39 2003-05-26 15:52:27 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -76,6 +76,7 @@ class ContactListView : public Gtk::TreeView,
   void contact_userinfo_cb();
   void contact_send_auth_req_cb();
   void contact_use_encoding_cb();
+  void contact_send_file_cb();
   void contact_add_cb();
   void contact_remove_cb();
   void contact_move_to_group_cb(ICQ2000::ContactTree::Group * gp);

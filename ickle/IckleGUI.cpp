@@ -26,6 +26,7 @@
 #include "Icons.h"
 #include "AuthRespDialog.h"
 #include "ResendDialog.h"
+#include "ReceiveFileDialog.h"
 
 #include "AddContactDialog.h"
 #include "SearchDialog.h"
@@ -317,6 +318,9 @@ void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
     case ICQMessageEvent::UserAdd:
       popup_user_added_you(c, static_cast<UserAddICQMessageEvent*>(icq));
       break;
+    case ICQMessageEvent::FileTransfer:
+      popup_file_transfer_request(c, static_cast<FileTransferICQMessageEvent*>(icq));
+      break;
     }
   }
 }
@@ -339,6 +343,12 @@ void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent 
 				 Glib::ustring(c->getNameAlias()) );
 
   new PromptDialog( *this, Gtk::MESSAGE_INFO, str, false );
+  remove_from_queue_delayed(ev);
+}
+
+void IckleGUI::popup_file_transfer_request(const ContactRef& c, FileTransferICQMessageEvent *ev)
+{
+  ReceiveFileDialog *dialog = new ReceiveFileDialog( this, c, ev );
   remove_from_queue_delayed(ev);
 }
 

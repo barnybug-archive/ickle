@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.129 2003-04-13 12:42:18 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.130 2003-05-26 15:52:27 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -102,7 +102,8 @@ void IckleClient::init()
   icqclient.contact_status_change_signal.connect(&m_event_system,&EventSystem::status_change_cb);
   icqclient.socket.connect(this,&IckleClient::socket_cb);
   icqclient.want_auto_resp.connect(this,&IckleClient::want_auto_resp_cb);
-
+  icqclient.filetransfer_incoming_signal.connect(this,&IckleClient::ft_incoming_cb);
+  icqclient.filetransfer_update_signal.connect(this,&IckleClient::ft_update_cb);
   // message queue callbacks
   m_message_queue.added.connect(SigC::slot(*this,&IckleClient::queue_added_cb));
   m_message_queue.added.connect(SigC::slot(m_event_system, &EventSystem::queue_added_cb));
@@ -761,6 +762,30 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
   }
 }
 
+
+void IckleClient::ft_incoming_cb(ICQ2000::FileTransferEvent *ev)
+{
+  message_cb(ev);
+}
+
+void IckleClient::ft_update_cb(ICQ2000::FileTransferEvent *ev)
+{
+  // need to update Events in the MessageQueue if they are cancelled
+  // whilst still queueing
+  MessageQueue::iterator curr = m_message_queue.begin();
+  while (curr != m_message_queue.end()) {
+    if ((*curr)->getServiceType() == MessageEvent::ICQ)
+    {
+      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(*curr);
+      if (icq->getICQMessageType() == ICQMessageEvent::FileTransfer) {
+	FileTransferICQMessageEvent *ft = static_cast<FileTransferICQMessageEvent*>(icq);
+	if (ft->getEvent() == ev) ft->setCancelled(true);
+      }
+    }
+    ++curr;
+  }
+}
+
 void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   ContactRef c = ev->getContact();
 
@@ -901,6 +926,13 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   case ICQ2000::MessageEvent::UserAdd:
   {
     ret = new UserAddICQMessageEvent( ev->getTime(), c );
+    break;
+  }
+  case ICQ2000::MessageEvent::FileTransfer:
+  {
+    ICQ2000::FileTransferEvent *fev = static_cast<ICQ2000::FileTransferEvent*>(ev);
+    ret = new FileTransferICQMessageEvent( ev->getTime(), c, fev->getMessage(),
+					   fev->getDescription(), fev->getSize(), fev);
     break;
   }
   default:

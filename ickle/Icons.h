@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.17 2003-04-12 16:29:28 barnabygray Exp $
+/* $Id: Icons.h,v 1.18 2003-05-26 15:52:27 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -45,6 +45,7 @@ class Icons {
   Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Message;
   Glib::RefPtr<Gdk::Pixbuf> Icon_Status_URL;
   Glib::RefPtr<Gdk::Pixbuf> Icon_Status_SMS;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_FileTransfer;
   Glib::RefPtr<Gdk::Pixbuf> Icon_Status_SystemMessage;
   Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Invisible;
 

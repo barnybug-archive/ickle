@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.23 2003-04-12 16:29:28 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.24 2003-05-26 15:52:27 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,7 +34,7 @@
 #include "message.xpm"
 #include "url.xpm"
 #include "sms.xpm"
-//#include "file.xpm"
+#include "file.xpm"
 #include "sysmsg.xpm"
 
 #include <sys/types.h>
@@ -65,6 +65,7 @@ void Icons::setDefaultIcons()
   Icon_Status_Message = Gdk::Pixbuf::create_from_xpm_data( (message_xpm) );
   Icon_Status_URL = Gdk::Pixbuf::create_from_xpm_data( (url_xpm) );
   Icon_Status_SMS = Gdk::Pixbuf::create_from_xpm_data( (sms_xpm) );
+  Icon_Status_FileTransfer = Gdk::Pixbuf::create_from_xpm_data( (file_xpm) );
   Icon_Status_SystemMessage = Gdk::Pixbuf::create_from_xpm_data( (sysmsg_xpm) );
   Icon_Status_Invisible = Gdk::Pixbuf::create_from_xpm_data( (invisible_xpm) );
 }
@@ -98,6 +99,7 @@ bool Icons::setIcons(const string &dir)
   create_from_file_no_exceptions( Icon_Status_Message,       dir + "message.xpm" );
   create_from_file_no_exceptions( Icon_Status_URL,           dir + "url.xpm" );
   create_from_file_no_exceptions( Icon_Status_SMS,           dir + "sms.xpm" );
+  create_from_file_no_exceptions( Icon_Status_FileTransfer,  dir + "file.xpm" );
   create_from_file_no_exceptions( Icon_Status_SystemMessage, dir + "sysmsg.xpm" );
   create_from_file_no_exceptions( Icon_Status_Invisible,     dir + "invisible.xpm" );
   
@@ -203,6 +205,9 @@ Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_event(ICQMessageEvent::ICQMessageT
     break;
   case ICQMessageEvent::URL:
     ret = Icon_Status_URL;
+    break;
+  case ICQMessageEvent::FileTransfer:
+    ret = Icon_Status_FileTransfer;
     break;
   case ICQMessageEvent::SMS:
   case ICQMessageEvent::SMS_Receipt:

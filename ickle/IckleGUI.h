@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.53 2003-04-13 12:42:18 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.54 2003-05-26 15:52:27 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -131,6 +131,7 @@ class IckleGUI : public Gtk::Window,
   void popup_auth_resp(const ICQ2000::ContactRef& c, AuthAckICQMessageEvent *ev);
   void popup_user_added_you(const ICQ2000::ContactRef& c, UserAddICQMessageEvent *ev);
   void popup_userinfo(const ICQ2000::ContactRef& c);
+  void popup_file_transfer_request(const ICQ2000::ContactRef& c, FileTransferICQMessageEvent *ev);
 
   // important - these are not passed by reference, as otherwise ref
   // counting screws up when used inconjunction with SigC::bind

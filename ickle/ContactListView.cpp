@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.67 2003-04-10 08:28:11 cborni Exp $
+/* $Id: ContactListView.cpp,v 1.68 2003-05-26 15:52:27 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,6 +39,7 @@
 #include "RenameGroupDialog.h"
 #include "SendAuthReqDialog.h"
 #include "SetEncodingDialog.h"
+#include "SendFileDialog.h"
 
 #include "pixmaps/info.xpm"
 
@@ -156,6 +157,9 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     ml_c.push_back( ImageMenuElem( _("User Info"),
 				   * manage( new Gtk::Image( Gdk::Pixbuf::create_from_xpm_data( info_xpm ) ) ),
 				   SigC::slot( *this, &ContactListView::contact_userinfo_cb ) ) );
+    ml_c.push_back( ImageMenuElem( _("Send File"),
+				   * manage( new Gtk::Image( g_icons.get_icon_for_event( ICQMessageEvent::FileTransfer ) ) ),
+				   SigC::slot( *this, &ContactListView::contact_send_file_cb ) ) );
     ml_c.push_back( MenuElem( _("Send Auth Request"),  SigC::slot( *this, &ContactListView::contact_send_auth_req_cb ) ) );
     m_rc_popup_auth = &(ml_c.back());
 
@@ -957,5 +961,14 @@ void ContactListView::contact_use_encoding_cb()
     /* unset encoding in translator */
     g_translator.unset_contact_encoding(c);
   }
-
 }
+ 
+void ContactListView::contact_send_file_cb()
+{
+  ICQ2000::ContactRef c = get_selected_contact();
+  if (c.get() != NULL && c->isICQContact())
+    {
+      new SendFileDialog(m_parent, c);
+    }
+}
+

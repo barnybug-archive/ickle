@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.h,v 1.5 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: MessageEvent.h,v 1.6 2003-05-26 15:52:27 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -74,7 +74,8 @@ class ICQMessageEvent : public MessageEvent {
     AuthAck,
     EmailEx,
     UserAdd,
-    WebPager
+    WebPager,
+    FileTransfer
   };
 
  private:
@@ -256,5 +257,36 @@ class UserAddICQMessageEvent : public ICQMessageEvent
   ICQMessageType getICQMessageType() const;
 };
 
+
+namespace ICQ2000 {
+  class FileTransferEvent;
+}
+
+/**
+ *  A File Transfer request
+ */
+class FileTransferICQMessageEvent : public ICQMessageEvent 
+{
+ private:
+  std::string m_message, m_description;
+  unsigned int m_size;
+  bool m_cancelled;
+  ICQ2000::FileTransferEvent *m_ev;
+  
+ public:
+  FileTransferICQMessageEvent(time_t t, const ICQ2000::ContactRef& c,
+			      const std::string& msg, const std::string& desc,
+			      unsigned int size, ICQ2000::FileTransferEvent *ev);
+
+  ICQMessageType getICQMessageType() const;
+
+  std::string getMessage() const;
+  std::string getDescription() const;
+  unsigned int getSize() const;
+  bool isCancelled() const;
+  void setCancelled(bool b);
+
+  ICQ2000::FileTransferEvent* getEvent();
+};
 #endif
 

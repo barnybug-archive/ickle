@@ -126,6 +126,8 @@ class IckleClient : public sigslot::has_slots<>,
   void status_change_cb(ICQ2000::StatusChangeEvent* ev);
   void socket_cb(ICQ2000::SocketEvent* ev);
   void want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev);
+  void ft_incoming_cb(ICQ2000::FileTransferEvent* ev);
+  void ft_update_cb(ICQ2000::FileTransferEvent* ev);
 
   // -- Callbacks for message queue --
   void queue_added_cb(MessageEvent *ev);
