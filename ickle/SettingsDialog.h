@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.21 2002-01-09 20:20:26 nordman Exp $
+/* $Id: SettingsDialog.h,v 1.22 2002-01-09 22:37:17 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,6 +39,10 @@
 
 #include <libicq2000/Contact.h>
 
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 using std::string;
 
 namespace Gtk {
@@ -67,6 +71,10 @@ class SettingsDialog : public Gtk::Dialog {
   string message_header_font, message_text_font;
 
   ICQ2000::Status m_status;
+
+#ifdef GNOME_ICKLE
+  Gtk::CheckButton *hidegui_onstart;
+#endif
 
   bool finished_okay;
 

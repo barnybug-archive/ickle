@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.20 2002-01-02 21:54:59 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.21 2002-01-09 22:37:17 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -276,7 +276,7 @@ void IckleApplet::toggle_gui()
   if( m_gui->is_visible() )
     m_gui->hide();
   else
-    m_gui->show();
+    m_gui->show_all();
 }
 
 

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.25 2002-01-09 20:20:26 nordman Exp $
+/* $Id: SettingsDialog.cpp,v 1.26 2002-01-09 22:37:17 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -65,6 +65,8 @@ SettingsDialog::SettingsDialog()
     mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0)
 {
+  int dlg_width = 500;
+  
   set_title("Settings Dialog");
   set_modal(true);
 
@@ -435,11 +437,38 @@ SettingsDialog::SettingsDialog()
   
   // ---------------------------------------------------------
 
+
+  // ------------------ Applet ------------------------------
+
+#ifdef GNOME_ICKLE
+  table = manage( new Gtk::Table( 2, 1, false ) );
+
+  hidegui_onstart = manage( new Gtk::CheckButton( "Hide main window upon start" ) );
+  hidegui_onstart->set_active( g_settings.getValueBool("hidegui_onstart") );
+
+  table->attach( *hidegui_onstart, 0, 2, 0, 1, GTK_FILL | GTK_SHRINK, 0 );
+
+  table->set_row_spacings(10);
+  table->set_col_spacings(10);
+  table->set_border_width(10);
+
+  frame = manage( new Gtk::Frame("Applet Options") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  label = manage( new Gtk::Label( "Applet" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+
+  dlg_width += 25;
+#endif
+  
+  // ---------------------------------------------------------
+
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
   set_border_width(10);
-  set_usize(500, 310);
+  set_usize(dlg_width, 310);
   show_all();
 }
 
@@ -512,6 +541,11 @@ void SettingsDialog::updateSettings() {
   // ------------ Contact List tab ----------------------
   g_settings.setValue("mouse_single_click", mouse_single_click.get_active());
   g_settings.setValue("mouse_check_away_click", mouse_check_away_click.get_active());
+
+  // ------------ Applet tab ----------------------
+#ifdef GNOME_ICKLE
+  g_settings.setValue("hidegui_onstart", hidegui_onstart->get_active() );
+#endif  
 }
 
 unsigned int SettingsDialog::getUIN() const {

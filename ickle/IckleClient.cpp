@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.55 2002-01-09 20:20:26 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.56 2002-01-09 22:37:17 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -99,6 +99,9 @@ IckleClient::IckleClient(int argc, char* argv[])
   // setup contact list
   loadContactList();
 
+#ifdef GNOME_ICKLE
+  if( !g_settings.getValueBool("hidegui_onstart") )
+#endif
   gui.show_all();
 
   Status st = Status(g_settings.getValueUnsignedInt("autoconnect"));
@@ -278,6 +281,10 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("mouse_single_click", false);
   g_settings.defaultValueBool("mouse_check_away_click", true);
 
+#ifdef GNOME_ICKLE
+  g_settings.defaultValueBool("hidegui_onstart", false);
+#endif
+  
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
   icqclient.setPassword(g_settings.getValueString("password"));
