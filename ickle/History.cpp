@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.23 2003-01-05 21:22:02 barnabygray Exp $
+/* $Id: History.cpp,v 1.24 2003-01-06 19:35:36 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -84,7 +84,7 @@ void History::touch()
   std::ofstream of( m_filename.c_str(), std::ios::out | std::ios::app );
   of.seekp( 0, std::ios::end );
   
-  if ( of.tellp() == 0 )
+  if ( (int) of.tellp() == 0 )
   {
     /* empty history - write encoding - ie. new histories default to UTF8 */
     if (m_utf8)
