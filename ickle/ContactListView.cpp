@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.60 2003-01-26 20:34:15 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.61 2003-02-02 20:03:47 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -25,6 +25,7 @@
 #include <libicq2000/Client.h>
 
 #include "ickle.h"
+#include "ucompose.h"
 
 #include "Settings.h"
 #include "Icons.h"
@@ -96,19 +97,45 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
   {
     Gtk::TreeViewColumn *pColumn;
     
-    Gtk::CellRendererPixbuf* pPixbufRenderer = Gtk::manage( new Gtk::CellRendererPixbuf() );
-    Gtk::CellRendererText* pTextRenderer = Gtk::manage( new Gtk::CellRendererText() );
+    pColumn = Gtk::manage( new Gtk::TreeView::Column( "" ) );
+    pColumn->set_visible( false );
+    append_column( *pColumn );
+    set_expander_column( *pColumn );
+
     pColumn = Gtk::manage( new Gtk::TreeView::Column( _("Contacts") ) );
 
+    /* contact renderers */
+    Gtk::CellRendererPixbuf* pPixbufRenderer = Gtk::manage( new Gtk::CellRendererPixbuf() );
+    Gtk::CellRendererText* pTextRenderer = Gtk::manage( new Gtk::CellRendererText() );
+
     pColumn->pack_start( *pPixbufRenderer, false );
-    pColumn->pack_start( *pTextRenderer );
-    
+    pColumn->pack_start( *pTextRenderer, false );
+
     pColumn->add_attribute( pPixbufRenderer->property_pixbuf(), m_columns.icon );
     pColumn->add_attribute( pPixbufRenderer->property_visible(), m_columns.is_contact );
 
     pColumn->add_attribute( pTextRenderer->property_text(), m_columns.nick );
     pColumn->add_attribute( pTextRenderer->property_weight(), m_columns.text_weight );
     pColumn->add_attribute( pTextRenderer->property_foreground_gdk(), m_columns.text_colour );
+    pColumn->add_attribute( pTextRenderer->property_background_gdk(), m_columns.bg_colour );
+    pColumn->add_attribute( pTextRenderer->property_visible(), m_columns.is_contact );
+    
+    /* group renderers */
+    Gtk::CellRendererText* pTextRenderer2 = Gtk::manage( new Gtk::CellRendererText() );
+    Gtk::CellRendererText* pTextRenderer3 = Gtk::manage( new Gtk::CellRendererText() );
+
+    pColumn->pack_start( *pTextRenderer2, false );
+    pColumn->pack_start( *pTextRenderer3, true );
+
+    pColumn->add_attribute( pTextRenderer2->property_text(), m_columns.group_name );
+    pColumn->add_attribute( pTextRenderer2->property_background_gdk(), m_columns.bg_colour );
+    pColumn->add_attribute( pTextRenderer2->property_visible(), m_columns.is_group );
+
+    pColumn->add_attribute( pTextRenderer3->property_text(), m_columns.numbers );
+    pColumn->add_attribute( pTextRenderer3->property_background_gdk(), m_columns.bg_colour );
+    pColumn->add_attribute( pTextRenderer3->property_visible(), m_columns.is_group );
+    pTextRenderer3->property_scale() = Pango::SCALE_X_SMALL;
+    
 
     append_column( *pColumn );
   }
@@ -150,6 +177,9 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     ml_g.push_back( ImageMenuElem( _("Remove Group"),
 			      * manage( new Gtk::Image(Gtk::Stock::REMOVE, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::group_remove_cb ) ) );
+    ml_g.push_back( ImageMenuElem( _("Check all away messages"),
+				   * manage( new Gtk::Image( g_icons.get_icon_for_status( ICQ2000::STATUS_AWAY, false ) ) ),
+				   SigC::slot( *this, &ContactListView::group_fetch_all_away_msg_cb ) ) );
     ml_g.push_back( SeparatorElem() );
     ml_g.push_back( ImageMenuElem( _("Add Contact"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
@@ -187,12 +217,26 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev)
       /* add contact */
       add_contact( cev->getContact(), cev->get_group() );
     }
+
+    /* set group totals */
+    Gtk::TreeModel::Row row = * m_group_map[ cev->get_group().get_id() ];
+    row[m_columns.total] = row[m_columns.total] + 1;
+    if (cev->getContact()->getStatus() != ICQ2000::STATUS_OFFLINE)
+      row[m_columns.total_online] = row[m_columns.total_online] + 1;
+    update_group( cev->get_group() );
   }
   else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved)
   {
     /* remove contact */
     ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
     remove_contact(cev->getContact());
+
+    /* set group totals */
+    Gtk::TreeModel::Row row = * m_group_map[ cev->get_group().get_id() ];
+    row[m_columns.total] = row[m_columns.total] - 1;
+    if (cev->getContact()->getStatus() != ICQ2000::STATUS_OFFLINE)
+      row[m_columns.total_online] = row[m_columns.total_online] - 1;
+    update_group( cev->get_group() );
   }
   else if (ev->getType() == ICQ2000::ContactListEvent::GroupAdded)
   {
@@ -220,6 +264,19 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev)
     /* ICQ2000 - semantics - event is triggered *after* relocation */
     remove_contact(cev->getContact());
     add_contact(cev->getContact(), cev->get_group());
+
+    /* update group totals */
+    Gtk::TreeModel::Row old_row = * m_group_map[ cev->get_old_group().get_id() ];
+    Gtk::TreeModel::Row row = * m_group_map[ cev->get_group().get_id() ];
+    old_row[ m_columns.total ] = old_row[ m_columns.total ] - 1;
+    row[ m_columns.total ] = row[ m_columns.total ] + 1;
+    if (cev->getContact()->getStatus() != ICQ2000::STATUS_OFFLINE)
+    {
+      old_row[ m_columns.total_online ] = old_row[ m_columns.total_online ] - 1;
+      row[ m_columns.total_online ] = row[ m_columns.total_online ] - 1;
+    }
+    update_group( cev->get_old_group() );
+    update_group( cev->get_group() );
   }
   
 }
@@ -311,16 +368,32 @@ void ContactListView::on_row_activated(const Gtk::TreeModel::Path& path, Gtk::Tr
   {
     m_signal_messagebox_popup.emit(row[m_columns.id]);
   }
+  else
+  {
+    /* open/close group */
+    if (row_expanded(path))
+    {
+      collapse_row(path);
+    }
+    else
+    {
+      expand_row(path, true);
+    }
+  }
 }
 
 void ContactListView::add_group(const ICQ2000::ContactTree::Group& gp)
 {
   Gtk::TreeModel::iterator iter = m_reftreestore->append();
   Gtk::TreeModel::Row row = *iter;
-  row[m_columns.nick] = gp.get_label();
+  row[m_columns.group_name] = gp.get_label();
   row[m_columns.nick_sort_key] = Glib::ustring(gp.get_label()).casefold_collate_key();
   row[m_columns.is_contact] = false;
+  row[m_columns.is_group] = true;
   row[m_columns.id] = gp.get_id();
+  row[m_columns.bg_colour] = get_style()->get_bg(Gtk::STATE_INSENSITIVE);
+  row[m_columns.total_online] = 0;
+  row[m_columns.total] = 0;
   m_group_map[ gp.get_id() ] = iter;
 
   /* add group to right-click menu for move contact to group */
@@ -345,6 +418,7 @@ void ContactListView::add_contact(const ICQ2000::ContactRef& c, const ICQ2000::C
     row[m_columns.nick] = c->getNameAlias();
     row[m_columns.nick_sort_key] = Glib::ustring(c->getNameAlias()).casefold_collate_key();
     row[m_columns.is_contact] = true;
+    row[m_columns.is_group] = false;
     row[m_columns.id] = c->getUIN();
     row[m_columns.status] = ICQ2000::STATUS_OFFLINE;
     row[m_columns.text_colour] = get_style()->get_text( Gtk::STATE_NORMAL );
@@ -439,8 +513,9 @@ void ContactListView::update_group(const ICQ2000::ContactTree::Group& gp)
   {
     Gtk::TreeModel::iterator iter = m_group_map[ gp.get_id() ];
     Gtk::TreeModel::Row row = *iter;
-    row[m_columns.nick] = gp.get_label();
+    row[m_columns.group_name] = gp.get_label();
     row[m_columns.nick_sort_key] = Glib::ustring(gp.get_label()).casefold_collate_key();
+    row[m_columns.numbers] = String::ucompose( _("%1/%2"), row[m_columns.total_online], row[m_columns.total] );
   }
 }
 
@@ -484,6 +559,7 @@ void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
   if (m_contact_map.count( c->getUIN() ))
   {
     Gtk::TreeModel::iterator iter = m_contact_map[ c->getUIN() ];
+
     m_reftreestore->erase(iter);
     m_contact_map.erase( c->getUIN() );
   }
@@ -540,6 +616,22 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
     }
   }
 
+  /* group count */
+  if (ev->getStatus() == ICQ2000::STATUS_OFFLINE && ev->getOldStatus() != ICQ2000::STATUS_OFFLINE)
+  {
+    ICQ2000::ContactTree::Group& gp = icqclient.getContactTree().lookup_group_containing_contact( ev->getContact() );
+    Gtk::TreeModel::Row row = * m_group_map[gp.get_id()];
+    row[ m_columns.total_online ] = row[ m_columns.total_online ] - 1;
+    update_group(gp);
+  }
+  else if (ev->getStatus() != ICQ2000::STATUS_OFFLINE && ev->getOldStatus() == ICQ2000::STATUS_OFFLINE)
+  {
+    ICQ2000::ContactTree::Group& gp = icqclient.getContactTree().lookup_group_containing_contact( ev->getContact() );
+    Gtk::TreeModel::Row row = * m_group_map[gp.get_id()];
+    row[ m_columns.total_online ] = row[ m_columns.total_online ] + 1;
+    update_group(gp);
+  }
+  
   sort();
 }
 
@@ -787,3 +879,23 @@ void ContactListView::contact_move_to_group_cb(ICQ2000::ContactTree::Group * gp)
 
   ct.relocate_contact( c, ct.lookup_group_containing_contact(c), * gp );
 }
+
+void ContactListView::group_fetch_all_away_msg_cb()
+{
+  ICQ2000::ContactTree::Group * gp = get_selected_group();
+  if ( gp != NULL )
+  {
+    ICQ2000::ContactTree::Group::iterator curr = gp->begin();
+    while (curr != gp->end())
+    {
+      ICQ2000::ContactRef& c = *curr;
+      if ( c->getStatus() != ICQ2000::STATUS_ONLINE
+	   && c->getStatus() != ICQ2000::STATUS_OFFLINE )
+      {
+	icqclient.SendEvent( new ICQ2000::AwayMessageEvent(c) );
+      }
+      ++curr;
+    }
+  }
+}
+

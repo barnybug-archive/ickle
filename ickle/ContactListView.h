@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.34 2003-01-26 16:15:47 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.35 2003-02-02 20:03:48 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -81,7 +81,7 @@ class ContactListView : public Gtk::TreeView,
   void group_rename_cb();
   void group_remove_cb();
   void group_add_cb();
-
+  void group_fetch_all_away_msg_cb();
 
   void sort();
   
@@ -101,27 +101,39 @@ class ContactListView : public Gtk::TreeView,
   {
     Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > icon;
     Gtk::TreeModelColumn< Glib::ustring >  nick;
+    Gtk::TreeModelColumn< Glib::ustring >  group_name;
     Gtk::TreeModelColumn< std::string >  nick_sort_key;
     Gtk::TreeModelColumn< bool > is_contact;
+    Gtk::TreeModelColumn< bool > is_group;
     Gtk::TreeModelColumn< unsigned int > id;
     Gtk::TreeModelColumn< ICQ2000::Status > status;
     Gtk::TreeModelColumn< unsigned int > messages;
     Gtk::TreeModelColumn< bool > visible;
     Gtk::TreeModelColumn< int > text_weight;
     Gtk::TreeModelColumn< Gdk::Color > text_colour;
+    Gtk::TreeModelColumn< Gdk::Color > bg_colour;
+    Gtk::TreeModelColumn< Glib::ustring > numbers;
+    Gtk::TreeModelColumn< unsigned int > total_online;
+    Gtk::TreeModelColumn< unsigned int > total;
 
     ModelColumns()
     {
       add(icon);
       add(nick);
+      add(group_name);
       add(nick_sort_key);
       add(is_contact);
+      add(is_group);
       add(id);
       add(status);
       add(messages);
       add(visible);
       add(text_weight);
       add(text_colour);
+      add(bg_colour);
+      add(numbers);
+      add(total_online);
+      add(total);
     }
   };
 

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.72 2003-01-18 15:56:25 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.73 2003-02-02 20:03:48 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -715,9 +715,9 @@ void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
 {
   SettingsDialog dialog(w, away);
 
-  /*   TODO
   if (dialog.run())
   {
+    /* TODO
     bool reconnect = false;
     if (dialog.getUIN() != icqclient.getUIN() ||
 	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
@@ -732,8 +732,8 @@ void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
     if (reconnect) status_menu_status_changed_cb(ICQ2000::STATUS_ONLINE);
 
     settings_changed.emit();
+    */
   }
-  */
 }
 
 void IckleGUI::settings_cb()
