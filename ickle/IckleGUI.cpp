@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.62 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.63 2002-08-31 13:01:41 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -112,6 +112,7 @@ IckleGUI::IckleGUI(MessageQueue& mq)
   add(m_top_vbox);
 
   m_contact_list.setupAccelerators();
+  m_contact_list.grab_focus();
 
   g_settings.settings_changed.connect( slot( this, &IckleGUI::settings_changed_cb ) );
 }
