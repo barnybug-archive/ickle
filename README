@@ -58,7 +58,12 @@ Features:
 - Autoconnect, autoreconnect and retries
 - GNOME applet
 
-See the TODO for information about planned features in progress.
+See the TODO for information about planned features in
+progress. Please don't duplicate requests for features already
+mentioned in the TODO. Send legitimate feature requests to the
+ickle-users mailing list on sourceforge ideally, the address is
+<ickle-users@lists.sourceforge.net> and you don't need to subscribe to
+post.
 
 ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
 
@@ -185,6 +190,7 @@ If you built it as a GNOME applet the executable will instead be named
 and choosing Applets->Network->Ickle ICQ.
 
 
+
  --------------------------------------------------------------------
  - Keyboard shortcuts                                               -
  --------------------------------------------------------------------
@@ -244,10 +250,14 @@ windows if I get any requests for it.
 In the spirit of opensource ickle is a community effort with
 contributions welcomely accepted. If it's just a small patch for a bug
 fix, or you are wishing to help out more big time in the development
-of ickle or libicq2000 please feel free to contribute. I can be
-reached on my email address <barnaby@beedesign.co.uk> or the
-development mailing list ickle-devel is available on sourceforge. See
-the ickle sourceforge homepage.
+of ickle or libicq2000 please feel free to contribute.
+
+Now that ickle has become something bigger than my own little baby
+project I'd prefer patches and development related questions to go to
+the sourceforge ickle-devel mailing list - so they can be seen by all
+the developers rather than just me. I'd suggest subscribing, although
+you can post even if you aren't subscribed.
+  <ickle-devel@users.sourceforge.net>
 
 For submitting patches, please:
 
@@ -258,6 +268,8 @@ b) Follow code conventions in the layout of the code as it is at the
    moment.
 
 c) Produce the diff by running 'cvs diff -uN > my-patch.diff'
+
+d) Email the diff to <ickle-devel@lists.sourceforge.net>
 
    ------------------------------------------------------------------
    - Anonymous CVS                                                  -
@@ -298,11 +310,11 @@ separate project and change the licensing to LGPL for that component.
  - Comments, bug reports, etc..                                     -
  --------------------------------------------------------------------
 
-Please send all your comments, wanted features and bug reports to:
-  <barnaby@beedesign.co.uk>
+User related feature requests should be sent to:
+  <ickle-users@lists.sourceforge.net>
 
-Feel free to send me a message (ICQ# 12137587 Alias bee) if you like
-ickle.
+Bug reports and development related comments should be sent to:
+  <ickle-devel@lists.sourceforge.net>
 
 For bug reports ensure you include these details:
 - Version of ickle
@@ -317,7 +329,14 @@ For bug reports ensure you include these details:
 
 Thanks.
 
+(You don't need to be subscribed to post to either list)
 
+You can send me mail to:
+  <barnaby@beedesign.co.uk>
+Although ickle is more than a one-man/developer band now, so I'd
+  prefer the above lists be used where relevant.
+
+Send me a message (ICQ# 12137587 Alias bee) if you like ickle.
 
  --------------------------------------------------------------------
  - License                                                          -
