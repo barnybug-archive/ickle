@@ -220,7 +220,7 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
     endTimeout (s.sd(), false, "not connected");
     return;
   }
-  if (icqclient.getContact(uin).get() != NULL) {
+  if (icqclient.getContact(uin).get() == NULL) {
     ostringstream ostr;
     ostr << "UIN " << uin << " is not on your contact list"; // this could be changed now
     endTimeout (s.sd(), false, ostr.str());
