@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.122 2003-01-26 17:14:33 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.123 2003-01-26 23:39:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -1266,16 +1266,16 @@ void IckleClient::loadSelfContact()
 
 bool IckleClient::check_pid_file()
 {
-  fstream pidfile;
+  std::ifstream ipidfile;
   pid_t pid;
 
   if (!mkdir_BASE_DIR()) return true;
 
-  pidfile.open(PID_FILENAME.c_str(), std::ios::in);
+  ipidfile.open(PID_FILENAME.c_str(), std::ios::in);
 
-  if (pidfile.is_open())
+  if (ipidfile.is_open())
   {
-    pidfile >> pid;
+    ipidfile >> pid;
     if (getpid() == pid || (kill(pid, 0) == -1 && errno == ESRCH))
     {
       cerr << Utils::console(String::ucompose( _("ickle left behind a stale lockfile (%1)"), PID_FILENAME ) )
@@ -1288,10 +1288,12 @@ bool IckleClient::check_pid_file()
     }
   }
 
-  pidfile.close();
-  pidfile.open(PID_FILENAME.c_str(), std::ios::out);
+  ipidfile.close();
 
-  if (!pidfile.is_open())
+  std::ofstream opidfile;
+  opidfile.open(PID_FILENAME.c_str(), std::ios::out);
+
+  if (!opidfile.is_open())
   {
     cerr << Utils::console(String::ucompose( _("Could not create pid_file (%1)"), PID_FILENAME ) )
 	 << endl;
@@ -1299,8 +1301,8 @@ bool IckleClient::check_pid_file()
   else
   {
     pid = getpid();
-    pidfile << pid;
-    pidfile.close();
+    opidfile << pid;
+    opidfile.close();
   }
 
   return true;
