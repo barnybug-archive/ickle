@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.58 2003-01-26 16:15:47 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.59 2003-01-26 16:43:09 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -411,6 +411,26 @@ void ContactListView::remove_group(const ICQ2000::ContactTree::Group& gp)
     m_reftreestore->erase(iter);
     m_group_map.erase( gp.get_id() );
   }
+
+  /* remove group from right-click menu for move contact to group */
+  using namespace Gtk::Menu_Helpers;
+
+  MenuList& ml = m_rc_groups_list.items();
+  MenuList::iterator iter = ml.begin();
+  while (iter != ml.end())
+  {
+    GroupItem * gi;
+    if ( (gi = dynamic_cast<GroupItem*>(&(*iter)) ) != NULL )
+    {
+      if ( gi->get_group().get_id() == gp.get_id() )
+      {
+	ml.erase( iter );
+	break;
+      }
+    }
+    ++iter;
+  }
+
 }
 
 void ContactListView::update_group(const ICQ2000::ContactTree::Group& gp)
