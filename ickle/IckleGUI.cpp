@@ -33,6 +33,7 @@ IckleGUI::IckleGUI()
 
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
+  icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
   icqclient.statuschanged.connect(slot(this,&IckleGUI::status_change_cb));
 
@@ -114,8 +115,8 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
   */
   if (ev->getType() == MessageEvent::AuthReq) {     
     AuthReqEvent *msg = static_cast<AuthReqEvent*>(ev);
-    AuthAckEvent ack(c, true);
-    icqclient.SendEvent( &ack );
+    AuthAckEvent *ack = new AuthAckEvent(c, true);
+    icqclient.SendEvent( ack );
   }
   /*
    * Call the callback in the MessageBox
@@ -127,6 +128,15 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
     return m_contact_list.message_cb(ev);
   } else {
     return m_message_boxes[c->getUIN()]->message_cb(ev);
+  }
+
+}
+
+void IckleGUI::messageack_cb(MessageEvent *ev) {
+  Contact *c = ev->getContact();
+
+  if (m_message_boxes.count(c->getUIN()) > 0) {
+    m_message_boxes[c->getUIN()]->messageack_cb(ev);
   }
 
 }

@@ -39,6 +39,8 @@
 
 #include <sigc++/signal_system.h>
 
+#include <time.h>
+
 #include "buffer.h"
 #include "socket.h"
 #include "SNAC.h"
@@ -50,8 +52,10 @@
 #include "custom_marshal.h"
 #include "Translator.h"
 #include "RequestIDCache.h"
+#include "ICBMCookieCache.h"
 
 using std::string;
+using SigC::Signal1;
 
 namespace ICQ2000 {
 
@@ -103,7 +107,10 @@ namespace ICQ2000 {
     hash_map<int, DirectClient*> m_fdmap;
     hash_map<unsigned int, DirectClient*> m_uinmap;
 
+    time_t m_last_server_ping;
+
     RequestIDCache m_reqidcache;
+    ICBMCookieCache m_cookiecache;
 
     Buffer m_recv;
    
@@ -190,6 +197,8 @@ namespace ICQ2000 {
     Status MapICQStatusToStatus(unsigned short st);
     bool MapICQStatusToInvisible(unsigned short st);
 
+    void ICBMCookieCache_expired_cb(MessageEvent *ev);
+
    public:
     Client();
     Client(const unsigned int uin, const string& password);
@@ -211,6 +220,7 @@ namespace ICQ2000 {
     Signal1<void,ConnectedEvent*> connected;
     Signal1<void,DisconnectedEvent*> disconnected;
     Signal1<bool,MessageEvent*,StopOnTrueMarshal> messaged;
+    Signal1<void,MessageEvent*> messageack;
     Signal1<void,AwayMsgEvent*> away_message;
     Signal1<void,ContactListEvent*> contactlist;
     Signal1<void,NewUINEvent*> newuin;
@@ -252,8 +262,16 @@ namespace ICQ2000 {
     void setServerPort(const unsigned short& port) { m_authorizerPort = port; }
     unsigned short getServerPort() { return m_authorizerPort; }
 
-    // (deprecated - clients should know which socket to
-    //  poll and call socket_cb instead)
+    /*
+     *  Poll must be called regularly (at least every 60 seconds)
+     *  but I recommended 5 seconds, so timeouts work with good
+     *  granularity.
+     *  It is not related to the socket callback - the client using
+     *  this library must select() on the sockets it gets signalled
+     *  and call socket_cb when select returns a status flag on one
+     *  of the sockets. ickle simply uses the gtk-- built in signal handlers
+     *  to do all this.
+     */
     void Poll();
     void socket_cb(int fd, SocketEvent::Mode m);
 

@@ -58,6 +58,7 @@ namespace ICQ2000 {
     ICQSubType *m_icqsubtype;
     bool m_advanced;
     unsigned short m_seqnum;
+    ICBMCookie m_cookie;
 
     void OutputBody(Buffer& b) const;
 
@@ -66,6 +67,7 @@ namespace ICQ2000 {
 
     void setSeqNum(unsigned short sn);
     void setAdvanced(bool ad);
+    void setICBMCookie(const ICBMCookie& c);
 
     unsigned short Subtype() const { return SNAC_MSG_Send; }
   };
@@ -105,6 +107,7 @@ namespace ICQ2000 {
     ~MessageACKSNAC();
 
     UINRelatedSubType* getICQSubType() const { return m_icqsubtype; }  
+    ICBMCookie getICBMCookie() const { return m_cookie; }
 
     unsigned short Subtype() const { return SNAC_MSG_MessageACK; }
   };

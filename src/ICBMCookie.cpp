@@ -21,16 +21,38 @@
 
 #include "ICBMCookie.h"
 
+#include <stdlib.h>
+
 namespace ICQ2000 {
 
-  ICBMCookie::ICBMCookie() { }
+  ICBMCookie::ICBMCookie()
+    : m_c1(0), m_c2(0) { }
+
+  void ICBMCookie::generate() {
+    m_c1 = (unsigned int)(0xffffffff*(rand()/(RAND_MAX+1.0)));
+    m_c2 = (unsigned int)(0xffffffff*(rand()/(RAND_MAX+1.0)));
+  }
 
   void ICBMCookie::Parse(Buffer& b) {
-    b.Unpack(m_cookie, cookie_size);
+    b.setEndianness(Buffer::BIG);
+    b >> m_c1
+      >> m_c2;
   }
 
   void ICBMCookie::Output(Buffer& b) const {
-    b.Pack(m_cookie, cookie_size);
+    b.setEndianness(Buffer::BIG);
+    b << m_c1
+      << m_c2;
+  }
+
+  bool ICBMCookie::operator==(const ICBMCookie& c) const {
+    return (m_c1 == c.m_c1 && m_c2 == c.m_c2);
+  }
+
+  ICBMCookie& ICBMCookie::operator=(const ICBMCookie& c) {
+    m_c1 = c.m_c1;
+    m_c2 = c.m_c2;
+    return *this;
   }
  
 }

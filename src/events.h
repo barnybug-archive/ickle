@@ -206,6 +206,7 @@ namespace ICQ2000 {
   class MessageEvent : public Event {
    protected:
     Contact* m_contact;
+    bool m_finished, m_delivered, m_direct;
 
    public:
     enum MessageType {
@@ -223,12 +224,21 @@ namespace ICQ2000 {
 
     virtual MessageType getType() const = 0;
     Contact* getContact();
+    
+    bool isFinished() const;
+    bool isDelivered() const;
+    bool isDirect() const;
+    
+    void setFinished(bool f);
+    void setDelivered(bool f);
+    void setDirect(bool f);
+
   };
 
   class NormalMessageEvent : public MessageEvent {
    private:
     string m_message;
-    bool m_offline, m_multi, m_direct;
+    bool m_offline, m_multi;
     unsigned int m_foreground, m_background;
     
    public:
@@ -242,7 +252,6 @@ namespace ICQ2000 {
     unsigned int getSenderUIN() const;
     bool isOfflineMessage() const;
     bool isMultiParty() const;
-    bool isDirect() const;
     unsigned int getForeground() const;
     unsigned int getBackground() const;
     void setForeground(unsigned int f);

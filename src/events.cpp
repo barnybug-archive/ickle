@@ -118,25 +118,40 @@ namespace ICQ2000 {
 
   Contact* MessageEvent::getContact() { return m_contact; }
 
+  bool MessageEvent::isFinished() const { return m_finished; }
+  bool MessageEvent::isDelivered() const { return m_delivered; }
+  bool MessageEvent::isDirect() const { return m_direct; }
+
+  void MessageEvent::setFinished(bool f) { m_finished = f; }
+  void MessageEvent::setDelivered(bool f) { m_delivered = f; }
+  void MessageEvent::setDirect(bool f) { m_direct = f; }
+
   // ---------------- Normal Message ---------------------
 
   NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg)
-    : MessageEvent(c), m_message(msg), m_offline(false), m_direct(false),
-      m_foreground(0x00000000), m_background(0x00ffffff) { }
+    : MessageEvent(c), m_message(msg), m_offline(false), m_multi(false),
+      m_foreground(0x00000000), m_background(0x00ffffff) {
+    setDirect(false);
+  }
 
   NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg, bool multi)
-    : MessageEvent(c), m_message(msg), m_multi(multi), m_offline(false), m_direct(false),
-      m_foreground(0x00000000), m_background(0x00ffffff) { }
+    : MessageEvent(c), m_message(msg), m_multi(multi), m_offline(false),
+      m_foreground(0x00000000), m_background(0x00ffffff) {
+    setDirect(false);
+  }
 
   NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, time_t t, bool multi)
-    : MessageEvent(c), m_message(msg), m_offline(true), m_multi(multi), m_direct(false),
+    : MessageEvent(c), m_message(msg), m_offline(true), m_multi(multi),
       m_foreground(0x00000000), m_background(0x00ffffff) {
+    setDirect(false);
     m_time = t;
   }
 
   NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, unsigned int fg, unsigned int bg)
     : MessageEvent(c), m_message(msg), m_offline(false), m_multi(false) /* todo */,
-      m_direct(true), m_foreground(fg), m_background(bg) { }
+      m_foreground(fg), m_background(bg) {
+    setDirect(true);
+  }
 
   MessageEvent::MessageType NormalMessageEvent::getType() const { return MessageEvent::Normal; }
   
@@ -147,8 +162,6 @@ namespace ICQ2000 {
   bool NormalMessageEvent::isOfflineMessage() const { return m_offline; }
 
   bool NormalMessageEvent::isMultiParty() const { return m_multi; }
-
-  bool NormalMessageEvent::isDirect() const { return m_direct; }
 
   unsigned int NormalMessageEvent::getForeground() const { return m_foreground; }
 

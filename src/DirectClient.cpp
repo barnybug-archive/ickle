@@ -319,7 +319,7 @@ namespace ICQ2000 {
 
   bool DirectClient::Decrypt(Buffer& in, Buffer& out) {
 
-    if (m_eff_tcp_version == 6) {
+    if (m_eff_tcp_version >= 6) {
       // Huge *thanks* to licq for this code
     
       unsigned long hex, key, B1, M1;
@@ -388,7 +388,7 @@ namespace ICQ2000 {
     ostr << "Unencrypted packet to "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << in << endl;
     SignalLog(LogEvent::PACKET, ostr.str());
       
-    if (m_eff_tcp_version == 6) {
+    if (m_eff_tcp_version == 6 || m_eff_tcp_version == 7) {
       // Huge *thanks* to licq for this code
     
       unsigned long hex, key, B1, M1;

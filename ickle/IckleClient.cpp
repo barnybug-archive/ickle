@@ -275,8 +275,11 @@ void IckleClient::quit() {
 }
 
 void IckleClient::connected_cb(ConnectedEvent *c) {
-  // setup PingServer timed callback
-  ping_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::ping_server_cb ), 60000 );
+  /* the library needs to be polled regularly
+   * to ensure timeouts are respected and the server is pinged every minute
+   * I suggest a graularity of 5 seconds is sensible
+   */
+  poll_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::poll_server_cb ), 5000 );
 }
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
@@ -310,7 +313,7 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   }
 
   // disconnect PingServer callback
-  ping_server_cnt.disconnect();
+  poll_server_cnt.disconnect();
 
 }
 
@@ -336,8 +339,8 @@ void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
   icqclient.socket_cb(source, (SocketEvent::Mode)cond);
 }
 
-int IckleClient::ping_server_cb() {
-  icqclient.PingServer();
+int IckleClient::poll_server_cb() {
+  icqclient.Poll();
   return true;
 }
 
@@ -357,7 +360,7 @@ void IckleClient::user_info_cb(unsigned int uin) {
 
 void IckleClient::send_event_cb(MessageEvent *ev) {
   icqclient.SendEvent(ev);
-  m_histmap[ev->getContact()->getUIN()].log(ev, false);
+  m_histmap[ev->getContact()->getUIN()].log(ev, false); // fix
 }
 
 void IckleClient::add_user_cb(unsigned int uin) {

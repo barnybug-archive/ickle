@@ -70,7 +70,7 @@ class IckleClient : public SigC::Object {
   hash_map<unsigned int, History> m_histmap;
 
   hash_map<int, Connection> m_sockets;
-  Connection ping_server_cnt;
+  Connection poll_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);
   void loadSettings();
@@ -110,7 +110,7 @@ class IckleClient : public SigC::Object {
   void socket_select_cb(int source, GdkInputCondition cond);
 
   // -- Callback for timeout
-  int ping_server_cb();
+  int poll_server_cb();
 
 };
 

@@ -461,13 +461,21 @@ namespace ICQ2000 {
      * = 0x000e for normal messages
      * = 0x0012 for the weird query ones sent by icq2000 clients through server
      */
-    if (unknown != 0x000e) throw ParseException("Received unknown Server-Message type - to be fixed");
+    if (unknown != 0x000e && unknown != 0x0012) throw ParseException("Received unknown Server-Message type");
 
     b.advance(12); // unknown - all zeroes
 
     m_icqsubtype = ICQSubType::ParseICQSubType(b, true);
     if (m_icqsubtype != NULL) m_icqsubtype->setSeqNum(seqnum);
-
+    
+    if (unknown == 0x0012) {
+      /* this is a botch, we let the weird messages
+       * get parsed as normal messages, then throw it away
+       */
+      delete m_icqsubtype;
+      m_icqsubtype = NULL;
+      
+    }
   }
 
   ICQDataTLV::ICQDataTLV() : m_icqsubtype(NULL) { }

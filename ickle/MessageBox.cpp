@@ -24,7 +24,6 @@
 
 #include <gtk--/imageloader.h>
 #include <gtk--/pixmap.h>
-// #include <gtk--/scrolledwindow.h>
 #include <gtk--/scrollbar.h>
 
 using std::ostringstream;
@@ -163,6 +162,10 @@ MessageBox::MessageBox(Contact *c)
 
   m_vbox_top.pack_start(m_pane,true,true);
 
+  m_status.set_editable(false);
+  m_status.set_sensitive(false);
+  m_vbox_top.pack_start(m_status);
+
   // -- button bar --
 
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
@@ -287,14 +290,41 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
   send_button_update();
 }
 
-bool MessageBox::message_cb(MessageEvent *ev) {
+void MessageBox::messageack_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
-  if (c->getUIN() != m_contact->getUIN()) return false;
+  if (c->getUIN() != m_contact->getUIN()) return;
+
+  if (ev->isFinished()) {
+    if (ev->isDelivered()) {
+      display_message(ev, false, "You");
+      
+      if (m_message_type == MessageEvent::Normal) {
+	m_message_text.delete_text(0,-1);
+      } else if (m_message_type == MessageEvent::URL) {
+	m_url_entry.delete_text(0,-1);
+	m_url_text.delete_text(0,-1);
+      } else if (m_message_type == MessageEvent::SMS) {
+	m_sms_text.delete_text(0,-1);
+      }
+      
+      m_status.set_text("Sent message successfully");
+    } else {
+      m_status.set_text("Sending message timed out");
+    }
+  }
+
+
+}
+
+void MessageBox::display_message(MessageEvent *ev, bool sent, const string& nick) {
 
   Gdk_Font normal_font;
   Gdk_Font bold_font("-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
 
-  Gdk_Color red("red");
+  Gdk_Color nickc;
+  if (sent) nickc = Gdk_Color("red");
+  else nickc = Gdk_Color("blue");
+
   Gdk_Color white("white");
   Gdk_Color black("black");
   
@@ -311,18 +341,18 @@ bool MessageBox::message_cb(MessageEvent *ev) {
     ostr << format_time(t) << " ";
   }
 
-  ostr << m_contact->getAlias() << " ";
+  ostr << nick << " ";
   if (ev->getType() == MessageEvent::Normal) {
     NormalMessageEvent *msg = static_cast<NormalMessageEvent*>(ev);
 
     if ( msg->isMultiParty() ) ostr << "[multiparty] ";
-    m_history_text.insert( bold_font, red, white, ostr.str(), -1);
+    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, msg->getMessage(), -1);
       
   } else if (ev->getType() == MessageEvent::URL) {
     URLMessageEvent *url = static_cast<URLMessageEvent*>(ev);
 
-    m_history_text.insert( bold_font, red, white, ostr.str(), -1);
+    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, url->getURL(), -1);
     m_history_text.insert( normal_font, black, white, "\n", -1);
     m_history_text.insert( normal_font, black, white, url->getMessage(), -1);
@@ -331,7 +361,7 @@ bool MessageBox::message_cb(MessageEvent *ev) {
     SMSMessageEvent *smsmsg = static_cast<SMSMessageEvent*>(ev);
 
     ostr << "[sms] ";
-    m_history_text.insert( bold_font, red, white, ostr.str(), -1);
+    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, smsmsg->getMessage(), -1);
       
   } else if (ev->getType() == MessageEvent::SMS_Response) {
@@ -349,75 +379,36 @@ bool MessageBox::message_cb(MessageEvent *ev) {
       ostr << "[sms not delivered]";
     }
     ostr << endl;
-    m_history_text.insert( bold_font, red, white, ostr.str(), -1);
+    m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
 
   }
 
   m_history_text.thaw();
   adj->set_value( bot );
+}
 
+bool MessageBox::message_cb(MessageEvent *ev) {
+  Contact *c = ev->getContact();
+  if (c->getUIN() != m_contact->getUIN()) return false;
+  display_message(ev, true, m_contact->getAlias());
   return true;
 }
   
 void MessageBox::send_clicked_cb() {
-  m_history_text.freeze();
-  m_message_text.freeze();
-
-  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
-  gfloat bot = adj->get_upper();
-
-  Gdk_Font normal_font;
-  Gdk_Font bold_font("-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
-
-  Gdk_Color blue("blue");
-  Gdk_Color black("black");
-  Gdk_Color white("white");
-
-  m_history_text.insert( normal_font, black, white, "\n", -1);
-
-  ostringstream ostr;
-
-  if (m_display_times) {
-    time_t now = time(NULL);
-    ostr << format_time(now) << " ";
-  }
-
-  ostr << "You ";
 
   if (m_message_type == MessageEvent::Normal) {
-    NormalMessageEvent nv( m_contact, m_message_text.get_chars(0,-1) );
-    send_event.emit( &nv );
-
-    m_history_text.insert( bold_font, blue, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, m_message_text.get_chars(0,-1), -1);
-    m_message_text.delete_text(0,-1);
-
+    NormalMessageEvent *nv = new NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
+    send_event.emit( nv );
   } else if (m_message_type == MessageEvent::URL) {
-    URLMessageEvent uv( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
-    send_event.emit( &uv );
-
-    m_history_text.insert( bold_font, blue, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, m_url_entry.get_text(), -1);
-    m_history_text.insert( normal_font, black, white, "\n", -1);
-    m_history_text.insert( normal_font, black, white, m_url_text.get_chars(0,-1), -1);
-    m_url_entry.delete_text(0,-1);
-    m_url_text.delete_text(0,-1);
-    
+    URLMessageEvent *uv = new URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
+    send_event.emit( uv );
   } else if (m_message_type == MessageEvent::SMS) {
-    SMSMessageEvent sv( m_contact, m_sms_text.get_chars(0,-1), true );
-    send_event.emit( &sv );
-
-    ostr << "[sms] ";
-    m_history_text.insert( bold_font, blue, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, m_sms_text.get_chars(0,-1), -1);
-    m_sms_text.delete_text(0,-1);
-
+    SMSMessageEvent *sv = new SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
+    send_event.emit( sv );
   }
 
-  m_history_text.thaw();
-  m_message_text.thaw();
+  m_status.set_text("Sending message...");
 
-  adj->set_value( bot );
 }
 
 string MessageBox::format_time(time_t t) {

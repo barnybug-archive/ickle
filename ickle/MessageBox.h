@@ -21,6 +21,8 @@
 #ifndef MESSAGEBOX_H
 #define MESSAGEBOX_H
 
+#include <string>
+
 #include <gtk--/window.h>
 #include <gtk--/table.h>
 #include <gtk--/text.h>
@@ -42,6 +44,7 @@
 
 using namespace ICQ2000;
 
+using std::string;
 using SigC::Signal1;
 
 using Gtk::VBox;
@@ -84,17 +87,21 @@ class MessageBox : public Gtk::Window {
   
   VPaned m_pane;
 
+  Entry m_status;
+
   MessageEvent::MessageType m_message_type;
 
   void send_button_update();
   void set_contact_title();
   string format_time(time_t t);
+  void display_message(MessageEvent *ev, bool sent, const string& nick);
 
  public:
   MessageBox(Contact *c);
   ~MessageBox();
 
   bool message_cb(MessageEvent *ev);
+  void messageack_cb(MessageEvent *ev);
   void contactlist_cb(ContactListEvent *ev);
 
   void enable_sms();

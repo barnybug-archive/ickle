@@ -43,7 +43,7 @@ namespace ICQ2000 {
    public:
     CacheItem(const Key &k, const Value &v);
     
-    Key& getKey();
+    const Key& getKey() const;
     Value& getValue();
     time_t getTimestamp() const;
     void setTimestamp(time_t t);
@@ -53,6 +53,7 @@ namespace ICQ2000 {
   class Cache {
    protected:
     typedef list< CacheItem<Key,Value> >::iterator literator;
+    typedef list< CacheItem<Key,Value> >::const_iterator citerator;
 
     unsigned int m_timeout;
     
@@ -67,9 +68,10 @@ namespace ICQ2000 {
     Cache();
     virtual ~Cache();
 
-    bool exists(const Key &k);
+    bool exists(const Key &k) const;
 
     Value& operator[](const Key &k);
+
     void remove(const Key &k)  {
       literator curr = m_list.begin();
       while (curr != m_list.end()) {
@@ -85,6 +87,11 @@ namespace ICQ2000 {
       m_list.erase(l);
     }
 
+    virtual void expireItem(const literator& l) {
+      // might want to override to add signalling on expiring of items
+      removeItem(l);
+    }
+
     Value& insert(const Key &k, const Value &v) {
       m_list.push_front( CacheItem<Key,Value>(k,v) );
       return m_list.front().getValue();
@@ -96,8 +103,7 @@ namespace ICQ2000 {
     void clearoutPoll() {
       time_t n = time(NULL) - m_timeout;
       while (!m_list.empty() && m_list.front().getTimestamp() < n)
-	removeItem( m_list.begin() );
-
+	expireItem( m_list.begin() );
     }
 
   };
@@ -114,7 +120,7 @@ namespace ICQ2000 {
   time_t CacheItem<Key,Value>::getTimestamp() const { return m_timestamp; }
   
   template <typename Key, typename Value>
-  Key& CacheItem<Key,Value>::getKey() {
+  const Key& CacheItem<Key,Value>::getKey() const {
     return m_key;
   }
 
@@ -134,8 +140,8 @@ namespace ICQ2000 {
   }
  
   template <typename Key, typename Value>
-  bool Cache<Key,Value>::exists(const Key &k) {
-    literator curr = m_list.begin();
+  bool Cache<Key,Value>::exists(const Key &k) const {
+    citerator curr = m_list.begin();
     while (curr != m_list.end()) {
       if ((*curr).getKey() == k) return true;
       ++curr;

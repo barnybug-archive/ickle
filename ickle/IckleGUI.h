@@ -118,6 +118,7 @@ class IckleGUI : public Gtk::Window {
   // callbacks
   void contactlist_cb(ContactListEvent* ev);
   bool message_cb(MessageEvent* ev);
+  void messageack_cb(MessageEvent* ev);
   void settings_cb();
   void icons_changed_cb(string);
   void status_change_cb(MyStatusChangeEvent *ev);

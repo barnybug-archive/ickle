@@ -28,15 +28,18 @@ namespace ICQ2000 {
 
   class ICBMCookie {
    private:
-    static const unsigned int cookie_size = 8;
-
-    unsigned char m_cookie[cookie_size];
+    unsigned int m_c1, m_c2;
 
    public:
     ICBMCookie();
+    
+    void generate();
 
     void Parse(Buffer& b);
     void Output(Buffer& b) const;
+
+    bool operator==(const ICBMCookie& c) const;
+    ICBMCookie& operator=(const ICBMCookie& c);
   };
 
 }

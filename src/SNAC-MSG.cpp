@@ -50,13 +50,14 @@ namespace ICQ2000 {
     m_advanced = ad;
   }
 
+  void MsgSendSNAC::setICBMCookie(const ICBMCookie& c) {
+    m_cookie = c;
+  }
+
   void MsgSendSNAC::OutputBody(Buffer& b) const {
 
-    /*
-     * ICBM Cookie - (we ignore it)
-     */
-    b << (unsigned int)0x00000000
-      << (unsigned int)0x00000000;
+    // ICBM Cookie
+    b << m_cookie;
     
     /* There is no consistency in the protocol here,
      * Messages are sent on channel 1
@@ -77,8 +78,7 @@ namespace ICQ2000 {
       b << (unsigned short)(m_icqsubtype->Length() + 89);
 
       b << (unsigned short)0x0000     // status
-	<< (unsigned int)  0x00000000 // cookie
-	<< (unsigned int)  0x00000000 // cookie
+	<< m_cookie
 	<< (unsigned int)  0x09461349 // cap
 	<< (unsigned int)  0x4c7f11d1 // cap
 	<< (unsigned int)  0x82224445 // cap

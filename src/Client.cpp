@@ -59,6 +59,10 @@ namespace ICQ2000 {
     m_invisible = false;
 
     m_ext_ip = 0;
+
+    m_cookiecache.setTimeout(10);
+    m_cookiecache.expired.connect( slot(this,&Client::ICBMCookieCache_expired_cb) );
+
   }
 
   unsigned short Client::NextSeqNum() {
@@ -100,7 +104,7 @@ namespace ICQ2000 {
     // randomize sequence number
     srand(time(0));
     m_client_seq_num = (unsigned short)(0xFFFF*(rand()/(RAND_MAX+1.0)));
-    m_requestid = (unsigned int)(0x7ffffff*(rand()/(RAND_MAX+1.0)));
+    m_requestid = (unsigned int)(0x7fffffff*(rand()/(RAND_MAX+1.0)));
 
     m_state = state;
   }
@@ -284,8 +288,21 @@ namespace ICQ2000 {
 
       AwayMsgEvent ae( contact, ast->getMessage() );
       away_message.emit(&ae);
+    } else if (type == MSG_Type_Normal
+	       || type == MSG_Type_URL) {
+      ICBMCookie c = snac->getICBMCookie();
+      if ( m_cookiecache.exists( c ) ) {
+	MessageEvent *ev = m_cookiecache[c];
+	ev->setFinished(true);
+	ev->setDelivered(true);
+	messageack.emit(ev);
+	
+	m_cookiecache.remove(c);
+      } else {
+	SignalLog(LogEvent::WARN, "Received ACK for unknown message\n");
+      }
+      
     }
-
 
   }
 
@@ -462,6 +479,13 @@ namespace ICQ2000 {
     logger.emit(&ev);
   }
   
+  void Client::ICBMCookieCache_expired_cb(MessageEvent *ev) {
+    SignalLog(LogEvent::WARN, "Message timeout without receiving ACK");
+    ev->setFinished(true);
+    ev->setDelivered(false);
+    messageack.emit(ev);
+  }
+
   void Client::SignalLog_cb(LogEvent *ev) {
     logger.emit(ev);
   }
@@ -685,6 +709,7 @@ namespace ICQ2000 {
     Send(b);
 
     SignalConnect();
+    m_last_server_ping = time(NULL);
   }
 
   void Client::SendOfflineMessagesRequest() {
@@ -1091,12 +1116,21 @@ namespace ICQ2000 {
   // -----------------------------------------------------
 
   /*
-   *  non-blocking poll on socket
-   *  deals with all waiting packets
-   *  (deprecated)
+   *  Poll must be called regularly (at least every 60 seconds)
+   *  but I recommended 5 seconds, so timeouts work with good
+   *  granularity.
    */
   void Client::Poll() {
-    RecvFromServer();
+    time_t now = time(NULL);
+    if (now > m_last_server_ping + 60) {
+      PingServer();
+      m_last_server_ping = now;
+
+    }
+
+    // take the opportunity to clearout caches
+    m_reqidcache.clearoutPoll();
+    m_cookiecache.clearoutPoll();
   }
 
   void Client::socket_cb(int fd, SocketEvent::Mode m) {
@@ -1189,27 +1223,36 @@ namespace ICQ2000 {
     d = FLAPHeader(b,0x02);
 
     Contact *c = ev->getContact();
-    if (ev->getType() == MessageEvent::Normal) {
-      NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
-      NormalICQSubType nist(nv->getMessage(), c->getUIN(), c->acceptAdvancedMsgs());
+    if (ev->getType() == MessageEvent::Normal
+	|| ev->getType() == MessageEvent::URL) {
 
-      MsgSendSNAC msnac(&nist);
+      ICQSubType *ist;
+      if (ev->getType() == MessageEvent::Normal) {
+	NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
+	ist = new NormalICQSubType(nv->getMessage(), c->getUIN(), c->acceptAdvancedMsgs());
+      } else {
+	URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
+	ist = new URLICQSubType(uv->getMessage(), uv->getURL(), m_uin, c->getUIN(), c->acceptAdvancedMsgs());
+      }
+
+      MsgSendSNAC msnac(ist);
+
       if (c->acceptAdvancedMsgs()) {
 	msnac.setAdvanced(true);
 	msnac.setSeqNum( c->nextSeqNum() );
-      }
-      b << msnac;
+	ICBMCookie ck = m_cookiecache.generateUnique();
+	msnac.setICBMCookie( ck );
+	m_cookiecache.insert( ck, ev );
+      } else { 
+	ev->setFinished(true);
+	ev->setDelivered(true);
+	messageack.emit(ev);
+	
+	delete ev;
+     }
 
-    } else if (ev->getType() == MessageEvent::URL) {
-      URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
-      URLICQSubType uist(uv->getMessage(), uv->getURL(), m_uin, c->getUIN(), c->acceptAdvancedMsgs());
-
-      MsgSendSNAC msnac(&uist);
-      if (c->acceptAdvancedMsgs()) {
-	msnac.setAdvanced(true);
-	msnac.setSeqNum( c->nextSeqNum() );
-      }
       b << msnac;
+      delete ist;
 
     } else if (ev->getType() == MessageEvent::AuthReq) {
       AuthReqEvent *uv = static_cast<AuthReqEvent*>(ev);
@@ -1232,11 +1275,16 @@ namespace ICQ2000 {
       MsgSendSNAC msnac(uist);
       b << msnac;
       
-    }  else if (ev->getType() == MessageEvent::SMS) {
+      delete ev;
+
+    } else if (ev->getType() == MessageEvent::SMS) {
       SMSMessageEvent *sv = static_cast<SMSMessageEvent*>(ev);
       SrvSendSNAC ssnac(sv->getMessage(), c->getMobileNo(), m_uin, "", sv->getRcpt());
       b << ssnac;
+
+      delete ev;
     }
+
     FLAPFooter(b,d);
     Send(b);
   }
@@ -1248,9 +1296,6 @@ namespace ICQ2000 {
     d = FLAPHeader(b,0x05);
     FLAPFooter(b,d);
     Send(b);
-
-    // take the opportunity to clearout caches
-    m_reqidcache.clearoutPoll();
   }
 
   void Client::setStatus(const Status st) {
