@@ -175,6 +175,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
 
   table->set_border_width(5);
   table->set_row_spacings(5);
+  table->set_col_spacing(1, 5);
   label = manage( new Gtk::Label( "General" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
@@ -305,6 +306,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   table->attach( stats_last_away_msg_check, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
 
   table->set_border_width(5);
+  table->set_row_spacings(5);
   label = manage( new Gtk::Label( "Stats" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 

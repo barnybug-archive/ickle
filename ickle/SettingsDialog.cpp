@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.47 2002-04-18 16:33:59 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.48 2002-04-18 22:07:32 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -424,6 +424,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   autoaway_spinner->changed.connect( bind( slot( this, &SettingsDialog::spinner_changed ), autoaway_spinner ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autoaway_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  autoaway_spinner->changed ();
 
   label = manage( new Gtk::Label( "Auto-N/A (minutes)", 0 ) );
   time = g_settings.getValueUnsignedShort( "auto_na" );
@@ -433,6 +434,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   autona_spinner->changed.connect( bind( slot( this, &SettingsDialog::spinner_changed ), autona_spinner ) );
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autona_spinner, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  autona_spinner->changed ();
 
   table->set_row_spacings(5);
   table->set_col_spacings(5);
