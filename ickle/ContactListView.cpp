@@ -46,7 +46,7 @@ ContactListView::ContactListView()
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
    // the popup menu needs to be told where to place its accelerators
-   //   rc_popup.accelerate(*this);
+   rc_popup.accelerate( *(this->get_toplevel()) );
 }
 
 ContactListView::~ContactListView() {
