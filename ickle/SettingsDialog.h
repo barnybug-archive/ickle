@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.49 2003-03-10 00:49:39 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.50 2003-03-11 21:30:03 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -52,6 +52,7 @@ class SettingsDialog : public Gtk::Dialog
 
   const ModelColumns m_columns;
   Gtk::Tooltips m_tooltip;
+  bool m_client_restart;
 
   // the Tree store
   Glib::RefPtr<Gtk::TreeStore> m_reftreestore;
@@ -75,6 +76,13 @@ class SettingsDialog : public Gtk::Dialog
   // look'n'feel - charset
   Gtk::Entry m_lnf_charset;
   Gtk::Label m_lnf_charset_valid;
+  
+  // message window
+  Gtk::CheckButton m_message_autoclose;
+  Gtk::CheckButton m_message_autopopup;
+  Gtk::CheckButton m_message_autoraise;
+  
+  Gtk::SpinButton m_history_shownr;
 
   // Away/Idle page
   Gtk::SpinButton m_auto_away;
@@ -147,6 +155,7 @@ class SettingsDialog : public Gtk::Dialog
   // various callbacks
   void page_tree_select_cb();
   void changed_cb();
+  void client_changed();
 
   void on_apply_clicked();
   void on_ok_clicked();

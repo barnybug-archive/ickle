@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.65 2003-03-10 00:49:39 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.66 2003-03-11 21:30:01 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -37,6 +37,7 @@
 #include "ucompose.h"
 #include "utils.h"
 #include "Icons.h"
+
 
 class SectionFrame : public Gtk::Frame
 {
@@ -119,6 +120,9 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
 
   init_pages();
   load_pages();
+  
+  // only after special changes the client has to be restarted
+  m_client_restart=false;
   
   // finally show all!
 
@@ -204,9 +208,9 @@ void SettingsDialog::init_pages()
 
 void SettingsDialog::init_login_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
-  SectionFrame * frame = manage( new SectionFrame( _("Login") ) );
-  Gtk::Table * table = new Gtk::Table( 2, 5 );
+  Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * login = manage( new SectionFrame( _("Login") ) );
+  Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
   
   table->attach( * manage( new Gtk::Label( _("UIN"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -214,6 +218,7 @@ void SettingsDialog::init_login_page()
   m_login_uin.set_digits(0);
   m_login_uin.set_increments(1, 10);
   m_login_uin.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_login_uin.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_login_uin,_("UIN is the unique number that identifies the user"));
   
   table->attach( m_login_uin, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -221,11 +226,21 @@ void SettingsDialog::init_login_page()
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
   m_login_pass.set_visibility(false);
   m_login_pass.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_login_pass.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_login_pass,_("the password for the account"));
   table->attach( m_login_pass, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+     
   
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  login->add( * table );
+  
+  SectionFrame * autoconnect = manage( new SectionFrame( _("Auto connect") ) );
+  table = manage( new Gtk::Table( 2, 1 ) );
   table->attach( * manage( new Gtk::Label( _("Auto connect to"), 0.0, 0.5 ) ),
-		 0, 1, 2, 3, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
+		 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
   
   Gtk::OptionMenu * autoconnect_om = manage (new Gtk::OptionMenu() );
   m_tooltip.set_tip (* autoconnect_om,_("Specifies the state for auto connect"));
@@ -238,7 +253,6 @@ void SettingsDialog::init_login_page()
       Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(ICQ2000::Status(n), false );
       Gtk::Image * img = manage( new Gtk::Image( p ) );
       Glib::ustring label = UserInfoHelpers::getStringFromStatus(ICQ2000::Status(n) );
-      
       menu_list.push_back( ImageMenuElem( label,* img, 
       			  SigC::bind<int>( SigC::slot(*this, &SettingsDialog::choose_autoconnect),n) ) );
     }
@@ -247,39 +261,46 @@ void SettingsDialog::init_login_page()
     menu->set_active(m_auto_connect);
     autoconnect_om->set_menu( *menu );
   }
-  table->attach( * autoconnect_om, 1, 2, 2, 3, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
+  table->attach( * autoconnect_om, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
   
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  autoconnect->add( * table );
+  
+  SectionFrame * reconnect = manage( new SectionFrame( _("Auto reconnect") ) );
+  table = manage( new Gtk::Table( 2, 2 ) );
+  m_auto_reconnect.set_label(_("Auto reconnect"));
+  m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
+  table->attach( m_auto_reconnect, 0, 2, 0, 1, Gtk::FILL, Gtk::FILL );
   
   table->attach( * manage( new Gtk::Label( _("Reconnect retries"), 0.0, 0.5 ) ),
-		 0, 1, 3, 4, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+		 0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
   m_reconnect_retries.set_range(1, 10);
   m_reconnect_retries.set_digits(0);
   m_reconnect_retries.set_increments(1, 1);
   m_reconnect_retries.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_reconnect_retries,_("Specifies how often ickle tries to reconnect after an error."));
-  table->attach( m_reconnect_retries, 1, 2, 3, 4, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+  table->attach( m_reconnect_retries, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
   
-  m_auto_reconnect.set_label(_("Auto reconnect"));
-  m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
-  table->attach( m_auto_reconnect, 0, 2, 4, 5, Gtk::FILL, Gtk::FILL );
-  
-  
-  
-
   table->set_spacings(5);
   table->set_border_width(10);
   
-  frame->add( * table );
+  reconnect->add( * table );
+  
+  
 
-  vbox->pack_start( *frame );
+  vbox->pack_start( *login );
+  vbox->pack_start( *autoconnect );
+  vbox->pack_start( *reconnect );
   add_page( _("Login"), vbox, true );
 }
 
 
 void SettingsDialog::init_look_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Look'n'feel"), vbox, true );
 
   // sub-pages
@@ -291,25 +312,73 @@ void SettingsDialog::init_look_page()
 
 void SettingsDialog::init_look_message_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
-  add_page( _("Messages"), vbox, false );
+  Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * frame = manage( new SectionFrame( _("Messages") ) );
+  
+  Gtk::Table * table = manage (new Gtk::Table( 2, 4 ) );
+  m_message_autoclose.set_label(_("Auto close after sending a message"));
+  table->attach( m_message_autoclose,
+		 0, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+  m_message_autoclose.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_message_autoclose,_("If checked the messagebox is closed after sending a message."));
+  
+  m_message_autopopup.set_label(_("Auto popup on incoming message"));
+  table->attach( m_message_autopopup,
+		 0, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  m_message_autopopup.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_message_autopopup,_("If checked the message window will popup in case of  an incoming message."));
+  
+  m_message_autoraise.set_label(_("Auto raise on incoming message"));
+  table->attach( m_message_autoraise,
+		 0, 2, 2, 3, Gtk::FILL, Gtk::FILL );
+  m_message_autoraise.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_message_autoraise,_("If checked an existing message window will be raised in case of an incoming message."));
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+
+  frame->add( * table );
+  
+  SectionFrame * history = manage( new SectionFrame( _("History") ) );
+  
+  table = manage (new Gtk::Table( 2, 1 ) );
+  
+  table->attach( * manage( new Gtk::Label( _("Messages per page"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  m_history_shownr.set_range(0, 0xff);
+  m_history_shownr.set_digits(0); 
+  m_history_shownr.set_increments(1, 10);
+  m_history_shownr.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_history_shownr,_("Defines the number of messages per page in the message window history"));
+  table->attach( m_history_shownr, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  history->add( * table );
+  
+
+  vbox->pack_start( *frame );
+  vbox->pack_start( *history );
+  add_page( _("Message window"), vbox, false );
 }
 
 void SettingsDialog::init_look_contact_list_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Contact list"), vbox, false );
 }
 
 void SettingsDialog::init_look_charset_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
 
   SectionFrame * frame = manage( new SectionFrame( _("Character set") ) );
 
   Gtk::VBox * vbox2 = manage( new Gtk::VBox() );
   
-  Gtk::Table * table = new Gtk::Table( 3, 1 );
+  Gtk::Table * table = manage(new Gtk::Table( 3, 1 ) );
 
   table->set_spacings(5);
   table->set_border_width(10);
@@ -349,13 +418,13 @@ void SettingsDialog::init_look_charset_page()
 
 void SettingsDialog::init_look_icons_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Icons"), vbox, false );
 }
 
 void SettingsDialog::init_away_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Away"), vbox, true );
   
   // sub-pages
@@ -365,11 +434,11 @@ void SettingsDialog::init_away_page()
 
 void SettingsDialog::init_away_idle_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   
   SectionFrame * frame = manage( new SectionFrame( _("Away/Idle") ) );
   
-  Gtk::Table * table = new Gtk::Table( 2, 3 );
+  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
 
   table->attach( * manage( new Gtk::Label( _("Auto-away (minutes)"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -411,13 +480,13 @@ void SettingsDialog::init_away_idle_page()
 
 void SettingsDialog::init_away_message_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Away Messages"), vbox, false );
 }
 
 void SettingsDialog::init_advanced_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Advanced"), vbox, true );
 
   // sub-pages
@@ -429,17 +498,17 @@ void SettingsDialog::init_advanced_page()
 
 void SettingsDialog::init_advanced_security_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Security"), vbox, false );
 }
 
 void SettingsDialog::init_advanced_server_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
 
   SectionFrame * frame = manage( new SectionFrame( _("Server") ) );
   
-  Gtk::Table * table = new Gtk::Table( 2, 2 );
+  Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
 
   table->attach( * manage( new Gtk::Label( _("Server name"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -467,12 +536,12 @@ void SettingsDialog::init_advanced_server_page()
 }
 void SettingsDialog::init_advanced_smtp_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("SMTP"), vbox, false );
 }
 void SettingsDialog::init_advanced_logging_page()
 {
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::VBox * vbox = new Gtk::VBox();
   add_page( _("Logging"), vbox, false );
 }
 
@@ -506,6 +575,10 @@ void SettingsDialog::load_look_page()
 
 void SettingsDialog::load_look_message_page()
 {
+  m_message_autoclose.set_active(g_settings.getValueBool("message_autoclose") );
+  m_message_autopopup.set_active(g_settings.getValueBool("message_autopopup") );
+  m_message_autoraise.set_active(g_settings.getValueBool("message_autoraise") );
+  m_history_shownr.set_value((double)g_settings.getValueUnsignedInt("history_shownr") );
 }
 
 void SettingsDialog::load_look_contact_list_page()
@@ -596,6 +669,10 @@ void SettingsDialog::save_look_page()
 
 void SettingsDialog::save_look_message_page()
 {
+  g_settings.setValue("message_autoclose", m_message_autoclose.get_active() );
+  g_settings.setValue("message_autopopup", m_message_autopopup.get_active() );
+  g_settings.setValue("message_autoraise", m_message_autoraise.get_active() );    
+  g_settings.setValue( "history_shownr", (unsigned int) m_history_shownr.get_value() );
 }
 
 void SettingsDialog::save_look_contact_list_page()
@@ -666,6 +743,11 @@ void SettingsDialog::save_advanced_logging_page()
 void SettingsDialog::changed_cb()
 {
   m_apply_button.set_sensitive(true);
+}
+
+void SettingsDialog::client_changed()
+{
+  m_client_restart=true;
 }
 
 void SettingsDialog::lnf_charset_validate_cb()
