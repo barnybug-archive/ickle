@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.19 2001-12-28 20:23:15 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.20 2002-01-02 21:54:59 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -99,6 +99,9 @@ void IckleApplet::applet_orientchange_cb(PanelOrientType orient)
 
 bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 {
+  if( !m_applet )
+    return false;
+  
   Contact *c = ev->getContact();
   ostringstream ostr;
   
@@ -123,6 +126,9 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 
 void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
 {
+  if( !m_applet )
+    return;
+
   Gtk::ImageLoader *il;
 
   if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgs > 0)
@@ -135,6 +141,9 @@ void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
 
 void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 {
+  if( !m_applet )
+    return;
+
   Contact *c = ev->getContact();
   
   if( ev->getType() == ContactListEvent::StatusChange ) {
@@ -178,6 +187,9 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 
 void IckleApplet::icons_changed_cb()
 {
+  if( !m_applet )
+    return;
+
   Gtk::ImageLoader *il;
   if( !m_nr_msgs )
     il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.12 2001-12-28 20:23:15 nordman Exp $
+/* $Id: IckleApplet.h,v 1.13 2002-01-02 21:54:59 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -67,7 +67,7 @@ class IckleApplet : public SigC::Object {
   void          applet_click_cb         (GdkEventButton *ev);
   static void   applet_status_menu_cb   (AppletWidget *applet, gpointer data);
   static void   applet_toogle_menu_cb   (AppletWidget *applet, gpointer data);
-  static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent  *event, gpointer data);
+  static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent *event, gpointer data);
   void          applet_orientchange_cb  (PanelOrientType orient);
   bool          icq_messaged_cb         (MessageEvent *ev);
   void          icq_statuschanged_cb    (MyStatusChangeEvent *ev);
