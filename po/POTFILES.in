@@ -31,6 +31,7 @@ ickle/Settings.cpp
 ickle/SettingsDialog.cpp
 ickle/StatusMenu.cpp
 ickle/UserInfoDialog.cpp
+ickle/UserInfoHelpers.cpp
 ickle/utils.cpp
 ickle/WizardDialog.cpp
 control/CommandLineParser.cpp
