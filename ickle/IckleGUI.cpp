@@ -131,6 +131,11 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
    * MessageBoxes listening to all the Message events
    * pointlessly
    */
+  if ( g_settings.getValueBool("message_autopopup") ) {
+    messagebox_popup(c);
+    // popup a new/raise a current one
+  }
+
   if (m_message_boxes.count(c->getUIN()) == 0) {
     return m_contact_list.message_cb(ev);
   } else {
@@ -181,7 +186,7 @@ ContactListView* IckleGUI::getContactListView() {
   return &m_contact_list;
 }
 
-void IckleGUI::user_popup(Contact *c) {
+void IckleGUI::messagebox_popup(Contact *c) {
   if (m_message_boxes.count(c->getUIN()) == 0) {
     MessageBox *m = new MessageBox(c);
     manage(m);
@@ -201,6 +206,18 @@ void IckleGUI::user_popup(Contact *c) {
     if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
 
     m->setDisplayTimes(m_display_times);
+  } else {
+    // raise MessageBox
+    MessageBox *m = m_message_boxes[c->getUIN()];
+    m->raise();
+  }
+}
+
+void IckleGUI::user_popup(Contact *c) {
+  messagebox_popup(c);
+
+  if (m_message_boxes.count(c->getUIN()) > 0) {
+    MessageBox *m = m_message_boxes[c->getUIN()];
 
     // signal all waiting messages
     while (c->numberPendingMessages() > 0) {
@@ -209,11 +226,6 @@ void IckleGUI::user_popup(Contact *c) {
       c->erasePendingMessage(ev);
       icqclient.SignalMessageQueueChanged(c);
     }
-
-  } else {
-    // raise MessageBox
-    MessageBox *m = m_message_boxes[c->getUIN()];
-    m->raise();
   }
 }
 

@@ -96,6 +96,8 @@ class IckleGUI : public Gtk::Window {
   void menu_status_update();
   Gtk::MenuItem* menu_status_widget( Status s );
 
+  void messagebox_popup(Contact *c);
+
  public:
   IckleGUI();
   ~IckleGUI();

@@ -228,6 +228,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueString("network_login_host", "login.icq.com");
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
   g_settings.defaultValueBool("network_override_port", false);
+  g_settings.defaultValueBool("message_autopopup", false);
 
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));

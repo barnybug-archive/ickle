@@ -51,7 +51,8 @@ SettingsDialog::SettingsDialog()
     log_to_console("Console", 0),
     log_to_file("File (~/.ickle/messages.log)", 0),
     log_to_consolefile("Selected to console, all to file", 0),
-    network_override_port("Override server redirect port with login port", 0)
+    network_override_port("Override server redirect port with login port", 0),
+    message_autopopup("Autopopup on incoming message", 0)
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -218,6 +219,26 @@ SettingsDialog::SettingsDialog()
 
   // ---------------------------------------------------------
 
+  // ------------------ Message Box --------------------------
+
+  table = manage( new Gtk::Table( 2, 1, false ) );
+  
+  message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
+  table->attach( message_autopopup, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+
+  table->set_row_spacings(10);
+  table->set_col_spacings(10);
+  table->set_border_width(10);
+
+  frame = manage( new Gtk::Frame("Message Box") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  label = manage( new Gtk::Label( "Message Box" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+
+  // ---------------------------------------------------------
+
   // ------------------ Away Messages ------------------------
 
   table = manage( new Gtk::Table( 2, 1, false ) );
@@ -373,6 +394,9 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("event_message", event_message_entry.get_text());
   g_settings.setValue("event_url", event_url_entry.get_text());
   g_settings.setValue("event_sms", event_sms_entry.get_text());
+
+  // ------------ Message Box tab ------------------
+  g_settings.setValue("message_autopopup", message_autopopup.get_active() );
 
   // ------------ Away Messages tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
