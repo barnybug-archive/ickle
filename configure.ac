@@ -22,6 +22,31 @@ AC_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h getopt.h],, AC_MSG_ERROR([Required header not found]) )
 
+dnl Checks for library functions.
+AC_CHECK_LIB(xnet,inet_addr)
+AC_CHECK_LIB(socket, socket)
+AC_CHECK_FUNC(gethostbyname, ,
+  AC_CHECK_LIB(nsl, gethostbyname,, AC_MSG_ERROR([You do not have gethostbyname - check you have libc installed properly])) )
+
+AC_CHECK_LIB(c_r,pthread_cancel, [], [
+  AC_CHECK_LIB(pthread, pthread_cancel, [], [
+    AC_CHECK_LIB(thread, pthread_cancel, [], [
+      AC_CHECK_LIB(pthreads, pthread_cancel, [], [
+        cat <<EOF;
+
+Please install/update your POSIX threads (pthreads) library. Updates should be
+available from either your system vendor, or, for GNU/Linux systems, go to
+http://pauillac.inria.fr/~xleroy/linuxthreads/.  GNU Pth can also be used if
+configured with --enable-pthread.
+
+EOF
+exit 1
+      ])
+    ])
+  ])
+])
+
+
 dnl Switch to C++ mode and check for needed C++ headers
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
@@ -52,7 +77,7 @@ AC_HEADER_TIME
 AC_FUNC_MKTIME
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([gethostbyname gethostname mkdir select socket strerror])
+AC_CHECK_FUNCS([mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
 AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile])
 AC_OUTPUT
