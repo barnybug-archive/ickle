@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.59 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.60 2002-01-16 12:58:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -116,8 +116,6 @@ IckleClient::IckleClient(int argc, char* argv[])
 }
 
 IckleClient::~IckleClient() {
-  g_icons.FreeIcons();
-
   // free History objects
   for( map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
     delete itr->second;

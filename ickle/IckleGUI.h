@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.25 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.26 2002-01-16 12:58:40 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -28,7 +28,6 @@
 #include <gtk--/box.h>
 #include <gtk--/menu.h>
 #include <gtk--/menubar.h>
-#include <gtk--/checkmenuitem.h>
 #include <gtk--/scrolledwindow.h>
 #include <gtk--/dialog.h>
 
@@ -38,12 +37,11 @@
 #include <map>
 #include <utility>
 
-#include "main.h"
-#include <libicq2000/Client.h>
-
 #include <libicq2000/ContactList.h>
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
+
+#include <libicq2000/constants.h>
 
 #include "ContactListView.h"
 #include "MessageBox.h"
@@ -54,8 +52,7 @@
 #include "AwayMessageDialog.h"
 #include "History.h"
 #include "SetAutoResponseDialog.h"
-
-#include <libicq2000/constants.h>
+#include "StatusMenu.h"
 
 using std::string;
 using std::map;
@@ -80,13 +77,9 @@ class IckleGUI : public Gtk::Window {
   
   Gtk::MenuBar m_ickle_menubar;
   Gtk::Menu m_ickle_menu;
-  Gtk::Menu m_status_menu;
+  StatusMenu m_status_menu;
 
   // --
-
-  void menu_status_update();
-  Gtk::MenuItem* menu_status_widget( Status s );
-  Gtk::MenuItem* menu_status_inv_widget();
 
   void messagebox_popup(Contact *c, History *h);
 
@@ -96,8 +89,9 @@ class IckleGUI : public Gtk::Window {
 
   ContactListView* getContactListView();
 
-  void status_change_menu_cb(Status st);
-  void status_change_inv_menu_cb(Gtk::CheckMenuItem *cmi);
+  void status_menu_status_changed_cb(Status st);
+  void status_menu_invisible_changed_cb(bool inv);
+
   void popup_messagebox(Contact *c, History *h);
   void userinfo_popup(Contact *c);
   void message_box_close_cb(Contact *c);
@@ -124,9 +118,8 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
-  void icons_changed_cb();
   void userinfo_toggle_cb(bool b, Contact *c);
-  void status_change_cb(MyStatusChangeEvent *ev);
+  void status_changed_cb(MyStatusChangeEvent *ev);
   void exit_cb();
   void settings_changed_cb(const string& k);
 

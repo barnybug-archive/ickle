@@ -32,6 +32,8 @@
 #include "main.h"
 #include "IckleClient.h"
 
+#include <libicq2000/Client.h>
+
 #ifdef GNOME_ICKLE
 # include <applet-widget.h>
 #endif
@@ -50,6 +52,8 @@ string ICONS_DIR;
 int main(int argc, char* argv[]) {
   try {
     Gtk::Main gtkmain(argc,argv,true);
+    g_icons.setDefaultIcons();
+    
     IckleClient client(argc,argv);
 
 #ifdef GNOME_ICKLE

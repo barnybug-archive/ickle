@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.13 2002-01-02 21:54:59 nordman Exp $
+/* $Id: IckleApplet.h,v 1.14 2002-01-16 12:58:40 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -31,7 +31,6 @@
 #include <applet-widget.h>
 #include <list>
 
-#include <libicq2000/Client.h>
 #include "IckleGUI.h"
 
 class IckleApplet : public SigC::Object {

@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.10 2002-01-09 20:20:26 nordman Exp $
+/* $Id: Icons.cpp,v 1.11 2002-01-16 12:58:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,23 +39,25 @@
 
 using ICQ2000::Status;
 
-/*
-  Sets the icons to the default compiled in icons.
+Icons::Icons()
+{
+}
 
-  Note: This also automatically updates the settings for the icons.
-*/
+/*
+ * Sets the icons to the default compiled in icons.
+ */
 void Icons::setDefaultIcons() {
-  Icon_Status_Online = new ImageLoaderData(online_xpm);
-  Icon_Status_Away = new ImageLoaderData(away_xpm);
-  Icon_Status_NA = new ImageLoaderData(na_xpm);
-  Icon_Status_Occupied = new ImageLoaderData(occ_xpm);
-  Icon_Status_DND = new ImageLoaderData(dnd_xpm);
-  Icon_Status_FFC = new ImageLoaderData(ffc_xpm);
-  Icon_Status_Offline = new ImageLoaderData(offline_xpm);
-  Icon_Status_Message = new ImageLoaderData(message_xpm);
-  Icon_Status_URL = new ImageLoaderData(url_xpm);
-  Icon_Status_SMS = new ImageLoaderData(sms_xpm);
-  Icon_Status_Invisible = new ImageLoaderData(invisible_xpm);
+  Icon_Status_Online.reset( new ImageLoaderData(online_xpm) );
+  Icon_Status_Away.reset( new ImageLoaderData(away_xpm) );
+  Icon_Status_NA.reset( new ImageLoaderData(na_xpm) );
+  Icon_Status_Occupied.reset( new ImageLoaderData(occ_xpm) );
+  Icon_Status_DND.reset( new ImageLoaderData(dnd_xpm) );
+  Icon_Status_FFC.reset( new ImageLoaderData(ffc_xpm) );
+  Icon_Status_Offline.reset( new ImageLoaderData(offline_xpm) );
+  Icon_Status_Message.reset( new ImageLoaderData(message_xpm) );
+  Icon_Status_URL.reset( new ImageLoaderData(url_xpm) );
+  Icon_Status_SMS.reset( new ImageLoaderData(sms_xpm) );
+  Icon_Status_Invisible.reset( new ImageLoaderData(invisible_xpm) );
 }
 
 void Icons::settings_changed_cb(const string& key) {
@@ -65,7 +67,6 @@ void Icons::settings_changed_cb(const string& key) {
 }
 
 bool Icons::setIcons(const string &dir) {
-  FreeIcons();
 
   if (dir == "" || dir == "Default") {
     setDefaultIcons();
@@ -73,64 +74,50 @@ bool Icons::setIcons(const string &dir) {
     return true;
   }
 
-  Icon_Status_Online = new ImageLoader( dir + "online.xpm" );
-  Icon_Status_Away = new ImageLoader( dir + "away.xpm" );
-  Icon_Status_NA = new ImageLoader( dir + "na.xpm" );
-  Icon_Status_Occupied = new ImageLoader( dir + "occ.xpm" );
-  Icon_Status_DND = new ImageLoader( dir + "dnd.xpm" );
-  Icon_Status_FFC = new ImageLoader( dir + "ffc.xpm" );
-  Icon_Status_Offline = new ImageLoader( dir + "offline.xpm" );
-  Icon_Status_Message = new ImageLoader( dir + "message.xpm" );
-  Icon_Status_URL = new ImageLoader( dir + "url.xpm" );
-  Icon_Status_SMS = new ImageLoader( dir + "sms.xpm" );
-  Icon_Status_Invisible = new ImageLoader( dir + "invisible.xpm" );
+  Icon_Status_Online.reset( new ImageLoader( dir + "online.xpm" ) );
+  Icon_Status_Away.reset( new ImageLoader( dir + "away.xpm" ) );
+  Icon_Status_NA.reset( new ImageLoader( dir + "na.xpm" ) );
+  Icon_Status_Occupied.reset( new ImageLoader( dir + "occ.xpm" ) );
+  Icon_Status_DND.reset( new ImageLoader( dir + "dnd.xpm" ) );
+  Icon_Status_FFC.reset( new ImageLoader( dir + "ffc.xpm" ) );
+  Icon_Status_Offline.reset( new ImageLoader( dir + "offline.xpm" ) );
+  Icon_Status_Message.reset( new ImageLoader( dir + "message.xpm" ) );
+  Icon_Status_URL.reset( new ImageLoader( dir + "url.xpm" ) );
+  Icon_Status_SMS.reset( new ImageLoader( dir + "sms.xpm" ) );
+  Icon_Status_Invisible.reset( new ImageLoader( dir + "invisible.xpm" ) );
   icons_changed.emit();
   return true;
-}
-
-void Icons::FreeIcons() {
-  delete Icon_Status_Online;
-  delete Icon_Status_Away;
-  delete Icon_Status_NA;
-  delete Icon_Status_Occupied;
-  delete Icon_Status_DND;
-  delete Icon_Status_FFC;
-  delete Icon_Status_Offline;
-  delete Icon_Status_Message;
-  delete Icon_Status_URL;
-  delete Icon_Status_SMS;
-  delete Icon_Status_Invisible;
 }
 
 ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
   ImageLoader *p;
   if (inv) {
-    p = Icon_Status_Invisible;
+    p = Icon_Status_Invisible.get();
   } else {
     switch(s) {
     case ICQ2000::STATUS_ONLINE:
-      p = Icon_Status_Online;
+      p = Icon_Status_Online.get();
       break;
     case ICQ2000::STATUS_AWAY:
-      p = Icon_Status_Away;
+      p = Icon_Status_Away.get();
       break;
     case ICQ2000::STATUS_NA:
-      p = Icon_Status_NA;
+      p = Icon_Status_NA.get();
       break;
     case ICQ2000::STATUS_OCCUPIED:
-      p = Icon_Status_Occupied;
+      p = Icon_Status_Occupied.get();
       break;
     case ICQ2000::STATUS_DND:
-      p = Icon_Status_DND;
+      p = Icon_Status_DND.get();
       break;
     case ICQ2000::STATUS_FREEFORCHAT:
-      p = Icon_Status_FFC;
+      p = Icon_Status_FFC.get();
       break;
     case ICQ2000::STATUS_OFFLINE:
-      p = Icon_Status_Offline;
+      p = Icon_Status_Offline.get();
       break;
     default:
-      p = Icon_Status_Offline;
+      p = Icon_Status_Offline.get();
       break;
     }
   }
@@ -142,15 +129,15 @@ ImageLoader* Icons::IconForEvent(MessageEvent::MessageType t) {
   ImageLoader *p;
   switch(t) {
   case MessageEvent::Normal:
-    p = Icon_Status_Message;
+    p = Icon_Status_Message.get();
     break;
   case MessageEvent::URL:
-    p = Icon_Status_URL;
+    p = Icon_Status_URL.get();
     break;
   case MessageEvent::SMS:
   case MessageEvent::SMS_Receipt:
   default:
-    p = Icon_Status_SMS;
+    p = Icon_Status_SMS.get();
     break;
   }
   return p;

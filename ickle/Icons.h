@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.9 2002-01-09 20:20:26 nordman Exp $
+/* $Id: Icons.h,v 1.10 2002-01-16 12:58:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,7 @@
 #include <gtk--/imageloader.h>
 #include <sigc++/signal_system.h>
 
+#include <memory>
 #include <string>
 
 #include "main.h"
@@ -38,22 +39,23 @@ using std::string;
 
 class Icons {
  private:
-  ImageLoader *Icon_Status_Online;
-  ImageLoader *Icon_Status_Away;
-  ImageLoader *Icon_Status_NA;
-  ImageLoader *Icon_Status_Occupied;
-  ImageLoader *Icon_Status_DND;
-  ImageLoader *Icon_Status_FFC;
-  ImageLoader *Icon_Status_Offline;
-  ImageLoader *Icon_Status_Message;
-  ImageLoader *Icon_Status_URL;
-  ImageLoader *Icon_Status_SMS;
-  ImageLoader *Icon_Status_Invisible;
+  std::auto_ptr<ImageLoader> Icon_Status_Online;
+  std::auto_ptr<ImageLoader> Icon_Status_Away;
+  std::auto_ptr<ImageLoader> Icon_Status_NA;
+  std::auto_ptr<ImageLoader> Icon_Status_Occupied;
+  std::auto_ptr<ImageLoader> Icon_Status_DND;
+  std::auto_ptr<ImageLoader> Icon_Status_FFC;
+  std::auto_ptr<ImageLoader> Icon_Status_Offline;
+  std::auto_ptr<ImageLoader> Icon_Status_Message;
+  std::auto_ptr<ImageLoader> Icon_Status_URL;
+  std::auto_ptr<ImageLoader> Icon_Status_SMS;
+  std::auto_ptr<ImageLoader> Icon_Status_Invisible;
 
  public:
+  Icons();
+
   void setDefaultIcons();
   bool setIcons(const string& dir);
-  void FreeIcons();
   ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
   ImageLoader* IconForEvent(MessageEvent::MessageType t);
 

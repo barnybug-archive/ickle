@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.25 2002-01-07 21:13:52 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.26 2002-01-16 12:58:40 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -49,6 +49,7 @@ ContactListView::ContactListView()
   
   // callbacks
   icqclient.contactlist.connect(slot(this,&ContactListView::contactlist_cb));
+  g_icons.icons_changed.connect(slot(this,&ContactListView::icons_changed_cb));
   g_settings.settings_changed.connect(slot(this,&ContactListView::settings_changed_cb));
 
   set_selection_mode(GTK_SELECTION_BROWSE);

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.29 2002-01-16 03:09:11 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.30 2002-01-16 12:58:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,10 @@
 #include "SearchDialog.h"
 #include "AboutDialog.h"
 
+#include <libicq2000/Client.h>
+
+#include "main.h"
+
 #include "sstream_fix.h"
 
 #include "gtkspell.h"
@@ -40,16 +44,11 @@ IckleGUI::IckleGUI()
     m_invisible_wanted(false),
     m_away_message( this )
 {
-  // setup default compiled in xpms
-  g_icons.setDefaultIcons();
-
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
-  icqclient.statuschanged.connect(slot(this,&IckleGUI::status_change_cb));
-
-  g_icons.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
+  icqclient.statuschanged.connect(slot(this,&IckleGUI::status_changed_cb));
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
@@ -63,8 +62,6 @@ IckleGUI::IckleGUI()
 
   m_top_vbox.pack_start(m_contact_scroll,true);
 
-  menu_status_update();
-
   {
     using namespace Gtk::Menu_Helpers;
 
@@ -77,14 +74,10 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
     MenuList& mbl = m_ickle_menubar.items();
-    Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
-    Gtk::HBox *hbox = manage( new Gtk::HBox() );
-    Gtk::ImageLoader *p = g_icons.IconForStatus(STATUS_OFFLINE, false);
-    hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
-    hbox->pack_end( * manage( new Gtk::Label( Status_text[STATUS_OFFLINE], 1.0 ) ), true );
-    mi->add(*hbox);
-    mi->set_submenu( m_status_menu );
-    mbl.push_front( *mi );
+    mbl.push_front( m_status_menu );
+    m_status_menu.status_changed_status.connect( slot( this, &IckleGUI::status_menu_status_changed_cb ) );
+    m_status_menu.status_changed_invisible.connect( slot( this, &IckleGUI::status_menu_invisible_changed_cb ) );
+    
     mbl.front()->right_justify();
     mbl.push_front(MenuElem("ickle",m_ickle_menu));
   }
@@ -98,48 +91,6 @@ IckleGUI::IckleGUI()
   g_settings.settings_changed.connect( slot( this, &IckleGUI::settings_changed_cb ) );
 }
 
-void IckleGUI::menu_status_update() {
-  using namespace Gtk::Menu_Helpers;
-  
-  MenuList& sl = m_status_menu.items();
-  sl.clear();
-  sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
-  sl.push_back(* menu_status_widget( STATUS_AWAY ) );
-  sl.push_back(* menu_status_widget( STATUS_NA ) );
-  sl.push_back(* menu_status_widget( STATUS_DND ) );
-  sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
-  sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
-  sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
-  sl.push_back( SeparatorElem() );
-  sl.push_back(* menu_status_inv_widget() );
-  m_status_menu.show_all();
-
-}
-
-Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
-  Gtk::MenuItem *mi;
-  mi = manage( new Gtk::MenuItem() );
-  mi->activate.connect( bind(slot(this,&IckleGUI::status_change_menu_cb),s) );
-  Gtk::HBox *hbox=manage( new Gtk::HBox() );
-  Gtk::ImageLoader *p = g_icons.IconForStatus(s, false);
-  hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
-  hbox->pack_end( * manage( new Gtk::Label( Status_text[s], 1.0 ) ), true );
-  mi->add(*hbox);
-  return mi;
-}
-  
-Gtk::MenuItem* IckleGUI::menu_status_inv_widget() {
-  Gtk::CheckMenuItem *mi;
-  mi = manage( new Gtk::CheckMenuItem() );
-  mi->toggled.connect( bind(slot(this,&IckleGUI::status_change_inv_menu_cb), mi) );
-  Gtk::HBox *hbox=manage( new Gtk::HBox() );
-  Gtk::ImageLoader *p = g_icons.IconForStatus(STATUS_ONLINE, true);
-  hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
-  hbox->pack_end( * manage( new Gtk::Label( "Invisible", 1.0 ) ), true );
-  mi->add(*hbox);
-  return mi;
-}
-  
 IckleGUI::~IckleGUI() {
   while(!m_message_boxes.empty()) {
     map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
@@ -298,8 +249,9 @@ int IckleGUI::delete_event_impl(GdkEventAny*) {
 #endif
 }
 
-void IckleGUI::status_change_menu_cb(Status st) {
+void IckleGUI::status_menu_status_changed_cb(Status st) {
   m_status_wanted = st;
+  
   if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
     SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
     manage(d);
@@ -308,27 +260,17 @@ void IckleGUI::status_change_menu_cb(Status st) {
   icqclient.setStatus(m_status_wanted, m_invisible_wanted);
 }
 
-void IckleGUI::status_change_inv_menu_cb(Gtk::CheckMenuItem *cmi) 
+void IckleGUI::status_menu_invisible_changed_cb(bool inv)
 {
-  m_invisible_wanted = cmi->is_active();
+  m_invisible_wanted = inv;
   icqclient.setStatus(m_status_wanted, m_invisible_wanted);
 }
- 
-void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
+
+void IckleGUI::status_changed_cb(MyStatusChangeEvent *ev) {
   Status st = ev->getStatus();
   bool inv = ev->getInvisible();
 
-  Gtk::MenuItem *mi = m_ickle_menubar.items()[1];
-
-  Gtk::HBox *hbox = dynamic_cast<Gtk::HBox*>(mi->get_child());
-  if (hbox != NULL) {
-    Gtk::ImageLoader *p = g_icons.IconForStatus(st, inv);
-    hbox->children().clear();
-    hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
-    hbox->pack_end( * manage( new Gtk::Label( Status_text[st], 1.0 ) ), true );
-    hbox->show_all();
-  }
-
+  m_status_menu.status_changed_cb( st, inv );
   m_status = st;
   m_invisible = inv;
 
@@ -464,7 +406,7 @@ void IckleGUI::settings_cb() {
     if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
     if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
   
-    if (reconnect) status_change_menu_cb(STATUS_ONLINE);
+    if (reconnect) status_menu_status_changed_cb(STATUS_ONLINE);
 
     settings_changed.emit();
   }
@@ -505,11 +447,6 @@ void IckleGUI::settings_changed_cb(const string& k)
 {
   if (k == "spell_check")
     spell_check_setup();
-}
-
-void IckleGUI::icons_changed_cb() {
-  menu_status_update();
-  m_contact_list.icons_changed_cb();
 }
 
 void IckleGUI::exit_cb() {
