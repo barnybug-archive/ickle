@@ -31,8 +31,6 @@
 #include <string>
 #include <sigc++/signal_system.h>
 
-using SigC::Signal1;
-
 class SetAutoResponseDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel;

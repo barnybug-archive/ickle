@@ -28,6 +28,8 @@
 #include "Settings.h"
 #include "sstream_fix.h"
 
+using std::ostringstream;
+
 SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel")

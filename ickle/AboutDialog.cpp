@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.3 2002-01-16 19:30:51 oizoken Exp $
+/* $Id: AboutDialog.cpp,v 1.4 2002-01-16 19:54:34 oizoken Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -31,6 +31,9 @@
 
 #include "sstream_fix.h"
 
+using std::ostringstream;
+using std::endl;
+
 AboutDialog::AboutDialog()
   : Gtk::Dialog()
 {
@@ -55,16 +58,16 @@ AboutDialog::AboutDialog()
   text->insert(hd, "About ickle\n");
 
 
-  std::ostringstream ostr1;
-  ostr1 << "Version: " << ICKLE_VERSION << std::endl;
+  ostringstream ostr1;
+  ostr1 << "Version: " << ICKLE_VERSION << endl;
   text->insert(p, ostr1.str() );
 
-  std::ostringstream ostr2;
-  ostr2 << "Compiled on: " << __DATE__ << std::endl;
+  ostringstream ostr2;
+  ostr2 << "Compiled on: " << __DATE__ << endl;
   text->insert(p, ostr2.str() );
 
-  std::ostringstream ostr3;
-  ostr3 << "libicq2000 Version: " << libicq2000_version << std::endl;
+  ostringstream ostr3;
+  ostr3 << "libicq2000 Version: " << libicq2000_version << endl;
   text->insert(p, ostr3.str() );
 
   text->insert(hd, "\nDevelopers\n");
