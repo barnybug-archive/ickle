@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.10 2001-12-18 19:45:10 nordman Exp $
+/* $Id: Settings.cpp,v 1.11 2001-12-18 20:02:31 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -260,7 +260,7 @@ void Settings::setValue(const string& k, unsigned char v) {
 
 void Settings::setValue(const string& k, bool v) {
   if( m_map[k] != (v ? "1" : "0") ) {
-    m_map[k] = v ? "1" : "0";
+    m_map[k] = (v ? "1" : "0");
     settings_changed.emit( k );
   }
 }

@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.5 2001-12-18 19:45:10 nordman Exp $
+/* $Id: Icons.h,v 1.6 2001-12-18 20:02:31 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -22,7 +22,6 @@
 #define ICONS_H
 
 #include <gtk--/imageloader.h>
-#include <sigc++/signal_system.h>
 
 #include <string>
 
@@ -35,7 +34,6 @@ using Gtk::ImageLoader;
 using Gtk::ImageLoaderData;
 using ICQ2000::MessageEvent;
 using std::string;
-using SigC::Signal0;
 
 class Icons {
  private:
