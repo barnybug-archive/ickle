@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.18 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.19 2003-01-11 20:11:10 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -49,7 +49,7 @@ Icons::Icons()
  * Sets the icons to the default compiled in icons.
  */
 void Icons::setDefaultIcons() {
-  Icon_Status_Online = Gdk::Pixbuf::create_from_xpm_data(online_xpm);
+  Icon_Status_Online = Gdk::Pixbuf::create_from_xpm_data( (online_xpm) );
   Icon_Status_Away = Gdk::Pixbuf::create_from_xpm_data( (away_xpm) );
   Icon_Status_NA = Gdk::Pixbuf::create_from_xpm_data( (na_xpm) );
   Icon_Status_Occupied = Gdk::Pixbuf::create_from_xpm_data( (occ_xpm) );

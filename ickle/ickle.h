@@ -26,6 +26,7 @@
 
 /* gettext support */
 #include "gettext.h"
+#include <locale.h>
 
 #define _(x) gettext(x)
 #ifdef gettext_noop

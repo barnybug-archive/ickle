@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.50 2003-01-05 19:43:55 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.51 2003-01-11 20:11:10 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -82,9 +82,8 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     pColumn->pack_start( *pPixbufRenderer, false );
     pColumn->pack_start( *pTextRenderer );
     
-    pColumn->add_attribute( pPixbufRenderer->property_pixbuf(), m_columns.icon );
-    pColumn->add_attribute( pPixbufRenderer->property_visible(), m_columns.is_contact );
     pColumn->add_attribute( pTextRenderer->property_text(), m_columns.nick );
+    pColumn->add_attribute( pPixbufRenderer->property_visible(), m_columns.is_contact );
     append_column( *pColumn );
   }
 
@@ -190,7 +189,7 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
   Gtk::TreeView::Column * col;
   int cell_x, cell_y;
   
-  if (get_path_at_pos(ev->x, ev->y, path, col, cell_x, cell_y))
+  if (get_path_at_pos((int)ev->x, (int)ev->y, path, col, cell_x, cell_y))
   {
     Gtk::TreeModel::iterator iter = m_reftreestore->get_iter(path);
     Gtk::TreeModel::Row row = *iter;

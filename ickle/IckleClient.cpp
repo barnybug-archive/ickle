@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.119 2003-01-09 20:12:40 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.120 2003-01-11 20:11:10 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -1186,26 +1186,26 @@ void IckleClient::loadContact(const string& s, bool self)
 	
   // Main Home Info
   ICQ2000::Contact::MainHomeInfo& mhi = c->getMainHomeInfo();
-  mhi.city = cs.getValueString("city");
-  mhi.state = cs.getValueString("state");
-  mhi.phone = cs.getValueString("phone");
-  mhi.fax = cs.getValueString("fax");
-  mhi.street = cs.getValueString("street");
-  mhi.zip = cs.getValueString("zip");
-  mhi.country = cs.getValueUnsignedShort("country");
-  mhi.timezone = cs.getValueUnsignedChar("gmt");
+  mhi.city     = cs.getValueString("city");
+  mhi.state    = cs.getValueString("state");
+  mhi.phone    = cs.getValueString("phone");
+  mhi.fax      = cs.getValueString("fax");
+  mhi.street   = cs.getValueString("street");
+  mhi.zip      = cs.getValueString("zip");
+  mhi.country  = ICQ2000::Country(cs.getValueUnsignedShort("country"));
+  mhi.timezone = ICQ2000::Timezone(cs.getValueUnsignedChar("gmt"));
 	
   // Homepage Info
   ICQ2000::Contact::HomepageInfo& hpi = c->getHomepageInfo();
-  hpi.age = cs.getValueUnsignedChar("age");
-  hpi.sex = cs.getValueUnsignedChar("sex");
-  hpi.homepage = cs.getValueString("homepage");
-  hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+  hpi.age         = cs.getValueUnsignedChar("age");
+  hpi.sex         = ICQ2000::Sex(cs.getValueUnsignedChar("sex"));
+  hpi.homepage    = cs.getValueString("homepage");
+  hpi.birth_year  = cs.getValueUnsignedShort("birth_year");
   hpi.birth_month = cs.getValueUnsignedChar("birth_month");
-  hpi.birth_day = cs.getValueUnsignedChar("birth_day");
-  hpi.lang1 = cs.getValueUnsignedChar("lang1");
-  hpi.lang2 = cs.getValueUnsignedChar("lang2");
-  hpi.lang3 = cs.getValueUnsignedChar("lang3");
+  hpi.birth_day   = cs.getValueUnsignedChar("birth_day");
+  hpi.lang1       = ICQ2000::Language(cs.getValueUnsignedChar("lang1"));
+  hpi.lang2       = ICQ2000::Language(cs.getValueUnsignedChar("lang2"));
+  hpi.lang3       = ICQ2000::Language(cs.getValueUnsignedChar("lang3"));
 
   // About Info
   c->setAboutInfo( cs.getValueString("about") );
