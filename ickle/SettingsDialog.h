@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.51 2003-03-12 15:23:20 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.52 2003-03-12 22:11:11 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -98,6 +98,9 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_network_smtp;
   Gtk::Entry m_network_smtp_host;
   Gtk::SpinButton m_network_smtp_port;
+  
+  Gtk::CheckButton m_network_in_dc;
+  Gtk::CheckButton m_network_out_dc;
 
   // page init functions
   void init_pages();

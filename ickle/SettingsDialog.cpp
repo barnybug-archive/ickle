@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.67 2003-03-12 15:23:19 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.68 2003-03-12 22:11:09 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -368,6 +368,14 @@ void SettingsDialog::init_look_message_page()
 void SettingsDialog::init_look_contact_list_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * clicking = manage( new SectionFrame( _("Clicking") ) );
+  
+  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
+  //todo
+  
+  clicking->add( * table );
+  
+  vbox->pack_start( *clicking );
   add_page( _("Contact list"), vbox, false );
 }
 
@@ -426,6 +434,31 @@ void SettingsDialog::init_look_icons_page()
 void SettingsDialog::init_away_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Response dialog") ) );
+
+  Gtk::Table * table = manage(new Gtk::Table( 1, 1 ) );
+  //todo
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+
+  vbox->pack_start( *frame );
+  
+  frame = manage( new SectionFrame( _("Invisibility") ) );
+  
+  table = manage(new Gtk::Table( 1, 1 ) );
+  //todo
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+  
+  vbox->pack_start( *frame );
+  
   add_page( _("Away"), vbox, true );
   
   // sub-pages
@@ -437,9 +470,9 @@ void SettingsDialog::init_away_idle_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   
-  SectionFrame * frame = manage( new SectionFrame( _("Away/Idle") ) );
+  SectionFrame * frame = manage( new SectionFrame( _("Idleing") ) );
   
-  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
+  Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
 
   table->attach( * manage( new Gtk::Label( _("Auto-away (minutes)"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -460,12 +493,23 @@ void SettingsDialog::init_away_idle_page()
   m_auto_na.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_na,_("After this time ickle will switch its mode to Not Available. 0 to disable"));
   table->attach( m_auto_na, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+
+  vbox->pack_start( *frame );
+  
+  frame = manage( new SectionFrame( _("Returning") ) );
+  
+  table = manage( new Gtk::Table( 2, 1 ) );
 
   
   m_auto_return.set_label(_("Automatically return (from Auto-away or Auto-N/A)"));
   m_auto_return.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_return,_("Determines if ickle will return from Auto-away or Auto-N/A after pressing a key or moving the mouse."));
-  table->attach( m_auto_return,0,2,2,3, Gtk::FILL, Gtk::FILL );
+  table->attach( m_auto_return,0,2,0,1, Gtk::FILL, Gtk::FILL );
 
   table->set_spacings(5);
   table->set_border_width(10);
@@ -527,6 +571,26 @@ void SettingsDialog::init_advanced_page()
 void SettingsDialog::init_advanced_security_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Connections") ) );
+  
+  Gtk::Table * table = manage( new Gtk::Table( 1, 2 ) );
+  
+  m_network_in_dc.set_label(_("Allow incoming direct connections"));
+  m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_network_in_dc, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  m_network_out_dc.set_label(_("Allow outgoing direct connections"));
+  m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_network_out_dc, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+  
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+
+  vbox->pack_start( *frame );
+  
   add_page( _("Security"), vbox, false );
 }
 
@@ -654,6 +718,8 @@ void SettingsDialog::load_advanced_page()
 
 void SettingsDialog::load_advanced_security_page()
 {
+  m_network_in_dc.set_active(g_settings.getValueBool("network_in_dc") );
+  m_network_out_dc.set_active(g_settings.getValueBool("network_out_dc") );
 }
 
 
@@ -755,6 +821,8 @@ void SettingsDialog::save_advanced_page()
 
 void SettingsDialog::save_advanced_security_page()
 {
+  g_settings.setValue( "network_in_dc", m_network_in_dc.get_active() );
+  g_settings.setValue( "network_out_dc", m_network_out_dc.get_active() );
 }
 
 void SettingsDialog::save_advanced_smtp_page()
