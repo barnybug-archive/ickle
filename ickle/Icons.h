@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.7 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: Icons.h,v 1.8 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -28,8 +28,8 @@
 
 #include "main.h"
 
-#include "constants.h"
-#include "events.h"
+#include <libicq2000/constants.h>
+#include <libicq2000/events.h>
 
 using Gtk::ImageLoader;
 using Gtk::ImageLoaderData;

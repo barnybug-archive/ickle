@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.9 2001-12-17 22:46:22 nordman Exp $
+/* $Id: History.cpp,v 1.10 2001-12-26 23:24:19 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -23,7 +23,7 @@
 #include "History.h"
 #include "sstream_fix.h"
 
-#include "Contact.h"
+#include <libicq2000/Contact.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -5,27 +5,28 @@
 EXTRA_PROGRAMS = ickle ickle_applet
 bin_PROGRAMS = @ICKLE_PROGRAM@
 
-AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" -I$(top_srcdir)/src/ -I$(top_srcdir)/share/icons/ickle/  \
-              @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@
-LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@
+AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" -I$(top_srcdir)/share/icons/ickle/  \
+              @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@ @LIBICQ2000_CFLAGS@
+LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @LIBICQ2000_LIBFLAGS@
+LDADD = @LIBICQ2000_LIBADD@
 
-ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp \
-                Settings.cpp ContactListView.cpp \
-		MessageBox.cpp AddUserDialog.cpp \
-                Icons.cpp UserInfoDialog.cpp \
-		AddMobileUserDialog.cpp SettingsDialog.cpp \
-		PromptDialog.cpp History.cpp MobileNoEntry.cpp \
-                Dir.cpp AwayMessageDialog.cpp
-noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
-                 ContactListView.h MessageBox.h AddUserDialog.h \
-                 Icons.h UserInfoDialog.h AddMobileUserDialog.h \
-		 SettingsDialog.h PromptDialog.h History.h \
-		 MobileNoEntry.h Dir.h IckleApplet.h AwayMessageDialog.h
+ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
+  Settings.cpp ContactListView.cpp MessageBox.cpp AddUserDialog.cpp	\
+  Icons.cpp UserInfoDialog.cpp AddMobileUserDialog.cpp			\
+  SettingsDialog.cpp PromptDialog.cpp History.cpp MobileNoEntry.cpp	\
+  Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
+  SetAutoResponseDialog.cpp
 
-ickle_LDADD = $(top_srcdir)/src/libicq2000.la
+noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
+  ContactListView.h MessageBox.h AddUserDialog.h		\
+  Icons.h UserInfoDialog.h AddMobileUserDialog.h		\
+  SettingsDialog.h PromptDialog.h History.h			\
+  MobileNoEntry.h Dir.h IckleApplet.h				\
+  AwayMessageDialog.h sstream_fix.h				\
+  SetAutoResponseDialog.h EventSubstituter.h
+
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
-ickle_applet_LDADD = $(ickle_LDADD)
 ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@
 
 corbadir = $(sysconfdir)/CORBA/servers

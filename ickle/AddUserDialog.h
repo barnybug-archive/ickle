@@ -28,7 +28,7 @@
 #include <gtk--/label.h>
 #include <gtk--/entry.h>
 
-#include "Contact.h"
+#include <libicq2000/Contact.h>
 
 class AddUserDialog : public Gtk::Dialog {
  private:

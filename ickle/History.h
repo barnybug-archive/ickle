@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.7 2001-12-17 15:16:41 nordman Exp $
+/* $Id: History.h,v 1.8 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -33,7 +33,7 @@
 #include <time.h>
 #include <sigc++/signal_system.h>
 
-#include "events.h"
+#include <libicq2000/events.h>
 
 using ICQ2000::MessageEvent;
 

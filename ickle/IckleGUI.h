@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.19 2001-12-21 17:57:40 nordman Exp $
+/* $Id: IckleGUI.h,v 1.20 2001-12-26 23:24:19 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -28,22 +28,23 @@
 #include <gtk--/box.h>
 #include <gtk--/menu.h>
 #include <gtk--/menubar.h>
+#include <gtk--/checkmenuitem.h>
 #include <gtk--/scrolledwindow.h>
 #include <gtk--/dialog.h>
 
 #include <sigc++/signal_system.h>
 
 #include <string>
-#include <utility>
 #include <map>
-
-#include <config.h>
+#include <utility>
 
 #include "main.h"
-#include "Client.h"
-#include "ContactList.h"
-#include "Contact.h"
-#include "events.h"
+#include <libicq2000/Client.h>
+
+#include <libicq2000/ContactList.h>
+#include <libicq2000/Contact.h>
+
+#include <libicq2000/events.h>
 #include "ContactListView.h"
 #include "MessageBox.h"
 #include "AddUserDialog.h"
@@ -52,9 +53,12 @@
 #include "PromptDialog.h"
 #include "AwayMessageDialog.h"
 #include "History.h"
-#include "constants.h"
+#include "SetAutoResponseDialog.h"
+
+#include <libicq2000/constants.h>
 
 using std::string;
+using std::map;
 
 using SigC::Signal0;
 using SigC::Signal1;
@@ -67,6 +71,9 @@ class IckleGUI : public Gtk::Window {
   std::map<unsigned int, MessageBox*> m_message_boxes;
   std::map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
   Status m_status;
+  Status m_status, m_status_wanted;
+  bool m_invisible, m_invisible_wanted;
+  string auto_response;
 
   bool m_display_times;
 
@@ -84,6 +91,7 @@ class IckleGUI : public Gtk::Window {
 
   void menu_status_update();
   Gtk::MenuItem* menu_status_widget( Status s );
+  Gtk::MenuItem* menu_status_inv_widget();
 
   void messagebox_popup(Contact *c, History *h);
 
@@ -94,6 +102,7 @@ class IckleGUI : public Gtk::Window {
   ContactListView* getContactListView();
 
   void status_change_menu_cb(Status st);
+  void status_change_inv_menu_cb(Gtk::CheckMenuItem *cmi);
   void popup_messagebox(Contact *c, History *h);
   void userinfo_popup(Contact *c);
   void message_box_close_cb(Contact *c);
@@ -101,8 +110,11 @@ class IckleGUI : public Gtk::Window {
   void add_user_cb();
   void add_mobile_user_cb();
   void invalid_login_prompt();
+  void turboing_prompt() ;
 
   void setDisplayTimes(bool d);
+  string getAutoResponse() const;
+  void setAutoResponse(const string& ar);
 
   gint ickle_popup_cb(GdkEventButton*);
 

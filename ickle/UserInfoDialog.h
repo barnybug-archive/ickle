@@ -33,7 +33,7 @@
 
 #include <sigc++/signal_system.h>
 
-#include "Contact.h"
+#include <libicq2000/Contact.h>
 
 using ICQ2000::Contact;
 using ICQ2000::MainHomeInfo;

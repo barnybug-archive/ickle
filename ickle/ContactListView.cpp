@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.23 2001-12-19 12:28:55 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.24 2001-12-26 23:24:19 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -27,7 +27,7 @@
 #include <utility>
 #include "sstream_fix.h"
 
-#include "Client.h"
+#include <libicq2000/Client.h>
 #include "PromptDialog.h"
 
 using std::string;

@@ -27,7 +27,7 @@
 
 #include "sstream_fix.h"
 
-#include "Client.h"
+#include <libicq2000/Client.h>
 #include "main.h"
 #include "Settings.h"
 

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.15 2001-12-19 13:40:41 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.16 2001-12-26 23:24:19 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -20,11 +20,11 @@
  *
  */
 
-#include <config.h>
 #include <gnome.h>
-#include "sstream_fix.h"
 
-#include <constants.h>
+#include <libicq2000/constants.h>
+
+#include "sstream_fix.h"
 #include "main.h"
 #include "IckleApplet.h"
 #include "Icons.h"

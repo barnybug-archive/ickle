@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.17 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.18 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -37,7 +37,7 @@
 #include "Settings.h"
 #include "main.h"
 
-#include "Contact.h"
+#include <libicq2000/Contact.h>
 
 using std::string;
 

@@ -30,8 +30,8 @@
 #include "main.h"
 #include "Settings.h"
 
-#include "Contact.h"
-#include "events.h"
+#include <libicq2000/Contact.h>
+#include <libicq2000/events.h>
 
 using namespace ICQ2000;
 

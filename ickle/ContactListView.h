@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.14 2001-12-21 17:57:40 nordman Exp $
+/* $Id: ContactListView.h,v 1.15 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -28,16 +28,13 @@
 #include <sigc++/signal_system.h>
 #include <string>
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include "main.h"
-#include "ContactList.h"
-#include "Contact.h"
+#include <libicq2000/ContactList.h>
+#include <libicq2000/Contact.h>
 #include "Icons.h"
 
 using std::string;
+
 using SigC::Signal1;
 
 using namespace ICQ2000;

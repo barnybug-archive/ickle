@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.8 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.9 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -99,38 +99,39 @@ void Icons::FreeIcons() {
   delete Icon_Status_Invisible;
 }
 
-ImageLoader* Icons::IconForStatus(Status s,bool inv) { 
+ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
   ImageLoader *p;
-  switch(s) {
-  case STATUS_ONLINE:
-    if (inv) {
+  if (inv) {
     p = Icon_Status_Invisible;
-    } else {
+  } else {
+    switch(s) {
+    case STATUS_ONLINE:
       p = Icon_Status_Online;
-    } 
-    break;
-  case STATUS_AWAY:
-    p = Icon_Status_Away;
-    break;
-  case STATUS_NA:
-    p = Icon_Status_NA;
-    break;
-  case STATUS_OCCUPIED:
-    p = Icon_Status_Occupied;
-    break;
-  case STATUS_DND:
-    p = Icon_Status_DND;
-    break;
-  case STATUS_FREEFORCHAT:
-    p = Icon_Status_FFC;
-    break;
-  case STATUS_OFFLINE:
-    p = Icon_Status_Offline;
-    break;
-  default:
-    p = Icon_Status_Offline;
-    break;
+      break;
+    case STATUS_AWAY:
+      p = Icon_Status_Away;
+      break;
+    case STATUS_NA:
+      p = Icon_Status_NA;
+      break;
+    case STATUS_OCCUPIED:
+      p = Icon_Status_Occupied;
+      break;
+    case STATUS_DND:
+      p = Icon_Status_DND;
+      break;
+    case STATUS_FREEFORCHAT:
+      p = Icon_Status_FFC;
+      break;
+    case STATUS_OFFLINE:
+      p = Icon_Status_Offline;
+      break;
+    default:
+      p = Icon_Status_Offline;
+      break;
+    }
   }
+  
   return p;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.46 2001-12-21 17:57:40 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.47 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,8 +35,9 @@
 #include "main.h"
 #include "Icons.h"
 #include "Dir.h"
+#include "EventSubstituter.h"
 
-#include "Client.h"
+#include <libicq2000/Client.h>
 
 #include <time.h>
 
@@ -74,6 +75,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
+  icqclient.want_auto_resp.connect(slot(this,&IckleClient::want_auto_resp_cb));
 
   // set up GUI callbacks
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
@@ -253,6 +255,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedInt("history_shownr", 10, 1, 255);
   g_settings.defaultValueString("message_header_font", "-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
   g_settings.defaultValueString("message_text_font", "");
+  g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
+  g_settings.defaultValueBool("set_away_response_timeout", true);
 
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
@@ -289,6 +293,10 @@ void IckleClient::loadSettings() {
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
   
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
+
+  // Load up auto response in case autoconnect = away/na/etc.
+  string auto_response = g_settings.getValueString("last_auto_response");
+  gui.setAutoResponse(auto_response);
 }
 
 void IckleClient::saveSettings() {
@@ -392,6 +400,11 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   // disconnect PingServer callback
   poll_server_cnt.disconnect();
   
+  if (c->getReason() == DisconnectedEvent::FAILED_TURBOING) {
+    gui.turboing_prompt();
+    return;
+  }
+
   if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED) {
     --m_retries;
     Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_reconnect_cb ), icqclient.getStatus() ) );
@@ -598,93 +611,20 @@ bool IckleClient::message_cb(MessageEvent *ev) {
   return false;
 }
 
+void IckleClient::want_auto_resp_cb(AwayMessageEvent *ev) {
+  Contact *c = ev->getContact();
+  EventSubstituter evs(c);
+  evs << gui.getAutoResponse();
+  ev->setMessage(evs.str());
+}
+
 void IckleClient::event_system(const string& s, MessageEvent *ev) {
-  if (g_settings.getValueString(s) != "") {
-    Contact *co = ev->getContact();
-
-    int ci;
-    unsigned char c;
-    char timebuf[100];
-    time_t ev_time;
-    istringstream istr (g_settings.getValueString(s));
-    ostringstream ostr;
-
-    while(istr.good()){
-      ci = istr.get();
-      if (ci == EOF)
-        break;
-      c = (unsigned char)ci;
-      if (c == '%'){
-        ci = istr.get();
-	if (ci == EOF)
-	  break;
-	c = (unsigned char)ci;
-        switch(c) {
-	case 'i':
-	  ostr << IPtoString( co->getExtIP() );
-	  break;
-	case 'p':
-	  ostr << co->getExtPort();
-	  break;
-	case 'e':
-	  ostr << co->getEmail();
-	  break;
-	case 'n':
-	  ostr << co->getFirstName()
-	       << " " << co->getLastName();
-	  break;
-	case 'f':
-	  ostr << co->getFirstName();
-	  break;
-	case 'l':
-	  ostr << co->getLastName();
-	  break;
-	case 'a':
-	  ostr << co->getAlias();
-	  break;
-	case 'u':
-	  ostr << co->getStringUIN();
-	  break;
-	  // case 'w': would be the web address
-	  // case 'h': would be home phone number
-	case 'c':
-	  ostr << co->getMobileNo();
-	  break;
-	case 's':
-	case 'S':
-	  ostr << co->getStatusStr();
-	  break;
-	case 't':
-	  ev_time = ev->getTime();
-	  strftime(timebuf, 100, "%b %d %r", localtime(&ev_time));
-	  ostr << timebuf;
-	  break;
-	case 'T':
-	  ev_time = ev->getTime();
-	  strftime(timebuf, 100, "%b %d %R %Z", localtime(&ev_time));
-	  ostr << timebuf;
-	  break;
-	  // case 'o' would be last time they were online
-	case 'm':
-	  ostr << co->numberPendingMessages();
-	  break;
-	case '%':
-	  ostr << "%";
-	  break;
-	default:
-	  {
-	    ostringstream ostr;
-	    ostr << "Warning: no substitution for %" << c;
-	    SignalLog(LogEvent::WARN, ostr.str());
-	    break;
-	  }
-        }
-      } else {
-        ostr << c;
-      }
-    }
-    ostr << " &";
-    system(ostr.str().c_str());
+  if (!g_settings.getValueString(s).empty()) {
+    EventSubstituter evs(ev->getContact());
+    evs.set_event_time(ev->getTime());
+    evs.set_escape_shell(true);
+    evs << g_settings.getValueString(s) << " &";
+    system(evs.str().c_str());
   }
 }
 

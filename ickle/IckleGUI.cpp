@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.23 2001-12-21 17:57:40 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.24 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,6 +21,7 @@
 #include "IckleGUI.h"
 
 #include "SettingsDialog.h"
+#include "sstream_fix.h"
 
 using std::map;
 
@@ -29,6 +30,9 @@ IckleGUI::IckleGUI()
     m_contact_scroll(),
     m_contact_list(),
     m_status(STATUS_OFFLINE),
+    m_status_wanted(STATUS_OFFLINE),
+    m_invisible(false),
+    m_invisible_wanted(false),
     m_away_message( this )
 {
   // setup default compiled in xpms
@@ -90,12 +94,15 @@ void IckleGUI::menu_status_update() {
   sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
   sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
   sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
+  sl.push_back( SeparatorElem() );
+  sl.push_back(* menu_status_inv_widget() );
   m_status_menu.show_all();
 
 }
 
 Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
-  Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
+  Gtk::MenuItem *mi;
+  mi = manage( new Gtk::MenuItem() );
   mi->activate.connect( bind(slot(this,&IckleGUI::status_change_menu_cb),s) );
   Gtk::HBox *hbox=manage( new Gtk::HBox() );
   Gtk::ImageLoader *p = g_icons.IconForStatus(s, false);
@@ -104,7 +111,19 @@ Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
   mi->add(*hbox);
   return mi;
 }
-
+  
+Gtk::MenuItem* IckleGUI::menu_status_inv_widget() {
+  Gtk::CheckMenuItem *mi;
+  mi = manage( new Gtk::CheckMenuItem() );
+  mi->toggled.connect( bind(slot(this,&IckleGUI::status_change_inv_menu_cb), mi) );
+  Gtk::HBox *hbox=manage( new Gtk::HBox() );
+  Gtk::ImageLoader *p = g_icons.IconForStatus(STATUS_ONLINE, true);
+  hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
+  hbox->pack_end( * manage( new Gtk::Label( "Invisible", 1.0 ) ), true );
+  mi->add(*hbox);
+  return mi;
+}
+  
 IckleGUI::~IckleGUI() {
   while(!m_message_boxes.empty()) {
     map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
@@ -236,16 +255,32 @@ int IckleGUI::delete_event_impl(GdkEventAny*) {
 }
 
 void IckleGUI::status_change_menu_cb(Status st) {
-  icqclient.setStatus(st);
+  m_status_wanted = st;
+  if (st != STATUS_ONLINE && st != STATUS_OFFLINE) {
+    SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
+    manage(d);
+    d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
+  }
+  icqclient.setStatus(m_status_wanted, m_invisible_wanted);
 }
 
+void IckleGUI::status_change_inv_menu_cb(Gtk::CheckMenuItem *cmi) 
+{
+  m_invisible_wanted = cmi->is_active();
+  icqclient.setStatus(m_status_wanted, m_invisible_wanted);
+}
+ 
 void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
   Status st = ev->getStatus();
   Gtk::MenuItem *m = m_ickle_menubar.items()[1];
   m->remove();
-  m->add_label( string(Status_text[st]) );
+  ostringstream ostr;
+  ostr << Status_text[st];
+  if (ev->getInvisible()) ostr << " (I)";
+  m->add_label( ostr.str() );
 
   m_status = st;
+  m_invisible = ev->getInvisible();
 
   map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
   while (i != m_message_boxes.end()) {
@@ -294,6 +329,15 @@ void IckleGUI::invalid_login_prompt() {
   pd.run();
 }
 
+void IckleGUI::turboing_prompt(){
+  PromptDialog pd(PromptDialog::PROMPT_WARNING, "The server says you have been turboing. "
+		  "This means you've been connecting and disconnecting to the server too "
+		  "quickly and so it has blocked you temporarily. Don't be alarmed, just "
+		  "wait for at least 5 minutes before reattempting. If you still get this "
+		  "message then wait a bit longer - maybe up to an hour.");
+  pd.run();
+}
+
 void IckleGUI::setDisplayTimes(bool d) {
   if (m_display_times != d) {
     m_display_times = d;
@@ -305,6 +349,16 @@ void IckleGUI::setDisplayTimes(bool d) {
     }
 
   }
+}
+
+void IckleGUI::setAutoResponse(const string& ar) {
+  auto_response = ar;
+  g_settings.setValue("last_auto_response", ar);
+}
+
+string IckleGUI::getAutoResponse() const
+{
+  return auto_response;
 }
 
 void IckleGUI::userinfo_toggle_cb(bool b, Contact *c) {

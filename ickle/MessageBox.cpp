@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.34 2001-12-24 13:58:38 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.35 2001-12-26 23:24:19 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -202,6 +202,8 @@ MessageBox::MessageBox(Contact *c, History *h)
 
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
   m_close_button.clicked.connect( destroy.slot() );
+  m_tooltips.set_tip(m_send_button, "Send Message\nShortcuts: Ctrl-Enter or Alt-S");
+  m_tooltips.set_tip(m_close_button, "Close window\nShortcuts: Alt-C or Escape");
 
   hbox = manage( new Gtk::HBox() );
 

@@ -1,8 +1,8 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(ickle, 0.2.1, barnaby@beedesign.co.uk)
-AM_INIT_AUTOMAKE(ickle,0.2.1)
+AC_INIT(ickle, 0.3.0, barnaby@beedesign.co.uk)
+AM_INIT_AUTOMAKE(ickle,0.3.0)
 
-AC_CONFIG_SRCDIR([src/Client.cpp])
+AC_CONFIG_SRCDIR([ickle/main.cpp])
 AM_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -20,14 +20,9 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h arpa/inet.h stdlib.h string.h sys/socket.h ctype.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
+AC_CHECK_HEADERS([errno.h stdlib.h string.h ctype.h sys/time.h sys/types.h sys/wait.h unistd.h],, AC_MSG_ERROR([Required header not found]) )
 # doesn't matter if getopt is missing it's a gnu thing
-AC_CHECK_HEADERS([getopt.h],,)
-
-dnl Checks for library functions.
-AC_CHECK_LIB(socket, socket)
-AC_CHECK_FUNC(gethostbyname, ,
-  AC_CHECK_LIB(nsl, gethostbyname,, AC_MSG_ERROR([You do not have gethostbyname - check you have libc installed properly])) )
+AC_CHECK_HEADERS([getopt.h])
 
 dnl optional GNOME support
 ICKLE_GNOME_INIT(applets)
@@ -48,18 +43,19 @@ AC_SUBST(ICKLE_MANPAGES)
 AC_SUBST(CORBA_FILES)
 AC_SUBST(DESKTOP_FILES)
 
-dnl Switch to C++ mode and check for needed C++ headers
+# Switch to C++ mode and check for needed C++ headers
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
 AC_CHECK_HEADERS([vector iostream fstream string algorithm list memory iterator exception utility],,
   AC_MSG_ERROR([You need to have the libstdc++ headers installed]))
 
-AC_CHECK_HEADERS(ext/hash_map,,
-  AC_CHECK_HEADERS(hash_map,, AC_MSG_ERROR([Your libstdc++ installation does not have the extra hash classes])))
-
-AC_CHECK_HEADERS(sstream,,
-  AC_CHECK_HEADERS(strstream,, AC_MSG_ERROR([Your libstdc++ doesn't have the sstream or strstream classes])))
+sstream=no
+AC_CHECK_HEADERS(sstream,sstream=yes)
+AC_CHECK_HEADERS(strstream,sstream=yes)
+if test $sstream != yes ; then
+  AC_MSG_ERROR([Your libstdc++ installation does not have the sstream or strstream classes])
+fi
 
 AC_LANG_RESTORE
 
@@ -67,6 +63,8 @@ AC_LANG_RESTORE
 AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR([You need to have the libsigc++ libraries installed - see the README for more information])])
 
 AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.5 and above - see the README for more information])])
+# libicq2000 checks
+AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed - see the README for more information])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -79,15 +77,11 @@ AC_HEADER_TIME
 AC_FUNC_MKTIME
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_FUNC_FORK
-AC_FUNC_SETVBUF_REVERSED
-AC_HEADER_SYS_WAIT
-AC_CHECK_FUNCS([dup2 mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
+AC_CHECK_FUNCS([mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
-AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile
-share/Makefile share/icons/Makefile share/icons/ickle/Makefile
-share/icons/doors/Makefile share/icons/icq/Makefile share/icons/new/Makefile
-share/icons/gnomeicu/Makefile share/translations/Makefile])
+AC_CONFIG_FILES([Makefile ickle/Makefile share/Makefile share/icons/Makefile
+share/icons/ickle/Makefile share/icons/doors/Makefile share/icons/icq/Makefile
+share/icons/new/Makefile share/icons/gnomeicu/Makefile share/translations/Makefile])
 AC_OUTPUT
 
 $ECHO

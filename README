@@ -30,14 +30,16 @@
 
 6. Importing contacts
 
-7. More info for developers
+7. Custom away messages
+
+8. More info for developers
 - 1. Contributing to ickle
 - 2. Anonymous CVS
 - 3. Alternative client developers (or using the libicq2000 library)
 
-8. Comments, bug fixes, etc..
+9. Comments, bug fixes, etc..
 
-9. License
+10. License
 
 
 
@@ -52,7 +54,7 @@ ickle supports:
 - SMS sending/receiving, including delivery reports
 - Status changes
 - Fetching user info from server
-- Fetching away messages
+- Fetching/setting away messages
 
 Features:
 - Autoconnect, autoreconnect and retries
@@ -236,6 +238,41 @@ I've written a simple perl script in scripts/licq2ickle.pl that you
 can run and will convert your licq contacts over to ickle. There is
 also a similar script the micq. I might write something similar for
 windows if I get any requests for it.
+
+
+
+ --------------------------------------------------------------------
+ - Custom away messages                                             -
+ --------------------------------------------------------------------
+
+Auto responses and event commands make the following substitutions
+based on the contact who sent the event and the time it was sent:
+  %i  contact's external IP
+  %p  contact's external port
+  %e  email
+  %n  first and last name, separated by a space
+  %f  first name
+  %l  last name
+  %a  ICQ alias
+  %u  ICQ UIN
+  %c  SMS mobile number
+  %s  contact's status string (e.g. "Online")
+  %t  event time, like "Dec 24 02:09:41 AM"
+  %T  event time, like "Dec 24 02:09 EST"
+  %m  number of messages pending from contact
+  %%  literal '%' sign
+
+Any lines beginning with "|" will be passed to a shell for execution,
+with all %-substitutions enclosed in double quotes and metacharacters
+(hopefully) escaped. The standard output of the shell command will be
+inserted into the response. So you can have an N/A message like this:
+
+    Hi, %a!
+    |/usr/games/fortune -o
+    |echo `date +%%s` %i %a >> $HOME/.log
+
+which should attempt to send an offensive fortune, then run the
+equivalent of 'echo `date +%s` "ipaddr" "alias" >> $HOME/.log'.
 
 
 

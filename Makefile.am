@@ -2,7 +2,7 @@
 ## Process with automake to produce Makefile.in
 ##
 
-SUBDIRS = src ickle examples share
+SUBDIRS = ickle share
 
 EXTRA_DIST = THANKS NEWS \
  scripts/licq2ickle.pl scripts/micq2ickle.pl \

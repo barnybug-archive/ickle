@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.20 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.21 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,7 +21,7 @@
 #include "SettingsDialog.h"
 
 #include "main.h"
-#include "Client.h"
+#include <libicq2000/Client.h>
 #include "Dir.h"
 #include "Icons.h"
 

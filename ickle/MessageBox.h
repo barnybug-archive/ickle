@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.12 2001-12-24 13:58:38 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.13 2001-12-26 23:24:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,14 +34,15 @@
 #include <gtk--/togglebutton.h>
 #include <gtk--/adjustment.h>
 #include <gtk--/scale.h>
+#include <gtk--/tooltips.h>
 
 #include <string>
 #include <time.h>
 
 #include <sigc++/signal_system.h>
 
-#include "Contact.h"
-#include "events.h"
+#include <libicq2000/Contact.h>
+#include <libicq2000/events.h>
 #include "Icons.h"
 #include "History.h"
 
@@ -87,6 +88,7 @@ class MessageBox : public Gtk::Window {
   Gtk::VPaned m_pane;
   Gtk::ToggleButton *m_userinfo_toggle;
 
+  Gtk::Tooltips m_tooltips;
   Gtk::Statusbar m_status;
   guint m_status_context;
 

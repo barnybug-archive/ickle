@@ -32,12 +32,17 @@
 # include <config.h>
 #endif
 
+#include <map>
+
+#include <libicq2000/constants.h>
+#include <libicq2000/events.h>
+
 #include "main.h"
-#include "events.h"
 #include "IckleGUI.h"
 #include "Settings.h"
-#include "constants.h"
 #include "History.h"
+
+using std::map;
 
 #ifdef GNOME_ICKLE
 # include "IckleApplet.h"
@@ -54,6 +59,7 @@ class IckleClient : public SigC::Object {
   IckleGUI gui;
   Status status;
   unsigned int m_retries;
+  string auto_response;
 
 #ifdef GNOME_ICKLE
   IckleApplet applet;
@@ -94,6 +100,7 @@ class IckleClient : public SigC::Object {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void socket_cb(SocketEvent* ev);
+  void want_auto_resp_cb(AwayMessageEvent *ev);
 
   // -- Callbacks for GUI --
   void user_popup_cb(unsigned int uin);
@@ -110,7 +117,6 @@ class IckleClient : public SigC::Object {
 
   // -- Callback for timeout
   int poll_server_cb();
-
 };
 
 #endif

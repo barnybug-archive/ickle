@@ -1,5 +1,5 @@
 /*
- * SeqNumCache
+ * SetAutoResponseDialog: Modeless dialog for changing auto response
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,30 +18,41 @@
  *
  */
 
-#ifndef SEQNUMCACHE_H
-#define SEQNUMCACHE_H
+#ifndef SETAWAYMSGDIALOG_H
+#define SETAWAYMSGDIALOG_H
 
-#include "Cache.h"
-#include "events.h"
-
+#include <gtk--/main.h>
+#include <gtk--/dialog.h>
+#include <gtk--/box.h>
+#include <gtk--/button.h>
+#include <gtk--/label.h>
+#include <gtk--/text.h>
+#include <gtk--/tooltips.h>
+#include <string>
 #include <sigc++/signal_system.h>
 
 using SigC::Signal1;
 
-namespace ICQ2000 {
+class SetAutoResponseDialog : public Gtk::Dialog {
+ private:
+  Gtk::Button okay, cancel;
+  Gtk::Text msg_input;
+  Gtk::Tooltips m_tooltip;
+  unsigned int m_timeout;
+  SigC::Connection timeout_connection;
 
-  class SeqNumCache : public Cache<unsigned short, MessageEvent*> {
-   public:
-    SeqNumCache() { }
+ public:
+  SetAutoResponseDialog(const string& prev_msg);
 
-    void expireItem(const SeqNumCache::literator& l) {
-      expired.emit( (*l).getValue() );
-      Cache<unsigned short, MessageEvent*>::expireItem(l);
-    }
+  gint key_press_event_impl(GdkEventKey* ev);
+  gint button_press_event_impl(GdkEventButton* ev);
+  int auto_timeout();
+  void cancel_timeout();
 
-    Signal1<void,MessageEvent*> expired;
-  };
-  
-}
+  void okay_cb();
+  void cancel_cb();
+
+  Signal1<void, const string&> save_new_msg;
+};
 
 #endif
