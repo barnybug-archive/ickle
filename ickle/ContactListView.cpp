@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.38 2002-04-05 15:27:42 bugcreator Exp $
+/* $Id: ContactListView.cpp,v 1.39 2002-04-28 23:38:11 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -201,7 +201,7 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
     row( rows().size()-1 ).select();
     moveto( rows().size()-1, 0 );
   }
-  else if ( isalpha(key) && ev->state == 0) {
+  else if ( isalnum(key) && !(ev->state & GDK_CONTROL_MASK) && !(ev->state & GDK_MOD1_MASK)) {
     start_iter = row_iter;
     ++row_iter;
     if (row_iter == rows().end()) row_iter = rows().begin();
