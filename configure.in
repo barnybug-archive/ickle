@@ -7,7 +7,7 @@ AC_INIT(ickle/main.cpp)
 #
 ICKLE_MAJOR_VERSION=0
 ICKLE_MINOR_VERSION=3
-ICKLE_MICRO_VERSION=0
+ICKLE_MICRO_VERSION=1
 
 ICKLE_VERSION=$ICKLE_MAJOR_VERSION.$ICKLE_MINOR_VERSION.$ICKLE_MICRO_VERSION
 
@@ -15,7 +15,7 @@ AC_DEFINE_UNQUOTED(ICKLE_MAJOR_VERSION, "$ICKLE_MAJOR_VERSION", [Major version o
 AC_DEFINE_UNQUOTED(ICKLE_MINOR_VERSION, "$ICKLE_MINOR_VERSION", [Minor version of ickle])
 AC_DEFINE_UNQUOTED(ICKLE_MICRO_VERSION, "$ICKLE_MICRO_VERSION", [Micro version of ickle])
 AC_DEFINE_UNQUOTED(ICKLE_VERSION, "$ICKLE_VERSION", [Full version of ickle])
-AM_INIT_AUTOMAKE(ickle,0.3.0)
+AM_INIT_AUTOMAKE(ickle,0.3.1)
 
 AM_ACLOCAL_INCLUDE(macros)
 
@@ -99,7 +99,7 @@ AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR([You need to have the libsigc++ libraries 
 
 AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.5 and above - see the README for more information])])
 # libicq2000 checks
-AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed. You can get libicq2000 from http://libicq2000.sourceforge.net/. A direct link to the source tarball for 0.3.0 should be: http://prdownloads.sourceforge.net/libicq2000/libicq2000-0.3.0.tar.gz - see the README for more information])])
+AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed. You can get libicq2000 from http://libicq2000.sourceforge.net/. A direct link to the source tarball for 0.3.1 should be: http://prdownloads.sourceforge.net/libicq2000/libicq2000-0.3.1.tar.gz - see the README for more information])])
 
 # Switch to C++ mode - on some systems with the gtkmm libs they need libstdc++
 AC_LANG_SAVE
