@@ -44,7 +44,9 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h		\
   AddGroupDialog.h RenameGroupDialog.h RemoveGroupDialog.h		\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.h utils.h	\
   UserInfoHelpers.h Translator.h SetEncodingDialog.h sighandler.h       \
-  ReceiveFileDialog.h SendFileDialog.h FindTextDialog.h
+  ReceiveFileDialog.h SendFileDialog.h FindTextDialog.h ickle.h		\
+  ucompose.h AddContactDialog.h gettext.h RemoveContactDialog.h		
+  
 
 man_MANS = ickle.1
 EXTRA_DIST = ickle.1
