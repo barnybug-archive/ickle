@@ -19,16 +19,18 @@
 
 #include <iostream>
 
-#include <sys/types.h>
 #include <sys/time.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/socket.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <errno.h>
 
 #include "ControlSocket.h"
+
+#ifndef UNIX_PATH_MAX
+#define UNIX_PATH_MAX 108
+#endif
 
 using std::cerr;
 using std::string;
@@ -75,10 +77,13 @@ ControlSocket & ControlSocket::operator>> (string & v)
 {
   size_t s;
   recv (m_sd, &s, sizeof(size_t), 0);
-  char * p = (char*) malloc (s);
-  recv (m_sd, p, s, 0);
-  v = string (p);
-  free (p);
+  char *p = new char[s];
+  if (p != NULL) {
+    recv (m_sd, p, s, 0);
+    v = string (p);
+    delete [] p;
+  }
+
   return *this;
 }
 
@@ -103,7 +108,7 @@ ControlSocket::ReadStatus ControlSocket::readStatus ()
 bool ControlSocketServer::init (const string & socket_path)
 {
   m_saddr.sun_family = AF_UNIX;
-  snprintf (m_saddr.sun_path, 108, "%s/ctrlsocket", socket_path.c_str());
+  snprintf (m_saddr.sun_path, UNIX_PATH_MAX, "%s/ctrlsocket", socket_path.c_str());
 
   // try to create the directory where the socket should be created
   if ((mkdir (socket_path.c_str(), 0700) == -1) && errno != EEXIST) {
@@ -173,7 +178,7 @@ bool ControlSocketClient::init (const string & socket_path, bool quiet)
   sockaddr_un saddr;
 
   saddr.sun_family = AF_UNIX;
-  snprintf (saddr.sun_path, 108, "%s/ctrlsocket", socket_path.c_str());
+  snprintf (saddr.sun_path, UNIX_PATH_MAX, "%s/ctrlsocket", socket_path.c_str());
 
   if ((m_sd = socket (AF_UNIX, SOCK_STREAM, 0)) == -1) {
     if (!quiet) cerr << "Failed to open socket" << endl;
