@@ -1,69 +1,183 @@
-2001-10-01  barnabygray  <barnaby@beedesign.co.uk>
+2001-10-03 17:02  barnabygray
 
-	* /cvsroot/ickle/ickle/config.h, /cvsroot/ickle/ickle/configure, /cvsroot/ickle/ickle/test/.deps/test-client.P, /cvsroot/ickle/ickle/test/.deps/test-sms.P, /cvsroot/ickle/ickle/test/.deps/test-sms.pp, /cvsroot/ickle/ickle/src/.deps/Client.P, /cvsroot/ickle/ickle/src/.deps/Contact.P, /cvsroot/ickle/ickle/src/.deps/ContactList.P, /cvsroot/ickle/ickle/src/.deps/SNAC.P, /cvsroot/ickle/ickle/src/.deps/TLV.P, /cvsroot/ickle/ickle/src/.deps/Xml.P, /cvsroot/ickle/ickle/src/.deps/buffer.P, /cvsroot/ickle/ickle/src/.deps/events.P, /cvsroot/ickle/ickle/src/.deps/exceptions.P, /cvsroot/ickle/ickle/src/.deps/logger.P, /cvsroot/ickle/ickle/src/.deps/socket.P, /cvsroot/ickle/ickle/ickle/.deps/AddMobileUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/AddUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/Contact.P, /cvsroot/ickle/ickle/ickle/.deps/ContactList.P, /cvsroot/ickle/ickle/ickle/.deps/ContactListView.P, /cvsroot/ickle/ickle/ickle/.deps/IckleClient.P, /cvsroot/ickle/ickle/ickle/.deps/IckleGUI.P, /cvsroot/ickle/ickle/ickle/.deps/Icons.P, /cvsroot/ickle/ickle/ickle/.deps/MessageBox.P, /cvsroot/ickle/ickle/ickle/.deps/PromptDialog.P, /cvsroot/ickle/ickle/ickle/.deps/Settings.P, /cvsroot/ickle/ickle/ickle/.deps/SettingsDialog.P, /cvsroot/ickle/ickle/ickle/.deps/UserInfoDialog.P, /cvsroot/ickle/ickle/ickle/.deps/main.P, /cvsroot/ickle/ickle/README, /cvsroot/ickle/ickle/Makefile, /cvsroot/ickle/ickle/Makefile.in, /cvsroot/ickle/ickle/ickle/Makefile, /cvsroot/ickle/ickle/ickle/Makefile.in, /cvsroot/ickle/ickle/src/Makefile, /cvsroot/ickle/ickle/src/Makefile.in, /cvsroot/ickle/ickle/test/Makefile, /cvsroot/ickle/ickle/test/Makefile.in, /cvsroot/ickle/ickle/COPYING, /cvsroot/ickle/ickle/INSTALL, /cvsroot/ickle/ickle/aclocal.m4, /cvsroot/ickle/ickle/config.log, /cvsroot/ickle/ickle/config.status, /cvsroot/ickle/ickle/configure.ac, /cvsroot/ickle/ickle/libtool:
-	*** empty log message ***
+	* configure.ac, ickle/ContactListView.h, ickle/IckleClient.h,
+	ickle/IckleGUI.h, ickle/Settings.h, src/ContactList.h, src/TLV.h:
+	Fixed g++-3.0 hash_map problems.
 
-	* /cvsroot/ickle/ickle/ickle/.deps/AddMobileUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/AddUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/PromptDialog.P, /cvsroot/ickle/ickle/ickle/.deps/SettingsDialog.P, /cvsroot/ickle/ickle/ickle/.deps/UserInfoDialog.P, /cvsroot/ickle/ickle/icons.icq/away.xpm, /cvsroot/ickle/ickle/icons.icq/chat.xpm, /cvsroot/ickle/ickle/icons.icq/dnd.xpm, /cvsroot/ickle/ickle/icons.icq/ffc.xpm, /cvsroot/ickle/ickle/icons.icq/file.xpm, /cvsroot/ickle/ickle/icons.icq/invisible.xpm, /cvsroot/ickle/ickle/icons.icq/message.xpm, /cvsroot/ickle/ickle/icons.icq/na.xpm, /cvsroot/ickle/ickle/icons.icq/occ.xpm, /cvsroot/ickle/ickle/icons.icq/offline.xpm, /cvsroot/ickle/ickle/icons.icq/online.xpm, /cvsroot/ickle/ickle/icons.icq/sms.xpm, /cvsroot/ickle/ickle/icons.icq/url.xpm, /cvsroot/ickle/ickle/icons/away.xpm, /cvsroot/ickle/ickle/icons/chat.xpm, /cvsroot/ickle/ickle/icons/dnd.xpm, /cvsroot/ickle/ickle/icons/ffc.xpm, /cvsroot/ickle/ickle/icons/file.xpm, /cvsroot/ickle/ickle/icons/invisible.xpm, /cvsroot/ickle/ickle/icons/message.xpm, /cvsroot/ickle/ickle/icons/na.xpm, /cvsroot/ickle/ickle/icons/occ.xpm, /cvsroot/ickle/ickle/icons/offline.xpm, /cvsroot/ickle/ickle/icons/online.xpm, /cvsroot/ickle/ickle/icons/sms.xpm, /cvsroot/ickle/ickle/icons/url.xpm, /cvsroot/ickle/ickle/scripts/licq2ickle.pl:
-	Imported sources
+2001-10-03 12:59  barnabygray
 
-	* /cvsroot/ickle/ickle/ickle/.deps/AddMobileUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/AddUserDialog.P, /cvsroot/ickle/ickle/ickle/.deps/PromptDialog.P, /cvsroot/ickle/ickle/ickle/.deps/SettingsDialog.P, /cvsroot/ickle/ickle/ickle/.deps/UserInfoDialog.P, /cvsroot/ickle/ickle/icons.icq/away.xpm, /cvsroot/ickle/ickle/icons.icq/chat.xpm, /cvsroot/ickle/ickle/icons.icq/dnd.xpm, /cvsroot/ickle/ickle/icons.icq/ffc.xpm, /cvsroot/ickle/ickle/icons.icq/file.xpm, /cvsroot/ickle/ickle/icons.icq/invisible.xpm, /cvsroot/ickle/ickle/icons.icq/message.xpm, /cvsroot/ickle/ickle/icons.icq/na.xpm, /cvsroot/ickle/ickle/icons.icq/occ.xpm, /cvsroot/ickle/ickle/icons.icq/offline.xpm, /cvsroot/ickle/ickle/icons.icq/online.xpm, /cvsroot/ickle/ickle/icons.icq/sms.xpm, /cvsroot/ickle/ickle/icons.icq/url.xpm, /cvsroot/ickle/ickle/icons/away.xpm, /cvsroot/ickle/ickle/icons/chat.xpm, /cvsroot/ickle/ickle/icons/dnd.xpm, /cvsroot/ickle/ickle/icons/ffc.xpm, /cvsroot/ickle/ickle/icons/file.xpm, /cvsroot/ickle/ickle/icons/invisible.xpm, /cvsroot/ickle/ickle/icons/message.xpm, /cvsroot/ickle/ickle/icons/na.xpm, /cvsroot/ickle/ickle/icons/occ.xpm, /cvsroot/ickle/ickle/icons/offline.xpm, /cvsroot/ickle/ickle/icons/online.xpm, /cvsroot/ickle/ickle/icons/sms.xpm, /cvsroot/ickle/ickle/icons/url.xpm, /cvsroot/ickle/ickle/scripts/licq2ickle.pl:
-	New file.
+	* aclocal.m4, stamp-h, stamp-h.in, config.cache: Shouldn't be on
+	CVS
 
-	* /cvsroot/ickle/ickle/ickle/.deps/Contact.P, /cvsroot/ickle/ickle/ickle/.deps/ContactList.P, /cvsroot/ickle/ickle/ickle/.deps/ContactListView.P, /cvsroot/ickle/ickle/ickle/.deps/IckleClient.P, /cvsroot/ickle/ickle/ickle/.deps/IckleGUI.P, /cvsroot/ickle/ickle/ickle/.deps/Icons.P, /cvsroot/ickle/ickle/ickle/.deps/MessageBox.P, /cvsroot/ickle/ickle/ickle/.deps/Settings.P, /cvsroot/ickle/ickle/ickle/.deps/main.P:
-	Imported sources
+2001-10-03 12:56  barnabygray
 
-	* /cvsroot/ickle/ickle/ickle/.deps/Contact.P, /cvsroot/ickle/ickle/ickle/.deps/ContactList.P, /cvsroot/ickle/ickle/ickle/.deps/ContactListView.P, /cvsroot/ickle/ickle/ickle/.deps/IckleClient.P, /cvsroot/ickle/ickle/ickle/.deps/IckleGUI.P, /cvsroot/ickle/ickle/ickle/.deps/Icons.P, /cvsroot/ickle/ickle/ickle/.deps/MessageBox.P, /cvsroot/ickle/ickle/ickle/.deps/Settings.P, /cvsroot/ickle/ickle/ickle/.deps/main.P:
-	New file.
+	* config.log, config.status, config.h.in, libtool: Shouldn't be on
+	CVS
 
-	* /cvsroot/ickle/ickle/ickle/AddMobileUserDialog.cpp, /cvsroot/ickle/ickle/ickle/AddMobileUserDialog.h, /cvsroot/ickle/ickle/ickle/AddUserDialog.cpp, /cvsroot/ickle/ickle/ickle/AddUserDialog.h, /cvsroot/ickle/ickle/ickle/ContactListView.cpp, /cvsroot/ickle/ickle/ickle/ContactListView.h, /cvsroot/ickle/ickle/ickle/IckleClient.cpp, /cvsroot/ickle/ickle/ickle/IckleClient.h, /cvsroot/ickle/ickle/ickle/IckleGUI.cpp, /cvsroot/ickle/ickle/ickle/IckleGUI.h, /cvsroot/ickle/ickle/ickle/Icons.cpp, /cvsroot/ickle/ickle/ickle/Icons.h, /cvsroot/ickle/ickle/ickle/Makefile, /cvsroot/ickle/ickle/ickle/Makefile.am, /cvsroot/ickle/ickle/ickle/Makefile.in, /cvsroot/ickle/ickle/ickle/MessageBox.cpp, /cvsroot/ickle/ickle/ickle/MessageBox.h, /cvsroot/ickle/ickle/ickle/PromptDialog.cpp, /cvsroot/ickle/ickle/ickle/PromptDialog.h, /cvsroot/ickle/ickle/ickle/Settings.cpp, /cvsroot/ickle/ickle/ickle/Settings.h, /cvsroot/ickle/ickle/ickle/SettingsDialog.cpp, /cvsroot/ickle/ickle/ickle/SettingsDialog.h, /cvsroot/ickle/ickle/ickle/UserInfoDialog.cpp, /cvsroot/ickle/ickle/ickle/UserInfoDialog.h, /cvsroot/ickle/ickle/ickle/main.cpp, /cvsroot/ickle/ickle/ickle/main.h, /cvsroot/ickle/ickle/test/.deps/test-client.P, /cvsroot/ickle/ickle/test/.deps/test-sms.P, /cvsroot/ickle/ickle/test/.deps/test-sms.pp, /cvsroot/ickle/ickle/test/test-xml:
-	Imported sources
+2001-10-03 12:55  barnabygray
 
-	* /cvsroot/ickle/ickle/ickle/AddMobileUserDialog.cpp, /cvsroot/ickle/ickle/ickle/AddMobileUserDialog.h, /cvsroot/ickle/ickle/ickle/AddUserDialog.cpp, /cvsroot/ickle/ickle/ickle/AddUserDialog.h, /cvsroot/ickle/ickle/ickle/ContactListView.cpp, /cvsroot/ickle/ickle/ickle/ContactListView.h, /cvsroot/ickle/ickle/ickle/IckleClient.cpp, /cvsroot/ickle/ickle/ickle/IckleClient.h, /cvsroot/ickle/ickle/ickle/IckleGUI.cpp, /cvsroot/ickle/ickle/ickle/IckleGUI.h, /cvsroot/ickle/ickle/ickle/Icons.cpp, /cvsroot/ickle/ickle/ickle/Icons.h, /cvsroot/ickle/ickle/ickle/Makefile, /cvsroot/ickle/ickle/ickle/Makefile.am, /cvsroot/ickle/ickle/ickle/Makefile.in, /cvsroot/ickle/ickle/ickle/MessageBox.cpp, /cvsroot/ickle/ickle/ickle/MessageBox.h, /cvsroot/ickle/ickle/ickle/PromptDialog.cpp, /cvsroot/ickle/ickle/ickle/PromptDialog.h, /cvsroot/ickle/ickle/ickle/Settings.cpp, /cvsroot/ickle/ickle/ickle/Settings.h, /cvsroot/ickle/ickle/ickle/SettingsDialog.cpp, /cvsroot/ickle/ickle/ickle/SettingsDialog.h, /cvsroot/ickle/ickle/ickle/UserInfoDialog.cpp, /cvsroot/ickle/ickle/ickle/UserInfoDialog.h, /cvsroot/ickle/ickle/ickle/main.cpp, /cvsroot/ickle/ickle/ickle/main.h, /cvsroot/ickle/ickle/test/.deps/test-client.P, /cvsroot/ickle/ickle/test/.deps/test-sms.P, /cvsroot/ickle/ickle/test/.deps/test-sms.pp, /cvsroot/ickle/ickle/test/test-xml:
-	New file.
+	* README, config.h.in, config.log, config.status, configure.ac:
+	Catch more missing headers now at configure.
 
-	* /cvsroot/ickle/ickle/test/Makefile, /cvsroot/ickle/ickle/test/Makefile.am:
-	Imported sources
+2001-10-03 01:37  barnabygray
 
-	* /cvsroot/ickle/ickle/test/Makefile, /cvsroot/ickle/ickle/test/Makefile.am:
-	New file.
+	* config.h.in, config.log, config.status, libtool,
+	ickle/AddMobileUserDialog.h, ickle/ContactListView.h,
+	ickle/IckleClient.h, ickle/IckleGUI.h, ickle/MessageBox.h,
+	ickle/PromptDialog.h, ickle/Settings.h, ickle/UserInfoDialog.h,
+	ickle/main.h, src/Client.h, src/Contact.h, src/ContactList.h,
+	src/SNAC.h, src/TLV.h, src/Xml.h, src/buffer.h, src/events.h,
+	src/exceptions.h, src/socket.h, test/test-client.cpp: Fixed
+	namespace std problems.
 
-	* /cvsroot/ickle/ickle/src/.deps/Contact.P, /cvsroot/ickle/ickle/src/.deps/ContactList.P, /cvsroot/ickle/ickle/src/.deps/SNAC.P, /cvsroot/ickle/ickle/src/.deps/Xml.P, /cvsroot/ickle/ickle/src/.deps/logger.P, /cvsroot/ickle/ickle/src/.deps/socket.P, /cvsroot/ickle/ickle/test/Makefile.in, /cvsroot/ickle/ickle/test/test-client.cpp, /cvsroot/ickle/ickle/test/test-xml.cpp:
-	Imported sources
+2001-10-03 01:13  barnabygray
 
-	* /cvsroot/ickle/ickle/src/.deps/Contact.P, /cvsroot/ickle/ickle/src/.deps/ContactList.P, /cvsroot/ickle/ickle/src/.deps/SNAC.P, /cvsroot/ickle/ickle/src/.deps/Xml.P, /cvsroot/ickle/ickle/src/.deps/logger.P, /cvsroot/ickle/ickle/src/.deps/socket.P, /cvsroot/ickle/ickle/test/Makefile.in, /cvsroot/ickle/ickle/test/test-client.cpp, /cvsroot/ickle/ickle/test/test-xml.cpp:
-	New file.
+	* README: [no log message]
 
-	* /cvsroot/ickle/ickle/src/.deps/Client.P, /cvsroot/ickle/ickle/src/.deps/TLV.P, /cvsroot/ickle/ickle/src/.deps/buffer.P, /cvsroot/ickle/ickle/src/.deps/events.P, /cvsroot/ickle/ickle/src/.deps/exceptions.P, /cvsroot/ickle/ickle/src/Contact.cpp, /cvsroot/ickle/ickle/src/Contact.h, /cvsroot/ickle/ickle/src/ContactList.cpp, /cvsroot/ickle/ickle/src/ContactList.h, /cvsroot/ickle/ickle/src/SNAC.h, /cvsroot/ickle/ickle/src/TLV.cpp, /cvsroot/ickle/ickle/src/TLV.h, /cvsroot/ickle/ickle/src/Xml.cpp, /cvsroot/ickle/ickle/src/Xml.h, /cvsroot/ickle/ickle/src/buffer.h, /cvsroot/ickle/ickle/src/custom_marshal.h, /cvsroot/ickle/ickle/src/events.cpp, /cvsroot/ickle/ickle/src/events.h, /cvsroot/ickle/ickle/src/exceptions.cpp, /cvsroot/ickle/ickle/src/exceptions.h:
-	Imported sources
+2001-10-03 01:05  barnabygray
 
-	* /cvsroot/ickle/ickle/src/.deps/Client.P, /cvsroot/ickle/ickle/src/.deps/TLV.P, /cvsroot/ickle/ickle/src/.deps/buffer.P, /cvsroot/ickle/ickle/src/.deps/events.P, /cvsroot/ickle/ickle/src/.deps/exceptions.P, /cvsroot/ickle/ickle/src/Contact.cpp, /cvsroot/ickle/ickle/src/Contact.h, /cvsroot/ickle/ickle/src/ContactList.cpp, /cvsroot/ickle/ickle/src/ContactList.h, /cvsroot/ickle/ickle/src/SNAC.h, /cvsroot/ickle/ickle/src/TLV.cpp, /cvsroot/ickle/ickle/src/TLV.h, /cvsroot/ickle/ickle/src/Xml.cpp, /cvsroot/ickle/ickle/src/Xml.h, /cvsroot/ickle/ickle/src/buffer.h, /cvsroot/ickle/ickle/src/custom_marshal.h, /cvsroot/ickle/ickle/src/events.cpp, /cvsroot/ickle/ickle/src/events.h, /cvsroot/ickle/ickle/src/exceptions.cpp, /cvsroot/ickle/ickle/src/exceptions.h:
-	New file.
+	* ickle/SettingsDialog.cpp: Small fix in descriptive text
 
-	* /cvsroot/ickle/ickle/TODO, /cvsroot/ickle/ickle/libtool, /cvsroot/ickle/ickle/src/Client.cpp, /cvsroot/ickle/ickle/src/Client.h, /cvsroot/ickle/ickle/src/Makefile, /cvsroot/ickle/ickle/src/Makefile.am, /cvsroot/ickle/ickle/src/Makefile.in, /cvsroot/ickle/ickle/src/SNAC.cpp, /cvsroot/ickle/ickle/src/buffer.cpp, /cvsroot/ickle/ickle/src/constants.h, /cvsroot/ickle/ickle/src/socket.cpp, /cvsroot/ickle/ickle/src/socket.h:
-	Imported sources
+2001-10-03 01:05  barnabygray
 
-	* /cvsroot/ickle/ickle/TODO, /cvsroot/ickle/ickle/libtool, /cvsroot/ickle/ickle/src/Client.cpp, /cvsroot/ickle/ickle/src/Client.h, /cvsroot/ickle/ickle/src/Makefile, /cvsroot/ickle/ickle/src/Makefile.am, /cvsroot/ickle/ickle/src/Makefile.in, /cvsroot/ickle/ickle/src/SNAC.cpp, /cvsroot/ickle/ickle/src/buffer.cpp, /cvsroot/ickle/ickle/src/constants.h, /cvsroot/ickle/ickle/src/socket.cpp, /cvsroot/ickle/ickle/src/socket.h:
-	New file.
+	* configure.ac: Fixed check for libstdc++
 
-	* /cvsroot/ickle/ickle/aclocal.m4, /cvsroot/ickle/ickle/autogen.sh, /cvsroot/ickle/ickle/config.cache, /cvsroot/ickle/ickle/config.log, /cvsroot/ickle/ickle/config.status, /cvsroot/ickle/ickle/log:
-	Imported sources
+2001-10-01 19:52  barnabygray
 
-	* /cvsroot/ickle/ickle/aclocal.m4, /cvsroot/ickle/ickle/autogen.sh, /cvsroot/ickle/ickle/config.cache, /cvsroot/ickle/ickle/config.log, /cvsroot/ickle/ickle/config.status, /cvsroot/ickle/ickle/log:
-	New file.
+	* ickle/IckleGUI.cpp: Eek.
 
-	* /cvsroot/ickle/ickle/config.h, /cvsroot/ickle/ickle/configure:
-	Imported sources
+2001-10-01 17:43  barnabygray
 
-	* /cvsroot/ickle/ickle/config.h, /cvsroot/ickle/ickle/configure:
-	New file.
+	* ickle/: IckleGUI.cpp, MessageBox.cpp: Fixed times displayed,
+	clear url boxes after sending.
 
-	* /cvsroot/ickle/ickle/Makefile.in: Imported sources
+2001-10-01 17:35  barnabygray
 
-	* /cvsroot/ickle/ickle/Makefile.in: New file.
+	* ChangeLog, config.log, config.status, configure.ac, libtool,
+	ickle/IckleClient.cpp, src/Client.cpp, src/events.h,
+	test/test-client.cpp: Fixed configure versioning.
 
-	* /cvsroot/ickle/ickle/AUTHORS, /cvsroot/ickle/ickle/ChangeLog, /cvsroot/ickle/ickle/Makefile, /cvsroot/ickle/ickle/Makefile.am, /cvsroot/ickle/ickle/NEWS, /cvsroot/ickle/ickle/README, /cvsroot/ickle/ickle/config.h.in, /cvsroot/ickle/ickle/configure.ac, /cvsroot/ickle/ickle/stamp-h, /cvsroot/ickle/ickle/stamp-h.in:
-	Imported sources
+2001-10-01 15:23  barnabygray
 
-	* /cvsroot/ickle/ickle/AUTHORS, /cvsroot/ickle/ickle/ChangeLog, /cvsroot/ickle/ickle/Makefile, /cvsroot/ickle/ickle/Makefile.am, /cvsroot/ickle/ickle/NEWS, /cvsroot/ickle/ickle/README, /cvsroot/ickle/ickle/config.h.in, /cvsroot/ickle/ickle/configure.ac, /cvsroot/ickle/ickle/stamp-h, /cvsroot/ickle/ickle/stamp-h.in:
-	New file.
+	* configure, config.h: [no log message]
+
+2001-10-01 15:19  barnabygray
+
+	* ickle/.deps/AddMobileUserDialog.P, ickle/.deps/AddUserDialog.P,
+	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
+	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
+	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
+	ickle/.deps/MessageBox.P, ickle/.deps/PromptDialog.P,
+	ickle/.deps/Settings.P, ickle/.deps/SettingsDialog.P,
+	ickle/.deps/UserInfoDialog.P, ickle/.deps/main.P,
+	src/.deps/Client.P, src/.deps/Contact.P, src/.deps/ContactList.P,
+	src/.deps/SNAC.P, src/.deps/TLV.P, src/.deps/Xml.P,
+	src/.deps/buffer.P, src/.deps/events.P, src/.deps/exceptions.P,
+	src/.deps/logger.P, src/.deps/socket.P, test/.deps/test-client.P,
+	test/.deps/test-sms.P, test/.deps/test-sms.pp: [no log message]
+
+2001-10-01 13:21  barnabygray
+
+	* README: [no log message]
+
+2001-10-01 13:16  barnabygray
+
+	* COPYING, INSTALL, Makefile, Makefile.in, aclocal.m4, config.h,
+	config.log, config.status, configure, configure.ac, libtool,
+	ickle/Makefile, ickle/Makefile.in, src/Makefile, src/Makefile.in,
+	test/Makefile, test/Makefile.in, Makefile, Makefile.in,
+	ickle/Makefile, ickle/Makefile.in, src/Makefile, src/Makefile.in,
+	test/Makefile, test/Makefile.in: [no log message]
+
+2001-10-01 12:28  barnabygray
+
+	* AUTHORS, ChangeLog, Makefile, Makefile.am, NEWS, README,
+	config.h.in, configure.ac, stamp-h, stamp-h.in, Makefile.in,
+	config.h, configure, aclocal.m4, autogen.sh, config.cache,
+	config.log, config.status, log, TODO, libtool, src/Client.cpp,
+	src/Client.h, src/Makefile, src/Makefile.am, src/Makefile.in,
+	src/SNAC.cpp, src/buffer.cpp, src/constants.h, src/socket.cpp,
+	src/socket.h, src/Contact.cpp, src/Contact.h, src/ContactList.cpp,
+	src/ContactList.h, src/SNAC.h, src/TLV.cpp, src/TLV.h, src/Xml.cpp,
+	src/Xml.h, src/buffer.h, src/custom_marshal.h, src/events.cpp,
+	src/events.h, src/exceptions.cpp, src/exceptions.h,
+	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
+	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
+	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
+	src/.deps/logger.P, src/.deps/socket.P, test/Makefile.in,
+	test/test-client.cpp, test/test-xml.cpp, test/Makefile,
+	test/Makefile.am, ickle/AddMobileUserDialog.cpp,
+	ickle/AddMobileUserDialog.h, ickle/AddUserDialog.cpp,
+	ickle/AddUserDialog.h, ickle/ContactListView.cpp,
+	ickle/ContactListView.h, ickle/IckleClient.cpp,
+	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
+	ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile, ickle/Makefile.am,
+	ickle/Makefile.in, ickle/MessageBox.cpp, ickle/MessageBox.h,
+	ickle/PromptDialog.cpp, ickle/PromptDialog.h, ickle/Settings.cpp,
+	ickle/Settings.h, ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
+	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, ickle/main.cpp,
+	ickle/main.h, test/test-xml, test/.deps/test-client.P,
+	test/.deps/test-sms.P, test/.deps/test-sms.pp,
+	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
+	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
+	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
+	ickle/.deps/MessageBox.P, ickle/.deps/Settings.P,
+	ickle/.deps/main.P, ickle/.deps/AddMobileUserDialog.P,
+	ickle/.deps/AddUserDialog.P, ickle/.deps/PromptDialog.P,
+	ickle/.deps/SettingsDialog.P, ickle/.deps/UserInfoDialog.P,
+	icons/away.xpm, icons/chat.xpm, icons/dnd.xpm, icons/ffc.xpm,
+	icons/file.xpm, icons/invisible.xpm, icons/message.xpm,
+	icons/na.xpm, icons/occ.xpm, icons/offline.xpm, icons/online.xpm,
+	icons/sms.xpm, icons/url.xpm, icons.icq/away.xpm,
+	icons.icq/chat.xpm, icons.icq/dnd.xpm, icons.icq/ffc.xpm,
+	icons.icq/file.xpm, icons.icq/invisible.xpm, icons.icq/message.xpm,
+	icons.icq/na.xpm, icons.icq/occ.xpm, icons.icq/offline.xpm,
+	icons.icq/online.xpm, icons.icq/sms.xpm, icons.icq/url.xpm,
+	scripts/licq2ickle.pl: Initial revision
+
+2001-10-01 12:28  barnabygray
+
+	* AUTHORS, ChangeLog, Makefile, Makefile.am, NEWS, README,
+	config.h.in, configure.ac, stamp-h, stamp-h.in, Makefile.in,
+	config.h, configure, aclocal.m4, autogen.sh, config.cache,
+	config.log, config.status, log, TODO, libtool, src/Client.cpp,
+	src/Client.h, src/Makefile, src/Makefile.am, src/Makefile.in,
+	src/SNAC.cpp, src/buffer.cpp, src/constants.h, src/socket.cpp,
+	src/socket.h, src/Contact.cpp, src/Contact.h, src/ContactList.cpp,
+	src/ContactList.h, src/SNAC.h, src/TLV.cpp, src/TLV.h, src/Xml.cpp,
+	src/Xml.h, src/buffer.h, src/custom_marshal.h, src/events.cpp,
+	src/events.h, src/exceptions.cpp, src/exceptions.h,
+	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
+	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
+	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
+	src/.deps/logger.P, src/.deps/socket.P, test/Makefile.in,
+	test/test-client.cpp, test/test-xml.cpp, test/Makefile,
+	test/Makefile.am, ickle/AddMobileUserDialog.cpp,
+	ickle/AddMobileUserDialog.h, ickle/AddUserDialog.cpp,
+	ickle/AddUserDialog.h, ickle/ContactListView.cpp,
+	ickle/ContactListView.h, ickle/IckleClient.cpp,
+	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
+	ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile, ickle/Makefile.am,
+	ickle/Makefile.in, ickle/MessageBox.cpp, ickle/MessageBox.h,
+	ickle/PromptDialog.cpp, ickle/PromptDialog.h, ickle/Settings.cpp,
+	ickle/Settings.h, ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
+	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, ickle/main.cpp,
+	ickle/main.h, test/test-xml, test/.deps/test-client.P,
+	test/.deps/test-sms.P, test/.deps/test-sms.pp,
+	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
+	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
+	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
+	ickle/.deps/MessageBox.P, ickle/.deps/Settings.P,
+	ickle/.deps/main.P, ickle/.deps/AddMobileUserDialog.P,
+	ickle/.deps/AddUserDialog.P, ickle/.deps/PromptDialog.P,
+	ickle/.deps/SettingsDialog.P, ickle/.deps/UserInfoDialog.P,
+	icons/away.xpm, icons/chat.xpm, icons/dnd.xpm, icons/ffc.xpm,
+	icons/file.xpm, icons/invisible.xpm, icons/message.xpm,
+	icons/na.xpm, icons/occ.xpm, icons/offline.xpm, icons/online.xpm,
+	icons/sms.xpm, icons/url.xpm, icons.icq/away.xpm,
+	icons.icq/chat.xpm, icons.icq/dnd.xpm, icons.icq/ffc.xpm,
+	icons.icq/file.xpm, icons.icq/invisible.xpm, icons.icq/message.xpm,
+	icons.icq/na.xpm, icons.icq/occ.xpm, icons.icq/offline.xpm,
+	icons.icq/online.xpm, icons.icq/sms.xpm, icons.icq/url.xpm,
+	scripts/licq2ickle.pl: Imported sources
 

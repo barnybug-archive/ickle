@@ -3,6 +3,8 @@ Stuff to do:
 
 * Recording History
 
+* More User info (only does simple userinfo atm)
+
 * Non-blocking DNS lookup
 
 * Handle Rate Limit and SNAC Error packets

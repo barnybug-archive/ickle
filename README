@@ -54,8 +54,8 @@ SuSE 7.1 - sigc++.rpm, gtk.rpm, gtk-devel.rpm, gtkmm.rpm,
            gtkmm-devel.rpm
 	   For the libstdc++ libraries you'll need a newer rpm than
            what libgpp.rpm provides I suggest using the libgpp.rpm
-           from SuSE 7.2, you'll also need the newer gpp.rpm and
-	   gppshare.rpm from 7.2 if you do this.
+           from SuSE 7.2, you'll also need the newer gppshare.rpm from
+           7.2 if you do this.
 
 SuSE 7.2 - libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm, gtk-devel.rpm,
            gtkmm.rpm, gtkmm-devel.rpm, gpp.rpm, gppshare.rpm, libgpp.rpm
@@ -64,7 +64,6 @@ Debian based distributions (Debian, Progeny, etc..) - you will need
 these packages installed:
 libstdc++2.10
 libstdc++2.10-dev
-(or I think libstdc++3 and libstdc++3-dev should do)
 libgtkmm1.2
 libgtkmm-dev
 libgtk1.2
@@ -105,9 +104,9 @@ Then compile.
 
 Contacts
 --------
-At the moment you have to add the contact numbers by hand and set the
-Alias for them as well. Fetching info off the server will be in the next
-version hopefully.
+At the moment you have to add the contact numbers by hand. ickle will
+now fetch the basic user info off the server after you've added the user.
+
 I've written a simple perl script in scripts/licq2ickle.pl that you can
 run and will convert your licq contacts over to ickle. I might write
 something similar for windows if I get any requests for it.
@@ -123,6 +122,8 @@ For bug reports ensure you include these details:
 - Version of ickle
 - Source (tarball, CVS)
 - Distribution
+- gcc version (type: gcc -v)
+- libstdc++ version (type: ls /usr/lib/libstdc++*)
 - gtkmm version (type: gtkmm-config --version)
 - sigc version (type: sigc-config --version)
 - gtk+ version (type: gtk-config --version)
