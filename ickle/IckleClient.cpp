@@ -239,8 +239,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("log_to_file", false);
   g_settings.defaultValueUnsignedInt("geometry_width", 130, 30, 1000);
   g_settings.defaultValueUnsignedInt("geometry_height", 300, 30, 2000);
-  g_settings.defaultValueUnsignedInt("geometry_x", 50);
-  g_settings.defaultValueUnsignedInt("geometry_y", 50);
+  g_settings.defaultValueUnsignedInt("geometry_x", 50, 0);
+  g_settings.defaultValueUnsignedInt("geometry_y", 50, 0);
   g_settings.defaultValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE);
   g_settings.defaultValueString("network_login_host", "login.icq.com");
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
@@ -270,6 +270,17 @@ void IckleClient::loadSettings() {
   height = g_settings.getValueUnsignedInt("geometry_height");
   x = g_settings.getValueUnsignedInt("geometry_x");
   y = g_settings.getValueUnsignedInt("geometry_y");
+
+  int swidth, sheight;
+  swidth = gdk_screen_width();
+  sheight = gdk_screen_height();
+
+  if (width > swidth) width = swidth;
+  if (height > sheight) height = sheight;
+
+  if (x + width > swidth) x = swidth-width;
+  if (y + height > sheight) y = sheight-height;
+
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
 
