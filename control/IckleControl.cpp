@@ -201,10 +201,10 @@ bool IckleControl::cmdStatus (const string & param)
     m_socket << CMD_SET_STATUS << s << m_timeout*1000;
 
     if (m_timeout > 0) {
-      int r;
+      bool r;
       string str;
       m_socket >> r >> str;
-      if (r == 0) {
+      if (!r) {
         cerr << "Failed setting status to `" << param << "'";
         if (!str.empty()) cerr << " (" << str << ")";
         cerr << endl;
@@ -295,6 +295,7 @@ bool IckleControl::cmdAddContact (const string & param)
 }
 
 // --- send message ---
+
 bool IckleControl::cmdSendMessage (const string & param1, const string & param2, CommandMessageType type)
 {
   unsigned int uin;
@@ -307,10 +308,10 @@ bool IckleControl::cmdSendMessage (const string & param1, const string & param2,
   m_socket << CMD_SEND_MESSAGE << uin << type << param2 << m_timeout*1000;
 
   if (m_timeout > 0) {
-    int r;
+    bool r;
     string str;
     m_socket >> r >> str;
-    if (r == 0) {
+    if (!r) {
       cerr << "Failed sending message to `" << param1 << "'";
       if (!str.empty()) cerr << " (" << str << ")";
       cerr << endl;

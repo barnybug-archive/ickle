@@ -43,7 +43,7 @@ class AuthRespDialog : public Gtk::Dialog {
   void refuse_clicked_cb();
 
  public:
-  AuthRespDialog(const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev);
+  AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev);
 
   void ok_cb();
 };

@@ -29,13 +29,14 @@
 
 using std::ostringstream;
 
-AuthRespDialog::AuthRespDialog(const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev)
+AuthRespDialog::AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev)
   : Gtk::Dialog(),
     m_ok("Send Response"), m_cancel("Ignore"),
     m_grant("Grant", 0), m_refuse("Refuse", 0),
     m_contact(contact), m_label("Enter your refusal message:", 0)
 {
   set_title("Authorisation Response");
+  set_transient_for (*parent);
 
   m_ok.clicked.connect(slot(this,&AuthRespDialog::ok_cb));
   m_cancel.clicked.connect( destroy.slot() );

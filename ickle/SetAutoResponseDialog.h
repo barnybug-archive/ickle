@@ -44,7 +44,7 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   void build_optionmenu();
 
  public:
-  SetAutoResponseDialog(const std::string& prev_msg);
+  SetAutoResponseDialog(Gtk::Window * parent, const std::string& prev_msg, bool timeout);
 
   gint key_press_event_impl(GdkEventKey* ev);
   gint button_press_event_impl(GdkEventButton* ev);

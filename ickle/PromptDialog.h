@@ -42,7 +42,7 @@ class PromptDialog : public Gtk::Dialog {
   bool m_modal;
 
  public:
-  PromptDialog(PromptType t, const string& msg, bool modal = true);
+  PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal = true);
 
   bool run();
 

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.32 2002-03-12 21:39:28 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.33 2002-04-02 21:11:08 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -70,6 +70,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Entry spell_check_lang;
   Gtk::CheckButton mouse_single_click, mouse_check_away_click;
   Gtk::CheckButton status_cl_inv;
+  Gtk::CheckButton popup_away_response;
   Gtk::SpinButton *reconnect_spinner, *network_port, *history_shownr_spinner;
   Gtk::SpinButton *autoaway_spinner, *autona_spinner;
   Gtk::Label reconnect_label, history_shownr_label;
@@ -122,7 +123,7 @@ class SettingsDialog : public Gtk::Dialog {
   void away_response_buttons_update();
   
  public:
-  SettingsDialog();
+  SettingsDialog(Gtk::Window * parent);
 
   bool run();
 

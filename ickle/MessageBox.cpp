@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.51 2002-04-01 11:25:50 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.52 2002-04-02 21:11:07 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -662,7 +662,7 @@ void MessageBox::send_clicked_cb() {
 
   if (m_message_type == ICQ2000::MessageEvent::Normal) {
     if (isBlank(m_message_text.get_chars(0,-1))) {
-      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
     
@@ -675,7 +675,7 @@ void MessageBox::send_clicked_cb() {
   }
   else if (m_message_type == ICQ2000::MessageEvent::URL) {
     if (isBlank(m_url_entry.get_text())) {
-      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
 
@@ -688,7 +688,7 @@ void MessageBox::send_clicked_cb() {
   }
   else if (m_message_type == ICQ2000::MessageEvent::SMS) {
     if (isBlank(m_sms_text.get_chars(0,-1))) {
-      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
       if (!pd.run()) return;
     }
 

@@ -26,8 +26,6 @@
 
 #include <sigc++/signal_system.h>
 
-#include <map>
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif

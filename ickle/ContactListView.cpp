@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.35 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.36 2002-04-02 21:11:07 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,7 @@
 
 #include <libicq2000/Client.h>
 
+#include "IckleGUI.h"
 #include "PromptDialog.h"
 #include "SendAuthReqDialog.h"
 
@@ -43,9 +44,12 @@ using std::ostringstream;
 
 using ICQ2000::ContactRef;
 
-ContactListView::ContactListView(MessageQueue& mq)
-  : CList(2), m_single_click(false),
-    m_check_away_click(false), m_message_queue(mq)
+ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
+  : CList(2),
+    m_single_click(false),
+    m_check_away_click(false),
+    m_gui(gui),
+    m_message_queue(mq)
 {
   column(0).set_title("S");
   column(0).set_width(15);
@@ -228,7 +232,7 @@ void ContactListView::remove_user_cb() {
     ostr << "Are you sure you want to remove " << c->getAlias();
     if (c->isICQContact()) ostr << " (" << uin << ")";
     ostr << "?";
-    PromptDialog p(PromptDialog::PROMPT_CONFIRM, ostr.str());
+    PromptDialog p(&m_gui, PromptDialog::PROMPT_CONFIRM, ostr.str());
     if (p.run()) icqclient.removeContact(uin);
   }
 }
@@ -244,8 +248,8 @@ void ContactListView::fetch_away_msg_cb() {
 void ContactListView::send_auth_req_cb() {
   ContactRef c = icqclient.getContact( current_selection_uin() );
   if (c.get() != NULL && c->isICQContact()) {
-    SendAuthReqDialog *ev = new SendAuthReqDialog(c);
-    manage( ev );
+    SendAuthReqDialog *dialog = new SendAuthReqDialog(&m_gui, c);
+    manage( dialog );
   }
 }
 

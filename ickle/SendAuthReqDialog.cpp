@@ -26,12 +26,13 @@
 #include <libicq2000/Client.h>
 #include "main.h"
 
-SendAuthReqDialog::SendAuthReqDialog(const ICQ2000::ContactRef& contact)
+SendAuthReqDialog::SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact)
   : Gtk::Dialog(),
     m_ok("Send Request"), m_cancel("Cancel"),
     m_contact(contact)
 {
   set_title("Send Authorisation Request");
+  set_transient_for (*parent);
 
   m_ok.clicked.connect(slot(this,&SendAuthReqDialog::ok_cb));
   m_cancel.clicked.connect( destroy.slot() );

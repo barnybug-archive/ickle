@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.86 2002-04-01 11:25:50 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.87 2002-04-02 21:11:07 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -102,7 +102,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
-  icqclient.contact_status_change_signal.connect(slot(this,&IckleClient::status_change_cb));
+  icqclient.contact_status_change_signal.connect(slot(m_event_system,&EventSystem::status_change_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
   icqclient.want_auto_resp.connect(slot(this,&IckleClient::want_auto_resp_cb));
 
@@ -283,6 +283,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("status_classic_invisibility", false);
 
   g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
+  g_settings.defaultValueBool("set_away_response_dialog", true);
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
   g_settings.defaultValueBool("mouse_check_away_click", true);
@@ -656,16 +657,6 @@ void IckleClient::messageack_cb(ICQ2000::MessageEvent *ev) {
 
   }
 
-}
-
-void IckleClient::status_change_cb(ICQ2000::StatusChangeEvent *ev)
-{
-  // this is broken!
-  /*
-  if (ev->getStatus() == ICQ2000::STATUS_ONLINE
-      && ev->getOldStatus() != ICQ2000::STATUS_ONLINE)
-    event_system("event_user_online", ev->getContact(), ev->getTime());
-  */
 }
 
 void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {

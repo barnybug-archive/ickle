@@ -34,7 +34,7 @@ class SendAuthReqDialog : public Gtk::Dialog {
   Gtk::Text m_text;
 
  public:
-  SendAuthReqDialog(const ICQ2000::ContactRef& contact);
+  SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact);
 
   void ok_cb();
 };

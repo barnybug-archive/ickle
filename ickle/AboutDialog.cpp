@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.6 2002-02-05 18:49:43 barnabygray Exp $
+/* $Id: AboutDialog.cpp,v 1.7 2002-04-02 21:11:07 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,9 +34,11 @@
 using std::ostringstream;
 using std::endl;
 
-AboutDialog::AboutDialog()
+AboutDialog::AboutDialog(Gtk::Window * parent)
   : Gtk::Dialog()
 {
+  set_transient_for (*parent);
+
   Gtk::Button *button;
   
   set_title("About ickle");
@@ -75,6 +77,7 @@ AboutDialog::AboutDialog()
   text->insert(hd, "\nDevelopers\n");
   text->insert(p, "* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n");
   text->insert(p, "* Nils Nordman <nino@nforced.com> ICQ: 778602\n");
+  text->insert(p, "* Dominic Sacré <bugcreator@gmx.de> ICQ: 102496033\n");
   text->insert(p, "* Alex Antropoff <alex@tirastel.md>\n\n");
   text->insert(p, "Further contributions by many other developers are listed in the THANKS file.\n");
   text->insert(hd, "\nFurther information\n");

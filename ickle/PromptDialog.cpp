@@ -25,7 +25,7 @@
 #include <gtk--/label.h>
 #include <gtk--/main.h>
 
-PromptDialog::PromptDialog(PromptType t, const string& msg, bool modal)
+PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal)
   : Gtk::Dialog(),
     m_type(t),
     m_finish_bool(false),
@@ -33,6 +33,7 @@ PromptDialog::PromptDialog(PromptType t, const string& msg, bool modal)
 {
   set_modal(modal);
   set_position(GTK_WIN_POS_MOUSE);
+  if (parent) set_transient_for (*parent);
 
   if (modal) destroy.connect( Gtk::Main::quit.slot() );
 

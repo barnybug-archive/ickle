@@ -19,7 +19,6 @@
  */
 
 #include "SetAutoResponseDialog.h"
-#include "SettingsDialog.h"
 
 #include <gtk--/table.h>
 #include <gtk--/scrollbar.h>
@@ -33,12 +32,13 @@
 
 using std::ostringstream;
 
-SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
+SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string& prev_msg, bool timeout)
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel")
 {
   set_title("Set Auto Response");
   set_position(GTK_WIN_POS_MOUSE);
+  set_transient_for (*parent);
   set_usize(300,150);
 
   msg_input.set_word_wrap(true);
@@ -67,7 +67,9 @@ SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start(*table, true, true, 5);
 
-  bool timeout = g_settings.getValueBool("set_away_response_timeout");
+  if (timeout) {
+    timeout = g_settings.getValueBool("set_away_response_timeout");
+  }
 
   m_timeout = 0;
   if (timeout) {

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.49 2002-04-01 11:25:50 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.50 2002-04-02 21:11:07 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -46,10 +46,11 @@ IckleGUI::IckleGUI(MessageQueue& mq)
   :  m_message_queue(mq),
      m_top_vbox(false),
      m_contact_scroll(),
-     m_contact_list(mq),
+     m_contact_list(*this, mq),
      m_status(ICQ2000::STATUS_OFFLINE),
      m_invisible(false),
-     m_away_message( this )
+     m_away_message( this ),
+     m_exiting(false)
 {
   // -- libICQ2000 callbacks
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
@@ -86,7 +87,8 @@ IckleGUI::IckleGUI(MessageQueue& mq)
     ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
     mi_search_for_contacts = ml.back();
     mi_search_for_contacts->set_sensitive(false);
-    ml.push_back( MenuElem("Settings", bind<bool>( slot(this, &IckleGUI::settings_cb), false ) ) );
+    ml.push_back( MenuElem("Set Auto Response", bind<bool>(slot(this, &IckleGUI::set_auto_response_dialog), false)) );
+    ml.push_back( MenuElem("Settings", bind<Gtk::Window*>( slot(this, &IckleGUI::settings_cb), NULL ) ) );
     ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
@@ -126,6 +128,8 @@ IckleGUI::~IckleGUI() {
 
 void IckleGUI::set_ickle_title()
 {
+  if (m_exiting) return;
+
   ostringstream ostr;
   ostr << "ickle";
 
@@ -203,7 +207,7 @@ void IckleGUI::messageack_cb(ICQ2000::MessageEvent *ev) {
 	   << "Their away message is:" << endl
 	   << icq->getAwayMessage() << endl << endl
 	   << "You should resend the message as 'Urgent' or 'to Contact List'" << endl;
-      PromptDialog *p = new PromptDialog(PromptDialog::PROMPT_INFO,
+      PromptDialog *p = new PromptDialog(this, PromptDialog::PROMPT_INFO,
 					 ostr.str(),
 					 false);
       manage(p);
@@ -267,14 +271,14 @@ void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent 
   ostringstream ostr;
   ostr << c->getNameAlias() << " has added you to their contact list." << endl;
 
-  PromptDialog *dialog = new PromptDialog( PromptDialog::PROMPT_INFO, ostr.str(), false );
+  PromptDialog *dialog = new PromptDialog( this, PromptDialog::PROMPT_INFO, ostr.str(), false );
   manage( dialog );
   m_message_queue.remove_from_queue(ev);
 }
 
 void IckleGUI::popup_auth_req(const ContactRef& c, AuthReqICQMessageEvent *ev)
 {
-  AuthRespDialog *dialog = new AuthRespDialog(c, ev);
+  AuthRespDialog *dialog = new AuthRespDialog(this, c, ev);
   manage( dialog );
   m_message_queue.remove_from_queue(ev);
 }
@@ -289,7 +293,7 @@ void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
 	 << ev->getMessage() << endl;
   }
 
-  PromptDialog *dialog = new PromptDialog( PromptDialog::PROMPT_INFO, ostr.str(), false );
+  PromptDialog *dialog = new PromptDialog( this, PromptDialog::PROMPT_INFO, ostr.str(), false );
   manage( dialog );
   m_message_queue.remove_from_queue(ev);
 }
@@ -365,11 +369,9 @@ int IckleGUI::delete_event_impl(GdkEventAny*) {
 
 void IckleGUI::status_menu_status_changed_cb(ICQ2000::Status st) {
   
-  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE) {
-    SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
-    manage(d);
-    d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
-    d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
+  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE &&
+    g_settings.getValueBool("set_away_response_dialog")) {
+    set_auto_response_dialog (true);
   }
 
   // this forces a reconnect if setting status whilst already connecting, this is the usual
@@ -382,11 +384,9 @@ void IckleGUI::status_menu_status_changed_cb(ICQ2000::Status st) {
 
 void IckleGUI::status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv) {
   
-  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE) {
-    SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
-    manage(d);
-    d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
-    d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
+  if (st != ICQ2000::STATUS_ONLINE && st != ICQ2000::STATUS_OFFLINE &&
+    g_settings.getValueBool("set_away_response_dialog")) {
+    set_auto_response_dialog (true);
   }
 
   // this forces a reconnect if setting status whilst already connecting, this is the usual
@@ -395,6 +395,14 @@ void IckleGUI::status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv) {
     icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
   
   icqclient.setStatus(st, inv);
+}
+
+void IckleGUI::set_auto_response_dialog (bool timeout)
+{
+  SetAutoResponseDialog *d = new SetAutoResponseDialog(this, auto_response, timeout);
+  manage(d);
+  d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
+  d->settings_dialog.connect(bind<Gtk::Window*>( slot(this, &IckleGUI::settings_cb), d ));
 }
 
 void IckleGUI::status_menu_invisible_changed_cb(bool inv)
@@ -454,7 +462,7 @@ void IckleGUI::userinfo_dialog_upload_cb(ContactRef c) {
 
 void IckleGUI::search_user_cb() 
 {
-  SearchDialog *sd = new SearchDialog();
+  SearchDialog *sd = new SearchDialog(this);
   manage( sd );
 }
 
@@ -464,7 +472,7 @@ void IckleGUI::my_user_info_cb()
   unsigned int uin = self->getUIN();
   
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
-    UserInfoDialog *d = new UserInfoDialog(self, true);
+    UserInfoDialog *d = new UserInfoDialog(this, self, true);
     manage(d);
     d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), self));
     d->fetch.connect( slot( this, &IckleGUI::my_userinfo_fetch_cb ) );
@@ -490,23 +498,23 @@ void IckleGUI::my_userinfo_fetch_cb()
 
 void IckleGUI::about_cb()
 {
-  AboutDialog about;
+  AboutDialog about (this);
   about.run();
 }
 
 void IckleGUI::add_user_cb() {
-  AddUserDialog *dialog = new AddUserDialog();
+  AddUserDialog *dialog = new AddUserDialog(this);
   manage( dialog );
 }
 
 void IckleGUI::invalid_login_prompt() {
-  PromptDialog pd(PromptDialog::PROMPT_WARNING, "You have not entered a valid UIN and Password. "
+  PromptDialog pd(this, PromptDialog::PROMPT_WARNING, "You have not entered a valid UIN and Password. "
 	                                     "Go to Settings and correct the details.");
   pd.run();
 }
 
 void IckleGUI::turboing_prompt(){
-  PromptDialog pd(PromptDialog::PROMPT_WARNING, "The server says you have been turboing. "
+  PromptDialog pd(this, PromptDialog::PROMPT_WARNING, "The server says you have been turboing. "
 		  "This means you've been connecting and disconnecting to the server too "
 		  "quickly and so it has blocked you temporarily. Don't be alarmed, just "
 		  "wait for at least 5 minutes before reattempting. If you still get this "
@@ -515,7 +523,7 @@ void IckleGUI::turboing_prompt(){
 }
 
 void IckleGUI::duallogin_prompt() {
-  PromptDialog pd(PromptDialog::PROMPT_WARNING,
+  PromptDialog pd(this, PromptDialog::PROMPT_WARNING,
                   "The server recieved multiple simultaneous login for this account.\n"
                   "Do you have multiple clients running with the same account?" );
   pd.run();
@@ -530,7 +538,7 @@ void IckleGUI::disconnect_lowlevel_prompt(int retries) {
        << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
   }
   
-  PromptDialog pd( PromptDialog::PROMPT_WARNING, os.str() );
+  PromptDialog pd( this, PromptDialog::PROMPT_WARNING, os.str() );
   pd.run();
 }
 
@@ -543,7 +551,7 @@ void IckleGUI::disconnect_unknown_prompt(int retries) {
        << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
   }
   
-  PromptDialog pd( PromptDialog::PROMPT_WARNING, os.str() );
+  PromptDialog pd( this, PromptDialog::PROMPT_WARNING, os.str() );
   pd.run();
 }
 
@@ -582,7 +590,7 @@ void IckleGUI::userinfo_toggle_cb(bool b, ContactRef c) {
 void IckleGUI::popup_userinfo(const ContactRef& c) {
   unsigned int uin = c->getUIN();
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
-    UserInfoDialog *d = new UserInfoDialog(c);
+    UserInfoDialog *d = new UserInfoDialog(this, c);
     manage(d);
     d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), c));
     d->fetch.connect( bind( slot(this, &IckleGUI::userinfo_fetch_cb), c) );
@@ -596,9 +604,11 @@ void IckleGUI::popup_userinfo(const ContactRef& c) {
 
 }
 
-void IckleGUI::settings_cb(bool away) {
-  SettingsDialog dialog;
-  if (away) dialog.raise_away_status_tab();
+void IckleGUI::settings_cb(Gtk::Window * away_dlg)
+{
+  SettingsDialog dialog (away_dlg ? away_dlg : (Gtk::Window*)this);
+  if (away_dlg)
+    dialog.raise_away_status_tab();
 
   if (dialog.run()) {
     bool reconnect = false;
@@ -682,6 +692,7 @@ void IckleGUI::settings_changed_cb(const string& k)
 }
 
 void IckleGUI::exit_cb() {
+  m_exiting = true;
   exit.emit ();
   destroy ();
 }

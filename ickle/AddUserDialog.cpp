@@ -25,7 +25,7 @@
 
 #include <gtk--/table.h>
 
-AddUserDialog::AddUserDialog()
+AddUserDialog::AddUserDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
     m_ok("OK"), m_cancel("Cancel"),
     m_icq_user("An ICQ contact (has a uin)", 0),
@@ -41,6 +41,7 @@ AddUserDialog::AddUserDialog()
   Gtk::Label *label;
 
   set_title("Add Contact");
+  set_transient_for (*parent);
 
   m_ok.clicked.connect(slot(this,&AddUserDialog::ok_cb));
   m_cancel.clicked.connect( destroy.slot() );

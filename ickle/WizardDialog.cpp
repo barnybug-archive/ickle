@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.3 2002-02-12 17:15:11 barnabygray Exp $
+/* $Id: WizardDialog.cpp,v 1.4 2002-04-02 21:11:08 bugcreator Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -208,7 +208,7 @@ void WizardDialog::prev_cb() {
 }
 
 void WizardDialog::cancel_cb() {
-  PromptDialog pd( PromptDialog::PROMPT_CONFIRM,
+  PromptDialog pd( this, PromptDialog::PROMPT_CONFIRM,
                    "Are you sure you want to exit the wizard?" );
   if( pd.run() ) {
     Gtk::Main::quit();
@@ -227,12 +227,12 @@ void WizardDialog::intro_next() {
 void WizardDialog::new_pass_next() {
   Gtk::Label *lbl;
   if( !en_new_pass1.get_text_length() ) {
-    PromptDialog pd( PromptDialog::PROMPT_INFO,
+    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "You must supply a password before registering the account" );
     pd.run();
   }
   else if( en_new_pass1.get_text() != en_new_pass2.get_text() ) {
-    PromptDialog pd( PromptDialog::PROMPT_INFO,
+    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "The given passwords do not match, please correct this and try again" );
     pd.run();
   }
@@ -258,17 +258,17 @@ void WizardDialog::new_pass_next() {
 
 void WizardDialog::existing_details_next() {
   if( !en_uin.get_text_length() ) {
-    PromptDialog pd( PromptDialog::PROMPT_INFO,
+    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "You must supply an UIN before continuing!" );
     pd.run();
   }
   else if( !en_existing_pass1.get_text_length() ) {
-    PromptDialog pd( PromptDialog::PROMPT_INFO,
+    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "You must supply a password before continuing!" );
     pd.run();
   }
   else if( en_existing_pass1.get_text() != en_existing_pass2.get_text() ) {
-    PromptDialog pd( PromptDialog::PROMPT_INFO,
+    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "The given passwords do not match, please correct this and try again" );
     pd.run();
   }
@@ -277,7 +277,7 @@ void WizardDialog::existing_details_next() {
     if( !newuin ) {
       ostringstream os;
       os << "'" << en_uin.get_text() << "' is not a valid UIN, please correct this and try again";
-      PromptDialog pd( PromptDialog::PROMPT_INFO, os.str() );
+      PromptDialog pd( this, PromptDialog::PROMPT_INFO, os.str() );
       pd.run();
     }
     else {
@@ -324,7 +324,7 @@ void WizardDialog::finished_prev() {
 }
 
 int WizardDialog::delete_event_impl(GdkEventAny *event) {
-  PromptDialog pd( PromptDialog::PROMPT_CONFIRM,
+  PromptDialog pd( this, PromptDialog::PROMPT_CONFIRM,
                    "Are you sure you want to exit the wizard?" );
   if( pd.run() ) {
     Gtk::Main::quit();
@@ -335,7 +335,7 @@ int WizardDialog::delete_event_impl(GdkEventAny *event) {
 }
 
 gint WizardDialog::timeout_cb() {
-    PromptDialog pd(PromptDialog::PROMPT_QUESTION, "Registration attempt timed out. Would you like to retry?" );
+    PromptDialog pd(this, PromptDialog::PROMPT_QUESTION, "Registration attempt timed out. Would you like to retry?" );
     if( pd.run() ) {
       win_lbl.set_text( "Registering new account...[Retry]" );
       icqclient.RegisterUIN();
@@ -356,7 +356,7 @@ void WizardDialog::newuin_cb(ICQ2000::NewUINEvent *nue) {
     Gtk::Main::quit();
   }
   else {
-    PromptDialog pd(PromptDialog::PROMPT_QUESTION, "Registration attempt failed. Would you like to retry?" );
+    PromptDialog pd(this, PromptDialog::PROMPT_QUESTION, "Registration attempt failed. Would you like to retry?" );
     if( pd.run() ) {
       win_lbl.set_text( "Registering new account...[Retry]" );
       icqclient.RegisterUIN();

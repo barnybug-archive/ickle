@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.36 2002-03-31 20:35:43 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.37 2002-04-02 21:11:07 bugcreator Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -85,6 +85,7 @@ class IckleGUI : public Gtk::Window {
   void raise_messagebox(const ICQ2000::ContactRef& c);
 
   void set_ickle_title();
+  bool m_exiting;
 
  public:
   IckleGUI(MessageQueue& mq);
@@ -95,6 +96,8 @@ class IckleGUI : public Gtk::Window {
   void status_menu_status_changed_cb(ICQ2000::Status st);
   void status_menu_invisible_changed_cb(bool inv);
   void status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv);
+
+  void set_auto_response_dialog (bool timeout);
 
   void popup_next_event(const ICQ2000::ContactRef& c, History *h);
   void popup_messagebox(const ICQ2000::ContactRef& c, History *h);
@@ -140,7 +143,7 @@ class IckleGUI : public Gtk::Window {
   void queue_removed_cb(MessageEvent *ev);
 
   // -- other callbacks --
-  void settings_cb(bool away);
+  void settings_cb(Gtk::Window * away_dlg);
   void icons_changed_cb();
   void userinfo_toggle_cb(bool b, ICQ2000::ContactRef c);
   void exit_cb();

@@ -52,7 +52,7 @@ class AddUserDialog : public Gtk::Dialog {
   void mobileno_changed_cb();
 
  public:
-  AddUserDialog();
+  AddUserDialog(Gtk::Window * parent);
 
   void ok_cb();
 };

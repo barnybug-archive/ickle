@@ -55,6 +55,7 @@ private:
 
   void addTimeout (int, SigC::Connection, SigC::Connection);
   void endTimeout (int, bool, const string &);
+  void endTimeout (int sd, bool success) { endTimeout (sd, success, ""); }
   int timeout_cb (int);
 
   void self_status_change_cb (ICQ2000::StatusChangeEvent *, int, ICQ2000::Status);

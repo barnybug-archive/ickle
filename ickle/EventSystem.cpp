@@ -1,4 +1,4 @@
-/* $Id: EventSystem.cpp,v 1.1 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: EventSystem.cpp,v 1.2 2002-04-02 21:11:07 bugcreator Exp $
  *
  * EventSystem
  *
@@ -58,6 +58,24 @@ void EventSystem::queue_added_cb(MessageEvent *ev)
   case ICQMessageEvent::SMS:
     event_system("event_sms", c, t);
     break;
+  }
+}
+
+void EventSystem::status_change_cb(ICQ2000::StatusChangeEvent *ev)
+{
+  if (
+      // anything --> online
+      (ev->getOldStatus() != ICQ2000::STATUS_ONLINE &&
+       ev->getStatus() == ICQ2000::STATUS_ONLINE)
+    ||
+      // offline --> dnd/occ/ffc
+      (ev->getOldStatus() == ICQ2000::STATUS_OFFLINE &&
+        (ev->getStatus() == ICQ2000::STATUS_DND ||
+         ev->getStatus() == ICQ2000::STATUS_OCCUPIED ||
+         ev->getStatus() == ICQ2000::STATUS_FREEFORCHAT))
+     )
+  {
+    event_system("event_user_online", ev->getContact(), ev->getTime());
   }
 }
 

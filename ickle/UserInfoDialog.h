@@ -63,7 +63,7 @@ class UserInfoDialog : public Gtk::Dialog {
   void update_from_userinfo();
 
  public:
-  UserInfoDialog(const ICQ2000::ContactRef& c, bool self = false);
+  UserInfoDialog(Gtk::Window * parent, const ICQ2000::ContactRef& c, bool self = false);
   ~UserInfoDialog();
 
   // -- gui callbacks --

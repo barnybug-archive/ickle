@@ -1,4 +1,4 @@
-/* $Id: EventSystem.h,v 1.1 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: EventSystem.h,v 1.2 2002-04-02 21:11:07 bugcreator Exp $
  *
  * EventSystem
  *
@@ -26,6 +26,7 @@
 #include <string>
 
 #include "MessageEvent.h"
+#include <libicq2000/events.h>
 
 // ============================================================================
 //  EventSystem
@@ -40,6 +41,7 @@ class EventSystem : public SigC::Object
   EventSystem();
 
   void queue_added_cb(MessageEvent *ev);
+  void status_change_cb(ICQ2000::StatusChangeEvent *ev);
 };
 
 #endif

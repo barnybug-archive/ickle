@@ -108,15 +108,9 @@ void ControlHandler::addTimeout (int sd, Connection c1, Connection c2)
   m_timeouts.insert (make_pair (sd, make_pair (c1, c2)));
 }
 
-void ControlHandler::endTimeout (int sd, bool success, const string & reason)
+void ControlHandler::endTimeout (int sd, bool success, const string & info)
 {
-  ControlSocket s (sd);
-  if (success) {
-    s << 1 << string("");
-  }
-  else {
-    s << 0 << reason;
-  }
+  ControlSocket (sd) << success << info;
 
   if (m_timeouts.find (sd) != m_timeouts.end ()) {
     m_timeouts[sd].first.disconnect ();
@@ -140,7 +134,7 @@ void ControlHandler::cmdSetStatus (ControlSocket & s)
   s >> status >> timeout;
 
   if (icqclient.getStatus() == status) {
-    endTimeout (s.sd(), true, "");
+    endTimeout (s.sd(), true);
     return;
   }
 
@@ -162,7 +156,7 @@ void ControlHandler::cmdGetStatus (ControlSocket & s)
 void ControlHandler::self_status_change_cb (ICQ2000::StatusChangeEvent *ev, int sd, ICQ2000::Status status)
 {
   if (ev->getStatus() == status)
-    endTimeout (sd, true, "");
+    endTimeout (sd, true);
 }
 
 // --- invisible ---
@@ -249,7 +243,7 @@ switch (type) {
 void ControlHandler::messageack_cb (ICQ2000::MessageEvent *ack, int sd, ICQ2000::MessageEvent *ev)
 {
   if (ack == ev) {
-    endTimeout (sd, true, "");
+    endTimeout (sd, true);
   }
 }
 

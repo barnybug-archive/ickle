@@ -86,7 +86,7 @@ class SearchDialog : public Gtk::Dialog {
   void self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
 
  public:
-  SearchDialog();
+  SearchDialog(Gtk::Window * parent);
   
 };
 

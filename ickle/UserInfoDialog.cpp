@@ -35,12 +35,14 @@ using SigC::slot;
 
 using namespace ICQ2000;
 
-UserInfoDialog::UserInfoDialog(const ContactRef& c, bool self)
+UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool self)
   : Gtk::Dialog(), m_self(self),
     okay("OK"), cancel("Cancel"), fetchb("Fetch"), uploadb("Upload"),
     m_contact(c), m_changed(false), birth_year_spin((gfloat)1, 0), 
     birth_month_spin((gfloat)1, 0), birth_day_spin((gfloat)1, 0)
 {
+  set_transient_for (*parent);
+
   ostringstream ostr;
   if (m_self) {
     ostr << "My User Info";

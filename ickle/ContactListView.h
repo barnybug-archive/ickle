@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.20 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.21 2002-04-02 21:11:07 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -51,6 +51,7 @@ class ContactListView : public Gtk::CList {
   Gtk::Menu rc_popup;
 
   MessageQueue& m_message_queue;
+  class IckleGUI& m_gui;
 
   void update_row(const ICQ2000::ContactRef& c);
 
@@ -71,7 +72,7 @@ class ContactListView : public Gtk::CList {
   int m_sort;
 
  public:
-  ContactListView(MessageQueue& mq);
+  ContactListView(IckleGUI& gui, MessageQueue& mq);
   ~ContactListView();
 
   void setupAccelerators();

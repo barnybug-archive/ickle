@@ -46,7 +46,7 @@ using std::ostringstream;
 
 using namespace ICQ2000;
 
-SearchDialog::SearchDialog()
+SearchDialog::SearchDialog(Gtk::Window * parent)
   : Gtk::Dialog(), m_clist(7), m_ev(NULL),
     m_ok_button("OK"), m_search_button("Search"), m_stop_button("Stop"),
     m_add_button("Add to List"), m_reset_button("Reset form"), m_sex_selected(SEX_UNSPECIFIED),
@@ -61,6 +61,7 @@ SearchDialog::SearchDialog()
   
   set_title("Search for contacts");
   set_modal(false);
+  set_transient_for (*parent);
   m_notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::HBox *hbox = get_action_area();
