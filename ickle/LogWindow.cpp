@@ -43,7 +43,7 @@ LogWindow::LogWindow()
 {
 
   set_title( _("Log Window") );
-  set_default_size(400,400);
+  set_default_size(600,400);
 
   m_log_text.set_wrap_mode(Gtk::WRAP_WORD);
   m_log_text.set_editable(false);
