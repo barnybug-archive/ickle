@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.68 2002-07-03 01:06:34 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.69 2002-07-20 23:01:05 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -896,7 +896,7 @@ gint MessageBox::text_button_press_cb(GdkEventButton *b, Text *t) {
   if( b->button == 4 ) {
     val -= adj->get_page_increment();
   }
-  else if( b->button = 5 ) {
+  else if( b->button == 5 ) {
     val += adj->get_page_increment();
   }
   adj->set_value( val );

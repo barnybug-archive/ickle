@@ -86,7 +86,7 @@ gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
   if( ev->button == 4 ) {
     val -= adj->get_page_increment();
   }
-  else if( ev->button = 5 ) {
+  else if( ev->button == 5 ) {
     val += adj->get_page_increment();
   }
   adj->set_value( val );
