@@ -235,7 +235,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "About:", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  if (!m_self) about_text.set_editable(false);
+  about_text.set_editable(m_self);
   table->attach( about_text, 0, 4, 1, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   table->set_border_width(10);
