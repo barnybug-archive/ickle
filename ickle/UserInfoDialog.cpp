@@ -401,7 +401,7 @@ bool UserInfoDialog::update_contact()
 
 void UserInfoDialog::okay_cb() {
   // check if anything was touched
-  changed = changed || update_contact();
+  changed = update_contact() || changed;
   destroy.emit();
 }
 
