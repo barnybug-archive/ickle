@@ -66,12 +66,14 @@ AC_MSG_CHECKING([whether ickle_control should be built])
 if test "x$ickle_control" = xyes; then
    AC_DEFINE(CONTROL_SOCKET,,[Define if the control socket should be enabled])
    ICKLE_CONTROL="ickle_control"
+   ICKLE_CONTROL_MANPAGES="ickle_control.1"
    LIBICKLE_CTRLSOCKET="libickle_ctrlsocket.a"
    LIBICKLE_CTRLSOCKET_FLAG="-lickle_ctrlsocket"
    LIBICKLE_CTRLSOCKET_DEP="\$(top_builddir)/ctrlsocket/libickle_ctrlsocket.a"
 fi
 AC_MSG_RESULT($ickle_control)
 AC_SUBST(ICKLE_CONTROL)
+AC_SUBST(ICKLE_CONTROL_MANPAGES)
 AC_SUBST(LIBICKLE_CTRLSOCKET)
 AC_SUBST(LIBICKLE_CTRLSOCKET_FLAG)
 AC_SUBST(LIBICKLE_CTRLSOCKET_DEP)

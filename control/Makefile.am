@@ -12,3 +12,5 @@ ickle_control_SOURCES = main.cpp IckleControl.cpp CommandLineParser.cpp
 noinst_HEADERS = IckleControl.h CommandLineParser.h
 ickle_control_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
+EXTRA_DIST = ickle_control.1
+man_MANS = @ICKLE_CONTROL_MANPAGES@

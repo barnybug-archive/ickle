@@ -1,0 +1,59 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH ickle_control 1 "April 10, 2002"
+.\" Please adjust this date whenever revising the manpage.
+.SH NAME
+ickle_control \- external command-line control for the ickle client
+.SH SYNOPSIS
+.B ickle_control
+.RI [ options ]
+.SH DESCRIPTION
+This manual page documents briefly the commands that ickle_control may
+take for controlling ickle.
+.SH OPTIONS
+A summary of options is included below.
+.TP
+.B \-r, --running
+Determine whether ickle is running.
+.TP
+.B \-b, --configdir DIR
+Use DIR as the ickle configuration directory.
+Default is ~/.ickle/
+.TP
+.B \-t, --timeout [TIMEOUT]
+Wait at most TIMEOUT seconds for the next command to succeed. Omit
+TIMEOUT to return immediately.
+.TP
+.B \-s, --status [STATUS]
+Set/get status. STATUS can be one of: online, away, na, occupied, dnd,
+freeforchat, offline.
+.TP
+.B \-i, --invisible [BOOL]
+Set/get invisibility.
+.TP
+.B \-a, --away ["MESSAGE"]
+Set/get away message.
+.TP
+.B \-c, --addcontact UIN
+Add a new contact.
+.TP
+.B \-m, --send UIN "MESSAGE"
+Send MESSAGE to user UIN.
+.TP
+.B \-o, --sms UIN "MESSAGE"
+Send SMS to user UIN.
+.TP
+.B \-q, --quit
+Terminate ickle.
+.TP
+.B \-h, --help
+Display this help and exit.
+.TP
+.B \-v, --version
+Display ickle version and exit.
+.br
+.SH AUTHOR
+This manual page was written by Barnaby Gray
+<barnaby@beedesign.co.uk>.
