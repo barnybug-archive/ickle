@@ -4,7 +4,7 @@
 
 SUBDIRS = src ickle examples share
 
-EXTRA_DIST = \
+EXTRA_DIST = THANKS NEWS \
  scripts/licq2ickle.pl scripts/micq2ickle.pl \
  debian/README.Debian  debian/dirs             debian/postinst  debian/rules \
  debian/changelog      debian/docs             debian/postrm                 \
