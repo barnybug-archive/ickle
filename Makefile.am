@@ -13,5 +13,5 @@ EXTRA_DIST = THANKS NEWS \
  debian/ickle-common.README.Debian  debian/ickle.files \
  debian/ickle-common.docs           debian/ickle.manpages \
  debian/ickle-common.files          debian/ickle.menu \
- debian/ickle-dev.files             debian/ickle.substvars \
- debian/ickle-gnome.dirs            debian/rules
+ debian/ickle-dev.files             debian/ickle-gnome.dirs \
+ debian/rules 
