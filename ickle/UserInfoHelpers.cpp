@@ -470,6 +470,9 @@ vector<string> vectorOfValues(map<T, const char*> &m) {
   for (typename map<T, const char*>::iterator itr = m.begin(); itr != m.end(); ++itr) {
     vec.push_back(itr->second);
   }
+  //The first choice is mostly something special..
+  if ( (vec.begin() != vec.end() ) && (++(vec.begin()) !=vec.end() ) )
+    std::sort(++(vec.begin()),vec.end() );
   return vec;
 }
 
