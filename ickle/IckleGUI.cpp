@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.32 2002-01-19 15:20:38 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.33 2002-01-21 13:30:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -313,6 +313,14 @@ void IckleGUI::userinfo_dialog_close_cb(Contact *c) {
   }
 }
 
+void IckleGUI::userinfo_dialog_upload_cb(Contact *c) {
+  unsigned int uin = c->getUIN();
+  if (m_userinfo_dialogs.count(uin) != 0) {
+    if (m_userinfo_dialogs[uin]->isChanged()) icqclient.SignalUserInfoChange(c);
+    icqclient.uploadSelfDetails();
+  }
+}
+
 void IckleGUI::add_user_cb() {
   AddUserDialog dialog;
   unsigned int uid = dialog.run();
@@ -337,6 +345,7 @@ void IckleGUI::my_user_info_cb()
     manage(d);
     d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), self));
     d->fetch.connect( slot( this, &IckleGUI::my_userinfo_fetch_cb ) );
+    d->upload.connect( bind( slot( this, &IckleGUI::userinfo_dialog_upload_cb ), self));
     m_userinfo_dialogs[ uin ] = d;
     if (m_message_boxes.count(uin) != 0) {
       m_message_boxes[uin]->userinfo_dialog_cb(true);

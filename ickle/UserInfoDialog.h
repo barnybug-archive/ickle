@@ -45,7 +45,7 @@ class UserInfoDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel, fetchb;
   Gtk::Entry uin_entry, alias_entry, firstname_entry, lastname_entry,
-    email_entry1, email_entry2, email_entry3, ip_entry, status_entry, gmt_entry,
+    email_entry1, email_entry2, email_entry3, ip_entry, status_entry, timezone_entry,
     addr_entry, phone_entry, state_entry, fax_entry, city_entry, cellular_entry,
     zip_entry, country_entry, age_entry, sex_entry, homepage_entry, birthday_entry,
     lang_entry1, lang_entry2, lang_entry3;
@@ -57,11 +57,17 @@ class UserInfoDialog : public Gtk::Dialog {
   bool changed;
   bool m_self;
 
+  bool update_contact();
+
  public:
   UserInfoDialog(Contact *c, bool self = false);
   ~UserInfoDialog();
 
+  // -- gui callbacks --
   void okay_cb();
+  void upload_cb();
+
+  // -- library callbacks --
   void userinfochange_cb();
 
   void raise() const;
@@ -69,6 +75,7 @@ class UserInfoDialog : public Gtk::Dialog {
   bool isChanged() const;
 
   Signal0<void> fetch;
+  Signal0<void> upload;
 };
 
 #endif

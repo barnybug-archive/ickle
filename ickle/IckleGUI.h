@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.27 2002-01-19 15:20:38 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.28 2002-01-21 13:30:35 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -96,6 +96,7 @@ class IckleGUI : public Gtk::Window {
   void userinfo_popup(Contact *c);
   void message_box_close_cb(Contact *c);
   void userinfo_dialog_close_cb(Contact *c);
+  void userinfo_dialog_upload_cb(Contact *c);
   
   // -- menu callbacks --
   void add_user_cb();
@@ -106,7 +107,7 @@ class IckleGUI : public Gtk::Window {
 
   // -- disconnected callbacks --
   void invalid_login_prompt();
-  void turboing_prompt() ;
+  void turboing_prompt();
 
   void setDisplayTimes(bool d);
   string getAutoResponse() const;
@@ -114,13 +115,15 @@ class IckleGUI : public Gtk::Window {
 
   gint ickle_popup_cb(GdkEventButton*);
 
-  // callbacks
+  // -- library callbacks --
   void contactlist_cb(ContactListEvent* ev);
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
+  void self_event_cb(SelfEvent *ev);
+
+  // -- other callbacks --
   void settings_cb();
   void userinfo_toggle_cb(bool b, Contact *c);
-  void self_event_cb(SelfEvent *ev);
   void exit_cb();
   void userinfo_fetch_cb(Contact *c);
   void my_userinfo_fetch_cb();

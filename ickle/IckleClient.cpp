@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.64 2002-01-20 21:42:42 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.65 2002-01-21 13:30:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -730,7 +730,7 @@ void IckleClient::saveContact(Contact *c, const string& s)
   user.setValue( "street", mhi.street );
   user.setValue( "zip", mhi.zip );
   user.setValue( "country", mhi.country );
-  user.setValue( "gmt", mhi.gmt );
+  user.setValue( "gmt", mhi.timezone );
     
   // Homepage Info
   HomepageInfo& hpi = c->getHomepageInfo();
@@ -795,7 +795,7 @@ void IckleClient::loadContact(const string& s, bool self)
       mhi.street = cs.getValueString("street");
       mhi.zip = cs.getValueString("zip");
       mhi.country = cs.getValueUnsignedShort("country");
-      mhi.gmt = cs.getValueUnsignedChar("gmt");
+      mhi.timezone = cs.getValueUnsignedChar("gmt");
 	
       // Homepage Info
       HomepageInfo& hpi = c->getHomepageInfo();

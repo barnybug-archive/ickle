@@ -23,9 +23,11 @@
 #include "sstream_fix.h"
 
 #include <libicq2000/socket.h>
+#include <libicq2000/userinfoconstants.h>
 
 using std::ostringstream;
 using SigC::slot;
+using namespace ICQ2000;
 
 UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   : Gtk::Dialog(), m_self(self),
@@ -50,13 +52,18 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
   cancel.clicked.connect( destroy.slot() );
   fetchb.clicked.connect( fetch.slot() );
-  
+
   notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::Label *label;
 
   Gtk::HBox *hbox = get_action_area();
   hbox->pack_start(fetchb, true, true, 0);
+  if (self) {
+    Gtk::Button *uploadb = new Gtk::Button("Upload");
+    uploadb->clicked.connect( slot(this,&UserInfoDialog::upload_cb) );
+    hbox->pack_start(*uploadb, true, true, 0);
+  }
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
@@ -85,8 +92,8 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Timezone:", 0 ) );
   table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  gmt_entry.set_editable(false);
-  table->attach( gmt_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  timezone_entry.set_editable(false);
+  table->attach( timezone_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Name:", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
@@ -105,7 +112,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   
   label = manage( new Gtk::Label( "Address:", 0 ) );
   table->attach( *label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  addr_entry.set_editable(false);
+  if (!m_self) addr_entry.set_editable(false);
   table->attach( addr_entry, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Phone:", 0 ) );
@@ -114,7 +121,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "State:", 0 ) );
   table->attach( *label, 0, 1, 8, 9, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  state_entry.set_editable(false);
+  if (!m_self) state_entry.set_editable(false);
   table->attach( state_entry, 1, 2, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Fax:", 0 ) );
@@ -123,7 +130,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "City:", 0 ) );
   table->attach( *label, 0, 1, 9, 10, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  city_entry.set_editable(false);
+  if (!m_self) city_entry.set_editable(false);
   table->attach( city_entry, 1, 2, 9, 10, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
   
   label = manage( new Gtk::Label( "Cellular:", 0 ) );
@@ -132,7 +139,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Zip:", 0 ) );
   table->attach( *label, 0, 1, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  zip_entry.set_editable(false);
+  if (!m_self) zip_entry.set_editable(false);
   table->attach( zip_entry, 1, 2, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Country:", 0 ) );
@@ -204,7 +211,6 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   userinfochange_cb(); // fill in values
 
   set_border_width(10);
-  set_usize(400,400);
   show_all();
 }
 
@@ -214,43 +220,64 @@ bool UserInfoDialog::isChanged() const {
   return changed;
 }
 
-void UserInfoDialog::okay_cb() {
-  // check if anything was touched
-  changed = false;
+bool UserInfoDialog::update_contact() 
+{
+  bool ret = false;
+
+  if (m_self) {
+    // self only editable fields
+    MainHomeInfo& mhi = contact->getMainHomeInfo();
+    
+    //    if (contact->
+  }
+
   if (contact->getAlias() != alias_entry.get_text()) {
-    changed = true;
+    ret = true;
     contact->setAlias(alias_entry.get_text());
   }
   if (contact->getMobileNo() != cellular_entry.get_text()) {
-    changed = true;
+    ret = true;
     contact->setMobileNo(cellular_entry.get_text());
   }
   if (contact->getFirstName() != firstname_entry.get_text()) {
-    changed = true;
+    ret = true;
     contact->setFirstName(firstname_entry.get_text());
   }
   if (contact->getLastName() != lastname_entry.get_text()) {
-    changed = true;
+    ret = true;
     contact->setLastName(lastname_entry.get_text());
   }
   if (contact->getEmail() != email_entry1.get_text()) {
-    changed = true;
+    ret = true;
     contact->setEmail(email_entry1.get_text());
   }
   MainHomeInfo& mhi = contact->getMainHomeInfo();
   if (mhi.phone != phone_entry.get_text()) {
-    changed = true;
+    ret = true;
     mhi.phone = phone_entry.get_text();
   }
   if (mhi.fax != fax_entry.get_text()) {
-    changed = true;
+    ret = true;
     mhi.fax = fax_entry.get_text();
   }
   if (mhi.cellular != cellular_entry.get_text()) {
-    changed = true;
+    ret = true;
     mhi.cellular = cellular_entry.get_text();
   }
+  return ret;
+}
+
+
+void UserInfoDialog::okay_cb() {
+  // check if anything was touched
+  changed = changed || update_contact();
   destroy.emit();
+}
+
+void UserInfoDialog::upload_cb()
+{
+  changed = changed || update_contact();
+  upload.emit();
 }
 
 void UserInfoDialog::raise() const {
@@ -288,14 +315,19 @@ void UserInfoDialog::userinfochange_cb() {
 
   ip_entry.set_text( ostr.str() );
 
-  // decipher gmt and country code - code copied from LICQ
   country_entry.set_text( contact->getMainHomeInfo().getCountry() );
-
-  // need a list of timezones before we can implement this
-  unsigned char gmt = contact->getMainHomeInfo().gmt;
-  if (gmt == 0)
-    gmt_entry.set_text("Unknown");
-
+  signed char timezone = contact->getMainHomeInfo().timezone;
+  if (timezone == Timezone_unknown) {
+    timezone_entry.set_text("Unknown");
+  } else {
+    ostringstream ostr;
+    ostr << "GMT " << (timezone > 0 ? "-" : "+")
+	 << abs(timezone/2)
+	 << ":"
+	 << (timezone % 2 == 0 ? "00" : "30");
+    timezone_entry.set_text(ostr.str());
+  }
+  
   // About box
   about_text.delete_text(0,-1);
   about_text.insert( contact->getAboutInfo() );
@@ -310,10 +342,10 @@ void UserInfoDialog::userinfochange_cb() {
   }
 
   switch( contact->getHomepageInfo().sex ) {
-  case 1:
+  case SEX_MALE:
     sex_entry.set_text("Female");
     break;
-  case 2:
+  case SEX_FEMALE:
     sex_entry.set_text("Male");
     break;
   default:
