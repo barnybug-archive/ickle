@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.19 2003-01-11 20:11:10 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.20 2003-04-07 07:21:45 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -96,7 +96,7 @@ bool Icons::setIcons(const string &dir) {
 Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, bool inv)
 {
   Glib::RefPtr<Gdk::Pixbuf> ret;
-  
+
   if (inv && s != ICQ2000::STATUS_OFFLINE) {
     ret = Icon_Status_Invisible;
   } else {
@@ -157,3 +157,19 @@ Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_event(ICQMessageEvent::ICQMessageT
   }
   return ret;
 }
+
+
+std::vector<std::string> Icons::get_icon_sets()
+{
+  std::vector<std::string> buf;
+  //todo lets actually scan the directory
+  buf.push_back("icq");
+  buf.push_back("doors");
+  buf.push_back("eureka");
+  buf.push_back("gnomeicu");
+  buf.push_back("ickle");
+  buf.push_back("kit");
+  buf.push_back("new");
+  return buf;
+}
+

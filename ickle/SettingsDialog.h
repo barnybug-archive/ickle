@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.53 2003-03-26 12:44:16 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.54 2003-04-07 07:21:46 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -56,7 +56,7 @@ class SettingsDialog : public Gtk::Dialog
 
   // the Tree store
   Glib::RefPtr<Gtk::TreeStore> m_reftreestore;
-  
+
   // the Tree view
   Gtk::TreeView m_page_tree;
 
@@ -76,17 +76,20 @@ class SettingsDialog : public Gtk::Dialog
   // look'n'feel - charset
   Gtk::Entry m_lnf_charset;
   Gtk::Label m_lnf_charset_valid;
-  
+
   // look'n'feel - contact list
   Gtk::CheckButton m_mouse_check_away_click;
   Gtk::CheckButton m_mouse_single_click;
+
+  //lookn'n''feel - icons
+  std::string m_icons_dir;
 
 
   // message window
   Gtk::CheckButton m_message_autoclose;
   Gtk::CheckButton m_message_autopopup;
   Gtk::CheckButton m_message_autoraise;
-  
+
   Gtk::SpinButton m_history_shownr;
 
   // Away/Idle page
@@ -95,30 +98,34 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_auto_return;
 
   Gtk::TreeModel::iterator m_row_lnf_charset;
-  
+
   // Advanced Page
   Gtk::Entry m_network_login_host;
   Gtk::SpinButton m_network_login_port;
-  
+  Gtk::CheckButton m_network_override_port;
+
+  // Advanced Page SMTP
   Gtk::CheckButton m_network_smtp;
   Gtk::Entry m_network_smtp_host;
   Gtk::SpinButton m_network_smtp_port;
-  
+
+  // Advanced Page Securtiy
   Gtk::CheckButton m_network_in_dc;
   Gtk::CheckButton m_network_out_dc;
+  Gtk::SpinButton m_network_lower_bind_port;
+  Gtk::SpinButton m_network_upper_bind_port;
+  Gtk::CheckButton m_network_use_portrange;
 
+  // Advanced Page log
   Gtk::CheckButton m_log_to_console;
   Gtk::CheckButton m_log_to_file;
-
   Gtk::CheckButton m_log_directpacket;
   Gtk::CheckButton m_log_error;
   Gtk::CheckButton m_log_info;
   Gtk::CheckButton m_log_packet;
   Gtk::CheckButton m_log_warn;
+  Gtk::Entry m_logfile;
 
-  Gtk::SpinButton m_network_lower_bind_port;
-  Gtk::SpinButton m_network_upper_bind_port;
-  Gtk::CheckButton m_network_use_portrange;
 
   // page init functions
   void init_pages();
@@ -182,22 +189,27 @@ class SettingsDialog : public Gtk::Dialog
   void changed_cb();
   void toggle_smtp();
   void toggle_reconnect();
+  void toggle_logfile();
   void client_changed();
   void toggle_dc(unsigned int what);
   void activate_changes();
 
   void on_apply_clicked();
   void on_ok_clicked();
-  
+
   void choose_autoconnect (unsigned int s);
-  
-    
+  void choose_icons_dir (const std::string dir);
+
+
   void lnf_charset_validate_cb();
 
  public:
   SettingsDialog(Gtk::Window& parent, bool start_on_away);
   ~SettingsDialog();
-    
+
+  SigC::Signal0<void> change_client; //signal that determines that new settings for the client are available
+  SigC::Signal0<void> change_contact_list; //signal that determines that new settings for the contact list are available
+
   // TODO
 };
 

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.69 2003-03-26 12:44:16 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.70 2003-04-07 07:21:45 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,6 +39,7 @@
 #include "Icons.h"
 
 #include "iostream"
+#include "vector"
 
 class SectionFrame : public Gtk::Frame
 {
@@ -78,7 +79,7 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
 
   // setup Tree store
   m_reftreestore = Gtk::TreeStore::create(m_columns);
-  
+
   // setup Tree view
   m_page_tree.set_model( m_reftreestore );
   m_page_tree.set_headers_visible( false );
@@ -124,11 +125,11 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
   
   // only after special changes the client has to be restarted
   m_client_restart=false;
-  
+
   // finally show all!
 
   show_all();
-  
+
 }
 
 SettingsDialog::~SettingsDialog()
@@ -148,6 +149,11 @@ void SettingsDialog::on_apply_clicked()
   {
     save_pages();
     m_apply_button.set_sensitive(false);
+    if (m_client_restart)
+    {
+      activate_changes();
+      m_client_restart=false;
+    }
   }
 }
 
@@ -156,6 +162,11 @@ void SettingsDialog::on_ok_clicked()
   if (validate_pages())
   {
     save_pages();
+    if (m_client_restart)
+    {
+      activate_changes();
+      m_client_restart=false;
+    }
     response(Gtk::RESPONSE_OK);
   }
 }
@@ -163,7 +174,7 @@ void SettingsDialog::on_ok_clicked()
 Gtk::TreeModel::iterator SettingsDialog::add_page(const Glib::ustring& title, Gtk::Widget * page, bool toplevel)
 {
   Gtk::TreeModel::Row row;
-  
+
   if (toplevel)
   {
     row = * m_reftreestore->append();
@@ -187,9 +198,9 @@ void SettingsDialog::page_tree_select_cb()
   {
 
     Gtk::TreeModel::Row row = *iter;
-    
+
     m_page_title.set_markup( String::ucompose("<span weight=\"bold\" size=\"larger\">%1</span>", row[ m_columns.label ]) );
-    
+
     m_main_frame.remove();
     m_main_frame.add( * row[ m_columns.widget ] );
     m_main_frame.show_all();
@@ -222,7 +233,7 @@ void SettingsDialog::init_login_page()
   m_login_uin.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_login_uin.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_login_uin,_("UIN is the unique number that identifies the user"));
-  
+
   table->attach( m_login_uin, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
   table->attach( * manage( new Gtk::Label( _("Password"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
@@ -231,19 +242,19 @@ void SettingsDialog::init_login_page()
   m_login_pass.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_login_pass,_("the password for the account"));
   table->attach( m_login_pass, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
-     
-  
+
+
 
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   login->add( * table );
-  
+
   SectionFrame * autoconnect = manage( new SectionFrame( _("Auto connect") ) );
   table = manage( new Gtk::Table( 2, 1 ) );
   table->attach( * manage( new Gtk::Label( _("Auto connect to"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
-  
+
   Gtk::OptionMenu * autoconnect_om = manage (new Gtk::OptionMenu() );
   m_tooltip.set_tip (* autoconnect_om,_("Specifies the state for auto connect"));
   {
@@ -255,7 +266,7 @@ void SettingsDialog::init_login_page()
       Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(ICQ2000::Status(n), false );
       Gtk::Image * img = manage( new Gtk::Image( p ) );
       Glib::ustring label = UserInfoHelpers::getStringFromStatus(ICQ2000::Status(n) );
-      menu_list.push_back( ImageMenuElem( label,* img, 
+      menu_list.push_back( ImageMenuElem( label,* img,
       			  SigC::bind<int>( SigC::slot(*this, &SettingsDialog::choose_autoconnect),n) ) );
     }
     //we have to load here, otherwise we have to make the menu a variable of the class
@@ -264,12 +275,12 @@ void SettingsDialog::init_login_page()
     autoconnect_om->set_menu( *menu );
   }
   table->attach( * autoconnect_om, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   autoconnect->add( * table );
-  
+
   SectionFrame * reconnect = manage( new SectionFrame( _("Auto reconnect") ) );
   table = manage( new Gtk::Table( 2, 2 ) );
   m_auto_reconnect.set_label(_("Auto reconnect"));
@@ -286,13 +297,13 @@ void SettingsDialog::init_login_page()
   m_reconnect_retries.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_reconnect_retries,_("Specifies how often ickle tries to reconnect after an error."));
   table->attach( m_reconnect_retries, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   reconnect->add( * table );
   
-  
+
 
   vbox->pack_start( *login );
   vbox->pack_start( *autoconnect );
@@ -324,43 +335,43 @@ void SettingsDialog::init_look_message_page()
 		 0, 2, 0, 1, Gtk::FILL, Gtk::FILL );
   m_message_autoclose.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_message_autoclose,_("If checked the messagebox is closed after sending a message."));
-  
+
   m_message_autopopup.set_label(_("Auto popup on incoming message"));
   table->attach( m_message_autopopup,
 		 0, 2, 1, 2, Gtk::FILL, Gtk::FILL );
   m_message_autopopup.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_message_autopopup,_("If checked the message window will popup in case of  an incoming message."));
-  
+
   m_message_autoraise.set_label(_("Auto raise on incoming message"));
   table->attach( m_message_autoraise,
 		 0, 2, 2, 3, Gtk::FILL, Gtk::FILL );
   m_message_autoraise.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_message_autoraise,_("If checked an existing message window will be raised in case of an incoming message."));
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
 
   frame->add( * table );
-  
+
   SectionFrame * history = manage( new SectionFrame( _("History") ) );
-  
+
   table = manage (new Gtk::Table( 2, 1 ) );
-  
+
   table->attach( * manage( new Gtk::Label( _("Messages per page"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   m_history_shownr.set_range(0, 0xff);
-  m_history_shownr.set_digits(0); 
+  m_history_shownr.set_digits(0);
   m_history_shownr.set_increments(1, 10);
   m_history_shownr.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_history_shownr,_("Defines the number of messages per page in the message window history"));
   table->attach( m_history_shownr, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   history->add( * table );
-  
+
 
   vbox->pack_start( *frame );
   vbox->pack_start( *history );
@@ -373,21 +384,19 @@ void SettingsDialog::init_look_contact_list_page()
   SectionFrame * clicking = manage( new SectionFrame( _("Clicking") ) );
   //todo: Offline Contacts
   Gtk::Table * table = manage( new Gtk::Table( 1, 3 ) );
-  
+
   m_mouse_check_away_click.set_label(_("Check away message with click on icon"));
   m_mouse_check_away_click.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_mouse_check_away_click,_("todo"));
+  m_tooltip.set_tip (m_mouse_check_away_click,_("todo away"));
   table->attach( m_mouse_check_away_click, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
 
   m_mouse_single_click.set_label(_("Open message window with single click"));
   m_mouse_single_click.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_mouse_single_click,_("todo"));
+  m_tooltip.set_tip (m_mouse_single_click,_("todo single click"));
   table->attach( m_mouse_single_click, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
 
-   //todo these settings have no effect at the moment
-  
   clicking->add( * table );
-  
+
   vbox->pack_start( *clicking );
   add_page( _("Contact list"), vbox, false );
 }
@@ -399,12 +408,12 @@ void SettingsDialog::init_look_charset_page()
   SectionFrame * frame = manage( new SectionFrame( _("Character set") ) );
 
   Gtk::VBox * vbox2 = manage( new Gtk::VBox() );
-  
+
   Gtk::Table * table = manage(new Gtk::Table( 3, 1 ) );
 
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   table->attach( * manage( new Gtk::Label( _("Default"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
 
@@ -418,7 +427,7 @@ void SettingsDialog::init_look_charset_page()
   vbox2->pack_start( * table, Gtk::PACK_SHRINK );
 
   Gtk::Label * label = manage( new Gtk::Label() );
-  
+
   label->set_markup( _("This setting determines the global default character set used when sending and receiving "
 		       "to the <i>ICQ</i> network. You can set per-contact encodings by choosing the relevant option "
 		       "from the right-click menu for a contact.\n\n"
@@ -434,7 +443,7 @@ void SettingsDialog::init_look_charset_page()
   frame->add( * vbox2 );
 
   vbox->pack_start( *frame );
-  
+
   m_row_lnf_charset = add_page( _("Character set"), vbox, false );
 }
 
@@ -442,7 +451,41 @@ void SettingsDialog::init_look_icons_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * icons = manage( new SectionFrame( _("Icons") ) );
+  Gtk::Table * table = manage(new Gtk::Table( 2, 9 ) );
+  Gtk::OptionMenu * icons_om = manage (new Gtk::OptionMenu() );
+  m_tooltip.set_tip (* icons_om,_("Specifies the icon set"));
   //todo: list of icon sets, set window icon
+  {
+    using namespace Gtk::Menu_Helpers;
+    Gtk::Menu *menu = Gtk::manage( new Gtk::Menu() );
+    MenuList menu_list = menu->items();
+    std::vector<std::string> iconsets=g_icons.get_icon_sets();
+    for (int i = 0; i <iconsets.size(); i++)
+    {
+      Gtk::Label * label = manage (new Gtk::Label (iconsets[i]) );
+      Gtk::HBox * hbox = new Gtk::HBox();
+      g_icons.setIcons(ICONS_DIR + iconsets[i] + "/");
+      for (int n = ICQ2000::STATUS_ONLINE; n <= ICQ2000::STATUS_OFFLINE; n++)
+      {
+        Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( (ICQ2000::Status) n, false );
+	Gtk::Image * img = manage( new Gtk::Image( p ) );
+	hbox->pack_start(*img);
+      }
+      Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE, true );
+      Gtk::Image * img = manage( new Gtk::Image( p ) );
+      hbox->pack_start(*img);
+      menu_list.push_back( ImageMenuElem( label->get_text(), * hbox,
+      		SigC::bind<std::string>( SigC::slot(*this, &SettingsDialog::choose_icons_dir), label->get_text()) ) );
+    }
+    icons_om->set_menu( *menu );
+  }
+  table->attach( * icons_om, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+
+  icons->add( * table );
+
   vbox->pack_start( *icons );
   add_page( _("Icons"), vbox, false );
 }
@@ -461,33 +504,33 @@ void SettingsDialog::init_events_page()
 void SettingsDialog::init_away_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
-  
+
   SectionFrame * frame = manage( new SectionFrame( _("Response dialog") ) );
 
   Gtk::Table * table = manage(new Gtk::Table( 1, 1 ) );
   //todo
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
 
   vbox->pack_start( *frame );
-  
+
   frame = manage( new SectionFrame( _("Invisibility") ) );
-  
+
   table = manage(new Gtk::Table( 1, 1 ) );
   //todo
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
-  
+
   vbox->pack_start( *frame );
-  
+
   add_page( _("Away"), vbox, true );
-  
+
   // sub-pages
   init_away_idle_page();
   init_away_message_page();
@@ -496,43 +539,43 @@ void SettingsDialog::init_away_page()
 void SettingsDialog::init_away_idle_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
-  
+
   SectionFrame * frame = manage( new SectionFrame( _("Idleing") ) );
-  
+
   Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
 
   table->attach( * manage( new Gtk::Label( _("Auto-away (minutes)"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   m_auto_away.set_range(0, 0xffff);
-  m_auto_away.set_digits(0); 
+  m_auto_away.set_digits(0);
   m_auto_away.set_increments(1, 10);
   m_auto_away.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_away,_("After this time ickle will switch its mode to away. 0 to disable"));
   table->attach( m_auto_away, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
-    
+
   table->attach( * manage( new Gtk::Label( _("Auto-N/A (minutes)"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
-		 
+
   m_auto_na.set_range(0, 0xffff);
-  m_auto_na.set_digits(0); 
+  m_auto_na.set_digits(0);
   m_auto_na.set_increments(1, 10);
   m_auto_na.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_na,_("After this time ickle will switch its mode to Not Available. 0 to disable"));
   table->attach( m_auto_na, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
 
   vbox->pack_start( *frame );
-  
+
   frame = manage( new SectionFrame( _("Returning") ) );
-  
+
   table = manage( new Gtk::Table( 2, 1 ) );
 
-  
+
   m_auto_return.set_label(_("Automatically return (from Auto-away or Auto-N/A)"));
   m_auto_return.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_return,_("Determines if ickle will return from Auto-away or Auto-N/A after pressing a key or moving the mouse."));
@@ -540,14 +583,14 @@ void SettingsDialog::init_away_idle_page()
 
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
 
   vbox->pack_start( *frame );
   add_page( _("Idle"), vbox, false );
-  
-  
-  
+
+
+
 }
 
 void SettingsDialog::init_away_message_page()
@@ -559,34 +602,43 @@ void SettingsDialog::init_away_message_page()
 void SettingsDialog::init_advanced_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
-  
+
   SectionFrame * frame = manage( new SectionFrame( _("Network") ) );
-  
-  Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
+
+  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
 
   table->attach( * manage( new Gtk::Label( _("Server name"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   m_network_login_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_login_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_network_login_host,_("Specifies the name of the login server"));
   table->attach( m_network_login_host, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
-    
+
   table->attach( * manage( new Gtk::Label( _("Server port"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
   m_network_login_port.set_range(0, 0xffff);
-  m_network_login_port.set_digits(0); 
+  m_network_login_port.set_digits(0);
   m_network_login_port.set_increments(1, 10);
   m_network_login_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_login_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_network_login_port,_("Specifies the port of the login server. Default is 5190"));
   table->attach( m_network_login_port, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
-  
+
+  m_network_override_port.set_label (_("Override login port") );
+  m_network_override_port.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_override_port.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_tooltip.set_tip (m_network_override_port,_("todo override"));
+  table->attach( m_network_override_port, 0, 2, 2, 3, Gtk::FILL, Gtk::FILL );
+
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
 
   vbox->pack_start( *frame );
-  
+
   add_page( _("Advanced"), vbox, true );
 
   // sub-pages
@@ -598,28 +650,28 @@ void SettingsDialog::init_advanced_page()
 void SettingsDialog::init_advanced_security_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
-  
+
   SectionFrame * frame = manage( new SectionFrame( _("Connections") ) );
-  
+
   Gtk::Table * table = manage( new Gtk::Table( 4, 4 ) );
-  
+
   m_network_in_dc.set_label(_("Allow incoming direct connections"));
   m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
-  m_tooltip.set_tip (m_network_in_dc,_("todo"));
+  m_tooltip.set_tip (m_network_in_dc,_("todo incoming"));
   table->attach( m_network_in_dc, 0, 4, 0, 1, Gtk::FILL, Gtk::FILL );
 
   m_network_out_dc.set_label(_("Allow outgoing direct connections"));
   m_network_out_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_out_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
-  m_tooltip.set_tip (m_network_out_dc,_("todo"));
+  m_tooltip.set_tip (m_network_out_dc,_("todo outgoing"));
   table->attach( m_network_out_dc, 0, 4, 1, 2, Gtk::FILL, Gtk::FILL );
 
   m_network_use_portrange.set_label(_("Specify port range for incoming connections"));
   m_network_use_portrange.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_use_portrange.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_network_use_portrange.signal_toggled().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),0 ) );
-  m_tooltip.set_tip (m_network_use_portrange,_("todo"));
+  m_tooltip.set_tip (m_network_use_portrange,_("todo port range"));
   table->attach( m_network_use_portrange, 0, 4, 2, 3, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
 
   table->attach( * manage( new Gtk::Label( _("Local direct connection listening port from"), 0.0, 0.5 ) ),
@@ -631,7 +683,7 @@ void SettingsDialog::init_advanced_security_page()
   m_network_lower_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_lower_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_network_lower_bind_port.signal_value_changed().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),1 ) );
-  m_tooltip.set_tip (m_network_lower_bind_port,_("todo"));
+  m_tooltip.set_tip (m_network_lower_bind_port,_("todo lower"));
   table->attach( m_network_lower_bind_port, 1, 2, 3, 4, Gtk::FILL, Gtk::FILL );
 
   table->attach( * manage( new Gtk::Label( _("to"), 0.0, 0.5 ) ),
@@ -643,21 +695,16 @@ void SettingsDialog::init_advanced_security_page()
   m_network_upper_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_upper_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_network_upper_bind_port.signal_value_changed().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),2 ) );
-  m_tooltip.set_tip (m_network_upper_bind_port,_("todo"));
+  m_tooltip.set_tip (m_network_upper_bind_port,_("todo upper"));
   table->attach( m_network_upper_bind_port, 3, 4, 3, 4, Gtk::FILL, Gtk::FILL );
 
-  //todo
-
-
-  
-  
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
 
   vbox->pack_start( *frame );
-  
+
   add_page( _("Security"), vbox, false );
 }
 
@@ -665,37 +712,40 @@ void SettingsDialog::init_advanced_smtp_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * frame = manage( new SectionFrame( _("SMTP") ) );
-  
+
   Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
 
   table->attach( * manage( new Gtk::Label( _("SMTP server"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   m_network_smtp_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_smtp_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_network_smtp_host,_("Specifies the SMTP Server"));
-  m_network_smtp_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   table->attach( m_network_smtp_host, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
-    
+
   table->attach( * manage( new Gtk::Label( _("Server port"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+
   m_network_smtp_port.set_range(0, 0xffff);
-  m_network_smtp_port.set_digits(0); 
+  m_network_smtp_port.set_digits(0);
   m_network_smtp_port.set_increments(1, 10);
   m_network_smtp_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_smtp_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
   m_tooltip.set_tip (m_network_smtp_port,_("Specifies the port of the login server. Default is 5190"));
-  m_network_smtp_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   table->attach( m_network_smtp_port, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
-  
+
   m_network_smtp.set_label(_("Use SMTP server"));
   m_network_smtp.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_network_smtp.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::toggle_smtp ) );
+  m_network_smtp.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_tooltip.set_tip (m_network_smtp,_("todo Use SMTP sever"));
   table->attach( m_network_smtp, 0, 2, 2, 3, Gtk::FILL, Gtk::FILL );
-  
+
   table->set_spacings(5);
   table->set_border_width(10);
-  
+
   frame->add( * table );
-  
+
   vbox->pack_start( *frame );
 
   add_page( _("SMTP"), vbox, false );
@@ -704,19 +754,66 @@ void SettingsDialog::init_advanced_logging_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * where = manage( new SectionFrame( _("Where") ) );
-  //todo
-  //Gtk::CheckButton m_log_to_console;
-  //Gtk::CheckButton m_log_to_file;
+  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
 
-  SectionFrame * what = manage( new SectionFrame( _("What") ) );
-  //todo
-  // Gtk::CheckButton m_log_directpacket;
-  // Gtk::CheckButton m_log_error;
-  // Gtk::CheckButton m_log_info;
-  // Gtk::CheckButton m_log_packet;
-  // Gtk::CheckButton m_log_warn;
+  m_log_to_console.set_label(_("Console"));
+  m_log_to_console.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_to_console,_("todo console"));
+  table->attach( m_log_to_console, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_log_to_file.set_label(_("File"));
+  m_log_to_file.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_log_to_file.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::toggle_logfile ) );
+  m_tooltip.set_tip (m_log_to_file,_("todo file"));
+  table->attach( m_log_to_file, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  table->attach( * manage( new Gtk::Label( _("Log file"), 0.0, 0.5 ) ),
+		 0, 1, 2, 3, Gtk::FILL, Gtk::FILL );
+
+  m_logfile.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_logfile,_("todo logfile"));
+  table->attach( m_logfile, 1, 2, 2, 3, Gtk::FILL, Gtk::FILL );
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+
+  where->add( * table );
 
   vbox->pack_start( *where );
+
+  SectionFrame * what = manage( new SectionFrame( _("What") ) );
+  table = manage( new Gtk::Table( 2, 3 ) );
+
+  m_log_directpacket.set_label(_("Direct packets"));
+  m_log_directpacket.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_directpacket,_("todo m_log_directpacket"));
+  table->attach( m_log_directpacket, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_log_error.set_label(_("Errors"));
+  m_log_error.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_error,_("todo m_log_error"));
+  table->attach( m_log_error, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_log_info.set_label(_("Infos"));
+  m_log_info.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_info,_("todo m_log_info"));
+  table->attach( m_log_info, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  m_log_packet.set_label(_("Packets"));
+  m_log_packet.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_packet,_("todo m_log_packet"));
+  table->attach( m_log_packet, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  m_log_warn.set_label(_("Warnings"));
+  m_log_warn.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_log_warn,_("todo m_log_warn"));
+  table->attach( m_log_warn, 0, 1, 2, 3, Gtk::FILL, Gtk::FILL );
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+
+  what->add( * table );
+
   vbox->pack_start( *what );
   add_page( _("Logging"), vbox, false );
 }
@@ -767,6 +864,8 @@ void SettingsDialog::load_look_contact_list_page()
 
 void SettingsDialog::load_look_icons_page()
 {
+  m_icons_dir=g_settings.getValueString("icons_dir");
+  //todo choose the appropriate entry in the menu
 }
 
 void SettingsDialog::load_look_charset_page()
@@ -799,6 +898,7 @@ void SettingsDialog::load_advanced_page()
 {
   m_network_login_host.set_text( g_settings.getValueString("network_login_host") );
   m_network_login_port.set_value((double) g_settings.getValueUnsignedInt("network_login_port") );
+  m_network_override_port.set_active(g_settings.getValueBool("network_override_port") );
 
   load_advanced_security_page();
   load_advanced_smtp_page();
@@ -827,6 +927,15 @@ void SettingsDialog::load_advanced_smtp_page()
 
 void SettingsDialog::load_advanced_logging_page()
 {
+ m_log_to_console.set_active(g_settings.getValueBool("log_to_console") );
+ m_log_to_file.set_active(g_settings.getValueBool("log_to_file") );
+ m_log_directpacket.set_active(g_settings.getValueBool("log_directpacket") );
+ m_log_error.set_active(g_settings.getValueBool("log_error") );
+ m_log_info.set_active(g_settings.getValueBool("log_info") );
+ m_log_packet.set_active(g_settings.getValueBool("log_packet") );
+ m_log_warn.set_active(g_settings.getValueBool("log_warn") );
+ m_logfile.set_text(g_settings.getValueString("logfile") );
+ toggle_logfile();
 }
 
 
@@ -862,7 +971,7 @@ void SettingsDialog::save_look_message_page()
 {
   g_settings.setValue("message_autoclose", m_message_autoclose.get_active() );
   g_settings.setValue("message_autopopup", m_message_autopopup.get_active() );
-  g_settings.setValue("message_autoraise", m_message_autoraise.get_active() );    
+  g_settings.setValue("message_autoraise", m_message_autoraise.get_active() );
   g_settings.setValue( "history_shownr", (unsigned int) m_history_shownr.get_value() );
 }
 
@@ -874,6 +983,7 @@ void SettingsDialog::save_look_contact_list_page()
 
 void SettingsDialog::save_look_icons_page()
 {
+  g_settings.setValue("icons_dir", m_icons_dir );
 }
 
 void SettingsDialog::save_look_charset_page()
@@ -912,6 +1022,8 @@ void SettingsDialog::save_advanced_page()
 {
   g_settings.setValue( "network_login_host", m_network_login_host.get_text() );
   g_settings.setValue( "network_login_port", (unsigned int) m_network_login_port.get_value() );
+  g_settings.setValue( "network_override_port", m_network_override_port.get_active() );
+
   save_advanced_security_page();
   save_advanced_smtp_page();
   save_advanced_logging_page();
@@ -935,6 +1047,14 @@ void SettingsDialog::save_advanced_smtp_page()
 
 void SettingsDialog::save_advanced_logging_page()
 {
+  g_settings.setValue( "log_to_console", m_log_to_console.get_active() );
+  g_settings.setValue( "log_to_file", m_log_to_file.get_active() );
+  g_settings.setValue( "log_directpacket", m_log_directpacket.get_active() );
+  g_settings.setValue( "log_error", m_log_error.get_active() );
+  g_settings.setValue( "log_info", m_log_info.get_active() );
+  g_settings.setValue( "log_packet", m_log_packet.get_active() );
+  g_settings.setValue( "log_warn", m_log_warn.get_active() );
+  g_settings.setValue( "logfile", m_logfile.get_text() );
 }
 
 void SettingsDialog::changed_cb()
@@ -955,7 +1075,7 @@ void SettingsDialog::lnf_charset_validate_cb()
 bool SettingsDialog::validate_pages()
 {
   bool valid = true;
-  
+
   if (valid)
   {
     valid = validate_look_charset_page();
@@ -974,7 +1094,7 @@ bool SettingsDialog::validate_look_charset_page()
     Gtk::MessageDialog dialog (*this,
 			       String::ucompose( _("\"%1\" is not a valid encoding on your system."), m_lnf_charset.get_text()),
 			       Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
-    
+
     dialog.run();
 
     return false;
@@ -984,10 +1104,16 @@ bool SettingsDialog::validate_look_charset_page()
 }
 
 
-void SettingsDialog::choose_autoconnect (unsigned int s) 
+void SettingsDialog::choose_autoconnect (unsigned int s)
 {
   m_auto_connect=ICQ2000::Status(s);
   changed_cb();
+}
+
+
+void SettingsDialog::choose_icons_dir (const std::string dir)
+{
+  //todo
 }
 
 //ensures that SMTP setings can only be set if SMTP is activated
@@ -1018,6 +1144,12 @@ void SettingsDialog::toggle_reconnect()
   }
 }
 
+//ensures that the log file can only be set if file logging is activated
+void SettingsDialog::toggle_logfile()
+{
+   m_logfile.set_sensitive(m_log_to_file.get_active() );
+}
+
 //some settings of direct connection have side effects on others. Be aware of it
 void SettingsDialog::toggle_dc(unsigned int what)
 {
@@ -1039,6 +1171,5 @@ void SettingsDialog::toggle_dc(unsigned int what)
 //sends the settings to the Ickleclient and reconnects if necessary
 void SettingsDialog::activate_changes()
 {
-//todo
-//we need network_use_portrange,network_upper_bind_port,network_lower_bind_port, uin, passwort, network_in_dc, network_out_dc
+  change_client.emit();
 }

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.127 2003-03-09 15:02:20 cborni Exp $
+/* $Id: IckleClient.cpp,v 1.128 2003-04-07 07:21:42 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -89,7 +89,7 @@ void IckleClient::init()
   // let us know when the gui is destroyed
   gui.signal_destroy().connect(SigC::slot(*this,&IckleClient::quit));
   gui.signal_exit().connect(SigC::slot(*this,&IckleClient::exit_cb));
-  
+
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
 
@@ -110,6 +110,7 @@ void IckleClient::init()
   // set up GUI callbacks
   gui.signal_save_settings().connect(SigC::slot(*this,&IckleClient::save_settings_cb));
   gui.signal_send_event().connect(SigC::slot(*this,&IckleClient::send_event_cb));
+  gui.signal_restart_client.connect(SigC::slot(*this,&IckleClient::apply_and_restart) );
 
   gui.setDisplayTimes(true);
 
@@ -129,9 +130,9 @@ void IckleClient::init()
   // give gtk some time to breathe before we do an auto connect - dns
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
-  if (st != ICQ2000::STATUS_OFFLINE) 
+  if (st != ICQ2000::STATUS_OFFLINE)
     Glib::signal_idle().connect( SigC::bind( SigC::slot( *this, &IckleClient::idle_connect_cb ), st, false ) );
-  
+
 
   if( g_settings.getValueUnsignedInt("uin") == 0 )
   {
@@ -216,7 +217,7 @@ void IckleClient::SignalLog(ICQ2000::LogEvent::LogType type, const string& msg)
   ICQ2000::LogEvent ev(type,msg);
   logger_cb(&ev);
 }
-  
+
 void IckleClient::loadSettings()
 {
   // load in settings
@@ -250,6 +251,7 @@ void IckleClient::loadSettings()
   /* Default log settings */
   g_settings.defaultValueBool("log_to_console", true);
   g_settings.defaultValueBool("log_to_file", false);
+  g_settings.defaultValueString("logfile", "messages.log");
   g_settings.defaultValueBool("log_info", false);
   g_settings.defaultValueBool("log_error", true);
   g_settings.defaultValueBool("log_warn", true);
@@ -317,43 +319,9 @@ void IckleClient::loadSettings()
   g_settings.defaultValueBool("show_offline_contacts", true);
 
   g_settings.defaultValueString("encoding", "ISO-8859-1"); // this is the on-the-wire encoding
-  
+
   // Set settings in library
-  icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
-  icqclient.setPassword(g_settings.getValueString("password"));
-  icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
-  icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
-  if (g_settings.getValueBool("network_override_port")) {
-    icqclient.setBOSServerOverridePort(true);
-    icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
-  }
-  if (g_settings.getValueBool("network_smtp")) {
-    // enable SMTP
-    icqclient.setSMTPServerHost( g_settings.getValueString("network_smtp_host") );
-    icqclient.setSMTPServerPort( g_settings.getValueUnsignedShort("network_smtp_port") );
-  } else {
-    // disable SMTP
-    icqclient.setSMTPServerHost( "" );
-    icqclient.setSMTPServerPort( 0 );
-  }
-    
-  if (g_settings.getValueBool("network_use_portrange")) {
-    // use a port range
-    icqclient.setUsePortRange( true );
-    icqclient.setPortRangeLowerBound( g_settings.getValueUnsignedShort("network_lower_bind_port") );
-    icqclient.setPortRangeUpperBound( g_settings.getValueUnsignedShort("network_upper_bind_port") );
-  }
- 
-  icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
-  icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
-
-  // enable SBL support
-  icqclient.fetchServerBasedContactList();
-
-  // set Translator
-  icqclient.set_translator( new IckleTranslatorProxy( g_translator ) );
-  
-  // --
+  initLibrary();
 
   // Set contact list stuff
   int width, height, x, y;
@@ -373,18 +341,10 @@ void IckleClient::loadSettings()
   if (y + height > sheight) y = sheight-height;
 
   gui.setGeometry(x, y, width, height);
-  
-  /*
-    TODO
-  ContactListView* clist = gui.getContactListView();
-  if (clist) {
-    //    clist->setSingleClick(g_settings.getValueBool("mouse_single_click"));
-    //    clist->setCheckAwayClick(g_settings.getValueBool("mouse_check_away_click"));
-  }
-  */
+
 
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
-  
+
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 
   // Load up auto response in case autoconnect = away/na/etc.
@@ -400,14 +360,65 @@ void IckleClient::loadSettings()
   {
     std::string fetch_str  = Utils::format_string( "group_%d_label", i );
     std::string fetch_str2 = Utils::format_string( "group_%d_id", i );
-    
+
     std::string label = g_settings.getValueString(fetch_str);
     unsigned short id = g_settings.getValueUnsignedShort(fetch_str2);
-    
+
     icqclient.getContactTree().add_group( label, id );
   }
 
   m_loading = false;
+}
+
+
+void IckleClient::initLibrary ()
+{
+  icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
+  icqclient.setPassword(g_settings.getValueString("password"));
+  icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
+  icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  if (g_settings.getValueBool("network_override_port")) {
+    icqclient.setBOSServerOverridePort(true);
+    icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  }
+  if (g_settings.getValueBool("network_smtp")) {
+    // enable SMTP
+    icqclient.setSMTPServerHost( g_settings.getValueString("network_smtp_host") );
+    icqclient.setSMTPServerPort( g_settings.getValueUnsignedShort("network_smtp_port") );
+  } else {
+    // disable SMTP
+    icqclient.setSMTPServerHost( "" );
+    icqclient.setSMTPServerPort( 0 );
+  }
+
+  if (g_settings.getValueBool("network_use_portrange")) {
+    // use a port range
+    icqclient.setUsePortRange( true );
+    icqclient.setPortRangeLowerBound( g_settings.getValueUnsignedShort("network_lower_bind_port") );
+    icqclient.setPortRangeUpperBound( g_settings.getValueUnsignedShort("network_upper_bind_port") );
+  }
+
+  icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
+  icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
+
+  // enable SBL support
+  icqclient.fetchServerBasedContactList();
+
+  // set Translator
+  icqclient.set_translator( new IckleTranslatorProxy( g_translator ) );
+
+  // --
+}
+
+// stop the library, reload the settings and reconnect to the former state
+void IckleClient::apply_and_restart ()
+{
+  ICQ2000::Status oldstat = icqclient.getStatus();
+  if (oldstat != ICQ2000::STATUS_OFFLINE )
+    icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
+
+  initLibrary();
+  icqclient.setStatus(oldstat);
 }
 
 void IckleClient::saveSettings()
@@ -422,7 +433,7 @@ void IckleClient::saveSettings()
   g_settings.setValue( "geometry_height", height );
 
   if (!mkdir_BASE_DIR()) return;
-  
+
   string ickle_conf = BASE_DIR + "ickle.conf";
 
   // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
@@ -533,7 +544,7 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
 
   // disconnect PingServer callback
   poll_server_cnt.disconnect();
-  
+
   // do another switch here since we want to return early for some of these reasons
     switch(c->getReason()) {
     case ICQ2000::DisconnectedEvent::REQUESTED:
@@ -577,8 +588,8 @@ bool IckleClient::idle_connect_cb(ICQ2000::Status s, bool inv)
 
 void IckleClient::logger_file_cb(const string& msg)
 {
-  string log_file = BASE_DIR + "messages.log";
-  
+  string log_file = BASE_DIR + g_settings.getValueString("logfile");
+
   // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
   mode_t old_umask = umask(0077);
 
@@ -667,7 +678,7 @@ string IckleClient::get_unique_historyname() throw (runtime_error)
 {
   char tmpl[255];
   int fd;
-  
+
   snprintf( tmpl, sizeof(tmpl), "%smobilehistory.XXXXXX", CONTACT_DIR.c_str() );
   if( (fd = mkstemp( tmpl ) ) == -1 )
     throw( runtime_error( _("Could not generate temporary filename for history") ) );
@@ -831,7 +842,7 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
 {
   ICQMessageEvent *ret = NULL;
   ContactRef c = ev->getContact();
-  
+
   switch(ev->getType()) {
   case ICQ2000::MessageEvent::Normal:
   {

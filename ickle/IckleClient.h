@@ -69,9 +69,9 @@ class IckleClient : public sigslot::has_slots<>,
 #endif
 
   IdleTimer m_idletimer;
-  
+
   // setting and history files for each contact, indexed through UINs
-  std::map<unsigned int, std::string> m_settingsmap; 
+  std::map<unsigned int, std::string> m_settingsmap;
   std::map<unsigned int, History *> m_histmap;
 
   std::map<int, SigC::Connection> m_sockets;
@@ -82,6 +82,7 @@ class IckleClient : public sigslot::has_slots<>,
 
   void loadSettings();
   void saveSettings();
+  void initLibrary();
 
   void loadContactList();
 
@@ -103,16 +104,17 @@ class IckleClient : public sigslot::has_slots<>,
   std::string get_unique_contact_user_filename(ICQ2000::ContactRef& c);
   std::string get_contact_history_filename(ICQ2000::ContactRef& c);
   void update_group_settings();
-  
+
   bool mkdir_BASE_DIR();
 
  public:
   IckleClient(int argc, char* argv[]);
   ~IckleClient();
-  
+
   void init();
   bool check_pid_file();
   void quit();
+  void apply_and_restart(); //reload settings and restart the client
 
   // -- Callbacks for libICQ2000 --
   void connected_cb(ICQ2000::ConnectedEvent *c);

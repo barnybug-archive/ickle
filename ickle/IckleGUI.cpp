@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.75 2003-02-10 00:43:26 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.75 2003/02/10 00:43:26 barnabygray Exp
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -107,7 +107,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
     ml.push_back( ImageMenuElem( _("Set Auto Response"),
 				 * manage( new Gtk::Image( g_icons.get_icon_for_status( ICQ2000::STATUS_AWAY, false ) ) ),
 				 SigC::bind<bool>(SigC::slot(*this, &IckleGUI::set_auto_response_dialog), false)) );
-    
+
     m_offline_co_mi = manage( new Gtk::CheckMenuItem( _("Show offline contacts") ) );
     m_offline_co_mi->signal_toggled().connect( SigC::slot(*this, &IckleGUI::toggle_offline_co_cb) );
     m_ickle_menu.append(*m_offline_co_mi);
@@ -128,7 +128,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
     m_status_menu.status_changed_status.connect( SigC::slot( *this, &IckleGUI::status_menu_status_changed_cb ) );
     m_status_menu.status_changed_invisible.connect( SigC::slot( *this, &IckleGUI::status_menu_invisible_changed_cb ) );
     m_status_menu.status_changed_status_inv.connect( SigC::slot( *this, &IckleGUI::status_menu_status_inv_changed_cb ) );
-    
+
     mbl.front().set_right_justified(true);
     mbl.push_front(MenuElem( _("ickle"), m_ickle_menu));
   }
@@ -185,7 +185,7 @@ void IckleGUI::set_ickle_title()
   if (g_settings.getValueBool("window_status_icons"))
   {
     Glib::RefPtr<Gdk::Pixbuf> p;
-    
+
     if (m_message_queue.get_size() > 0)
     {
       MessageEvent *ev = m_message_queue.get_first_message();
@@ -198,12 +198,25 @@ void IckleGUI::set_ickle_title()
     {
       p = g_icons.get_icon_for_status( c->getStatus(), c->isInvisible() );
     }
-    
+
     // TODO - set icon list ?
     set_icon(p);
   }
 
 }
+
+
+void IckleGUI::change_client()
+{
+  signal_restart_client.emit();
+}
+
+void IckleGUI::change_contact_list()
+{
+  m_contact_list->set_check_away_click(g_settings.getValueBool("mouse_check_away_click") );
+  m_contact_list->set_single_click(g_settings.getValueBool("mouse_single_click") );
+}
+
 
 void IckleGUI::icons_changed_cb()
 {
@@ -436,7 +449,7 @@ void IckleGUI::status_menu_status_changed_cb(ICQ2000::Status st)
   // behaviour the user wants, as TCP connections can hang, etc.. on dodgy links
   if (st != ICQ2000::STATUS_OFFLINE && icqclient.getStatus() == ICQ2000::STATUS_OFFLINE)
     icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
-  
+
   icqclient.setStatus(st);
 }
 
@@ -471,18 +484,18 @@ void IckleGUI::self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 {
   ICQ2000::Status st = ev->getContact()->getStatus();
   bool inv = ev->getContact()->isInvisible();
-  
+
   m_status_menu.status_changed_cb( st, inv );
   m_status = st;
   m_invisible = inv;
-  
+
   std::map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
   while (i != m_message_boxes.end()) {
     if (st == ICQ2000::STATUS_OFFLINE) (*i).second->offline();
     else (*i).second->online();
     ++i;
   }
-  
+
   // update connection dependent menu entry
   mi_search_for_contacts->set_sensitive(st != ICQ2000::STATUS_OFFLINE);
 
@@ -714,6 +727,8 @@ void IckleGUI::popup_userinfo(const ContactRef& c) {
 void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
 {
   SettingsDialog dialog(w, away);
+  dialog.change_client.connect(SigC::slot(*this, &IckleGUI::change_client) );
+  dialog.change_contact_list.connect(SigC::slot(*this, &IckleGUI::change_contact_list) );
 
   if (dialog.run() == Gtk::RESPONSE_OK)
   {
@@ -738,7 +753,7 @@ void IckleGUI::spell_check_setup()
     // start gtkspell
 
     char spell_language[128];
-	
+
     char *ispellcmd[] = { "ispell", "-a", "-d","place holder",NULL };
     char *aspellcmd[] = { "aspell", "pipe", "place holder", NULL };
     char **spellcmd;
@@ -755,14 +770,14 @@ void IckleGUI::spell_check_setup()
 	aspellcmd[2] = NULL;
 	ispellcmd[2] = NULL;
     }
-    
+
 	if (g_settings.getValueBool("spell_check_aspell"))
-	    spellcmd = aspellcmd;    
+	    spellcmd = aspellcmd;
 	else
             spellcmd = ispellcmd;
-          
+
     if (gtkspell_running()) gtkspell_stop();
-    
+
     if (gtkspell_start(NULL, spellcmd) == 0) {
       map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
       while (i != m_message_boxes.end()) {
@@ -820,10 +835,11 @@ void IckleGUI::disconnected_cb(ICQ2000::DisconnectedEvent *)
 
 void IckleGUI::post_settings_loaded()
 {
-  // TODO  m_contact_list.post_settings_loaded();
   bool offline_co = g_settings.getValueBool("show_offline_contacts");
   m_offline_co_mi->set_active( offline_co );
   m_contact_list->set_show_offline_contacts( offline_co );
+  m_contact_list->set_check_away_click(g_settings.getValueBool("mouse_check_away_click") );
+  m_contact_list->set_single_click(g_settings.getValueBool("mouse_single_click") );
 }
 
 void IckleGUI::messagebox_popup_cb(unsigned int uin)

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.50 2003-02-09 17:02:29 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.51 2003-04-07 07:21:44 cborni Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -95,7 +95,6 @@ class IckleGUI : public Gtk::Window,
   SigC::Signal1<void, ICQ2000::MessageEvent*> m_signal_send_event;
   SigC::Signal0<void> m_signal_exit;
   SigC::Signal0<void> m_signal_destroy;
-
   // --
 
   void create_messagebox(const ICQ2000::ContactRef& c, History *h);
@@ -107,6 +106,8 @@ class IckleGUI : public Gtk::Window,
   void remove_from_queue_delayed(MessageEvent *ev);
 
   void set_ickle_title();
+  void change_client();
+  void change_contact_list();
 
  protected:
   // handle wm calls
@@ -138,7 +139,7 @@ class IckleGUI : public Gtk::Window,
   void messagebox_destroy_cb(ICQ2000::ContactRef c);
   void userinfo_dialog_destroy_cb(ICQ2000::ContactRef c);
   void userinfo_dialog_upload_cb(ICQ2000::ContactRef c);
-  
+
   // -- menu callbacks --
   void add_contact_cb();
   void search_contact_cb();
@@ -197,6 +198,9 @@ class IckleGUI : public Gtk::Window,
   SigC::Signal0<void>& signal_destroy();
   SigC::Signal0<void>& signal_save_settings();
   SigC::Signal1<void,ICQ2000::MessageEvent*>& signal_send_event();
+
+  //public signal activated by SettingsDialog
+  SigC::Signal0<void> signal_restart_client;
 };
 
 #endif

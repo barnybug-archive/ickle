@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.65 2003-04-06 14:57:05 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.66 2003-04-07 07:21:40 cborni Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -50,12 +50,12 @@ class GroupItem : public Gtk::MenuItem
 {
  private:
   const ICQ2000::ContactTree::Group& m_group;
-  
+
  public:
   GroupItem(const ICQ2000::ContactTree::Group& gp)
     : Gtk::MenuItem(gp.get_label()), m_group(gp)
   { }
-  
+
   const ICQ2000::ContactTree::Group& get_group() const
   {
     return m_group;
@@ -91,14 +91,14 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
   m_reftreestore->set_sort_func( m_columns.icon.index(), SigC::slot(*this, &ContactListView::sort_func));
   m_reftreestore->set_sort_func( m_columns.nick.index(), SigC::slot(*this, &ContactListView::sort_func));
   m_reftreestore->set_sort_column_id( m_columns.nick.index(), Gtk::SORT_ASCENDING);
-  
+
   // setup Tree view
   set_model( m_reftreestore );
-  
+
   // create columns
   {
     Gtk::TreeViewColumn *pColumn;
-    
+
     pColumn = Gtk::manage( new Gtk::TreeView::Column( "" ) );
     pColumn->set_visible( false );
     append_column( *pColumn );
@@ -267,7 +267,7 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev)
   {
     /* relocate contact */
     ICQ2000::UserRelocatedEvent * cev = static_cast<ICQ2000::UserRelocatedEvent*>(ev);
-    
+
     /* ICQ2000 - semantics - event is triggered *after* relocation */
     remove_contact(cev->getContact());
     add_contact(cev->getContact(), cev->get_group());
@@ -293,7 +293,7 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
   Gtk::TreeModel::Path path;
   Gtk::TreeView::Column * col;
   int cell_x, cell_y;
-  
+
   if (get_path_at_pos((int)ev->x, (int)ev->y, path, col, cell_x, cell_y))
   {
     Gtk::TreeModel::iterator iter = m_reftreestore->get_iter(path);
@@ -309,6 +309,9 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
 
 	if (m_single_click)
 	{
+	  m_signal_messagebox_popup.emit(row[m_columns.id]);
+	  //TODO: the messagebox is opened even if the user clicks on the icon.
+	  // possibly he want to check the away message instead
 	}
       }
       else if (ev->button == 3)
@@ -325,9 +328,9 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
 	/* right click - popup group menu */
 	m_rc_popup_group.popup( ev->button, ev->time );
       }
-      
+
     }
-    
+
   }
   else
   {
@@ -337,10 +340,10 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
       /* right click - popup blank menu */
       m_rc_popup_blank.popup( ev->button, ev->time );
     }
-    
+
   }
-  
-  
+
+
   return TreeView::on_button_press_event(ev);
 }
 
@@ -380,7 +383,7 @@ void ContactListView::popup_contact_menu(guint button, guint32 activate_time, un
     m_rc_popup_encoding->set_active(false);
     m_rc_popup_encoding_conn.unblock();
   }
-  
+
   m_rc_popup_contact.popup( button, activate_time );
 }
 
@@ -549,7 +552,7 @@ void ContactListView::update_list()
   /* could be done more efficiently! */
   m_group_map.clear();
   m_contact_map.clear();
-  
+
   m_rc_groups_list.items().clear();
 
   m_reftreestore->clear();
@@ -559,7 +562,7 @@ void ContactListView::update_list()
   while (curr != ct.end())
   {
     add_group( *curr );
-    
+
     ICQ2000::ContactTree::Group::const_iterator gcurr = curr->begin();
     while (gcurr != curr->end())
     {
@@ -577,12 +580,12 @@ void ContactListView::update_list()
       {
 	row[ m_columns.total_online ] = row[ m_columns.total_online ] + 1;
       }
-      
+
       ++gcurr;
     }
 
     update_group(*curr);
-    
+
     ++curr;
   }
 
@@ -828,6 +831,19 @@ void ContactListView::set_show_offline_contacts(bool b)
   update_list();
 }
 
+
+void ContactListView::set_check_away_click(bool b)
+{
+  m_check_away_click = b;
+  update_list();
+}
+
+void ContactListView::set_single_click(bool b)
+{
+  m_single_click = b;
+  update_list();
+}
+
 SigC::Signal1<void, unsigned int>& ContactListView::signal_messagebox_popup()
 {
   return m_signal_messagebox_popup;
@@ -877,7 +893,7 @@ void ContactListView::sort()
    */
   int sort_column_id;
   Gtk::SortType order;
-  
+
   m_reftreestore->get_sort_column_id( sort_column_id, order );
   m_reftreestore->set_sort_column_id( (sort_column_id == m_columns.nick.index()
 		       ? m_columns.icon.index() : m_columns.nick.index() ), order );
@@ -948,5 +964,5 @@ void ContactListView::contact_use_encoding_cb()
     /* unset encoding in translator */
     g_translator.unset_contact_encoding(c);
   }
-  
+
 }

@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.36 2003-02-09 18:57:49 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.37 2003-04-07 07:21:41 cborni Exp $
  *
  * ContactList(Tree)View
  *
@@ -85,7 +85,7 @@ class ContactListView : public Gtk::TreeView,
   void group_fetch_all_away_msg_cb();
 
   void sort();
-  
+
   gint sort_func(const Gtk::TreeModel::iterator& iter1, const Gtk::TreeModel::iterator& iter2);
   int status_order (ICQ2000::Status s);
 
@@ -145,7 +145,7 @@ class ContactListView : public Gtk::TreeView,
 
   // group mapping
   std::map< unsigned int, Gtk::TreeModel::iterator > m_group_map;
-  
+
   // contact mapping
   std::map< unsigned int, Gtk::TreeModel::iterator > m_contact_map;
 
@@ -169,6 +169,8 @@ class ContactListView : public Gtk::TreeView,
   ~ContactListView();
 
   void set_show_offline_contacts(bool b);
+  void set_check_away_click(bool b);
+  void set_single_click(bool b);
 
   // signal accessors
   SigC::Signal1<void, unsigned int>& signal_messagebox_popup();
