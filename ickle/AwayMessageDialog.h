@@ -46,7 +46,7 @@ class AwayMessageDialog : public Gtk::Window {
   AwayMessageDialog(Gtk::Window *main_window);
   ~AwayMessageDialog();
   
-  void away_message_cb(AwayMsgEvent *ev);
+  void messageack_cb(MessageEvent *ev);
   gint button_press_cb(GdkEventButton *ev);
   gint delete_event_impl(GdkEventAny *ev);
 };

@@ -32,6 +32,7 @@
 #include <gtk--/optionmenu.h>
 #include <gtk--/menu.h>
 #include <gtk--/menushell.h>
+#include <gtk--/adjustment.h>
 
 using SigC::slot;
 using SigC::bind;
@@ -39,7 +40,17 @@ using SigC::bind;
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel"),
-    away_autoposition("Autoposition away messages dialog")
+    away_autoposition("Autoposition away messages dialog", 0),
+    reconnect_checkbox("Auto Reconnect", 0),
+    log_info("Information", 0),
+    log_warn("Warnings", 0),
+    log_error("Errors", 0),
+    log_packet("Server Packets", 0),
+    log_directpacket("Direct Packets", 0),
+    log_to_nowhere("The void", 0),
+    log_to_console("Console", 0),
+    log_to_file("File (~/.ickle/messages.log)", 0),
+    log_to_consolefile("Selected to console, all to file", 0)
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -59,21 +70,21 @@ SettingsDialog::SettingsDialog()
   ftable->set_border_width(5);
   ftable->set_spacings(5);
 
-  Gtk::Table *table = manage( new Gtk::Table( 3, 3, false ) );
+  Gtk::Table *table = manage( new Gtk::Table( 2, 5, false ) );
 
   Gtk::Label *label;
   label = manage( new Gtk::Label( "UIN", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
   uin_entry.set_text(ICQ2000::Contact::UINtoString( g_settings.getValueUnsignedInt("uin") ));
-  table->attach( uin_entry, 1, 3, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( uin_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Password", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
   password_entry.set_text( g_settings.getValueString("password") );
   password_entry.set_visibility(false);
-  table->attach( password_entry, 1, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( password_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  label = manage( new Gtk::Label( "AutoConnect", 0 ) );
+  label = manage( new Gtk::Label( "Auto Connect", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
 
   Gtk::OptionMenu *autoconnect_om = manage( new Gtk::OptionMenu() );
@@ -88,7 +99,26 @@ SettingsDialog::SettingsDialog()
   m->set_active( m_status - STATUS_ONLINE );
   autoconnect_om->set_menu(*m);
 
-  table->attach( *autoconnect_om, 1, 3, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *autoconnect_om, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  unsigned char n_retr = g_settings.getValueUnsignedChar("reconnect_retries");
+
+  reconnect_label = manage( new Gtk::Label( "Retries", 0 ) );
+  Gtk::Adjustment *adj = manage( new Gtk::Adjustment( (n_retr == 0 ? 1 : n_retr), 1.0, 10.0 ) );
+  reconnect_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+
+  reconnect_checkbox.toggled.connect( slot( this, &SettingsDialog::reconnect_toggle_cb ) );
+  reconnect_checkbox.set_active( n_retr > 0 );
+  table->attach( reconnect_checkbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  table->attach( *reconnect_label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
+
+  table->attach( *reconnect_spinner, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  if ( n_retr == 0 ) {
+    reconnect_label->set_sensitive(false);
+    reconnect_spinner->set_sensitive(false);
+  }
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -139,7 +169,7 @@ SettingsDialog::SettingsDialog()
   icons_list.selection_changed.connect( slot( this, &SettingsDialog::icons_cb ) );
 
   Gtk::ScrolledWindow *scrolled_window = manage(new Gtk::ScrolledWindow());
-  scrolled_window->set_usize(250, 150);
+  scrolled_window->set_usize(300, 200);
   scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   scrolled_window->add_with_viewport(icons_list);
   frame->add(*scrolled_window);
@@ -151,6 +181,7 @@ SettingsDialog::SettingsDialog()
   // ------------------------------------------------------------
 
   // ---------------- Events tab --------------------------
+
   table = manage( new Gtk::Table( 2, 4, false ) );
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive an event. "
@@ -177,7 +208,12 @@ SettingsDialog::SettingsDialog()
   table->set_row_spacings(10);
   table->set_col_spacings(10);
   table->set_border_width(10);
-  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *label )  );
+
+  frame = manage( new Gtk::Frame("Events") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
   // ---------------------------------------------------------
 
@@ -186,14 +222,82 @@ SettingsDialog::SettingsDialog()
   table = manage( new Gtk::Table( 2, 1, false ) );
   
   away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
-  label = manage( new Gtk::Label( "Autoposition Dialog", 0 ) );
   table->attach( away_autoposition, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Away Messages" ) );
   table->set_row_spacings(10);
   table->set_col_spacings(10);
   table->set_border_width(10);
-  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *label )  );
+
+  frame = manage( new Gtk::Frame("Away Messages") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  label = manage( new Gtk::Label( "Away Messages" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+
+  // ---------------------------------------------------------
+
+  // ------------------ Logging ------------------------------
+
+  Gtk::Table *ttable;
+  ttable = manage( new Gtk::Table( 1, 2, false ) );
+
+  table = manage( new Gtk::Table( 1, 5, false ) );
+
+  log_info.set_active( g_settings.getValueBool("log_info") );
+  table->attach( log_info, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0 );
+  log_warn.set_active( g_settings.getValueBool("log_warn") );
+  table->attach( log_warn, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0 );
+  log_error.set_active( g_settings.getValueBool("log_error") );
+  table->attach( log_error, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
+  log_packet.set_active( g_settings.getValueBool("log_packet") );
+  table->attach( log_packet, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  log_directpacket.set_active( g_settings.getValueBool("log_directpacket") );
+  table->attach( log_directpacket, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0 );
+
+  table->set_row_spacings(3);
+  table->set_col_spacings(5);
+  table->set_border_width(10);
+
+  ttable->attach( *table, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+
+  table = manage( new Gtk::Table( 2, 4, false ) );
+
+  label = manage( new Gtk::Label( "Log to" ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0 );
+
+  log_to_console.set_group( log_to_nowhere.group() );
+  log_to_file.set_group( log_to_nowhere.group() );
+  log_to_consolefile.set_group( log_to_nowhere.group() );
+
+  
+  bool log_to_console_b = g_settings.getValueBool("log_to_console");
+  bool log_to_file_b = g_settings.getValueBool("log_to_file");
+  if (!log_to_console_b)
+    if (!log_to_file_b) log_to_nowhere.set_active(true);
+    else log_to_file.set_active(true);
+  else
+    if (!log_to_file_b) log_to_console.set_active(true);
+    else log_to_consolefile.set_active(true);
+
+  table->attach( log_to_nowhere, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  table->attach( log_to_console, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  table->attach( log_to_file, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  table->attach( log_to_consolefile, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  
+  table->set_row_spacings(3);
+  table->set_col_spacings(5);
+  table->set_border_width(10);
+
+  ttable->attach( *table, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+
+  frame = manage( new Gtk::Frame("Network Log") );
+  frame->set_border_width(5);
+  frame->add(*ttable);
+
+  label = manage( new Gtk::Label( "Logging" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+
 
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
@@ -218,6 +322,12 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("uin", ICQ2000::Contact::StringtoUIN(uin_entry.get_text()));
   g_settings.setValue("password", password_entry.get_text());
   g_settings.setValue("autoconnect", m_status );
+  
+  if ( reconnect_checkbox.get_active() ) {
+    g_settings.setValue( "reconnect_retries", (unsigned char)reconnect_spinner->get_value_as_int() );
+  } else {
+    g_settings.setValue( "reconnect_retries", (unsigned char)0 );
+  }
 
   g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
   g_settings.setValue("icons_dir", getIconsFilename());
@@ -229,6 +339,19 @@ void SettingsDialog::updateSettings() {
 
   // ------------ Away Messages tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
+
+  // ------------ Logging tab ----------------------
+  g_settings.setValue("log_info", log_info.get_active() );
+  g_settings.setValue("log_warn", log_warn.get_active() );
+  g_settings.setValue("log_error", log_error.get_active() );
+  g_settings.setValue("log_packet", log_packet.get_active() );
+  g_settings.setValue("log_directpacket", log_directpacket.get_active() );
+
+  bool log_to_console_b = log_to_console.get_active() || log_to_consolefile.get_active();
+  bool log_to_file_b = log_to_file.get_active() || log_to_consolefile.get_active();
+  g_settings.setValue("log_to_console", log_to_console_b);
+  g_settings.setValue("log_to_file", log_to_file_b);
+
 }
 
 unsigned int SettingsDialog::getUIN() const {
@@ -237,6 +360,16 @@ unsigned int SettingsDialog::getUIN() const {
 
 string SettingsDialog::getPassword() const {
   return password_entry.get_text();
+}
+
+void SettingsDialog::reconnect_toggle_cb() {
+  if ( reconnect_checkbox.get_active() ) {
+    reconnect_label->set_sensitive(true);
+    reconnect_spinner->set_sensitive(true);
+  } else {
+    reconnect_label->set_sensitive(false);
+    reconnect_spinner->set_sensitive(false);
+  }
 }
 
 void SettingsDialog::okay_cb() {

@@ -29,6 +29,7 @@
 # include <getopt.h>
 #endif
 
+#include <fstream>
 #include "sstream_fix.h"
 
 #include "main.h"
@@ -41,6 +42,7 @@
 
 using std::ostringstream;
 using std::istringstream;
+using std::ofstream;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
@@ -69,7 +71,6 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
-  icqclient.away_message.connect(slot(this,&IckleClient::away_message_cb));
 
   // set up GUI callbacks
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
@@ -216,7 +217,11 @@ void IckleClient::loadSettings() {
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
   
   g_settings.defaultValue("away_autoposition", true);
+  g_settings.defaultValue("reconnect_retries", 2);
+  g_settings.defaultValue("log_to_console", true);
+  g_settings.defaultValue("log_to_file", false);
 
+  m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 }
 
 void IckleClient::saveSettings() {
@@ -277,6 +282,7 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
    * I suggest a graularity of 5 seconds is sensible
    */
   poll_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::poll_server_cb ), 5000 );
+  m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 }
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
@@ -311,25 +317,75 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
 
   // disconnect PingServer callback
   poll_server_cnt.disconnect();
+  
+  if (m_retries > 0) {
+    --m_retries;
+    Gtk::Main::idle.connect( slot( this, &IckleClient::idle_reconnect_cb ) );
+  }
+}
 
+gint IckleClient::idle_reconnect_cb() {
+  
+  return 0;
 }
 
 void IckleClient::logger_cb(LogEvent *c) {
 
+  bool log_to_console = g_settings.getValueBool("log_to_console");
+  bool log_to_file = g_settings.getValueBool("log_to_file");
+
+  string log_file = BASE_DIR + "messages.log";
+
+  if ( log_to_console && log_to_file ) {
+    ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
+    if (of) of << c->getMessage() << endl;
+  }
+
   switch(c->getType()) {
   case LogEvent::INFO:
-    cout << "[34m";
+    if (!g_settings.getValueBool("log_info")) return;
+    break;
+  case LogEvent::ERROR:
+    if (!g_settings.getValueBool("log_error")) return;
     break;
   case LogEvent::WARN:
-    cout << "[31m";
+    if (!g_settings.getValueBool("log_warn")) return;
     break;
   case LogEvent::PACKET:
-    cout << "[32m";
+    if (!g_settings.getValueBool("log_packet")) return;
+    break;
+  case LogEvent::DIRECTPACKET:
+    if (!g_settings.getValueBool("log_directpacket")) return;
     break;
   }
 
-  cout << c->getMessage() << endl;
-  cout << "[39m";
+  if ( !log_to_console && log_to_file ) {
+    ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
+    if (of) of << c->getMessage() << endl;
+  }
+
+  if (log_to_console) {
+    switch(c->getType()) {
+    case LogEvent::INFO:
+      cout << "[34m";
+      break;
+    case LogEvent::ERROR:
+      cout << "[31m";
+      break;
+    case LogEvent::WARN:
+      cout << "[36m";
+      break;
+    case LogEvent::PACKET:
+      cout << "[32m";
+      break;
+    case LogEvent::DIRECTPACKET:
+      cout << "[32m";
+      break;
+    }
+    cout << c->getMessage() << endl;
+    cout << "[39m";
+  }
+
 }
 
 void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
@@ -360,7 +416,7 @@ void IckleClient::send_event_cb(MessageEvent *ev) {
 }
 
 void IckleClient::messageack_cb(MessageEvent *ev) {
-  if (ev->isFinished() && ev->isDelivered())
+  if (ev->isFinished() && ev->isDelivered() && ev->getType() != MessageEvent::AwayMessage)
     m_histmap[ev->getContact()->getUIN()].log(ev, false);
 }
 
@@ -383,7 +439,7 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
-    cout << "connecting socket " << fd << endl;
+    //    cout << "connecting socket " << fd << endl;
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
@@ -402,7 +458,7 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
-    cout << "disconnecting socket " << fd << endl;
+    //    cout << "disconnecting socket " << fd << endl;
 
     m_sockets[fd].disconnect();
     m_sockets.erase(fd);
@@ -579,10 +635,6 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     // delete
     unlink( m_fmap[c->getUIN()].c_str() );
   }
-}
-
-void IckleClient::away_message_cb(AwayMsgEvent *ev) {
-  cout << "Away Message: " << ev->getMessage() << endl;
 }
 
 void IckleClient::settings_changed_cb() {

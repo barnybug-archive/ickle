@@ -21,6 +21,7 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
                  Icons.h UserInfoDialog.h AddMobileUserDialog.h \
 		 SettingsDialog.h PromptDialog.h History.h \
 		 MobileNoEntry.h Dir.h IckleApplet.h AwayMessageDialog.h
+
 ickle_LDADD = $(top_srcdir)/src/libicq2000.la
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp

@@ -121,7 +121,10 @@ void ContactListView::remove_user_cb() {
 
 void ContactListView::fetch_away_msg_cb() {
   Contact *c = icqclient.getContact( current_selection_uin() );
-  if (c != NULL) icqclient.fetchAwayMsg(c);
+  if (c != NULL) {
+    MessageEvent *ev = new AwayMessageEvent(c);
+    icqclient.SendEvent(ev);
+  }
 }
 
 unsigned int ContactListView::current_selection_uin() {
@@ -143,7 +146,10 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
       return true;
     } else if (ev->button == 1 && col == 0) {
       Contact *c = icqclient.getContact( p->uin );
-      if (c != NULL) icqclient.fetchAwayMsg(c);
+      if (c != NULL) {
+	MessageEvent *ev = new AwayMessageEvent(c);
+	icqclient.SendEvent(ev);
+      }
       row(rw).select();
       return true;
     } else if(ev->button == 3) {

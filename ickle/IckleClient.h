@@ -61,6 +61,7 @@ class IckleClient : public SigC::Object {
  private:
   IckleGUI gui;
   Status status;
+  unsigned int m_retries;
 
 #ifdef GNOME_ICKLE
   IckleApplet applet;
@@ -79,6 +80,7 @@ class IckleClient : public SigC::Object {
   void loadContactList();
 
   void event_system(const string& s, MessageEvent *e);
+  gint idle_reconnect_cb();
 
  public:
   IckleClient(int argc, char* argv[]);
@@ -94,7 +96,6 @@ class IckleClient : public SigC::Object {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void socket_cb(SocketEvent* ev);
-  void away_message_cb(AwayMsgEvent* ev);
 
   // -- Callbacks for GUI --
   void user_popup_cb(unsigned int uin);

@@ -320,6 +320,8 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
   if (c->getUIN() != m_contact->getUIN()) return;
 
+  if (ev->getType() == MessageEvent::AwayMessage) return;
+
   if (ev->isFinished()) {
     if (ev->isDelivered()) {
       display_message(ev, false, "You");

@@ -42,7 +42,7 @@ AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
 
   m_awaytext.set_word_wrap(true);
   
-  icqclient.away_message.connect( slot(this,&AwayMessageDialog::away_message_cb) );
+  icqclient.messageack.connect( slot(this,&AwayMessageDialog::messageack_cb) );
 
   button_release_event.connect(slot(this,&AwayMessageDialog::button_press_cb));
 
@@ -73,7 +73,12 @@ gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
   return true;
 }
 
-void AwayMessageDialog::away_message_cb(AwayMsgEvent *ev) {
+void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
+  if (ev->getType() != MessageEvent::AwayMessage) return;
+  if (!ev->isFinished()) return;
+
+  AwayMessageEvent *aev = static_cast<AwayMessageEvent*>(ev);
+
   if (!is_visible()) {
     if (g_settings.getValueBool("away_autoposition")) {
       int width, height, x, y;
@@ -112,7 +117,11 @@ void AwayMessageDialog::away_message_cb(AwayMsgEvent *ev) {
        << c->getAlias() << endl;
   m_awaytext.freeze();
   m_awaytext.insert( bold_font, nickc, white, ostr.str(), -1);
-  m_awaytext.insert( normal_font, black, white, ev->getMessage(), -1);
+  if (ev->isDelivered()) {
+    m_awaytext.insert( normal_font, black, white, aev->getMessage(), -1);
+  } else {
+    m_awaytext.insert( normal_font, black, white, "Couldn't fetch away message", -1);
+  }
   m_awaytext.thaw();
   adj->set_value( bot );
 

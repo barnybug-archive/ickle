@@ -30,6 +30,8 @@
 #include <gtk--/fileselection.h>
 #include <gtk--/list.h>
 #include <gtk--/checkbutton.h>
+#include <gtk--/spinbutton.h>
+#include <gtk--/radiobutton.h>
 
 #include <string>
 
@@ -47,7 +49,13 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::List icons_list;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
-  Gtk::CheckButton away_autoposition;
+  Gtk::CheckButton away_autoposition, reconnect_checkbox;
+  Gtk::SpinButton *reconnect_spinner;
+  Gtk::Label *reconnect_label;
+
+  Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
+
+  Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;
 
   Status m_status;
 
@@ -56,6 +64,8 @@ class SettingsDialog : public Gtk::Dialog {
   string getIconsFilename();
   
   void setStatus(Status s);
+
+  void reconnect_toggle_cb();
 
   void okay_cb();
   void cancel_cb();
