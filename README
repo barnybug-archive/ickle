@@ -5,7 +5,7 @@
 |                                                                    |
 `--------------------------------------------------------------------'
 
-   Version 0.2.1                     http://ickle.sourceforge.net/
+   Version 0.3.0                     http://ickle.sourceforge.net/
 
 
 
@@ -58,6 +58,7 @@ ickle supports:
 
 Features:
 - Autoconnect, autoreconnect and retries
+- Easy history browsing
 - GNOME applet
 
 See the TODO for information about planned features in
@@ -84,6 +85,7 @@ You will need:
 - gtkmm version (1.2.5 or above)
 - gtk+ library
 - libsigc++ library
+   (1.0.0 or above - not the unstable 1.1 though)
 
 The last two should be installed if you have gtkmm working and
 installed. Read more below for the prerequisites for the GNOME applet.
@@ -145,6 +147,11 @@ And for RPM based distributions the corresponding packages should suffice
 same but there should be a package named libpanel_applet-dev or
 libpanel_applet0-dev, having that installed along with it's dependencies 
 should probably suffice.
+
+Redhat users note: due to a missing dependancy in one of the Ximian rpms
+for gnome ickle may pass configure but fail at compile time due to
+missing orbit headers. You need to ensure you have the orbit development
+rpm installed.
 
 If you encounter packages that you had to install besides the ones
 mentioned here, please help out by sending a list over the packages you
