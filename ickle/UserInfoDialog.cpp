@@ -281,6 +281,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window& parent, const ContactRef& c, bool se
   table->attach( *label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND,Gtk::FILL | Gtk::EXPAND, 10);
   about_text.set_editable(m_self);
   about_text.set_cursor_visible(m_self);
+  about_text.set_wrap_mode(Gtk::WRAP_WORD);
 
   Gtk::ScrolledWindow *sc = manage(new Gtk::ScrolledWindow());
   sc->add(about_text);
