@@ -62,18 +62,15 @@ host_triplet = i686-pc-linux-gnu
 AS = @AS@
 CC = gcc
 CXX = g++
-CXXCPP = g++ -E
 DLLTOOL = @DLLTOOL@
 ECHO = echo
 EXEEXT = 
-GCJ = @GCJ@
-GCJFLAGS = @GCJFLAGS@
-GTKMM_CFLAGS = -I/usr/lib/gtkmm/include -I/usr/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include
+GTKMM_CFLAGS = -I/usr/lib/gtkmm/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include
 GTKMM_CONFIG = /usr/bin/gtkmm-config
 GTKMM_LIBS = -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgtkmm -lgdkmm -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lsigc -lpthread
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
-MAKEINFO = /home/barnaby/ickle/missing makeinfo
+MAKEINFO = makeinfo
 OBJDUMP = @OBJDUMP@
 OBJEXT = o
 PACKAGE = ickle
@@ -83,13 +80,13 @@ SIGC_CONFIG = /usr/bin/sigc-config
 SIGC_LIBS = -lsigc -lpthread
 SIGC_MACROS = -I /usr/include/sigc++/macros
 STRIP = strip
-VERSION = 0.1-pre1
+VERSION = 0.1
 
 bin_PROGRAMS = ickle
 
 CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
 LDFLAGS = -lsigc -lpthread -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgtkmm -lgdkmm -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lsigc -lpthread
-INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/icons/             -I/usr/lib/sigc++/include -I/usr/lib/gtkmm/include -I/usr/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include
+INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/icons/             -I/usr/lib/sigc++/include -I/usr/lib/gtkmm/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include
 
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp                 Settings.cpp ContactListView.cpp 		MessageBox.cpp AddUserDialog.cpp                 Icons.cpp UserInfoDialog.cpp 		AddMobileUserDialog.cpp SettingsDialog.cpp 		PromptDialog.cpp
