@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.62 2003-02-04 19:09:00 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.63 2003-02-09 18:57:49 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,7 @@
 #include "Settings.h"
 #include "Icons.h"
 #include "main.h"
+#include "Translator.h"
 
 #include "AddContactDialog.h"
 #include "RemoveContactDialog.h"
@@ -37,6 +38,7 @@
 #include "RemoveGroupDialog.h"
 #include "RenameGroupDialog.h"
 #include "SendAuthReqDialog.h"
+#include "SetEncodingDialog.h"
 
 #include "pixmaps/info.xpm"
 
@@ -156,6 +158,11 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
 				   SigC::slot( *this, &ContactListView::contact_userinfo_cb ) ) );
     ml_c.push_back( MenuElem( _("Send Auth Request"),  SigC::slot( *this, &ContactListView::contact_send_auth_req_cb ) ) );
     m_rc_popup_auth = &(ml_c.back());
+
+    ml_c.push_back( CheckMenuElem( _("Use encoding") ) );
+    m_rc_popup_encoding = dynamic_cast<Gtk::CheckMenuItem*>(&(ml_c.back()));
+    m_rc_popup_encoding_conn = m_rc_popup_encoding->signal_activate().connect( SigC::slot( *this, &ContactListView::contact_use_encoding_cb ) );
+	 
     ml_c.push_back( ImageMenuElem( _("Remove Contact"),
 				   * manage( new Gtk::Image(Gtk::Stock::REMOVE, Gtk::ICON_SIZE_MENU) ),
 				   SigC::slot( *this, &ContactListView::contact_remove_cb ) ) );
@@ -356,6 +363,24 @@ void ContactListView::popup_contact_menu(guint button, guint32 activate_time, un
     m_rc_popup_away->set_sensitive(false);
   }
 
+  /* set encoding string */
+  if ( g_translator.is_contact_encoding(c) )
+  {
+    m_rc_popup_encoding->remove();
+    m_rc_popup_encoding->add_label( String::ucompose( _("Use encoding (%1)"), g_translator.get_contact_encoding(c) ), false, 0.0 );
+    m_rc_popup_encoding_conn.block();
+    m_rc_popup_encoding->set_active(true);
+    m_rc_popup_encoding_conn.unblock();
+  }
+  else
+  {
+    m_rc_popup_encoding->remove();
+    m_rc_popup_encoding->add_label( _("Use encoding"), false, 0.0 );
+    m_rc_popup_encoding_conn.block();
+    m_rc_popup_encoding->set_active(false);
+    m_rc_popup_encoding_conn.unblock();
+  }
+  
   m_rc_popup_contact.popup( button, activate_time );
 }
 
@@ -909,3 +934,19 @@ void ContactListView::group_fetch_all_away_msg_cb()
   }
 }
 
+void ContactListView::contact_use_encoding_cb()
+{
+  ICQ2000::ContactRef c = get_selected_contact();
+
+  /* popup SetEncoding dialog if toggled on */
+  if ( m_rc_popup_encoding->get_active() )
+  {
+    new SetEncodingDialog(m_parent, c);
+  }
+  else
+  {
+    /* unset encoding in translator */
+    g_translator.unset_contact_encoding(c);
+  }
+  
+}

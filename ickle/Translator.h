@@ -22,18 +22,40 @@
 #define ICKLE_TRANSLATOR_H
 
 #include <string>
+#include <map>
 
 #include <libicq2000/Translator.h>
 
 class IckleTranslator : public ICQ2000::CRLFTranslator
 {
-
- protected:
-  std::string get_contact_encoding(const ICQ2000::ContactRef& c);
+ private:
+  std::map<unsigned int, std::string> m_encoding_map;
 
  public:
   IckleTranslator();
 
+  virtual std::string client_to_server(const std::string& str,
+				       ICQ2000::Encoding en,
+				       const ICQ2000::ContactRef& c);
+
+  virtual std::string server_to_client(const std::string& str,
+				       ICQ2000::Encoding en,
+				       const ICQ2000::ContactRef& c);
+
+  bool is_contact_encoding(const ICQ2000::ContactRef& c);
+  std::string get_contact_encoding(const ICQ2000::ContactRef& c);
+  void set_contact_encoding(const ICQ2000::ContactRef& c, std::string encoding);
+  void unset_contact_encoding(const ICQ2000::ContactRef& c);
+};
+
+class IckleTranslatorProxy : public ICQ2000::Translator
+{
+ private:
+  ICQ2000::Translator& m_translator;
+
+ public:
+  IckleTranslatorProxy(ICQ2000::Translator& t);
+  
   virtual std::string client_to_server(const std::string& str,
 				       ICQ2000::Encoding en,
 				       const ICQ2000::ContactRef& c);

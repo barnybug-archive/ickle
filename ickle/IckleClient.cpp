@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.124 2003-02-09 17:02:28 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.125 2003-02-09 18:57:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -348,7 +348,7 @@ void IckleClient::loadSettings()
   icqclient.fetchServerBasedContactList();
 
   // set Translator
-  icqclient.set_translator( new IckleTranslator() );
+  icqclient.set_translator( new IckleTranslatorProxy( g_translator ) );
   
   // --
 

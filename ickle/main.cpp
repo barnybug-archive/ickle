@@ -30,6 +30,7 @@
 #include "main.h"
 #include "IckleClient.h"
 #include "UserInfoHelpers.h"
+#include "Translator.h"
 
 #include <libicq2000/Client.h>
 
@@ -41,6 +42,7 @@ class ICQ2000::Client icqclient;
 
 class Settings g_settings;
 class Icons g_icons;
+class IckleTranslator g_translator;
 
 string BASE_DIR;
 string CONTACT_DIR;

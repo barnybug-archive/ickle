@@ -1,6 +1,6 @@
 /*
- * main.h
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * SetEncodingDialog
+ * Copyright (C) 2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,26 +18,36 @@
  *
  */
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef SETENCODINGDIALOG_H
+#define SETENCODINGDIALOG_H
 
-#include <string>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/label.h>
+
+#include <libicq2000/Contact.h>
 
 namespace ICQ2000
 {
-  class Client;
+  class ContactListEvent;
 }
 
-extern class ICQ2000::Client icqclient;
-extern class Settings g_settings;
-extern class Icons g_icons;
-extern class IckleTranslator g_translator;
+class SetEncodingDialog : public Gtk::Dialog,
+			  public sigslot::has_slots<>
+{
+ private:
+  ICQ2000::ContactRef m_contact;
+  Gtk::Entry m_encoding;
+  Gtk::Label m_valid;
 
-extern std::string BASE_DIR;
-extern std::string CONTACT_DIR;
-extern std::string DATA_DIR;
-extern std::string TRANSLATIONS_DIR;
-extern std::string ICONS_DIR;
-extern std::string PID_FILENAME;
+ protected:
+  virtual void on_response(int response_id);
+  void validate_encoding_cb();
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
+
+ public:
+  SetEncodingDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c);
+};
 
 #endif

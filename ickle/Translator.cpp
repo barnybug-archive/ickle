@@ -87,6 +87,11 @@ std::string IckleTranslator::server_to_client(const std::string& str,
   return ret;
 }
 
+bool IckleTranslator::is_contact_encoding(const ICQ2000::ContactRef& c)
+{
+  return (m_encoding_map.count( c->getUIN() ) > 0);
+}
+
 std::string IckleTranslator::get_contact_encoding(const ICQ2000::ContactRef& c)
 {
   std::string default_encoding = g_settings.getValueString( "encoding" );
@@ -96,7 +101,45 @@ std::string IckleTranslator::get_contact_encoding(const ICQ2000::ContactRef& c)
     Glib::get_charset(default_encoding);
   }
   
-  /* TODO: per-contact encoding - simple enough */
+  if ( m_encoding_map.count( c->getUIN() ) )
+  {
+    if (Utils::is_valid_encoding( m_encoding_map[c->getUIN()] ))
+    {
+      default_encoding = m_encoding_map[c->getUIN()];
+    }
+  }
 
   return default_encoding;
+}
+
+void IckleTranslator::set_contact_encoding(const ICQ2000::ContactRef& c, std::string encoding)
+{
+  m_encoding_map[c->getUIN()] = encoding;
+}
+
+void IckleTranslator::unset_contact_encoding(const ICQ2000::ContactRef& c)
+{
+  m_encoding_map.erase( c->getUIN() );
+}
+
+// ===========================================================================
+//  IckleTranslatorProxy
+// ===========================================================================
+
+IckleTranslatorProxy::IckleTranslatorProxy(ICQ2000::Translator& t)
+  : m_translator(t)
+{ }
+
+std::string IckleTranslatorProxy::client_to_server(const std::string& str,
+						   ICQ2000::Encoding en,
+						   const ICQ2000::ContactRef& c)
+{
+  return m_translator.client_to_server(str, en, c);
+}
+
+std::string IckleTranslatorProxy::server_to_client(const std::string& str,
+						   ICQ2000::Encoding en,
+						   const ICQ2000::ContactRef& c)
+{
+  return m_translator.server_to_client(str, en, c);
 }

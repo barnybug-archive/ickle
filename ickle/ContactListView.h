@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.35 2003-02-02 20:03:48 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.36 2003-02-09 18:57:49 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -75,6 +75,7 @@ class ContactListView : public Gtk::TreeView,
   void contact_fetch_away_msg_cb();
   void contact_userinfo_cb();
   void contact_send_auth_req_cb();
+  void contact_use_encoding_cb();
   void contact_add_cb();
   void contact_remove_cb();
   void contact_move_to_group_cb(ICQ2000::ContactTree::Group * gp);
@@ -156,6 +157,8 @@ class ContactListView : public Gtk::TreeView,
   Gtk::Menu m_rc_groups_list;
   Gtk::ImageMenuItem * m_rc_popup_away;
   Gtk::MenuItem      * m_rc_popup_auth;
+  Gtk::CheckMenuItem * m_rc_popup_encoding;
+  SigC::Connection      m_rc_popup_encoding_conn;
 
   // signals
   SigC::Signal1<void, unsigned int> m_signal_messagebox_popup;
