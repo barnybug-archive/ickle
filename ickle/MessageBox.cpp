@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.32 2001-12-18 22:51:22 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.33 2001-12-21 16:40:35 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -18,10 +18,10 @@
  *
  */
 
+#include <stdlib.h>
+
 #include "MessageBox.h"
-
 #include "sstream_fix.h"
-
 #include "main.h"
 #include "Settings.h"
 
@@ -74,14 +74,11 @@ MessageBox::MessageBox(Contact *c, History *h)
 
   // initial scale adjustment
   guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
-  gfloat upper = m_history->size() / nr_shown;
-  if( !(m_history->size() % nr_shown) && upper )
-    --upper;
   m_scaleadj.set_lower(0);
-  m_scaleadj.set_upper( upper );
+  m_scaleadj.set_upper( m_history->size() );
   m_scaleadj.set_step_increment(1);
-  m_scaleadj.set_page_increment(1);
-  m_scaleadj.set_page_size(0);
+  m_scaleadj.set_page_increment( 1 );
+  m_scaleadj.set_page_size( 0 );
   m_scaleadj.set_value( m_scaleadj.get_upper() );
   m_scaleadj.value_changed.connect( slot(this, &MessageBox::scaleadj_value_changed_cb) );
 
@@ -498,8 +495,6 @@ void MessageBox::display_message(History::Entry &e)
 }
 
 void MessageBox::popup() {
-  Gtk::Adjustment *adj;
-
   show_all();
   redraw_history();
 }
@@ -547,10 +542,7 @@ void MessageBox::set_status( const string& text )
 
 void MessageBox::redraw_history()
 {
-  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
-  gfloat upper = m_history->size() / nr_shown;
-  if( !(m_history->size() % nr_shown) && upper )
-    --upper;
+  gfloat upper = m_history->size();
 
   m_scaleadj.set_upper( upper );
   if( upper != m_scaleadj.get_value() )
@@ -577,11 +569,14 @@ void MessageBox::scaleadj_value_changed_cb()
 
   m_history_text.freeze();
   m_history_text.delete_text(0,-1);
-  i = nr_shown * (guint)m_scaleadj.get_value();
-  end = i + nr_shown;
-  if( end > m_history->size() )
-    end = m_history->size();
-
+  end = (guint)m_scaleadj.get_value();
+  i = end - nr_shown;
+  if( i > end ) {
+    end += abs(i);
+    if( end > m_history->size() )
+      end = m_history->size();
+    i = 0;
+  }
   if ( m_history->size() == 0) {
     os << "No messages in history";
   } else {
