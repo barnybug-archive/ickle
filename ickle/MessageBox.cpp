@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.22 2001-12-10 00:12:33 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.23 2001-12-10 00:17:06 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -515,7 +515,7 @@ void MessageBox::scaleadj_value_changed_cb()
   if( end > m_history->size() )
     end = m_history->size();
 
-  os << "displaying msgs " << i + 1 << " to " << end << " out of " << m_history->size();
+  os << "displaying messages " << i + 1 << " to " << end << " out of " << m_history->size();
   m_scalelabel.set( os.str() );
 
   for( ; i < end; ++i ) {
