@@ -60,6 +60,10 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   fetchb.clicked.connect( fetch.slot() );
   uploadb.clicked.connect( slot(this,&UserInfoDialog::upload_cb) );
 
+  ICQ2000::Status st = icqclient.getStatus();
+  fetchb.set_sensitive(st != ICQ2000::STATUS_OFFLINE);
+  uploadb.set_sensitive(st != ICQ2000::STATUS_OFFLINE);
+
   notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::Label *label;
@@ -271,13 +275,9 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
-  // disable widgets not available when disconnected
-  if( icqclient.getStatus() == ICQ2000::STATUS_OFFLINE ) {
-    fetchb.set_sensitive(false);
-    uploadb.set_sensitive(false);
-  }
-  
   userinfochange_cb(); // fill in values
+
+  icqclient.self_event.connect( slot(this, &UserInfoDialog::self_event_cb) );
 
   set_border_width(10);
   show_all();
@@ -546,6 +546,16 @@ void UserInfoDialog::userinfochange_cb() {
     birth_day_spin.set_value( (gfloat)contact->getHomepageInfo().birth_day );
   } else {
     birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
+  }
+}
+
+void UserInfoDialog::self_event_cb(SelfEvent *ev)
+{
+  if (ev->getType() == SelfEvent::MyStatusChange) {
+    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
+
+    fetchb.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
+    uploadb.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
   }
 }
 

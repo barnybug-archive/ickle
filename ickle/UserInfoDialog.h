@@ -36,6 +36,7 @@
 #include <sigc++/signal_system.h>
 
 #include <libicq2000/Contact.h>
+#include <libicq2000/events.h>
 
 using ICQ2000::Contact;
 using ICQ2000::MainHomeInfo;
@@ -74,6 +75,7 @@ class UserInfoDialog : public Gtk::Dialog {
 
   // -- library callbacks --
   void userinfochange_cb();
+  void self_event_cb(ICQ2000::SelfEvent *ev);
 
   void spin_changed_cb(Gtk::SpinButton* spin);
 

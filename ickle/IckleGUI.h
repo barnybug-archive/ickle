@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.29 2002-01-25 11:35:42 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.30 2002-01-29 17:06:59 nordman Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -78,6 +78,7 @@ class IckleGUI : public Gtk::Window {
   Gtk::MenuBar m_ickle_menubar;
   Gtk::Menu m_ickle_menu;
   StatusMenu m_status_menu;
+  Gtk::MenuItem *mi_search_for_contacts;
 
   int geometry_x, geometry_y;
 

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.34 2002-01-25 11:35:42 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.35 2002-01-29 17:06:59 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -23,6 +23,7 @@
 #include "SettingsDialog.h"
 #include "SearchDialog.h"
 #include "AboutDialog.h"
+#include "PromptDialog.h"
 
 #include <libicq2000/Client.h>
 
@@ -70,6 +71,8 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Add Mobile Contact", slot(this, &IckleGUI::add_mobile_user_cb)) );
     ml.push_back( MenuElem("My User Info", slot(this, &IckleGUI::my_user_info_cb)) );
     ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
+    mi_search_for_contacts = ml.back();
+    mi_search_for_contacts->set_sensitive(false);
     ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
     ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
@@ -287,6 +290,9 @@ void IckleGUI::self_event_cb(SelfEvent *ev) {
       else (*i).second->online();
       ++i;
     }
+
+    // update connection dependent menu entry
+    mi_search_for_contacts->set_sensitive(st != STATUS_OFFLINE);
     
   } else if (ev->getType() == SelfEvent::MyUserInfoChange) {
     if (m_userinfo_dialogs.count(c->getUIN()) != 0) {
