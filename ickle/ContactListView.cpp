@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.46 2002-11-02 18:03:28 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.47 2002-11-02 21:47:23 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -170,6 +170,7 @@ void ContactListView::update_list()
       
       ++gcurr;
     }
+    
     ++curr;
   }
 
@@ -447,24 +448,48 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
   return false;  
 }
 
-ContactListView::titerator ContactListView::lookup_uin(unsigned int uin)
+ContactListView::citerator ContactListView::lookup_contact(const ContactRef& c)
 {
-  titerator curr = tree().begin();
+  unsigned int uin = c->getUIN();
+  citerator curr = rows().begin();
 
-  if (tree().empty()) return tree().end();
+  /* short rant about how broken CTree is:
+   * 1) the rows() iterators are only visible rows (need to search all)
+   * 2) the tree() iterators breaks on expanded groups (loops forever in a subtree)
+   * 3) there is no way of just getting top-level rows
+   * 4) subtree() could be used, but then when a contact is visible
+   *    it is picked up in rows() and in the subtree() list.
+   * Hmmf.. we kludge it.. no other choice!
+   */
 
-  while (curr != tree().end()) {
-    RowData *p = (RowData*)((*curr).get_data());
+  RowData *p;
+  
+  while (curr != rows().end()) {
+
+    p = (RowData*)((*curr).get_data());
     if (p->type == RowData::Contact && p->uin == uin) return curr;
+    
+    citerator ccurr = curr->subtree().begin();
+    while (ccurr != curr->subtree().end())
+    {
+      if (!ccurr->is_visible())
+      {
+	p = (RowData*)((*curr).get_data());
+	if (p->type == RowData::Contact && p->uin == uin) return curr;
+      }
+      ++ccurr;
+    }
+
     ++curr;
   }
-  return tree().end();
+
+  return rows().end();
 }
 
 void ContactListView::update_row(const ContactRef& c) {
 
-  titerator row = lookup_uin(c->getUIN());
-  if (row == tree().end())
+  citerator row = lookup_contact(c);
+  if (row == rows().end())
     return;
   
   RowData *rp = (RowData*)(*row).get_data();
@@ -545,10 +570,9 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev) {
   {
     ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
     ContactRef c = cev->getContact();
-    unsigned int uin = c->getUIN();
     
-    titerator cr = lookup_uin(uin);
-    if (cr != tree().end())
+    citerator cr = lookup_contact(c);
+    if (cr != rows().end())
     {
       remove_row(*cr);
       columns_autosize();
@@ -594,16 +618,16 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
       if (m_message_queue.get_contact_size(ev->getContact()) == 0)
       {
 	/* remove contact */
-	titerator ct = lookup_uin( ev->getContact()->getUIN() );
-	if (ct != tree().end())
+	citerator ct = lookup_contact( ev->getContact() );
+	if (ct != rows().end())
 	  remove_row( *ct );
       }
     }
     else if (ev->getOldStatus() == ICQ2000::STATUS_OFFLINE)
     {
       /* add contact */
-      titerator ct = lookup_uin( ev->getContact()->getUIN() );
-      if (ct == tree().end())
+      citerator ct = lookup_contact( ev->getContact() );
+      if (ct == rows().end())
 	add_contact(ev->getContact(), icqclient.getContactTree().lookup_group_containing_contact( ev->getContact() ) );
     }
     else
@@ -617,13 +641,33 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 }
 
 void ContactListView::icons_changed_cb() {
-  titerator curr = tree().begin();
-  while (curr != tree().end()) {
-    RowData *rd = (RowData*)(*curr).get_data();
-    if (rd->type == RowData::Contact) {
-      ContactRef c = icqclient.getContact( rd->uin );
+  citerator curr = rows().begin();
+  RowData *p;
+  
+  while (curr != rows().end()) {
+
+    p = (RowData*)((*curr).get_data());
+    if (p->type == RowData::Contact)
+    {
+      ContactRef c = icqclient.getContact( p->uin );
       if (c.get() != NULL) update_row(c);
     }
+    
+    citerator ccurr = curr->subtree().begin();
+    while (ccurr != curr->subtree().end())
+    {
+      if (!ccurr->is_visible())
+      {
+	p = (RowData*)((*ccurr).get_data());
+	if (p->type == RowData::Contact)
+	{
+	  ContactRef c = icqclient.getContact( p->uin );
+	  if (c.get() != NULL) update_row(c);
+	}
+      }
+      ++ccurr;
+    }
+
     ++curr;
   }
 }
@@ -640,8 +684,8 @@ void ContactListView::queue_added_cb(MessageEvent *ev)
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
 
-  titerator cr = lookup_uin( icq->getICQContact()->getUIN() );
-  if (cr == tree().end())
+  citerator cr = lookup_contact( icq->getICQContact() );
+  if (cr == rows().end())
   {
     /* add contact if necessary (ie. offline contacts, can still
        message and would otherwise be hidden if offline contacts are
@@ -665,8 +709,8 @@ void ContactListView::queue_removed_cb(MessageEvent *ev)
       && m_message_queue.get_contact_size( icq->getICQContact() ) == 0)
   {
     /* remove contact */
-    titerator ct = lookup_uin( icq->getICQContact()->getUIN() );
-    if (ct != tree().end())
+    citerator ct = lookup_contact( icq->getICQContact() );
+    if (ct != rows().end())
       remove_row( *ct );
   }
   else
