@@ -54,5 +54,5 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([gethostbyname gethostname mkdir select socket strerror])
 
-AC_CONFIG_FILES([Makefile src/Makefile test/Makefile ickle/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile])
 AC_OUTPUT

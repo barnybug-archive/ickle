@@ -133,7 +133,7 @@ namespace ICQ2000 {
 
   void Client::SignalMessage(MessageSNAC *snac) {
     Contact *contact;
-    MessageEvent *e;
+    MessageEvent *e = NULL;
     ICQSubType *st = snac->getICQSubType();
 
     if (st->getType() == MSG_Type_Normal) {
@@ -178,12 +178,9 @@ namespace ICQ2000 {
 
     }
 
-    contact->addPendingMessage(e);
-
-    if (messaged.emit(e)) {
-      // true indicates the message was handled and
-      // should be removed from the queue
-      contact->erasePendingMessage(e);
+    if (e != NULL) {
+      contact->addPendingMessage(e);
+      if (messaged.emit(e)) contact->erasePendingMessage(e);
     }
 
   }
