@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.12 2003-03-12 15:23:19 cborni Exp $
+/* $Id: AboutDialog.cpp,v 1.13 2003-06-29 19:59:03 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -75,7 +75,7 @@ AboutDialog::AboutDialog(Gtk::Window& parent)
   iter = buffer->insert_with_tag(iter, _("* Nils Nordman <nino@nforced.com> ICQ: 778602\n"), p );
   iter = buffer->insert_with_tag(iter, _("* Dominic Sacr\xC3\xA9 <bugcreator@gmx.de> ICQ: 102496033\n"), p );
   iter = buffer->insert_with_tag(iter, _("* Alex Antropoff <alex@tirastel.md>\n"), p );
-  iter = buffer->insert_with_tag(iter, _("* Christian Borntraeger <linux@borntraeger.net> ICQ: 113774556\n\n"), p );
+  iter = buffer->insert_with_tag(iter, _("* Christian Bornträger <linux@borntraeger.net> ICQ: 113774556\n\n"), p );
   iter = buffer->insert_with_tag(iter, _("Further contributions by many other developers are listed in the THANKS file.\n"), p );
   iter = buffer->insert_with_tag(iter, _("\nFurther information\n"), hd );
   iter = buffer->insert_with_tag(iter,
