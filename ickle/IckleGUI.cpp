@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.55 2002-04-17 22:17:29 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.56 2002-04-19 15:46:23 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -359,20 +359,25 @@ void IckleGUI::raise_messagebox(const ContactRef& c)
   m->raise();
 }
 
-void IckleGUI::setGeometry(int x, int y)
+void IckleGUI::setGeometry(int x, int y, int w, int h)
 {
   geometry_x = x;
   geometry_y = y;
+  geometry_w = w;
+  geometry_h = h;
+  set_default_size(w, h);
   set_uposition(geometry_x, geometry_y);
 }
 
 void IckleGUI::show_impl() {
   set_uposition(geometry_x, geometry_y);
+  get_window().resize(geometry_w, geometry_h);
   Window::show_impl();
 }
 
 void IckleGUI::hide_impl() {
   get_window().get_root_origin(geometry_x, geometry_y);
+  get_window().get_size(geometry_w, geometry_h);
   Window::hide_impl();
 }
 

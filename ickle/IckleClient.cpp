@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.96 2002-04-18 14:00:54 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.97 2002-04-19 15:46:23 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -355,8 +355,7 @@ void IckleClient::loadSettings() {
   if (x + width > swidth) x = swidth-width;
   if (y + height > sheight) y = sheight-height;
 
-  gui.set_default_size( width, height );
-  gui.setGeometry(x,y);
+  gui.setGeometry(x, y, width, height);
   
   ContactListView* clist = gui.getContactListView();
   if (clist) {

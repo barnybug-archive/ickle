@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.39 2002-04-14 22:49:27 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.40 2002-04-19 15:46:23 bugcreator Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -78,6 +78,7 @@ class IckleGUI : public Gtk::Window {
   Gtk::MenuItem *mi_search_for_contacts;
 
   int geometry_x, geometry_y;
+  int geometry_w, geometry_h;
 
   // --
 
@@ -132,7 +133,7 @@ class IckleGUI : public Gtk::Window {
   void setDisplayTimes(bool d);
   string getAutoResponse() const;
   void setAutoResponse(const std::string& ar);
-  void setGeometry(int x, int y);
+  void setGeometry(int x, int y, int w, int h);
 
   gint ickle_popup_cb(GdkEventButton*);
 
