@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.5 2002-04-04 18:00:45 bugcreator Exp $
+/* $Id: WizardDialog.cpp,v 1.6 2002-04-16 19:58:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -28,6 +28,7 @@
 
 #include <gtk--/main.h>
 #include <gtk--/frame.h>
+#include <gtk--/buttonbox.h>
 
 using SigC::slot;
 using SigC::bind;
@@ -85,10 +86,15 @@ WizardDialog::WizardDialog()
 
   lbl = manage( new Gtk::Label( "Please enter the password to use with this account below.\n"
                                 "You will need to enter it twice to ensure it's correct.\n"
-                                "Clicking next will cause ickle to attempt to connect\n"
-                                "to the server and register the account, so be sure you\n"
-                                "are connected to the Internet before proceeding." ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+                                "Clicking next will cause ickle to attempt to connect "
+                                "to the server and register the account, so be sure you "
+                                "are connected to the Internet before proceeding.\n"
+				"Note: If registration fails it can be because the password "
+				"you entered was too simple. Try to make up more complicated password "
+				"by mixing numbers and letters.") );
+  lbl->set_usize( 300, 0 );
+  lbl->set_justify(GTK_JUSTIFY_FILL);
+  lbl->set_line_wrap(true);
   page_new_pass.pack_start( *lbl, true, true, 10 );
 
   lbl = manage( new Gtk::Label( "Password:" ) );
@@ -152,9 +158,11 @@ WizardDialog::WizardDialog()
   btn_prev.clicked.connect( slot(this, &WizardDialog::prev_cb) );
   btn_prev.set_sensitive(false);
   Gtk::HBox *aa = get_action_area();
-  aa->add( btn_cancel);
-  aa->add( btn_prev );
-  aa->add( btn_next );
+  Gtk::HButtonBox *bb = manage( new Gtk::HButtonBox() );
+  bb->add( btn_cancel);
+  bb->add( btn_prev );
+  bb->add( btn_next );
+  aa->add( *bb );
 
   curpage = &page_intro;        
   vb = get_vbox();      
