@@ -255,12 +255,12 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
 
   table = manage( new Gtk::Table( 2, 1, false ) );
   
-  label = manage( new Gtk::Label( "Keyword", 0 ) );
+  label = manage( new Gtk::Label( "Keywords", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
   table->attach( m_keyword_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
   
   table->set_border_width(5);
-  label = manage( new Gtk::Label("Keyword") );
+  label = manage( new Gtk::Label("Keywords") );
   m_notebook.pages().push_back( Gtk::Notebook_Helpers::TabElem( *table, *label ) );
 
   // ------------------------
