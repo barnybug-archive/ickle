@@ -64,6 +64,7 @@ RemoveGroupDialog::RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
 
   add_button(Gtk::Stock::REMOVE, Gtk::RESPONSE_OK);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  set_default_response(Gtk::RESPONSE_CANCEL);
   
   // libicq2000 callback
   icqclient.contactlist.connect( this, &RemoveGroupDialog::contactlist_cb );

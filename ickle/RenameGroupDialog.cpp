@@ -40,6 +40,9 @@ RenameGroupDialog::RenameGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
 
   add_button( _("Rename"),           Gtk::RESPONSE_OK);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  set_default_response(Gtk::RESPONSE_OK);
+
+  m_group_label.set_activates_default(true);
 
   // libicq2000 callbacks
   icqclient.contactlist.connect( this, &RenameGroupDialog::contactlist_cb );

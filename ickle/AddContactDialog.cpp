@@ -46,6 +46,10 @@ AddContactDialog::AddContactDialog(Gtk::Window& parent)
 
   add_button(Gtk::Stock::ADD, Gtk::RESPONSE_OK);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
+  set_default_response(Gtk::RESPONSE_OK);
+
+  m_uin_entry.set_activates_default(true);
+  m_alias_entry.set_activates_default(true);
 
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
