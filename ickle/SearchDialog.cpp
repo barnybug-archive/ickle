@@ -45,7 +45,7 @@ using namespace ICQ2000;
 
 SearchDialog::SearchDialog(Gtk::Window * parent)
   : Gtk::Dialog(), m_only_online_check(_("Only Online Users"), 0),
-    m_sex_selected(SEX_UNKNOWN), m_agerange_selected(),
+    m_sex_selected(SEX_UNKNOWN), m_agerange_selected(RANGE_NORANGE),
     m_treeview(), m_ok_button(Gtk::Stock::OK),
     m_search_button(Gtk::Stock::FIND),
     m_add_button(Gtk::Stock::ADD),

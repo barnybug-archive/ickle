@@ -474,12 +474,14 @@ struct SortStringI18N {
 template <typename T>
 vector<string> vectorOfValues(map<T, const char*> &m) {
   vector<string> vec;
+  vector<string>::iterator vecit;
   for (typename map<T, const char*>::iterator itr = m.begin(); itr != m.end(); ++itr) {
     vec.push_back(itr->second);
   }
+  vecit=vec.begin();
   //The first choice is mostly something special..
-  if ( (vec.begin() != vec.end() ) && (++(vec.begin()) !=vec.end() ) )
-    std::sort(++(vec.begin()),vec.end(), SortStringI18N() );
+  if ( (vecit != vec.end() ) && (++vecit !=vec.end() ) )
+    std::sort(vecit,vec.end(), SortStringI18N() );
   return vec;
 }
 
