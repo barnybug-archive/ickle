@@ -52,7 +52,7 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   void okay_cb();
   void cancel_cb();
 
-  Signal1<void, const string&> save_new_msg;
+  SigC::Signal1<void, const string&> save_new_msg;
 };
 
 #endif

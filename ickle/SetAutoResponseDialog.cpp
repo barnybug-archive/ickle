@@ -78,7 +78,7 @@ int SetAutoResponseDialog::auto_timeout() {
     okay.clicked();
     return false;
   } else {
-    ostringstream ostr;
+    std::ostringstream ostr;
     ostr << "OK (" << m_timeout << ")";
     Gtk::Label *label = static_cast<Gtk::Label*>(okay.get_child());
     label->set_text(ostr.str());
