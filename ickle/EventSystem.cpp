@@ -1,4 +1,4 @@
-/* $Id: EventSystem.cpp,v 1.4 2002-04-04 17:59:35 bugcreator Exp $
+/* $Id: EventSystem.cpp,v 1.5 2002-04-04 21:45:21 bugcreator Exp $
  *
  * EventSystem
  *
@@ -61,6 +61,12 @@ void EventSystem::queue_added_cb(MessageEvent *ev)
   case ICQMessageEvent::SMS:
     event_system("event_sms", c, t);
     break;
+  case ICQMessageEvent::AuthReq:
+  case ICQMessageEvent::AuthAck:
+  case ICQMessageEvent::UserAdd:
+    event_system("event_system", c, t);
+    break;
+  // what do we do with SMS_Receipt and EmailEx?
   }
 }
 

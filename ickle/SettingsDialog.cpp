@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.42 2002-04-04 20:08:16 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.43 2002-04-04 21:45:21 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -233,7 +233,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   // ---------------- Events tab --------------------------
 
-  table = manage( new Gtk::Table( 2, 8, false ) );
+  table = manage( new Gtk::Table( 2, 9, false ) );
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive\n"
                                   "an event. Leave them blank if you don't want anything to happen.", 0 ) );
@@ -264,25 +264,30 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   event_sms_entry.set_text( g_settings.getValueString("event_sms") );
   table->attach( event_sms_entry, 1, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  label = manage( new Gtk::Label( "Event repetition threshold", 0 ) );
+  label = manage( new Gtk::Label( "System Event", 0 ) );
   table->attach( *label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, 0);
+  event_system_entry.set_text( g_settings.getValueString("event_system") );
+  table->attach( event_system_entry, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  label = manage( new Gtk::Label( "Event repetition threshold", 0 ) );
+  table->attach( *label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, 0);
   hbox = manage( new Gtk::HBox(false, 5) );  
   adj = manage( new Gtk::Adjustment( g_settings.getValueUnsignedInt("event_repetition_threshold"), 0.0, 65535.0 ) );
   event_repetition_spinner = manage ( new Gtk::SpinButton (*adj, 10.0, 0) );
   hbox->pack_start ( *event_repetition_spinner );
   label = manage ( new Gtk::Label( "milliseconds", 0) );
   hbox->pack_end ( *label, false, false );
-  table->attach( *hbox, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *hbox, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   event_execute_all.set_active( g_settings.getValueBool("event_execute_all") );
-  table->attach( event_execute_all, 0, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_execute_all, 0, 2, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   m_tooltips.set_tip( *event_repetition_spinner, "Filters out events occuring in quick succession" );
   m_tooltips.set_tip( event_execute_all, "Always executes the commands above, even if they're below the threshold.\n"
                                          "You can then use the %r substitution to check for repeated events." );
 
   label = manage( new Gtk::Label( "Events" ) );
-  table->set_row_spacings(10);
+  table->set_row_spacings(5);
   table->set_col_spacings(10);
   table->set_border_width(10);
 
@@ -696,6 +701,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("event_message", event_message_entry.get_text());
   g_settings.setValue("event_url", event_url_entry.get_text());
   g_settings.setValue("event_sms", event_sms_entry.get_text());
+  g_settings.setValue("event_system", event_system_entry.get_text());
   g_settings.setValue("event_repetition_threshold", (unsigned int)event_repetition_spinner->get_value_as_int());
   g_settings.setValue("event_execute_all", event_execute_all.get_active() );
 
