@@ -78,8 +78,11 @@ void TCPSocket::Connect() {
   }      
   remoteAddr.sin_family = AF_INET;
 
-  if (connect(socketDescriptor,(struct sockaddr *)&remoteAddr,sizeof(struct sockaddr)) < 0)
+  if (connect(socketDescriptor,(struct sockaddr *)&remoteAddr,sizeof(struct sockaddr)) < 0) {
+    socketDescriptor = -1;
+    close(socketDescriptor);
     throw SocketException("Couldn't connect socket");
+  }
 
   socklen_t localLen = sizeof(struct sockaddr_in);
   getsockname( socketDescriptor, (struct sockaddr *)&localAddr, &localLen );
