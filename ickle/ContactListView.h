@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.21 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: ContactListView.h,v 1.22 2002-04-05 15:27:42 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -49,6 +49,7 @@ class ContactListView : public Gtk::CList {
   };
 
   Gtk::Menu rc_popup;
+  Gtk::MenuItem *rc_popup_away, *rc_popup_auth;
 
   MessageQueue& m_message_queue;
   class IckleGUI& m_gui;

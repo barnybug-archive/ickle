@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.37 2002-04-04 10:40:44 bugcreator Exp $
+/* $Id: ContactListView.cpp,v 1.38 2002-04-05 15:27:42 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -87,8 +87,10 @@ ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
      using namespace Gtk::Menu_Helpers;
      MenuList& ml = rc_popup.items();
      ml.push_back( MenuElem( "Check away message", slot( this, &ContactListView::fetch_away_msg_cb ) ) );
+     rc_popup_away = ml.back();
      ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::userinfo_cb ) ) );
      ml.push_back( MenuElem( "Send Auth Request", slot( this, &ContactListView::send_auth_req_cb ) ) );
+     rc_popup_auth = ml.back();
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
 }
@@ -269,10 +271,15 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
   if (rw == -1) return false;
 
   RowData *p = (RowData*)get_row_data(rw);
-  ContactRef c;
+  ContactRef c = icqclient.getContact(p->uin);
     
   if (ev->button == 3) {
     row(rw).select();
+    rc_popup_away->set_sensitive(c.get() != NULL &&
+                             c->getStatus() != ICQ2000::STATUS_ONLINE &&
+                             c->getStatus() != ICQ2000::STATUS_OFFLINE);
+    rc_popup_auth->set_sensitive(icqclient.isConnected());
+
     rc_popup.popup(ev->button, ev->time);
     return true;
   }
@@ -285,7 +292,6 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
     }
 
     if (col == 0 && m_check_away_click == true) {
-      c = icqclient.getContact( p->uin );
       if (c.get() != NULL
 	  && c->getStatus() != ICQ2000::STATUS_ONLINE
 	  && c->getStatus() != ICQ2000::STATUS_OFFLINE)
