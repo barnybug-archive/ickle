@@ -40,6 +40,8 @@
 #include "ucompose.h"
 #include "utils.h"
 
+#include "UserInfoHelpers.h"
+
 using std::string;
 using std::ostringstream;
 
@@ -158,7 +160,7 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 	break;
       case 's':
       case 'S':
-        sanecat(co->getStatusStr());
+        sanecat(UserInfoHelpers::getStringFromStatus(co->getStatus()));
 	break;
       case 't':
         strftime(timebuf, 100, "%b %d %r", localtime(&event_time));

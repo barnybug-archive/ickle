@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.73 2003-01-08 19:35:20 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.74 2003-01-19 17:52:09 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -43,6 +43,8 @@
 #include "ickle.h"
 #include "ucompose.h"
 #include "utils.h"
+
+#include "UserInfoHelpers.h"
 
 #include "pixmaps/info.xpm"
 #include "pixmaps/delivery.xpm"
@@ -454,9 +456,14 @@ void MessageBox::set_contact_title()
   Glib::ustring str;
 
   if (m_contact->isICQContact())
-    str = String::ucompose( "%1 (%2) - %3", m_contact->getNameAlias(), m_contact->getUIN(), m_contact->getStatusStr() );
+    str = String::ucompose( "%1 (%2) - %3",
+			    m_contact->getNameAlias(),
+			    m_contact->getUIN(),
+			    UserInfoHelpers::getStringFromStatus(m_contact->getStatus()) );
   else
-    str = String::ucompose( "%1 - %2", m_contact->getNameAlias(), m_contact->getStatusStr() );
+    str = String::ucompose( "%1 - %2",
+			    m_contact->getNameAlias(),
+			    UserInfoHelpers::getStringFromStatus(m_contact->getStatus()) );
 
   Glib::RefPtr<Gdk::Pixbuf> p;
 

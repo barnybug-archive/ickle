@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.8 2003-01-04 19:42:46 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.9 2003-01-19 17:52:11 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,8 @@
 #include "Settings.h"
 #include "main.h"
 
+#include "UserInfoHelpers.h"
+
 #include "ickle.h"
 
 using namespace ICQ2000;
@@ -55,7 +57,7 @@ void StatusMenuItem::add_status(Status st, bool inv)
       inv && st != STATUS_OFFLINE) {
     add_status( _("Invisible"), st, inv);
   } else {
-    add_status(Status_text[st], st, inv);
+    add_status( UserInfoHelpers::getStringFromStatus(st), st, inv);
   }
 }
 

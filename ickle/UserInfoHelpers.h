@@ -30,11 +30,13 @@
 #include <time.h>
 
 #include <libicq2000/userinfoconstants.h>
+#include <libicq2000/constants.h>
 
 class UserInfoHelpers
 {
 private:
 
+    static std::map<ICQ2000::Status, const char *> status_map;
     static std::map<ICQ2000::Language, const char *> language_map;
     static std::map<ICQ2000::Country, const char *> country_map;
     static std::map<ICQ2000::Interest, const char *> interest_map;
@@ -45,6 +47,8 @@ private:
 public:
 
     static void initialize();
+
+    static std::string getStringFromStatus(ICQ2000::Status st);
 
     static std::string getStringFromSex(ICQ2000::Sex id);
     static ICQ2000::Sex getSexFromString(const std::string& s);

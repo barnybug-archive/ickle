@@ -26,7 +26,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   SendAuthReqDialog.cpp AuthRespDialog.cpp ResendDialog.cpp		\
   AddGroupDialog.cpp RenameGroupDialog.cpp RemoveGroupDialog.cpp	\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.cpp utils.cpp	\
-  UserInfoHelpers.cpp
+  UserInfoHelpers.cpp Translator.cpp
 
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
@@ -42,7 +42,7 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h		\
   EventSystem.h SendAuthReqDialog.h AuthRespDialog.h ResendDialog.h	\
   AddGroupDialog.h RenameGroupDialog.h RemoveGroupDialog.h		\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.h utils.h	\
-  UserInfoHelpers.h
+  UserInfoHelpers.h Translator.h
 
 man_MANS = ickle.1
 EXTRA_DIST = ickle.1

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.120 2003-01-11 20:11:10 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.121 2003-01-19 17:52:07 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -46,6 +46,8 @@
 #include "EventSubstituter.h"
 #include "WizardDialog.h"
 #include "utils.h"
+#include "UserInfoHelpers.h"
+#include "Translator.h"
 
 #include <libicq2000/Client.h>
 
@@ -135,6 +137,7 @@ void IckleClient::init()
     if( wiz.run() ) // if we got an uin, automatically go online to allow the user to set his info
       Glib::signal_idle().connect( SigC::bind( SigC::slot( *this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE, false ) );
   }
+
 }
 
 IckleClient::~IckleClient() {
@@ -309,11 +312,12 @@ void IckleClient::loadSettings()
   g_settings.defaultValueString("autoresponse_1_text", _("Hello %a, I'm away at the moment.") );
 
   g_settings.defaultValueBool("show_offline_contacts", true);
+
+  g_settings.defaultValueString("encoding", "ISO-8859-1"); // this is the on-the-wire encoding
   
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
   icqclient.setPassword(g_settings.getValueString("password"));
-  icqclient.setTranslationMap( g_settings.getValueString("translation_map") );
   icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
   icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   if (g_settings.getValueBool("network_override_port")) {
@@ -343,6 +347,9 @@ void IckleClient::loadSettings()
   // enable SBL support
   icqclient.fetchServerBasedContactList();
 
+  // set Translator
+  icqclient.set_translator( new IckleTranslator() );
+  
   // --
 
   // Set contact list stuff

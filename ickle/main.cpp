@@ -29,6 +29,7 @@
 
 #include "main.h"
 #include "IckleClient.h"
+#include "UserInfoHelpers.h"
 
 #include <libicq2000/Client.h>
 
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
 
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();
+    UserInfoHelpers::initialize();
     
     IckleClient client(argc, argv);
     if (!client.check_pid_file()) return -1;

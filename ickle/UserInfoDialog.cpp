@@ -280,6 +280,8 @@ UserInfoDialog::UserInfoDialog(Gtk::Window& parent, const ContactRef& c, bool se
   label = manage( new Gtk::Label( _("About:"), 0.0, 0.5 ) );
   table->attach( *label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND,Gtk::FILL | Gtk::EXPAND, 10);
   about_text.set_editable(m_self);
+  about_text.set_cursor_visible(m_self);
+
   Gtk::ScrolledWindow *sc = manage(new Gtk::ScrolledWindow());
   sc->add(about_text);
   sc->set_shadow_type(Gtk::SHADOW_ETCHED_IN);
@@ -553,7 +555,7 @@ void UserInfoDialog::update_from_userinfo()
 {
   if (m_contact->isICQContact()) uin_entry.set_text( m_contact->getStringUIN() );
 
-  status_entry.set_text( m_contact->getStatusStr() );
+  status_entry.set_text( UserInfoHelpers::getStringFromStatus(m_contact->getStatus()) );
   alias_entry.set_text( m_contact->getAlias() );
   firstname_entry.set_text( m_contact->getFirstName() );
   lastname_entry.set_text( m_contact->getLastName() );

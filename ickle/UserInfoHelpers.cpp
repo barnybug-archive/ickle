@@ -33,6 +33,7 @@ using std::map;
 using std::ostringstream;
 using std::istringstream;
 
+map<ICQ2000::Status, const char *> UserInfoHelpers::status_map;
 map<ICQ2000::Language, const char *> UserInfoHelpers::language_map;
 map<ICQ2000::Country, const char *> UserInfoHelpers::country_map;
 map<ICQ2000::Interest, const char *> UserInfoHelpers::interest_map;
@@ -48,6 +49,15 @@ void UserInfoHelpers::initialize() {
     return;
 
   done = true;
+
+  // statuses
+  status_map[ICQ2000::STATUS_ONLINE]      = _("Online");
+  status_map[ICQ2000::STATUS_AWAY]        = _("Away");
+  status_map[ICQ2000::STATUS_NA]          = _("N/A");
+  status_map[ICQ2000::STATUS_OCCUPIED]    = _("Occupied");
+  status_map[ICQ2000::STATUS_DND]         = _("DND");
+  status_map[ICQ2000::STATUS_FREEFORCHAT] = _("Free for chat");
+  status_map[ICQ2000::STATUS_OFFLINE]     = _("Offline");
 
   // languages
   language_map[ICQ2000::LANGUAGE_UNKNOWN] = _("Unspecified");
@@ -463,6 +473,10 @@ vector<string> vectorOfValues(map<T, const char*> &m) {
   return vec;
 }
 
+string UserInfoHelpers::getStringFromStatus(ICQ2000::Status st)
+{
+  return valueFromKey(status_map, st, ICQ2000::STATUS_OFFLINE);
+}
 
 string UserInfoHelpers::getStringFromSex(ICQ2000::Sex sex)
 {

@@ -38,6 +38,12 @@ namespace Utils
   /* conversion of locale->utf8, without an risk of exceptions being thrown */
   Glib::ustring locale_to_utf8(const Glib::ustring& utf8_string);
 
+  /* determine is the string is valid utf-8 */
+  bool is_valid_utf8(const std::string& str);
+
+  /* determine if this encoding exists */
+  bool is_valid_encoding(const std::string& encoding);
+
   /* printf-style formatting, in a locale independent way */
   std::string format_string(const char * fmt, ...);
 

@@ -79,6 +79,42 @@ namespace Utils
     }
   }
 
+  bool is_valid_utf8(const std::string& str)
+  {
+    return ( g_utf8_validate( str.c_str(), str.size(), NULL ) == TRUE );
+  }
+
+  bool is_valid_encoding(const std::string& encoding)
+  {
+    /* borrowed from regexxer.. thanks Daniel */
+
+    // GLib just ignores some characters that aren't used in encoding names,
+    // so we have to parse the string for invalid characters ourselves.
+
+    for(std::string::const_iterator p = encoding.begin();
+	p != encoding.end();
+	++p)
+    {
+      if(!Glib::Ascii::isalnum(*p))
+	switch(*p)
+	{
+        case ' ': case '-': case '_': case '.': case ':': break;
+        default: return false;
+	}
+    }
+
+    try
+    {
+      Glib::convert("", "UTF-8", encoding);
+    }
+    catch(const Glib::ConvertError&)
+    {
+      return false;
+    }
+    
+    return true;
+  }
+
   std::string format_string(const char * fmt, ...)
   {
     /* code partly borrowed from Linux printf manpage */
