@@ -480,8 +480,8 @@ vector<string> vectorOfValues(map<T, const char*> &m) {
   }
   vecit=vec.begin();
   //The first choice is mostly something special..
-  if ( (vecit != vec.end() ) && (++vecit !=vec.end() ) )
-    std::sort(vecit,vec.end(), SortStringI18N() );
+  if ( vec.size()>2 )
+    std::sort(++vecit,vec.end(), SortStringI18N() );
   return vec;
 }
 
