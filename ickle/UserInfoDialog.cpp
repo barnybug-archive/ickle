@@ -677,7 +677,7 @@ void UserInfoDialog::update_from_userinfo()
   }
   else
   {
-    birthday_entry.set_text( m_contact->getHomepageInfo().getBirthDate() );
+    birthday_entry.set_text(Glib::locale_to_utf8(m_contact->getHomepageInfo().getBirthDate() ) );
   }
 
   // ----------------------- Stats ----------------------
