@@ -516,11 +516,8 @@ void SettingsDialog::fontsel_cb(int n) {
 
 void SettingsDialog::fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n) {
   if (n == 0) {
-    // Gtk::FontSelectionDialog::get_font_name seeks to fuck up sometimes
-    //    message_header_font = fontsel->get_font_selection()->get_actual_font_name()->get_text();
     message_header_font = fontsel->get_font_name();
   } else {
-    //    message_text_font = fontsel->get_font_selection()->get_actual_font_name()->get_text();
     message_text_font = fontsel->get_font_name();
   }
   fontsel->destroy();

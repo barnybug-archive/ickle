@@ -29,6 +29,7 @@
 
 #include "Client.h"
 #include "main.h"
+#include "Settings.h"
 
 using std::ostringstream;
 using std::endl;
@@ -100,8 +101,15 @@ void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
   }
 
   Gdk_Font normal_font;
-  Gdk_Font bold_font("-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
-  
+  Gdk_Font header_font;
+  string message_text_font = g_settings.getValueString("message_text_font");
+  string message_header_font = g_settings.getValueString("message_header_font");
+  if ( !message_text_font.empty() ) {
+    normal_font = Gdk_Font( message_text_font );
+  }
+  if ( !message_header_font.empty() ) {
+    header_font = Gdk_Font( message_header_font );
+  }
   Gdk_Color nickc("red");
   Gdk_Color white("white");
   Gdk_Color black("black");
@@ -116,7 +124,7 @@ void AwayMessageDialog::messageack_cb(MessageEvent *ev) {
   ostr << format_time( ev->getTime() ) << " "
        << c->getAlias() << endl;
   m_awaytext.freeze();
-  m_awaytext.insert( bold_font, nickc, white, ostr.str(), -1);
+  m_awaytext.insert( header_font, nickc, white, ostr.str(), -1);
   if (ev->isDelivered()) {
     m_awaytext.insert( normal_font, black, white, aev->getMessage(), -1);
   } else {
