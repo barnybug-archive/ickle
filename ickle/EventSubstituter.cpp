@@ -63,23 +63,23 @@ static const char escape_chars[] = "$\\`\"";
 // Cats the string onto the stream, escaping shell metachars if (escape_shell)
 void EventSubstituter::sanecat(const string &s) {
   if (!escape_shell) {
-    ostringstream::operator<<(s.c_str());
+    static_cast<ostringstream&>(*this) << s.c_str();  
     return;
   }
 
   // Surround the substitution with double quotes. Allow through a certain
   // set of characters, escape another set with backslashes, and chop the rest.
-  ostringstream::operator<<('"');
+  static_cast<ostringstream&>(*this) << '"';
   for (const char *c = s.c_str(); *c; c++) {
     if (strchr(safe_chars, *c) != NULL) {
-      ostringstream::operator<<(*c);
+      static_cast<ostringstream&>(*this) << (*c);
     }
     else if (strchr(escape_chars, *c) != NULL) {
-      ostringstream::operator<<('\\');
-      ostringstream::operator<<(*c);
+      static_cast<ostringstream&>(*this) << '\\';
+      static_cast<ostringstream&>(*this) << (*c);
     }
   }
-  ostringstream::operator<<('"');
+  static_cast<ostringstream&>(*this) << '"';
 }
 
 void EventSubstituter::execute() 
@@ -126,7 +126,7 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 	sanecat(IPtoString(co->getExtIP()));
 	break;
       case 'p':
-        ostringstream::operator<<(co->getExtPort());
+        static_cast<ostringstream&>(*this) << co->getExtPort();
 	break;
       case 'e':
         sanecat(co->getEmail());
@@ -157,32 +157,32 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 	break;
       case 't':
         strftime(timebuf, 100, "%b %d %r", localtime(&event_time));
-        ostringstream::operator<<(timebuf);
+	static_cast<ostringstream&>(*this) << timebuf;
 	break;
       case 'T':
         strftime(timebuf, 100, "%b %d %R %Z", localtime(&event_time));
-        ostringstream::operator<<(timebuf);
+	static_cast<ostringstream&>(*this) << timebuf;
 	break;
       case 'o':
       {
 	time_t tmp = co->get_last_online_time();
         strftime(timebuf, 100, "%b %d %R %Z", localtime(&tmp));
-	ostringstream::operator<<(timebuf);
+	static_cast<ostringstream&>(*this) << timebuf;
 	break;
       }
       case 'm':
-	ostringstream::operator<<(m_message_queue.get_contact_size(co));
+        static_cast<ostringstream&>(*this) << m_message_queue.get_contact_size(co);
 	break;
       case 'r':
         sanecat(repeated ? "true" : "false");
         break;
       case '%':
-        ostringstream::operator<<('%');
+        static_cast<ostringstream&>(*this) << '%';
 	break;
       default:
         // Just output the %-substitution so they know something is wrong
-	ostringstream::operator<<('%');
-	ostringstream::operator<<(c);
+	static_cast<ostringstream&>(*this) << '%';
+	static_cast<ostringstream&>(*this) << c;
 	break;
     }
     return (*this);
@@ -202,7 +202,7 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 
   else {
     line_start = false;
-    ostringstream::operator<<(c);
+    static_cast<ostringstream&>(*this) << c;
     return (*this);
   }
 }
