@@ -6,9 +6,9 @@ EXTRA_PROGRAMS = ickle ickle_applet
 bin_PROGRAMS = @ICKLE_PROGRAM@
 
 AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
-LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @GNOME_LIBS@
+LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @GNOME_APPLETS_LIBS@
 INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/share/icons/ickle/  \
-           @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_CFLAGS@
+           @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@
 
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp \

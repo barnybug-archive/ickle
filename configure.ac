@@ -29,51 +29,26 @@ AC_CHECK_LIB(socket, socket)
 AC_CHECK_FUNC(gethostbyname, ,
   AC_CHECK_LIB(nsl, gethostbyname,, AC_MSG_ERROR([You do not have gethostbyname - check you have libc installed properly])) )
 
-AC_CHECK_LIB(c_r,pthread_cancel, [], [
-  AC_CHECK_LIB(pthread, pthread_cancel, [], [
-    AC_CHECK_LIB(thread, pthread_cancel, [], [
-      AC_CHECK_LIB(pthreads, pthread_cancel, [], [
-        cat <<EOF;
-
-Please install/update your POSIX threads (pthreads) library. Updates should be
-available from either your system vendor, or, for GNU/Linux systems, go to
-http://pauillac.inria.fr/~xleroy/linuxthreads/.  GNU Pth can also be used if
-configured with --enable-pthread.
-
-EOF
-exit 1
-      ])
-    ])
-  ])
-])
-
 dnl optional GNOME support
-AC_ARG_WITH(gnome,
-	    AC_HELP_STRING([--with-gnome],
-			    [build GNOME applet (default=no)]),
-			    use_gnome=$withval, use_gnome=no)
-	    
-AC_MSG_CHECKING(whether to build gnome applet)
-AC_MSG_RESULT($use_gnome)
+dnl The GNOME_INIT_HOOK macro is broken so we check for the additional
+dnl applets libraries ourselves.    
+GNOME_INIT()
 
-if test "x$use_gnome" = "xyes"; then
-  AC_PATH_PROG(gnome_config, gnome-config)
-  if test "x$gnome_config" = "x"; then
-     AC_MSG_ERROR([GNOME support was requested but GNOME wasn't found!])
-  fi
-  ICKLE_PROGRAM=ickle_applet
-  GNOME_CFLAGS=`$gnome_config --cflags applets`
-  GNOME_LIBS=`$gnome_config --libs applets`
-  CORBA_FILES=ickle_applet.gnorba
-  DESKTOP_FILES=ickle_applet.desktop
-  AC_DEFINE(GNOME_ICKLE,,[Define if GNOME applet should be built])
+if test -n "$GNOME_CONFIG"; then
+   AC_MSG_CHECKING(extra library \"applets\")
+   GNOME_APPLETS_LIBS=`$GNOME_CONFIG --libs-only-l applets`
+   AC_MSG_RESULT($GNOME_APPLETS_LIBS)
+
+   ICKLE_PROGRAM=ickle_applet
+   CORBA_FILES=ickle_applet.gnorba
+   DESKTOP_FILES=ickle_applet.desktop
+   AC_DEFINE(GNOME_ICKLE,,[Define if GNOME applet should be built])
 else
-  ICKLE_PROGRAM=ickle
+   ICKLE_PROGRAM=ickle
 fi
 
+AC_SUBST(GNOME_APPLETS_LIBS)
 AC_SUBST(ICKLE_PROGRAM)
-AC_SUBST(GNOME_CFLAGS)	
-AC_SUBST(GNOME_LIBS)
 AC_SUBST(CORBA_FILES)
 AC_SUBST(DESKTOP_FILES)
 
