@@ -1,6 +1,6 @@
 /* gtkspell - a spell-checking addon for GtkText
  * Copyright (c) 2000 Evan Martin.
- *
+ * vim: ts=4 sw=4
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -20,7 +20,7 @@
 
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/poll.h>
+#include <sys/time.h>
 #include <unistd.h>   
 #include <stdio.h>    
 #include <signal.h>
@@ -44,7 +44,7 @@
  * all ispell-related variables can be static.  
  */
 static pid_t spell_pid = -1;
-static int fd_write[2], fd_read[2];
+static int fd_write[2] = {0}, fd_read[2] = {0};
 static int signal_set_up = 0;
 
 /* FIXME? */
@@ -111,7 +111,10 @@ static int readresponse(char *buf) {
 
 void gtkspell_stop() {
 	if (gtkspell_running()) {
-		kill(spell_pid, SIGQUIT); /* FIXME: is this the correct signal? */
+		kill(spell_pid, SIGHUP); 
+		spell_pid = 0;
+		close(fd_read[0]);
+		close(fd_write[1]);
 	}
 }
 
@@ -139,11 +142,16 @@ int gtkspell_start(char *path, char * args[]) {
 		return -1;
 	} else if (spell_pid == 0) {
 		dup2(fd_write[0], 0);
-		dup2(fd_read[1], 1);
-		dup2(fd_error[1], 2);
-		close(fd_read[0]);
-		close(fd_error[0]);
+		close(fd_write[0]);
 		close(fd_write[1]);
+
+		dup2(fd_read[1], 1);
+		close(fd_read[0]);
+		close(fd_read[1]);
+
+		dup2(fd_error[1], 2);
+		close(fd_error[0]);
+		close(fd_error[1]);
 
 		if (path == NULL) {
 			if (execvp(args[0], args) < 0) 
@@ -155,7 +163,7 @@ int gtkspell_start(char *path, char * args[]) {
 		/* if we get here, we failed.
 		 * send some text on the pipe to indicate status.
 		 */
-		write(fd_read[1], "!", 1);
+		write(0, "!", 1); /* stdout _is_ the pipe. */
 
 		_exit(0);
 	} else {
@@ -164,25 +172,39 @@ int gtkspell_start(char *path, char * args[]) {
 		 * - the exec() can succeed, but the program can dump the help screen
 		 * we must check for both.
 		 */
-		struct pollfd fds[2];
+		fd_set rfds;
+		struct timeval tv;
+		
+		close(fd_write[0]);
+		close(fd_read[1]);
 
-		fds[0].fd = fd_error[0];
-		fds[0].events = POLLIN | POLLERR;
-		fds[1].fd = fd_read[0];
-		fds[1].events = POLLIN | POLLERR;
-		if (poll(fds, 2, 2000) <= 0) {
+		FD_ZERO(&rfds);
+		FD_SET(fd_error[0], &rfds);
+		FD_SET(fd_read[0], &rfds);
+		tv.tv_sec = 2;
+		tv.tv_usec = 0;
+
+		if (select(MAX(fd_error[0], fd_read[0])+1, 
+					&rfds, NULL, NULL, &tv) < 0) {
 			/* FIXME: is this needed? */
 			error_print("Timed out waiting for spell command.\n");
 			gtkspell_stop();
 			return -1;
 		}
 
-		if (fds[0].revents) { /* stderr readable? */
+		if (FD_ISSET(fd_error[0], &rfds)) { /* stderr readable? */
 			error_print("Spell command printed on stderr -- probably failed.\n");
 			gtkspell_stop();
 			return -1;
 		}
+
+		/* we're done with stderr, now. */
+		close(fd_error[0]);
+		close(fd_error[1]);
+
+		/* otherwise, fd_read[0] is set. */
 		readline(buf);
+
 		/* ispell should print something like this:
 		 * @(#) International Ispell Version 3.1.20 10/10/95
 		 * if it doesn't, it's an error. */
@@ -237,6 +259,7 @@ static GList* misspelled_suggest(char *word) {
 			return l;
 
 		case '#': /* misspelled, no suggestions */
+		case '?': /* ispell is guessing. */
 			/* # <orig> <ofs> */
 			strtok(buf, " "); /* & */
 			newword = strtok(NULL, " "); /* orig */
@@ -245,6 +268,8 @@ static GList* misspelled_suggest(char *word) {
 		default:
 			error_print("Unsupported spell command '%c'.\n"
 					"This is a bug; mail " BUGEMAIL " about it.\n", buf[0]);
+			error_print("Input [%s]\nOutput [%s]\n", word, buf);
+
 	}
 	return NULL;
 }
@@ -257,12 +282,13 @@ static int misspelled_test(char *word) {
 
 	if (buf[0] == 0) {
 		return 0;
-	} else if (buf[0] == '&' || buf[0] == '#') {
+	} else if (buf[0] == '&' || buf[0] == '#' || buf[0] == '?') {
 		return 1;
 	}
 	
 	error_print("Unsupported spell command '%c'.\n"
 			"This is a bug; mail " BUGEMAIL " about it.\n", buf[0]);
+	error_print("Input [%s]\nOutput [%s]\n", word, buf);
 	return -1;
 }
 
@@ -304,7 +330,8 @@ static gboolean get_curword(GtkText* gtktext, char* buf,
 }
 
 static void change_color(GtkText *gtktext, 
-		char *newtext, int start, int end, GdkColor *color) {
+		int start, int end, GdkColor *color) {
+	char *newtext = gtk_editable_get_chars(GTK_EDITABLE(gtktext), start, end);
 	gtk_text_freeze(gtktext);
 	gtk_signal_handler_block_by_func(GTK_OBJECT(gtktext), 
 			GTK_SIGNAL_FUNC(entry_insert_cb), NULL);
@@ -312,11 +339,13 @@ static void change_color(GtkText *gtktext,
 	gtk_text_set_point(gtktext, start);
 	gtk_text_forward_delete(gtktext, end-start);
 
-	gtk_text_insert(gtktext, NULL, color, NULL, newtext, end-start);
+	if (newtext && end-start > 0)
+		gtk_text_insert(gtktext, NULL, color, NULL, newtext, end-start);
 
 	gtk_signal_handler_unblock_by_func(GTK_OBJECT(gtktext), 
 			GTK_SIGNAL_FUNC(entry_insert_cb), NULL);
 	gtk_text_thaw(gtktext);
+	g_free(newtext);
 }
 
 static gboolean check_at(GtkText *gtktext, int from_pos) {
@@ -333,10 +362,10 @@ static gboolean check_at(GtkText *gtktext, int from_pos) {
 			GdkColormap *gc = gtk_widget_get_colormap(GTK_WIDGET(gtktext));
 			gdk_colormap_alloc_color(gc, &highlight, FALSE, TRUE);;
 		}
-		change_color(gtktext, buf, start, end, &highlight);
+		change_color(gtktext, start, end, &highlight);
 		return TRUE;
 	} else { 
-		change_color(gtktext, buf, start, end, 
+		change_color(gtktext, start, end, 
 				&(GTK_WIDGET(gtktext)->style->fg[0]));
 		return FALSE;
 	}
@@ -403,6 +432,7 @@ static void entry_insert_cb(GtkText *gtktext,
 	}
 
 	gtk_editable_set_position(GTK_EDITABLE(gtktext), origpos);
+	gtk_editable_select_region(GTK_EDITABLE(gtktext), origpos, origpos);
 }
 
 static void entry_delete_cb(GtkText *gtktext,

@@ -20,7 +20,9 @@
 #define __gtkspell_h__
 
 /* PLEASE NOTE that this API is unstable and subject to change. */
-#define GTKSPELL_VERSION "0.3.1"
+#define GTKSPELL_VERSION "0.3.2"
+
+#include <gtk/gtktext.h>
 
 extern int gtkspell_start(char *path, char *args[]);
 /* Spawns the spell checking program.
@@ -46,15 +48,15 @@ extern int gtkspell_start(char *path, char *args[]);
  */
 
 
-extern void gtkspell_stop();
+extern void gtkspell_stop(void);
 /* Stop the spellchecking program.
  * This kills the spell checker's process and frees memory.
  */
 
-extern int gtkspell_running();
+extern int gtkspell_running(void);
 /* Is gtkspell running?
  *
- * Returns:
+ * Return:
  * 	nonzero if it running
  * 	zero if is not running
  *
