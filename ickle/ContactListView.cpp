@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.44 2002-10-30 22:09:37 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.45 2002-10-30 23:35:10 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -409,21 +409,23 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
   return false;  
 }
 
-ContactListView::citerator ContactListView::lookup_uin(unsigned int uin) {
-  citerator curr = rows().begin();
-  while (curr != rows().end()) {
+ContactListView::titerator ContactListView::lookup_uin(unsigned int uin)
+{
+  titerator curr = tree().begin();
+  while (curr != tree().end()) {
     RowData *p = (RowData*)((*curr).get_data());
     if (p->type == RowData::Contact && p->uin == uin) return curr;
     ++curr;
   }
-  return rows().end();
+  return tree().end();
 }
 
 void ContactListView::update_row(const ContactRef& c) {
 
-  citerator row = lookup_uin(c->getUIN());
-  if (row == rows().end()) return;
-
+  titerator row = lookup_uin(c->getUIN());
+  if (row == tree().end())
+    return;
+  
   RowData *rp = (RowData*)(*row).get_data();
   rp->status = c->getStatus();
   rp->msgs = 0;
@@ -462,6 +464,28 @@ Gtk::CTree_Helpers::RowIterator ContactListView::get_tree_group( ICQ2000::Contac
   return rows().end();
 }
 
+class RowHack : public Gtk::CTree_Helpers::Row
+{
+ public:
+  RowHack(const Gtk::CTree_Helpers::Row& row)
+    : Row(row)
+  { }
+
+  GtkCTreeNode * get_gtkctreenode()
+  {
+    return node_;
+  }
+  
+};
+
+class RowIteratorHack : public Gtk::CTree_Helpers::RowIterator
+{
+ public:
+  RowIteratorHack(GtkCTree *ctree, GtkCTreeNode *cnodep, GtkCTreeNode *cnode)
+    : RowIterator(ctree, cnodep, cnode)
+  { }
+};
+
 void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev) {
 
   if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
@@ -496,13 +520,16 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev) {
     unsigned int uin = c->getUIN();
     
     // delete per row data
-    citerator cr = lookup_uin(uin);
+    titerator cr = lookup_uin(uin);
     RowData *p = (RowData*)(*cr).get_data();
     delete p;
 
-    rows().erase(cr);
+    RowHack rowh( (*cr) );
+    RowHack rowhp( rowh.get_parent() );
+    rows().erase(RowIteratorHack(gtkobj(), rowhp.get_gtkctreenode(), rowh.get_gtkctreenode()));
     columns_autosize();
     sort();
+
   } else if (ev->getType() == ICQ2000::ContactListEvent::GroupAdded) {
     ICQ2000::GroupAddedEvent *cev = static_cast<ICQ2000::GroupAddedEvent*>(ev);
     vector<string> a;
@@ -544,11 +571,13 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 }
 
 void ContactListView::icons_changed_cb() {
-  citerator curr = rows().begin();
-  while (curr != rows().end()) {
-    RowData *rp = (RowData*)(*curr).get_data();
-    ContactRef c = icqclient.getContact( rp->uin );
-    if (c.get() != NULL) update_row(c);
+  titerator curr = tree().begin();
+  while (curr != tree().end()) {
+    RowData *rd = (RowData*)(*curr).get_data();
+    if (rd->type == RowData::Contact) {
+      ContactRef c = icqclient.getContact( rd->uin );
+      if (c.get() != NULL) update_row(c);
+    }
     ++curr;
   }
 }

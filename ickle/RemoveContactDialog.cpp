@@ -80,5 +80,5 @@ void RemoveContactDialog::contactlist_cb(ICQ2000::ContactListEvent *ev)
 void RemoveContactDialog::ok_cb() {
   ICQ2000::ContactTree& ct = icqclient.getContactTree();
   ct.remove( m_contact->getUIN() );
-  destroy.emit();
+  //  destroy.emit() - not necessary, will be caught from signals
 }

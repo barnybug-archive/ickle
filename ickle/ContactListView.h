@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.25 2002-10-30 22:09:37 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.26 2002-10-30 23:35:10 barnabygray Exp $
  *
  * Well actually it's a tree now.. :-)
  *
@@ -42,6 +42,7 @@ using SigC::Signal1;
 class ContactListView : public Gtk::CTree {
  private:
   typedef Gtk::CTree_Helpers::RowIterator citerator;
+  typedef Gtk::CTree_Helpers::TreeList::iterator titerator;
 
   struct RowData 
   {
@@ -65,7 +66,7 @@ class ContactListView : public Gtk::CTree {
 
   void update_row(const ICQ2000::ContactRef& c);
 
-  citerator lookup_uin(unsigned int uin);
+  titerator lookup_uin(unsigned int uin);
   Gtk::CTree_Helpers::RowIterator get_tree_group( ICQ2000::ContactTree::Group& gp );
 
   // contact rc callbacks
