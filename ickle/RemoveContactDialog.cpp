@@ -40,7 +40,7 @@ RemoveContactDialog::RemoveContactDialog(Gtk::Window& parent, const ICQ2000::Con
 
   add_button(Gtk::Stock::REMOVE, Gtk::RESPONSE_OK);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
-  set_default_response(Gtk::RESPONSE_OK);
+  set_default_response(Gtk::RESPONSE_CANCEL);
 
   // libicq2000 callbacks
   icqclient.contactlist.connect( this, &RemoveContactDialog::contactlist_cb );
