@@ -38,6 +38,7 @@
 #include <string.h>
 
 #include "ucompose.h"
+#include "utils.h"
 
 using std::string;
 using std::ostringstream;
@@ -126,11 +127,7 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
       case 'i':
       {
 	unsigned int ip = co->getExtIP();
-	sanecat( String::ucompose( "%1.%2.%3.%4",
-				   ( ip >> 24 ),
-				   ((ip >> 16) & 0xff),
-				   ((ip >> 8) & 0xff),
-				   ( ip & 0xff ) ) );
+	sanecat( Utils::format_IP(ip) );
 	break;
       }
       case 'p':

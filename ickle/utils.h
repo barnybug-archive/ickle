@@ -43,6 +43,9 @@ namespace Utils
 
   /* format time in ickle-wide standard way */
   std::string format_time(time_t t);
+
+  /* IP address -> string */
+  std::string format_IP(unsigned int ip);
 };
 
 #endif /* UTILS_H */

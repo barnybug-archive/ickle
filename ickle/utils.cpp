@@ -24,6 +24,8 @@
 #include <cstdlib>
 #include <cstdarg>
 
+#include "ucompose.h"
+
 #include "ickle.h"
 
 namespace Utils
@@ -136,6 +138,15 @@ namespace Utils
     }
 
     return std::string(time_str);
+  }
+
+  std::string format_IP(unsigned int ip)
+  {
+    return String::ucompose( "%1.%2.%3.%4",
+			     ( ip >> 24 ),
+			     ((ip >> 16) & 0xff),
+			     ((ip >> 8) & 0xff),
+			     ( ip & 0xff ) );
   }
 
 }

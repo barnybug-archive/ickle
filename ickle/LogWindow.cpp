@@ -164,7 +164,7 @@ void LogWindow::logger_cb(ICQ2000::LogEvent *ev)
 
   buffer->insert_with_tag( buffer->end(), "[",           m_tag_normal );
   buffer->insert_with_tag( buffer->end(), Utils::format_time(ev->getTime()), m_tag_normal );
-  buffer->insert_with_tag( buffer->end(), "]",           m_tag_normal );
+  buffer->insert_with_tag( buffer->end(), "] ",           m_tag_normal );
   buffer->insert_with_tag( buffer->end(), ev->getMessage(), tag_log );
 
   adj->set_value(bot);

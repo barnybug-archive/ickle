@@ -42,8 +42,11 @@ class UserInfoDialog : public Gtk::Dialog,
 		       public sigslot::has_slots<>
 {
  private:
-  static const int RESPONSE_UPLOAD = 1;
-  static const int RESPONSE_FETCH = 2;
+  enum
+  {
+    RESPONSE_UPLOAD = 1,
+    RESPONSE_FETCH = 2
+  };
     
   SigC::Signal0<void> m_signal_closed;
   SigC::Signal0<void> m_signal_fetch;
@@ -75,6 +78,7 @@ class UserInfoDialog : public Gtk::Dialog,
   void update_from_userinfo();
 
   static std::string format_time(time_t t);
+  static std::string format_IP_and_port(unsigned int ip, unsigned short port);
 
   // -- library callbacks --
   void status_change_cb(ICQ2000::StatusChangeEvent *ev);

@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.56 2003-01-18 15:56:09 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.57 2003-01-18 17:19:24 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -300,6 +300,8 @@ void ContactListView::add_contact(const ICQ2000::ContactRef& c, const ICQ2000::C
     Gtk::TreeModel::Row row = *iter;
 
     m_contact_map[ c->getUIN() ] = iter;
+    row[m_columns.nick] = c->getNameAlias();
+    row[m_columns.nick_sort_key] = Glib::ustring(c->getNameAlias()).casefold_collate_key();
     row[m_columns.is_contact] = true;
     row[m_columns.id] = c->getUIN();
     row[m_columns.status] = ICQ2000::STATUS_OFFLINE;
@@ -425,6 +427,8 @@ void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
 
 void ContactListView::contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
 {
+  update_contact( ev->getContact() );
+  sort();
 }
 
 void ContactListView::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev)
@@ -646,7 +650,7 @@ gint ContactListView::sort_func(const Gtk::TreeModel::iterator& iter1, const Gtk
 
   int s = (o1 < o2) ? -1 : (o1 > o2) ? 1 : 0;
   int m = (row1[m_columns.messages] > row2[m_columns.messages]) ? -1 : (row1[m_columns.messages] < row2[m_columns.messages]) ? 1 : 0;
-  int a = std::string(row1[m_columns.nick_sort_key]) > std::string(row2[m_columns.nick_sort_key]);
+  int a = (std::string(row1[m_columns.nick_sort_key]).compare(std::string(row2[m_columns.nick_sort_key])));
 
   return m ? m : s ? s : a;
 }
