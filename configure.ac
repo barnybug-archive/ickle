@@ -86,3 +86,13 @@ share/Makefile share/icons/Makefile share/icons/ickle/Makefile
 share/icons/doors/Makefile share/icons/icq/Makefile share/icons/new/Makefile
 share/icons/gnomeicu/Makefile share/translations/Makefile])
 AC_OUTPUT
+
+$ECHO
+if test "x$want_gnome" = xyes; then
+   $ECHO "Ickle will be built with the GNOME applet."
+   $ECHO "After installing, run ickle by rightclicking the"
+   $ECHO "panel and choosing Applets->Network->Ickle ICQ."
+else
+   $ECHO "Ickle will be built without the GNOME applet."
+   $ECHO "After installing, run ickle by typing ickle at the prompt."
+fi

@@ -68,8 +68,13 @@ AC_DEFUN([ICKLE_GNOME_INIT_HOOK],[
 			case $i in 
 			    applets)
 				AC_SUBST(GNOME_APPLETS_LIBS)
-				GNOME_APPLETS_LIBS=`$GNOME_CONFIG --libs-only-l applets`
-				AC_MSG_RESULT($GNOME_APPLETS_LIBS);;
+				if $GNOME_CONFIG --libs-only-l applets > /dev/null 2>&1; then
+				    GNOME_APPLETS_LIBS=`$GNOME_CONFIG --libs-only-l applets`
+				    AC_MSG_RESULT($GNOME_APPLETS_LIBS)
+				else
+				    want_gnome=no
+				    AC_MSG_RESULT(not available)
+				fi;;
 			    capplet)
 				AC_SUBST(GNOME_CAPPLET_LIBS)
 				GNOME_CAPPLET_LIBS=`$GNOME_CONFIG --libs-only-l capplet`
