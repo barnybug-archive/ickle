@@ -43,17 +43,19 @@ std::string IckleTranslator::client_to_server(const std::string& str,
   std::cout << "client_to_server (using " << encoding << ") : "
 	    << Utils::console(str) << std::endl;
 
+  ret = CRLFTranslator::client_to_server(str, en, c);
+
   if ( en == ICQ2000::ENCODING_CONTACT_LOCALE )
   {
-    ret = Glib::convert_with_fallback( str, encoding, "UTF-8", "?" );
+    ret = Glib::convert_with_fallback( ret, encoding, "UTF-8", "?" );
   }
   else if (en == ICQ2000::ENCODING_ISO_8859_1 )
   {
-    ret = Glib::convert_with_fallback( str, "ISO-8859-1", "UTF-8", "?" );
+    ret = Glib::convert_with_fallback( ret, "ISO-8859-1", "UTF-8", "?" );
   }
   else if (en == ICQ2000::ENCODING_UTF8)
   {
-    ret = str;
+    // noop
   }
   
   return ret;
@@ -95,6 +97,8 @@ std::string IckleTranslator::server_to_client(const std::string& str,
     g_return_val_if_fail( Utils::is_valid_utf8(str), "" );
     ret = str;
   }
+
+  ret = CRLFTranslator::server_to_client(ret, en, c);
 
   std::cout << Utils::console(ret) << std::endl;
 
