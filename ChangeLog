@@ -1,22 +1,905 @@
-2001-11-22 15:38 nordman
+2001-12-15 12:23  nordman
 
-	* ickle/IckleApplet.c ickle/IckleApplet.hpp
-	  ickle/IckleClient.cpp ickle/IckleGUI.cpp
-	  
-        Quit correctly when run as applet.
-	Use a separate wmclass for IckleGUI, fixes problem where main
-	GUI would jump around on the screen a lot when run as applet.
+	* NEWS: Add initial release information.
 
+2001-12-14 13:00  barnabygray
+
+	* examples/shell.cpp: Updated shell example to work with
+	nonblocking connects
+
+2001-12-14 11:05  barnabygray
+
+	* ickle/ContactListView.cpp: I'm not awake this morning
+
+2001-12-14 10:40  barnabygray
+
+	* ickle/ContactListView.cpp: moveto only if not visible (thanks
+	Michael)
+
+2001-12-14 10:36  barnabygray
+
+	* ickle/ContactListView.cpp: Fixed 100% cpu lookup bug, and
+	possible other bugs in key press for contact list
+
+2001-12-13 23:04  barnabygray
+
+	* ickle/MessageBox.cpp: Added date to history entries is they not
+	for 'today'. Might me nice to make more customisable in future.
+
+2001-12-13 22:09  barnabygray
+
+	* src/Makefile.am: Incremented library current interface
+
+2001-12-13 20:29  barnabygray
+
+	* src/socket.cpp: - Fixed blocking on incoming direct connections
+
+2001-12-13 20:28  barnabygray
+
+	* debian/: changelog, ickle.substvars: Debian package updates
+
+2001-12-13 19:18  barnabygray
+
+	* ickle/IckleClient.cpp, src/Client.cpp, src/Contact.cpp,
+	src/Contact.h, src/DirectClient.cpp, src/DirectClient.h,
+	src/buffer.cpp, src/socket.cpp, src/socket.h: - Non-blocking
+	sockets - Removed use of back_inserter in socket, older libstdc++s
+	don't have   string::push_back - Added a little intelligence to
+	direct connections, so after failing   once they won't be tried
+	again.
+
+2001-12-13 16:11  barnabygray
+
+	* ickle/IckleClient.cpp: default for retries should be 0
+
+2001-12-13 12:37  barnabygray
+
+	* src/DirectClient.cpp: Direct connections to 2000 clients working
+	finally! WOOHOO!
+
+2001-12-12 23:16  barnabygray
+
+	* ickle/IckleClient.cpp: Lower limit imposed on input value for
+	pager size should be 1
+
+2001-12-12 22:43  nordman
+
+	* ickle/: IckleClient.cpp, MessageBox.cpp, MessageBox.h,
+	SettingsDialog.cpp, SettingsDialog.h: Added option for specifying
+	the number of messages shown per history-page.
+
+2001-12-12 19:08  barnabygray
+
+	* THANKS, src/Client.cpp: Konst pointed out a problem in Client.cpp
+	for sending urls. Ooops.
+
+2001-12-12 18:20  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleGUI.cpp, SettingsDialog.cpp,
+	SettingsDialog.h: Added autoraise option, so you can autoraise
+	without having to autopopup.
 	
-2001-11-20 23:25  nordman
+	WARNING: Once you pop, you just can't stop.
 
-	* configure.ac ickle/IckleApplet.h ickle/IckleApplet.cpp
-	ickle/main.cpp ickle/IckleClient.h ickle/IckleClient.cpp
-	ickle/Makefile.am ickle/ickle_applet.desktop
-	ickle/ickle_applet.gnorba:
+2001-12-12 17:23  barnabygray
 
-	Added GNOME applet to the tree.
+	* Makefile.am, debian/README, debian/README.Debian,
+	debian/changelog, debian/control, debian/dirs, debian/docs,
+	debian/ickle-common.README.Debian, debian/ickle-common.docs,
+	debian/ickle-common.files, debian/ickle-dev.files,
+	debian/ickle-gnome.dirs, debian/ickle.dirs, debian/ickle.files,
+	debian/ickle.manpages, debian/ickle.menu, debian/ickle.substvars,
+	debian/manpages, debian/menu, debian/rules: Debian related package
+	stuff
+
+2001-12-11 15:52  barnabygray
+
+	* AUTHORS, configure.ac, debian/changelog, debian/control,
+	debian/docs, debian/ickle-dev.files, debian/ickle-gnome.files,
+	debian/ickle-gnome.manpages, debian/ickle-gnome.menu,
+	debian/ickle.substvars, debian/manpages, debian/menu,
+	debian/postinst, debian/postrm, debian/preinst, debian/prerm,
+	debian/rules, ickle/Makefile.am, ickle/ickle.1,
+	ickle/ickle_applet.1: - Updated debian stuff - Added manpages
+
+2001-12-11 15:14  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleClient.h: Added usage information
+
+2001-12-11 01:17  barnabygray
+
+	* src/: Client.cpp, ContactList.cpp, ContactList.h: Fixed segfault
+	on adding new user.
+
+2001-12-10 23:59  barnabygray
+
+	* ickle/ContactListView.cpp: Added back in the moveto() that
+	Michael's original patch for ContactListView had.
+
+2001-12-10 23:53  barnabygray
+
+	* src/: Cache.h, DCCache.h, ICBMCookieCache.h, RequestIDCache.h:
+	Fixed the obscure segfaults that were happening on removing users
+
+2001-12-10 23:06  barnabygray
+
+	* ickle/IckleClient.cpp, src/Client.cpp, src/Client.h: ickle
+	behaving correctly with empty aliases
+
+2001-12-10 21:39  nordman
+
+	* ickle/ContactListView.cpp: please gcc 3.*
+
+2001-12-10 21:16  nordman
+
+	* ickle/IckleClient.cpp: erm. That was supposed to be gone before
+	checking in.
+
+2001-12-10 20:58  nordman
+
+	* ickle/ContactListView.cpp: do it the leet c++ way.
+
+2001-12-10 20:28  nordman
+
+	* ickle/: IckleClient.cpp, MessageBox.cpp, SettingsDialog.cpp,
+	SettingsDialog.h: Added option: autoclose after sending a message.
+
+2001-12-10 19:19  nordman
+
+	* ickle/: MessageBox.cpp, MessageBox.h: Add mousewheel support for
+	the Gtk::Text boxes.
+
+2001-12-10 15:55  barnabygray
+
+	* ickle/: ContactListView.cpp, ContactListView.h: Patch from
+	Michael smith: - Sorting by aliases in contact list, after
+	#messages and status - Jumping to a contact by keypress in
+	contactlist
+
+2001-12-10 15:43  barnabygray
+
+	* THANKS: Updated THANKS
+
+2001-12-10 02:34  barnabygray
+
+	* ickle/History.cpp: Added some defaults for missing fields in
+	history. Turns out lots of messages being tagged as multiparty was
+	actually what used to be a bug in ickle.
+
+2001-12-10 02:12  barnabygray
+
+	* ickle/: AwayMessageDialog.cpp, SettingsDialog.cpp: - More font
+	related stuff
+
+2001-12-10 02:04  barnabygray
+
+	* ickle/: History.cpp, History.h, IckleClient.cpp, MessageBox.cpp,
+	SettingsDialog.cpp, SettingsDialog.h: - Fine tuning Nils' history
+	changes - Added customisable font selection for message box
+
+2001-12-10 00:17  nordman
+
+	* ickle/MessageBox.cpp: hmrpf. I can afford to expand that.
+
+2001-12-10 00:12  nordman
+
+	* ickle/: History.cpp, History.h, IckleClient.cpp, IckleClient.h,
+	IckleGUI.cpp, IckleGUI.h, MessageBox.cpp, MessageBox.h: ickle now
+	has a leet history viewing capability.
+
+2001-12-09 22:58  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleGUI.cpp, IckleGUI.h,
+	SettingsDialog.cpp, SettingsDialog.h: Added autopopup for incoming
+	messages - if that's your sort of thing.
+
+2001-12-09 20:38  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleClient.h: Security on log file, as
+	password may be logged there
+
+2001-12-09 20:26  barnabygray
+
+	* examples/shell.cpp, ickle/Icons.cpp, ickle/MessageBox.cpp,
+	src/Cache.h, src/Client.cpp, src/Client.h, src/DCCache.h,
+	src/DirectClient.cpp, src/DirectClient.h, src/ICBMCookieCache.h,
+	src/ICQ.cpp, src/ICQ.h, src/RequestIDCache.h, src/events.cpp,
+	src/events.h: - Fixes for Direct connections - Message acks for SMS
+	- Parsing SMS delivery failed messages
+
+2001-12-09 19:51  nordman
+
+	* ickle/IckleApplet.cpp: Fix segfault.
+
+2001-12-09 00:53  barnabygray
+
+	* TODO, ickle/IckleClient.cpp, ickle/IckleClient.h,
+	ickle/MessageBox.cpp, ickle/Settings.cpp, ickle/Settings.h,
+	ickle/SettingsDialog.cpp, ickle/SettingsDialog.h, src/Client.cpp,
+	src/Client.h, src/DirectClient.cpp, src/TLV.cpp: - Added Settings
+	for selecting a different server/port and overriding   port for
+	redirect server - Neatened up logging, added timestamp and removed
+	extraneous linefeeds.  - Fixed Settings class so defaults are done
+	better and more consistently
+
+2001-12-08 03:14  barnabygray
+
+	* src/Client.cpp: Fixed a cause of segfaults in direct connections
+
+2001-12-08 02:33  barnabygray
+
+	* README: Placed emphasis more on mailing lists as first point of
+	contact for people.
+
+2001-12-08 02:24  nordman
+
+	* README: minor stuff
+
+2001-12-08 01:57  barnabygray
+
+	* src/DCCache.h: Oops, there's always one I forget.
+
+2001-12-08 01:57  barnabygray
+
+	* examples/shell.cpp, ickle/IckleClient.cpp: Couple of fixes to
+	please PowerPC compilation related to signedness.  Hopefully this
+	is now the text-book way of handling fgetc() and istream::getc().
+
+2001-12-08 01:43  barnabygray
+
+	* README, TODO, configure.ac, examples/shell.cpp: Tidying up README
+	for an impending release
+
+2001-12-08 01:42  barnabygray
+
+	* ickle/: AwayMessageDialog.cpp, AwayMessageDialog.h,
+	ContactListView.cpp, IckleClient.cpp, IckleClient.h, Makefile.am,
+	MessageBox.cpp, SettingsDialog.cpp, SettingsDialog.h: - Changes
+	library side to make away messages more sensible - Added auto
+	reconnect + retries - Added finer logging control and logging to a
+	file
+
+2001-12-08 01:40  barnabygray
+
+	* src/: Cache.h, Client.cpp, Client.h, DirectClient.cpp,
+	DirectClient.h, Makefile.am, SeqNumCache.h, events.cpp, events.h,
+	socket.cpp, socket.h: Direct connections *almost* working now
+
+2001-12-07 23:48  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h, IckleClient.cpp: Use a
+	newly added signal to popup users messagebox.
+
+2001-12-07 14:40  barnabygray
+
+	* ickle/: ContactListView.cpp, UserInfoDialog.cpp: - Removed
+	set_sensitive calls for User Info dialog, so they are	selectable
+	for clipboard, etc..  - Fixed behaviour of Contact List for
+	contacts with empty aliases, so it   behaves the same as official
+	clients (and more sensibly anyway).
+
+2001-12-06 23:10  nordman
+
+	* ickle/main.cpp: Wrap execution in a try-catch block.
+
+2001-12-06 22:50  barnabygray
+
+	* ickle/: ContactListView.cpp, ContactListView.h, IckleClient.cpp,
+	IckleClient.h, IckleGUI.cpp, IckleGUI.h, MessageBox.cpp,
+	MessageBox.h, UserInfoDialog.cpp, UserInfoDialog.h: Made user info
+	dialog non-modal and added a toggle for it in the Message box.
+
+2001-12-06 15:45  nordman
+
+	* ickle/MessageBox.cpp: Make resizing of messageboxes act sanely.
+
+2001-12-05 11:41  nordman
+
+	* README: Add blurb about --without-gnome
+
+2001-12-05 11:17  nordman
+
+	* configure.ac: After configuring for the GNOME applet, add note
+	about how to configure to not use GNOME.
+
+2001-12-04 15:41  nordman
+
+	* ickle/: History.cpp, History.h, IckleClient.cpp, IckleClient.h:
+	Pave way for future history viewing.
+
+2001-12-02 22:06  nordman
+
+	* NEWS: nitpick.
+
+2001-12-02 17:19  barnabygray
+
+	* NEWS: Updated NEWS
+
+2001-12-02 17:18  barnabygray
+
+	* Makefile.am: Added thanks to dist
+
+2001-12-02 17:17  barnabygray
+
+	* Makefile.am, ickle/Makefile.am, share/Makefile.am,
+	share/icons/Makefile.am, share/icons/doors/Makefile.am,
+	share/icons/ickle/Makefile.am, share/icons/icq/Makefile.am,
+	share/translations/Makefile.am, share/icons/gnomeicu/Makefile.am,
+	share/icons/new/Makefile.am: Fixes for dist target
+
+2001-12-02 17:17  barnabygray
+
+	* THANKS: Added a thanks file
+
+2001-12-02 17:12  barnabygray
+
+	* debian/: README.Debian, changelog, control, copyright, dirs,
+	docs, ickle.substvars, menu, postinst, postrm, preinst, prerm,
+	rules: - Added debian packaging files thanks to Dominik 'Aeneas'
+	Schnitzer
+
+2001-12-02 17:03  nordman
+
+	* README: Add some stuff about the GNOME applet.  Update the
+	shortcuts section.
+
+2001-12-02 15:26  nordman
+
+	* acinclude.m4, configure.ac: Add a check to see if the applets
+	library actually is installed.	Add a notice so the user knows
+	whether the applet is going to be built or not.
+
+2001-12-02 13:19  nordman
+
+	* configure.ac, acinclude.m4: GNOME config stuff back in a new
+	form, use a modified copy of the stock macro.
+
+2001-12-02 13:15  nordman
+
+	* ickle/Makefile.am: Program specific CPPFLAGS have no effect,
+	@GNOME_INCLUDEDIR@ goes back to AM_CPPFLAGS (will expand to an
+	empty string if the applet is not built anyway)
+
+2001-12-01 17:07  barnabygray
+
+	* configure.ac, ickle/Makefile.am: Cut out applet GNOME config
+	stuff until it's fixed. Sorry Nils :-(
+
+2001-12-01 13:24  nordman
+
+	* ickle/: MessageBox.cpp, MessageBox.h: Use Statusbar instead of an
+	Entry.
+
+2001-11-29 19:42  nordman
+
+	* ickle/SettingsDialog.cpp: Remove text about echo -e "\a" working,
+	that's not portable so we can't say.
+
+2001-11-29 19:18  nordman
+
+	* configure.ac, ickle/Makefile.am: Use the stock GNOME checks,
+	though we hack our way round the broken GNOME_INIT_HOOK macro. This
+	also means that the GNOME applet will be built by default if GNOME
+	is installed. To avoid this, pass the --without-gnome option to
+	configure.
 	
+	Remove pthreads checks, we don't use pthreads.
+
+2001-11-28 17:09  barnabygray
+
+	* ickle/: ContactListView.cpp, IckleClient.cpp, IckleClient.h: [no
+	log message]
+
+2001-11-28 15:59  barnabygray
+
+	* TODO: Updated TODO
+
+2001-11-27 18:42  nordman
+
+	* ickle/MessageBox.cpp: Also allow escape to close down a
+	messagebox.
+
+2001-11-27 18:41  nordman
+
+	* ickle/IckleApplet.cpp: "sstream_fix" -> "sstream_fix.h"
+
+2001-11-27 17:56  barnabygray
+
+	* ickle/MessageBox.cpp: Added Alt-C shortcut for closing MessageBox
+
+2001-11-27 17:18  nordman
+
+	* ickle/MessageBox.cpp: Uses the defines instead of hardcoding
+	numbers.
+
+2001-11-27 15:34  barnabygray
+
+	* configure.ac, examples/shell.cpp, ickle/AwayMessageDialog.cpp,
+	ickle/IckleApplet.cpp, ickle/IckleClient.cpp, ickle/MessageBox.cpp,
+	ickle/MobileNoEntry.cpp, ickle/Settings.cpp,
+	ickle/UserInfoDialog.cpp, src/Client.cpp, src/Contact.cpp,
+	src/DirectClient.cpp, src/ICQ.cpp, src/Makefile.am,
+	src/SNAC-MSG.cpp, src/SNAC-SRV.cpp, src/Translator.cpp,
+	src/socket.cpp, src/sstream_fix.h: Added wrapping for the older
+	strstream so that it can be used like the new sstream. This is a
+	messy stop gap measure that'll hopefully stop people complaining
+	about the dependancy on the new libstdc++ libraries, or the
+	backport of sstream from them.
+
+2001-11-26 23:58  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: Make applet update in
+	realtime as icons changes from within the settingsdialog.
+
+2001-11-26 23:45  nordman
+
+	* ickle/: ContactListView.cpp, IckleApplet.cpp, IckleClient.cpp,
+	IckleGUI.cpp, IckleGUI.h, Icons.cpp, Icons.h, MessageBox.cpp,
+	SettingsDialog.cpp, SettingsDialog.h, main.cpp, main.h: The Icons
+	class no longer has any static members, but a global g_icons is
+	available for use. The icons_changed signal in SettingsDialog have
+	been replaced with a icons_changed signal in Icons. This is
+	signaled *every* time the icons changes, as opposed to the old
+	signal.
+
+2001-11-26 20:36  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: Better handling of applet
+	size, should look better with a tiny panel for example.
+	
+	Throw in support for panel orientation at the same time.
+
+2001-11-26 19:29  barnabygray
+
+	* ickle/: AwayMessageDialog.cpp, AwayMessageDialog.h,
+	ContactListView.cpp, ContactListView.h, IckleClient.cpp,
+	IckleGUI.cpp, IckleGUI.h, Makefile.am, Settings.cpp, Settings.h,
+	SettingsDialog.cpp, SettingsDialog.h: Away Message Dialog support
+	added (fetching away messages).  Away messages won't work for older
+	licq/icq99 users though - need to do direct connections for that.
+
+2001-11-25 22:02  barnabygray
+
+	* ickle/MessageBox.cpp: Fixed displaying 'Sending message..' and
+	'Sent Message' in wrong order for non-advanced via server messages.
+
+2001-11-25 15:30  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: - Add context menu option
+	for toggling the main gui.  - If there's messages pending, clicking
+	on the applet will now popup   the messagebox for the contact who
+	sent the next message. Holding down   the shift key will override
+	this and only cause the gui to be toggled.    (option will be
+	introduced for specifying the default behaviour of this    later).
+
+2001-11-25 14:13  nordman
+
+	* src/Client.cpp: If a message is erased,
+	SignalMessageQueueChanged() must be called as well.
+
+2001-11-25 12:55  barnabygray
+
+	* ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/MessageBox.cpp, ickle/MessageBox.h,
+	src/Cache.h, src/Client.cpp, src/Client.h, src/DirectClient.cpp,
+	src/ICBMCookie.cpp, src/ICBMCookie.h, src/ICBMCookieCache.h,
+	src/Makefile.am, src/SNAC-MSG.cpp, src/SNAC-MSG.h, src/TLV.cpp,
+	src/events.cpp, src/events.h: Added support for message ack's. GUI
+	now listens for the ack of a message and informs user. Need to fix
+	for SMSs' and probably Auth requests too.
+
+2001-11-24 19:49  barnabygray
+
+	* ickle/: History.cpp, History.h, MessageBox.cpp, Settings.h: gcc
+	3.0 fixes
+
+2001-11-24 16:48  barnabygray
+
+	* ickle/Settings.cpp: gcc 3.0 fixes
+
+2001-11-24 16:19  barnabygray
+
+	* src/Translator.cpp: more gcc 3.0 fixes
+
+2001-11-24 15:52  barnabygray
+
+	* src/: ICQ.cpp, ICQ.h: More gcc 3.0 fixes
+
+2001-11-24 15:25  barnabygray
+
+	* src/: Contact.cpp, SNAC-SRV.cpp: - more gcc 3.0 fixes - advanced
+	messages to offline users fixed
+
+2001-11-24 15:04  barnabygray
+
+	* src/SNAC-MSG.cpp: Another gcc 3.0 namespace fix
+
+2001-11-24 13:49  barnabygray
+
+	* src/: Client.cpp, SNAC-GEN.cpp, SNAC-GEN.h: Fixed bug for
+	screwing up direct connection information when your status is
+	changed after logging in.
+
+2001-11-24 13:48  barnabygray
+
+	* src/DirectClient.cpp: Working on direct connections
+
+2001-11-24 13:44  barnabygray
+
+	* src/DirectClient.h: More gcc 3.0 namespace fixes
+
+2001-11-24 13:42  barnabygray
+
+	* src/: Translator.h, exceptions.h, socket.h: Namespace fixes for
+	gcc 3.0
+
+2001-11-23 19:36  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: This actually makes the
+	applet quite usable.
+	
+	-Better handling of messages.  -Improved visuals:  * tooltip  *
+	applet display
+
+2001-11-23 17:19  nordman
+
+	* src/: Client.cpp, events.cpp, events.h: StatusChangeEvent now
+	also provides the old status as well as the new one.
+
+2001-11-23 15:19  barnabygray
+
+	* ickle/AwayMessageDialog.cpp, ickle/AwayMessageDialog.h,
+	ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/Settings.cpp, ickle/SettingsDialog.cpp,
+	ickle/SettingsDialog.h, src/Client.cpp: - Added Away Message
+	signalling - Patch for Auto login, and OptionMenu in SettingsDialog
+	- Fix to get gui working with Nils' signal changes
+
+2001-11-23 13:13  alant
+
+	* ickle/IckleGUI.cpp, src/Client.cpp, src/ICQ.cpp, src/ICQ.h,
+	src/SNAC-MSG.cpp, src/events.cpp, src/events.h: 
+	Added support for dealing with authorization requests/responses.
+
+2001-11-23 12:04  nordman
+
+	* log: Got imported by mistake it seems, lose it.
+
+2001-11-23 11:06  barnabygray
+
+	* src/socket.cpp: Fixed socket closing bug on error. Thanks Alex
+	for pointing this out.
+
+2001-11-22 20:54  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: Use the new statuschanged
+	signal in libicq to keep track of the status.
+
+2001-11-22 20:16  nordman
+
+	* src/: Client.cpp, Client.h: Added statuschanged signal, should be
+	used by the parts of the program that needs to keep track of the
+	status (applet,GUI).
+
+2001-11-22 19:08  barnabygray
+
+	* src/: Client.cpp, Client.h, ICQ.cpp, ICQ.h, events.cpp, events.h:
+	- Added support in library for signalling away message responses -
+	Added MyStatusChangeEvent for Nils
+
+2001-11-22 15:41  nordman
+
+	* ChangeLog: Quit correctly when run as applet.  Use a separate
+	wmclass for IckleGUI, fixes problem where main GUI would jump
+	around on the screen a lot when run as applet.
+
+2001-11-22 14:34  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h, IckleClient.cpp,
+	IckleGUI.cpp: - Quit correctly when run as applet.  - Use a
+	separate wmclass for IckleGUI, fixes problem where main GUI would
+	jump   around on the screen a lot when run as applet.
+
+2001-11-22 14:34  barnabygray
+
+	* src/SNAC-SRV.cpp: Patch to fix User Info translation. Thanks
+	Alexandr Kukushkin.
+
+2001-11-22 10:36  barnabygray
+
+	* src/socket.cpp: - Couple of small fixes, thanks to David Hill for
+	pointing them out
+
+2001-11-21 14:24  barnabygray
+
+	* ickle/ContactListView.h, ickle/IckleClient.cpp, src/TLV.cpp: -
+	Quick fix for empty message check - Changed ostringstream problems
+
+2001-11-21 14:08  barnabygray
+
+	* src/socket.cpp: - Fixed already connected problems that can occur
+	if connect fails.    Thanks to Alex for pointing it out.
+
+2001-11-21 14:05  barnabygray
+
+	* src/socket.cpp: [no log message]
+
+2001-11-20 22:31  nordman
+
+	* ChangeLog: Added GNOME applet to the tree.
+
+2001-11-20 22:21  nordman
+
+	* configure.ac: Add --with-gnome option (for GNOME applet) along
+	with the required checks.
+
+2001-11-20 22:16  nordman
+
+	* ickle/: IckleClient.cpp, IckleClient.h, main.cpp: Enable GNOME
+	applet.
+
+2001-11-20 22:09  nordman
+
+	* ickle/Makefile.am: Modify for GNOME applet.  Also remove unneeded
+	ickle_DEPENDENCIES.
+
+2001-11-20 22:06  nordman
+
+	* ickle/: ickle_applet.desktop, ickle_applet.gnorba: Data files for
+	GNOME applet.
+
+2001-11-20 22:04  nordman
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h: Initial GNOME applet for
+	ickle.
+
+2001-11-20 20:23  barnabygray
+
+	* TODO, configure.ac, ickle/ContactListView.cpp,
+	ickle/ContactListView.h, ickle/IckleClient.cpp, ickle/IckleGUI.cpp,
+	ickle/Icons.cpp, ickle/MessageBox.cpp, ickle/SettingsDialog.cpp,
+	ickle/SettingsDialog.h, share/icons/Makefile.am,
+	share/icons/gnomeicu/Makefile.am, share/icons/gnomeicu/away.xpm,
+	share/icons/gnomeicu/chat.xpm, share/icons/gnomeicu/dnd.xpm,
+	share/icons/gnomeicu/ffc.xpm, share/icons/gnomeicu/file.xpm,
+	share/icons/gnomeicu/invisible.xpm,
+	share/icons/gnomeicu/message.xpm, share/icons/gnomeicu/na.xpm,
+	share/icons/gnomeicu/occ.xpm, share/icons/gnomeicu/offline.xpm,
+	share/icons/gnomeicu/online.xpm, share/icons/gnomeicu/sms.xpm,
+	share/icons/gnomeicu/url.xpm, share/icons/new/Makefile.am,
+	share/icons/new/away.xpm, share/icons/new/chat.xpm,
+	share/icons/new/dnd.xpm, share/icons/new/ffc.xpm,
+	share/icons/new/file.xpm, share/icons/new/invisible.xpm,
+	share/icons/new/message.xpm, share/icons/new/na.xpm,
+	share/icons/new/occ.xpm, share/icons/new/offline.xpm,
+	share/icons/new/online.xpm, share/icons/new/sms.xpm,
+	share/icons/new/url.xpm, src/socket.cpp: - Added a couple more sets
+	of icons - Fixed changing icon sets under Settings now - Added
+	contacts moving to top of list when they message (within the  
+	other contacts with same status) - Fixed socket IP order and added
+	Alt-S send shortcut. Thanks Tobias   Hoffman for pointing these out
+
+2001-11-20 01:44  barnabygray
+
+	* ickle/: Dir.cpp, Dir.h: - Directory globbing stuff
+
+2001-11-19 20:26  barnabygray
+
+	* ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/Icons.cpp, ickle/Icons.h,
+	ickle/Makefile.am, ickle/SettingsDialog.cpp,
+	ickle/SettingsDialog.h, ickle/main.cpp, ickle/main.h,
+	src/Cache.cpp, src/Cache.h, src/Client.cpp, src/Client.h,
+	src/Makefile.am, src/RequestIDCache.cpp, src/RequestIDCache.h,
+	src/SNAC-base.cpp, src/SNAC-base.h: - Request ID caching - Loading
+	icons almost works now
+
+2001-11-18 19:57  barnabygray
+
+	* share/translations/Makefile.am: - Oops
+
+2001-11-18 19:20  barnabygray
+
+	* share/: icons/Makefile.am, icons/doors/Makefile.am,
+	icons/ickle/Makefile.am, icons/icq/Makefile.am,
+	translations/Makefile.am: - More files I forgot to add
+
+2001-11-18 18:04  barnabygray
+
+	* configure.ac, share/Makefile.am, src/Cache.cpp, src/Cache.h,
+	src/RequestIDCache.cpp, src/RequestIDCache.h: - More new files
+
+2001-11-18 17:48  barnabygray
+
+	* Makefile.am, TODO, configure.ac, examples/shell.cpp,
+	ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/History.cpp, ickle/History.h, ickle/IckleClient.cpp,
+	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
+	ickle/Makefile.am, ickle/MessageBox.cpp, ickle/MessageBox.h,
+	ickle/MobileNoEntry.cpp, ickle/MobileNoEntry.h,
+	ickle/PromptDialog.cpp, ickle/PromptDialog.h, ickle/Settings.cpp,
+	ickle/Settings.h, ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
+	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, ickle/main.cpp,
+	ickle/main.h, icons/away.xpm, icons/chat.xpm, icons/dnd.xpm,
+	icons/ffc.xpm, icons/file.xpm, icons/invisible.xpm,
+	icons/message.xpm, icons/na.xpm, icons/occ.xpm, icons/offline.xpm,
+	icons/online.xpm, icons/sms.xpm, icons/url.xpm,
+	icons.doors/away.xpm, icons.doors/chat.xpm, icons.doors/dnd.xpm,
+	icons.doors/ffc.xpm, icons.doors/file.xpm,
+	icons.doors/invisible.xpm, icons.doors/message.xpm,
+	icons.doors/na.xpm, icons.doors/occ.xpm, icons.doors/offline.xpm,
+	icons.doors/online.xpm, icons.doors/sms.xpm, icons.doors/url.xpm,
+	icons.icq/away.xpm, icons.icq/chat.xpm, icons.icq/dnd.xpm,
+	icons.icq/ffc.xpm, icons.icq/file.xpm, icons.icq/invisible.xpm,
+	icons.icq/message.xpm, icons.icq/na.xpm, icons.icq/occ.xpm,
+	icons.icq/offline.xpm, icons.icq/online.xpm, icons.icq/sms.xpm,
+	icons.icq/url.xpm, share/Makefile.am, share/icons/doors/away.xpm,
+	share/icons/doors/chat.xpm, share/icons/doors/dnd.xpm,
+	share/icons/doors/ffc.xpm, share/icons/doors/file.xpm,
+	share/icons/doors/invisible.xpm, share/icons/doors/message.xpm,
+	share/icons/doors/na.xpm, share/icons/doors/occ.xpm,
+	share/icons/doors/offline.xpm, share/icons/doors/online.xpm,
+	share/icons/doors/sms.xpm, share/icons/doors/url.xpm,
+	share/icons/ickle/away.xpm, share/icons/ickle/chat.xpm,
+	share/icons/ickle/dnd.xpm, share/icons/ickle/ffc.xpm,
+	share/icons/ickle/file.xpm, share/icons/ickle/invisible.xpm,
+	share/icons/ickle/message.xpm, share/icons/ickle/na.xpm,
+	share/icons/ickle/occ.xpm, share/icons/ickle/offline.xpm,
+	share/icons/ickle/online.xpm, share/icons/ickle/sms.xpm,
+	share/icons/ickle/url.xpm, share/icons/icq/away.xpm,
+	share/icons/icq/chat.xpm, share/icons/icq/dnd.xpm,
+	share/icons/icq/ffc.xpm, share/icons/icq/file.xpm,
+	share/icons/icq/invisible.xpm, share/icons/icq/message.xpm,
+	share/icons/icq/na.xpm, share/icons/icq/occ.xpm,
+	share/icons/icq/offline.xpm, share/icons/icq/online.xpm,
+	share/icons/icq/sms.xpm, share/icons/icq/url.xpm, src/Client.cpp,
+	src/Client.h, src/Contact.cpp, src/Contact.h, src/ContactList.h,
+	src/DirectClient.cpp, src/DirectClient.h, src/ICBMCookie.h,
+	src/Makefile.am, src/TLV.h, src/Xml.h, src/buffer.cpp,
+	src/buffer.h, src/events.h, src/exceptions.h, src/socket.cpp,
+	src/socket.h: - Removed all lazy unnecessary 'using namespace'
+	statements, to	 hopefully speed up compilation a bit. Probably
+	will break gcc 3.0   compile, but I can't test that :-( - Fixed the
+	signal/delete/destroy sequence for MessageBoxes, which was   flawed
+	before. Hopefully got it right this time.  - Moved icons around, so
+	they installed in share.  - Made translation maps install properly
+	now.
+	
+	Phew..
+
+2001-11-13 17:48  barnabygray
+
+	* src/SNAC-MSG.cpp: Fixed some messages coming from UIN 0 problem.
+
+2001-11-13 15:26  barnabygray
+
+	* Makefile.am, README, configure.ac, ickle/IckleClient.cpp,
+	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
+	ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
+	ickle/UserInfoDialog.cpp, ickle/main.cpp, ickle/main.h,
+	share/Makefile.am, share/translations/ASCII,
+	share/translations/CP437, share/translations/CP850,
+	share/translations/DANISH, share/translations/DEC_MCS,
+	share/translations/DG_MCS, share/translations/DUTCH,
+	share/translations/FINNISH, share/translations/FRENCH,
+	share/translations/FRENCH_CANADIAN, share/translations/GERMAN,
+	share/translations/HP_MCS, share/translations/IRV,
+	share/translations/ITALIAN, share/translations/JIS,
+	share/translations/LATIN_2, share/translations/MACINTOSH,
+	share/translations/NEXT, share/translations/NORWEGIAN_1,
+	share/translations/NORWEGIAN_2, share/translations/POLISH,
+	share/translations/POLISH_NOPL, share/translations/PORTUGUESE,
+	share/translations/PORTUGUESE_COM, share/translations/RUSSIAN,
+	share/translations/RUSSIAN_ALT, share/translations/RUSSIAN_WIN,
+	share/translations/SPANISH, share/translations/SWEDISH,
+	share/translations/SWEDISH_NAMES,
+	share/translations/SWEDISH_NAMES_COM, share/translations/SWISS,
+	share/translations/UNITED_KINGDOM,
+	share/translations/UNITED_KINGDOM_COM, src/Client.cpp,
+	src/Client.h, src/Contact.cpp, src/DirectClient.cpp,
+	src/DirectClient.h, src/ICQ.cpp, src/ICQ.h, src/Makefile.am,
+	src/SNAC-MSG.cpp, src/SNAC-SRV.cpp, src/SNAC-base.cpp,
+	src/SNAC-base.h, src/TLV.cpp, src/TLV.h, src/Translator.cpp,
+	src/Translator.h, src/buffer.cpp, src/buffer.h: - Added Translation
+	map files, so they will be installed into  
+	share/ickle/translations - Added Translation patch from Alex
+	(ported from licq) to Library. Thanks.	- Added Translation
+	selection into settings dialog.  - Put status icons onto status
+	pulldown.
+
+2001-11-12 14:52  barnabygray
+
+	* src/ICQ.cpp: Alex pointed out m_ack wasn't being initialised.
+
+2001-11-12 01:09  barnabygray
+
+	* src/userinfoconstants.h: Detailed user info
+
+2001-11-11 16:08  barnabygray
+
+	* ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/IckleClient.cpp, ickle/Settings.cpp, ickle/Settings.h,
+	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, src/Client.cpp,
+	src/Client.h, src/Contact.cpp, src/Contact.h, src/ICQ.cpp,
+	src/ICQ.h, src/Makefile.am, src/SNAC-MSG.cpp, src/SNAC-MSG.h,
+	src/SNAC-SRV.cpp, src/SNAC-SRV.h: Implementing extended user info.
+	Done most of it, a few bits might need tidying up.
+
+2001-11-09 16:01  barnabygray
+
+	* configure.ac, ickle/IckleClient.cpp, ickle/IckleClient.h: Added
+	patch for %X substitutions as licq does for event received
+	commands, etc. Thanks to John Steele Scott.
+
+2001-11-09 15:07  barnabygray
+
+	* src/: Client.cpp, ICQ.cpp, ICQ.h, SNAC-MSG.cpp: Fixed multiline
+	problem in sending advanced messages (messages icq2000 users)
+
+2001-11-09 10:41  barnabygray
+
+	* ickle/main.cpp: Enabled locale support for ickle.
+
+2001-11-09 02:16  barnabygray
+
+	* src/: DirectClient.cpp, DirectClient.h: More fixes for gcc 3.0
+
+2001-11-08 19:39  barnabygray
+
+	* examples/Makefile.am, ickle/Makefile.am, src/buffer.h: Locked
+	linking to local library to fix linking to older libraries already
+	installed.
+
+2001-11-08 16:39  barnabygray
+
+	* src/: DirectClient.cpp, buffer.cpp, buffer.h, exceptions.cpp,
+	socket.cpp: gcc 3.0 fixes.
+
+2001-11-08 16:01  barnabygray
+
+	* ickle/ContactListView.cpp, ickle/Icons.cpp, ickle/Icons.h,
+	src/exceptions.h, src/socket.h: Invisible status info patch from
+	Tobias Hoffman. Thanks.
+
+2001-11-08 09:53  barnabygray
+
+	* configure.ac, src/buffer.cpp: Fixed printing non-printable
+	characters that was messing up gnome-terminal. Thanks for Michael
+	Smith for the patch.
+
+2001-11-08 09:46  barnabygray
+
+	* scripts/micq2ickle.pl: Thanks to ord for the micq2ickle.pl
+	script.
+
+2001-11-08 09:40  barnabygray
+
+	* src/: ICBMCookie.cpp, ICBMCookie.h: Oops, forgot to add these to
+	CVS.
+
+2001-11-08 01:14  barnabygray
+
+	* src/: Client.cpp, Client.h, ICQ.cpp, ICQ.h, Makefile.am,
+	SNAC-MSG.cpp, SNAC-MSG.h, SNAC-base.cpp, SNAC-base.h, TLV.cpp,
+	TLV.h, UserInfoBlock.cpp, buffer.cpp, buffer.h: Finally got
+	advanced message acks working. Should receive messages + urls fine
+	from icq2000 people now.
+
+2001-11-07 20:56  barnabygray
+
+	* ChangeLog, src/Client.cpp, src/SNAC-MSG.cpp, src/SNAC-MSG.h,
+	src/SNAC.cpp: Fixed server login problem related to not fully
+	logging in because server was no longer sending the MOTD.
+
+2001-11-07 20:16  barnabygray
+
+	* README, configure.ac, ickle/ContactListView.cpp,
+	ickle/ContactListView.h, ickle/IckleClient.cpp,
+	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/Makefile.am,
+	src/Client.cpp, src/buffer.cpp, src/socket.cpp, src/socket.h: Got
+	0.1 patch branch up to date on fixes and fixed the no MOTD login
+	problem that was stopping it from going online proper.
+
 2001-11-07 15:12  barnabygray
 
 	* README: CVS instructions updated.
@@ -235,20 +1118,6 @@
 
 	* configure, config.h: [no log message]
 
-2001-10-01 15:19  barnabygray
-
-	* ickle/.deps/AddMobileUserDialog.P, ickle/.deps/AddUserDialog.P,
-	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
-	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
-	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
-	ickle/.deps/MessageBox.P, ickle/.deps/PromptDialog.P,
-	ickle/.deps/Settings.P, ickle/.deps/SettingsDialog.P,
-	ickle/.deps/UserInfoDialog.P, ickle/.deps/main.P,
-	src/.deps/Client.P, src/.deps/Contact.P, src/.deps/ContactList.P,
-	src/.deps/SNAC.P, src/.deps/TLV.P, src/.deps/Xml.P,
-	src/.deps/buffer.P, src/.deps/events.P, src/.deps/exceptions.P,
-	src/.deps/logger.P, src/.deps/socket.P: [no log message]
-
 2001-10-01 13:21  barnabygray
 
 	* README: [no log message]
@@ -273,10 +1142,6 @@
 	src/ContactList.h, src/SNAC.h, src/TLV.cpp, src/TLV.h, src/Xml.cpp,
 	src/Xml.h, src/buffer.h, src/custom_marshal.h, src/events.cpp,
 	src/events.h, src/exceptions.cpp, src/exceptions.h,
-	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
-	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
-	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
-	src/.deps/logger.P, src/.deps/socket.P,
 	ickle/AddMobileUserDialog.cpp, ickle/AddMobileUserDialog.h,
 	ickle/AddUserDialog.cpp, ickle/AddUserDialog.h,
 	ickle/ContactListView.cpp, ickle/ContactListView.h,
@@ -287,13 +1152,6 @@
 	ickle/Settings.cpp, ickle/Settings.h, ickle/SettingsDialog.cpp,
 	ickle/SettingsDialog.h, ickle/UserInfoDialog.cpp,
 	ickle/UserInfoDialog.h, ickle/main.cpp, ickle/main.h,
-	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
-	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
-	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
-	ickle/.deps/MessageBox.P, ickle/.deps/Settings.P,
-	ickle/.deps/main.P, ickle/.deps/AddMobileUserDialog.P,
-	ickle/.deps/AddUserDialog.P, ickle/.deps/PromptDialog.P,
-	ickle/.deps/SettingsDialog.P, ickle/.deps/UserInfoDialog.P,
 	icons/away.xpm, icons/chat.xpm, icons/dnd.xpm, icons/ffc.xpm,
 	icons/file.xpm, icons/invisible.xpm, icons/message.xpm,
 	icons/na.xpm, icons/occ.xpm, icons/offline.xpm, icons/online.xpm,
@@ -316,10 +1174,6 @@
 	src/ContactList.h, src/SNAC.h, src/TLV.cpp, src/TLV.h, src/Xml.cpp,
 	src/Xml.h, src/buffer.h, src/custom_marshal.h, src/events.cpp,
 	src/events.h, src/exceptions.cpp, src/exceptions.h,
-	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
-	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
-	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
-	src/.deps/logger.P, src/.deps/socket.P,
 	ickle/AddMobileUserDialog.cpp, ickle/AddMobileUserDialog.h,
 	ickle/AddUserDialog.cpp, ickle/AddUserDialog.h,
 	ickle/ContactListView.cpp, ickle/ContactListView.h,
@@ -330,13 +1184,6 @@
 	ickle/Settings.cpp, ickle/Settings.h, ickle/SettingsDialog.cpp,
 	ickle/SettingsDialog.h, ickle/UserInfoDialog.cpp,
 	ickle/UserInfoDialog.h, ickle/main.cpp, ickle/main.h,
-	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
-	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
-	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
-	ickle/.deps/MessageBox.P, ickle/.deps/Settings.P,
-	ickle/.deps/main.P, ickle/.deps/AddMobileUserDialog.P,
-	ickle/.deps/AddUserDialog.P, ickle/.deps/PromptDialog.P,
-	ickle/.deps/SettingsDialog.P, ickle/.deps/UserInfoDialog.P,
 	icons/away.xpm, icons/chat.xpm, icons/dnd.xpm, icons/ffc.xpm,
 	icons/file.xpm, icons/invisible.xpm, icons/message.xpm,
 	icons/na.xpm, icons/occ.xpm, icons/offline.xpm, icons/online.xpm,
