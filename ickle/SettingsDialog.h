@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.27 2002-02-05 18:49:43 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.28 2002-02-13 14:50:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -31,8 +31,11 @@
 #include <gtk--/checkbutton.h>
 #include <gtk--/spinbutton.h>
 #include <gtk--/radiobutton.h>
-
+#include <gtk--/text.h>
+#include <gtk--/optionmenu.h>
+#include <gtk--/menu.h>
 #include <string>
+#include <vector>
 
 #include "Settings.h"
 #include "main.h"
@@ -71,6 +74,18 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
   Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;
 
+  /* Added widgets for away-msg editable */
+  Gtk::Button append_msg_button;
+  Gtk::Button save_msg_button;
+  Gtk::Button remove_msg_button;
+  Gtk::Text autoresponse_msg;
+  Gtk::OptionMenu autoresponse_option;
+  Gtk::Entry response_label_entry;
+  Gtk::Menu autoresponse_menu;
+  int current_menu_position;
+  vector<string> msgs_list;
+  vector<string> labels_list;
+
   string message_header_font, message_text_font;
 
   ICQ2000::Status m_status;
@@ -95,7 +110,10 @@ class SettingsDialog : public Gtk::Dialog {
   void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
-
+  void activate_autoresponsemenu_item_cb(int id);
+  void append_autoresponse_cb();
+  void replace_autoresponse_cb();
+  void remove_autoresponse_cb();
  public:
   SettingsDialog();
 
@@ -105,7 +123,7 @@ class SettingsDialog : public Gtk::Dialog {
   string getPassword() const;
 
   void updateSettings();
-
+  void raise_away_status_tab();
   gint delete_event_impl(GdkEventAny*);
 };
 

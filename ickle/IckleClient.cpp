@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.71 2002-02-05 19:40:05 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.72 2002-02-13 14:50:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -245,6 +245,10 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("spell_check", true);
   g_settings.defaultValueBool("spell_check_aspell", false);
   g_settings.defaultValueBool("initial_userinfo_done", false );
+
+  g_settings.defaultValueUnsignedInt("no_autoresponses", 1, 1, 100);
+  g_settings.defaultValueString("autoresponse_1_label", "Away");
+  g_settings.defaultValueString("autoresponse_1_text", "Hello %a, I'm away at the moment.");
 
 #ifdef GNOME_ICKLE
   g_settings.defaultValueBool("hidegui_onstart", false);

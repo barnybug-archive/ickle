@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.31 2002-02-05 18:49:43 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.32 2002-02-13 14:50:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -25,6 +25,7 @@
 #include "Dir.h"
 #include "Icons.h"
 #include "PromptDialog.h"
+#include "sstream_fix.h"
 
 #include <gtk--/box.h>
 #include <gtk--/table.h>
@@ -36,10 +37,12 @@
 #include <gtk--/adjustment.h>
 #include <gtk--/fontselection.h>
 #include <gtk--/fileselection.h>
+#include <gtk--/menuitem.h>
 
 using SigC::slot;
 using SigC::bind;
 using ICQ2000::Status;
+using std::ostringstream;
 
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
@@ -68,7 +71,14 @@ SettingsDialog::SettingsDialog()
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0),
-    finished_okay(false)
+    finished_okay(false),
+    append_msg_button("Append"),
+    save_msg_button("Replace"),
+    remove_msg_button("Remove"),
+    autoresponse_msg(),
+    autoresponse_option(),
+    response_label_entry(15),
+    autoresponse_menu()
 {
   
   set_title("Settings Dialog");
@@ -319,11 +329,54 @@ SettingsDialog::SettingsDialog()
   table->set_col_spacings(10);
   table->set_border_width(10);
 
+  Gtk::VBox *vbox = manage(new Gtk::VBox());
+  vbox->pack_start(*table);
+
   frame = manage( new Gtk::Frame("Away Status") );
   frame->set_border_width(5);
-  frame->add(*table);
+  frame->add(*vbox);
 
+  
   label = manage( new Gtk::Label( "Away Status" ) );
+
+  /* Edit away-messages */
+  /* Fix optionmenu */
+  autoresponse_msg.set_editable(true);
+  {
+    using namespace Gtk::Menu_Helpers;
+    using SigC::bind;
+    /* Insert element in option menu */
+    MenuList& menu_list     = autoresponse_menu.items();
+    int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
+    for (int i = 1; i <= n_autoresponses; i++) {
+      
+      ostringstream fetch_str;
+      fetch_str << "autoresponse_" << i << "_label";
+      menu_list.push_back( MenuElem( g_settings.getValueString(fetch_str.str()),
+				     bind<int>( slot(this, 
+						     &SettingsDialog::activate_autoresponsemenu_item_cb), i) )
+			   );
+      labels_list.push_back( g_settings.getValueString(fetch_str.str()) );
+      ostringstream fetch_str2;
+      fetch_str2 << "autoresponse_" << i << "_text";
+      msgs_list.push_back( g_settings.getValueString(fetch_str2.str()) );
+    }
+    autoresponse_option.set_menu( autoresponse_menu );
+  }
+  current_menu_position = 0;
+  response_label_entry.set_text(g_settings.getValueString("autoresponse_1_label"));
+  hbox = manage(new Gtk::HBox());
+  hbox->pack_start(autoresponse_option);
+  hbox->pack_start(response_label_entry);
+  append_msg_button.clicked.connect( slot(this, &SettingsDialog::append_autoresponse_cb ) );
+  hbox->pack_start(append_msg_button);
+  hbox->pack_start(save_msg_button);
+  save_msg_button.clicked.connect( slot(this, &SettingsDialog::replace_autoresponse_cb ) );
+  hbox->pack_start(remove_msg_button);
+  remove_msg_button.clicked.connect( slot(this, &SettingsDialog::remove_autoresponse_cb ) );
+  vbox->pack_start(*hbox);
+  vbox->pack_start(autoresponse_msg);
+  autoresponse_msg.insert(g_settings.getValueString("autoresponse_1_text"));
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
   // ---------------------------------------------------------
@@ -482,7 +535,7 @@ SettingsDialog::SettingsDialog()
   
   // ---------------------------------------------------------
 
-  Gtk::VBox *vbox = get_vbox();
+  vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
   set_border_width(10);
@@ -533,6 +586,17 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
   g_settings.setValue("auto_away", (unsigned short)autoaway_spinner->get_value_as_int());
   g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
+
+  /* Predefined away-messages */
+  g_settings.setValue("no_autoresponses", (unsigned short)labels_list.size());
+  for (int i = 0; i < labels_list.size(); i++) {
+    ostringstream fetch_str;
+    fetch_str << "autoresponse_" << i + 1 << "_label";
+    g_settings.setValue(fetch_str.str(), labels_list[i]);
+    ostringstream fetch_str2;
+    fetch_str << "autoresponse_" << i + 1 << "_text";
+    g_settings.setValue(fetch_str2.str(), msgs_list[i]);
+  }
 
   // ------------ Logging tab ----------------------
   g_settings.setValue("log_info", log_info.get_active() );
@@ -692,8 +756,91 @@ string SettingsDialog::getIconsFilename() {
   return filename;
 }
 
+/* Set currently selected autoresponse */
+void SettingsDialog::activate_autoresponsemenu_item_cb(int id) {
+  autoresponse_msg.delete_text(0,-1);
+  autoresponse_msg.insert( msgs_list[id-1] );  
+  response_label_entry.set_text( labels_list[id-1] );
+  current_menu_position = id - 1;
+}
+
+/* append a new autoresponse to the menu */
+void SettingsDialog::append_autoresponse_cb() {
+  using namespace Gtk::Menu_Helpers;
+  using SigC::bind;
+  
+  labels_list.push_back( response_label_entry.get_text() );
+  msgs_list.push_back( autoresponse_msg.get_chars(0, -1) );
+
+  MenuList& menu_list = autoresponse_menu.items();
+  menu_list.push_back( MenuElem( response_label_entry.get_text(), bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), labels_list.size()) ));
+  autoresponse_option.set_menu(autoresponse_menu);
+  autoresponse_option.set_history(labels_list.size()-1);
+}
+
+/* Replace autoresponse */
+void SettingsDialog::replace_autoresponse_cb() {
+  labels_list[current_menu_position] = response_label_entry.get_text();
+  msgs_list[current_menu_position] = autoresponse_msg.get_chars(0, -1);
+
+  /* Rebuild the menu */
+  {
+    using namespace Gtk::Menu_Helpers;
+    
+    MenuList& menu_list = autoresponse_menu.items();
+    menu_list.clear();
+    
+    for (int i = 0; i < labels_list.size(); i++) {
+      menu_list.push_back(MenuElem( labels_list[i], bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), i + 1) ) );
+    }
+  }
+}
+
+/* Remove currently selected autoresponse */
+void SettingsDialog::remove_autoresponse_cb() {
+  labels_list[current_menu_position];
+  msgs_list[current_menu_position];
+  for (
+       vector<string>::iterator from = labels_list.begin(); 
+       from != labels_list.end(); 
+       ++from
+       ) {
+    if ( *from == labels_list[current_menu_position] ) {
+      labels_list.erase( from );
+      break;
+    }
+  }
+  for (
+       vector<string>::iterator from = msgs_list.begin(); 
+       from != msgs_list.end(); 
+       ++from
+       ) {
+    if ( *from == msgs_list[current_menu_position] ) {
+      msgs_list.erase( from );
+      break;
+    }
+  }
+
+  /* Rebuild the menu using the modified vectors */
+  {
+    using namespace Gtk::Menu_Helpers;
+    
+    MenuList& menu_list = autoresponse_menu.items();
+    menu_list.clear();
+    
+    for (int i = 0; i < labels_list.size(); i++) {
+      menu_list.push_back(MenuElem( labels_list[i], bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), i + 1) ) );
+    }
+  }
+}
+
 gint SettingsDialog::delete_event_impl(GdkEventAny*)
 {
   Gtk::Main::quit();
   return false;
 }
+
+void SettingsDialog::raise_away_status_tab() {
+  notebook.set_page(3);
+}
+

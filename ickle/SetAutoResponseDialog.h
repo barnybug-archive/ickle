@@ -28,12 +28,14 @@
 #include <gtk--/label.h>
 #include <gtk--/text.h>
 #include <gtk--/tooltips.h>
+#include <gtk--/optionmenu.h>
 #include <string>
 #include <sigc++/signal_system.h>
 
 class SetAutoResponseDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel;
+  Gtk::OptionMenu autoresponse_option;
   Gtk::Text msg_input;
   Gtk::Tooltips m_tooltip;
   unsigned int m_timeout;
@@ -49,6 +51,10 @@ class SetAutoResponseDialog : public Gtk::Dialog {
 
   void okay_cb();
   void cancel_cb();
+  void activate_menu_item_cb(int);
+  void edit_messages_cb();
+  
+  gint option_button_pressed(GdkEventButton *);
 
   SigC::Signal1<void, const std::string&> save_new_msg;
 };

@@ -19,20 +19,23 @@
  */
 
 #include "SetAutoResponseDialog.h"
+#include "SettingsDialog.h"
 
 #include <gtk--/table.h>
 #include <gtk--/scrollbar.h>
 #include <gdk/gdkkeysyms.h>
+#include <gtk--/menu.h>
 
 #include "main.h"
 #include "Settings.h"
 #include "sstream_fix.h"
+#include "SettingsDialog.h"
 
 using std::ostringstream;
 
 SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
   : Gtk::Dialog(),
-    okay("OK"), cancel("Cancel")
+    okay("OK"), cancel("Cancel"), autoresponse_option()
 {
   set_title("Set Auto Response");
   set_position(GTK_WIN_POS_MOUSE);
@@ -45,7 +48,29 @@ SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
   okay.clicked.connect(slot(this,&SetAutoResponseDialog::okay_cb));
   cancel.clicked.connect(slot(this,&SetAutoResponseDialog::cancel_cb));
 
+  {
+    using namespace Gtk::Menu_Helpers;
+    using SigC::bind;
+    /* Insert element in option menu */
+    Gtk::Menu *menu = manage( new Gtk::Menu() );
+    MenuList& menu_list     = menu->items();
+    int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
+    for (int i = 1; i <= n_autoresponses; i++) {
+      ostringstream fetch_str;
+      fetch_str << "autoresponse_" << i << "_label";
+      menu_list.push_back( MenuElem( g_settings.getValueString(fetch_str.str()),
+				     bind<int>( slot(this, 
+						     &SetAutoResponseDialog::activate_menu_item_cb), i) )
+			   );
+    }
+    menu_list.push_back( SeparatorElem() );
+    menu_list.push_back( MenuElem("Edit...", slot(this, &SetAutoResponseDialog::edit_messages_cb)) );
+    autoresponse_option.set_menu( menu );
+    autoresponse_option.button_press_event.connect( slot(this, &SetAutoResponseDialog::option_button_pressed) );
+  }
+  
   Gtk::HBox *hbox = get_action_area();
+  hbox->pack_start(autoresponse_option, true, true, 0);
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
   m_tooltip.set_tip(okay, "Shortcuts: Ctrl+Enter or Alt-O");
@@ -61,6 +86,7 @@ SetAutoResponseDialog::SetAutoResponseDialog(const string& prev_msg)
   vbox->pack_start(*table, true, true, 5);
 
   bool timeout = g_settings.getValueBool("set_away_response_timeout");
+
   m_timeout = 0;
   if (timeout) {
     m_timeout = 5;
@@ -127,4 +153,23 @@ void SetAutoResponseDialog::okay_cb() {
 
 void SetAutoResponseDialog::cancel_cb() {
   destroy.emit();
+}
+
+void SetAutoResponseDialog::activate_menu_item_cb(int msg_index) {
+  cancel_timeout();
+  ostringstream fetch_str;
+  fetch_str << "autoresponse_" << msg_index << "_text";
+  msg_input.delete_text(0,-1);
+  msg_input.insert( g_settings.getValueString(fetch_str.str()) );  
+}
+
+void SetAutoResponseDialog::edit_messages_cb() {
+  cancel_timeout();
+  SettingsDialog dialog;
+  dialog.raise_away_status_tab();
+  dialog.run();
+}
+
+gint SetAutoResponseDialog::option_button_pressed(GdkEventButton *b) {
+  cancel_timeout();
 }
