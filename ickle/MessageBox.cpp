@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.39 2002-01-22 10:50:49 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.40 2002-01-22 14:05:53 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -57,8 +57,6 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 
   set_contact_title();
   set_border_width(10);
-
-  //set_usize(450,300);
 
   m_pane.set_handle_size (8);
   m_pane.set_gutter_size (12);                       
@@ -244,18 +242,13 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   
   add(m_vbox_top);
 
-  /* Default size 0 means that we leave it up to the packed widgets to decide size */
-  g_settings.defaultValueUnsignedInt("message_box_width", 0, 0, 2000);
-  g_settings.defaultValueUnsignedInt("message_box_height", 0, 0, 2000);
-  g_settings.defaultValueUnsignedInt("message_box_pane_position", 0, 0, 2000);
-
   /* restore message box size */
   int message_box_width = g_settings.getValueInt("message_box_width");
   int message_box_height = g_settings.getValueInt("message_box_height");
   int message_box_pane_position = g_settings.getValueInt("message_box_pane_position");
 
   if ( (message_box_width > 0) && (message_box_width > 0) ) {
-    set_usize( message_box_width, message_box_height );
+    set_default_size( message_box_width, message_box_height );
   } 
   if ( message_box_pane_position > 0 ) {
     m_pane.set_position( message_box_pane_position );

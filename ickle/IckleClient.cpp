@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.65 2002-01-21 13:30:35 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.66 2002-01-22 14:05:53 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -217,6 +217,12 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedInt("history_shownr", 10, 1, 255);
   g_settings.defaultValueString("message_header_font", "-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
   g_settings.defaultValueString("message_text_font", "");
+
+  /* Default size 0 means that we leave it up to the packed widgets to decide size */
+  g_settings.defaultValueUnsignedInt("message_box_width", 0, 0, 2000);
+  g_settings.defaultValueUnsignedInt("message_box_height", 0, 0, 2000);
+  g_settings.defaultValueUnsignedInt("message_box_pane_position", 0, 0, 2000);
+
   g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
