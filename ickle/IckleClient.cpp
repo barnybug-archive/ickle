@@ -246,6 +246,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
   g_settings.defaultValueBool("network_override_port", false);
   g_settings.defaultValueBool("message_autopopup", false);
+  g_settings.defaultValueBool("message_autoraise", true);
   g_settings.defaultValueBool("message_autoclose", false);
   g_settings.defaultValueString("message_header_font", "-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
   g_settings.defaultValueString("message_text_font", "");

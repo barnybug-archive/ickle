@@ -55,6 +55,7 @@ SettingsDialog::SettingsDialog()
     log_to_consolefile("Selected to console, all to file", 0),
     network_override_port("Override server redirect port with login port", 0),
     message_autopopup("Autopopup on incoming message", 0),
+    message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0)
 {
   set_title("Settings Dialog");
@@ -224,12 +225,14 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 3, false ) );
+  table = manage( new Gtk::Table( 2, 4, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
+  message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
   message_autoclose.set_active( g_settings.getValueBool("message_autoclose") );
   table->attach( message_autopopup, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
-  table->attach( message_autoclose, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autoraise, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autoclose, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
 
   hbox = manage( new Gtk::HBox(true, 5) );
 
@@ -245,7 +248,7 @@ SettingsDialog::SettingsDialog()
   button->clicked.connect( bind( slot( this, &SettingsDialog::fontsel_cb ), 1 ) );
   hbox->pack_end( *button, false );
 
-  table->attach( *hbox, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( *hbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -418,6 +421,7 @@ void SettingsDialog::updateSettings() {
 
   // ------------ Message Box tab ------------------
   g_settings.setValue("message_autopopup", message_autopopup.get_active() );
+  g_settings.setValue("message_autoraise", message_autoraise.get_active() );
   g_settings.setValue("message_autoclose", message_autoclose.get_active() );
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );

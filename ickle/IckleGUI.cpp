@@ -117,25 +117,31 @@ IckleGUI::~IckleGUI() {
 bool IckleGUI::message_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
   /*
-  /* FIXME - make properly handling of incoming
-  /* authorization requests
-  */
+   * FIXME - make properly handling of incoming
+   * authorization requests
+   */
   if (ev->getType() == MessageEvent::AuthReq) {     
     AuthReqEvent *msg = static_cast<AuthReqEvent*>(ev);
     AuthAckEvent *ack = new AuthAckEvent(c, true);
     icqclient.SendEvent( ack );
   }
-  if ( g_settings.getValueBool("message_autopopup") ) {
-    user_popup.emit( c->getUIN() );
-    // popup a new/raise a current one
-  }
+
 
   if (m_message_boxes.count(c->getUIN()) == 0) {
-    return m_contact_list.message_cb(ev);
+    if ( g_settings.getValueBool("message_autopopup") ) {
+      user_popup.emit( c->getUIN() ); // popup a new messagebox
+      return true;
+    } else {
+      return m_contact_list.message_cb(ev);
+    }
   } else {
-    return true;
+    if ( g_settings.getValueBool("message_autoraise") ) {
+      user_popup.emit( c->getUIN() );  // raise existing messagebox
+      return true; // history now handles signalling new messages to open messageboxes
+    }
   }
 
+  return false;
 }
 
 void IckleGUI::messageack_cb(MessageEvent *ev) {
