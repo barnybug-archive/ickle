@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.46 2002-03-31 20:35:43 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.47 2002-03-31 23:15:33 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -64,7 +64,7 @@ IckleGUI::IckleGUI(MessageQueue& mq)
   // -- other callbacks
   g_icons.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
 
-  Gtk::HButtonBox::set_child_size_default(80,30);
+  Gtk::HButtonBox::set_child_size_default(80,25);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
 
   set_wmclass( "ickle_main", "ickle_main" );

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.37 2002-03-12 21:39:28 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.38 2002-03-31 23:15:33 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -40,6 +40,7 @@
 #include <gtk--/menuitem.h>
 #include <gtk--/listitem.h>
 #include <gtk--/arrow.h>
+#include <gtk--/buttonbox.h>
 
 #include <algorithm>
 
@@ -77,9 +78,9 @@ SettingsDialog::SettingsDialog()
     spell_check_lang(100),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
-    history_shownr_label("Number of messages to display per history-page", 0),
+    history_shownr_label("Number of messages per history page", 0),
     finished_okay(false),
-    away_remove_button("Remove"),
+    away_remove_button("X"),
     away_response_label_entry(15),
     away_response_list(1)
 {
@@ -94,8 +95,12 @@ SettingsDialog::SettingsDialog()
   notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::HBox *hbox = get_action_area();
-  hbox->pack_start(okay, true, true, 0);
-  hbox->pack_start(cancel, true, true, 0);
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  hbox->set_homogeneous(false);
+  hbbox->pack_start(okay, false);
+  hbbox->pack_start(cancel, false);
+
+  hbox->pack_start( *hbbox );
 
   // ---------------- General tab -------------------------
 
@@ -216,36 +221,37 @@ SettingsDialog::SettingsDialog()
 
   // ---------------- Events tab --------------------------
 
-  table = manage( new Gtk::Table( 2, 4, false ) );
+  table = manage( new Gtk::Table( 2, 5, false ) );
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive an event. "
-				  "Leave them blank if you don't want anything to happen. "
-                                  "Click the button to the right for a list of available substitutions.", 0 ) );
+				  "Leave them blank if you don't want anything to happen.", 0 ) );
   label->set_line_wrap(true);
-  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  label->set_justify(GTK_JUSTIFY_FILL);
+  table->attach( *label, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
+		 GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   subs_b.clicked.connect(slot(this,&SettingsDialog::subs_cb));
-  table->attach( subs_b, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK );
+  table->attach( subs_b, 0, 2, 1, 2, GTK_SHRINK, GTK_SHRINK );
 
   label = manage( new Gtk::Label( "User Online Event", 0 ) );
-  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
   event_user_online_entry.set_text( g_settings.getValueString("event_user_online") );
-  table->attach( event_user_online_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_user_online_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Message Event", 0 ) );
-  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0);
   event_message_entry.set_text( g_settings.getValueString("event_message") );
-  table->attach( event_message_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_message_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "URL Event", 0 ) );
-  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
   event_url_entry.set_text( g_settings.getValueString("event_url") );
-  table->attach( event_url_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_url_entry, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "SMS Event", 0 ) );
-  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND, 0);
   event_sms_entry.set_text( g_settings.getValueString("event_sms") );
-  table->attach( event_sms_entry, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_sms_entry, 1, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Events" ) );
   table->set_row_spacings(10);
@@ -262,20 +268,20 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 8, false ) );
+  table = manage( new Gtk::Table( 2, 7, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
   message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
   message_autoclose.set_active( g_settings.getValueBool("message_autoclose") );
-  table->attach( message_autopopup, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
-  table->attach( message_autoraise, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
-  table->attach( message_autoclose, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autopopup, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autoraise, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( message_autoclose, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
 
   n_retr = g_settings.getValueUnsignedChar("history_shownr");
   Gtk::Adjustment *history_shownr_adj = manage( new Gtk::Adjustment( n_retr, 1.0, 255.0 ) );
   history_shownr_spinner = manage( new Gtk::SpinButton( *history_shownr_adj, 1.0, 0 ) );
-  table->attach( history_shownr_label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
-  table->attach( *history_shownr_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( history_shownr_label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( *history_shownr_spinner, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
   
   hbox = manage( new Gtk::HBox(true, 5) );
 
@@ -291,22 +297,23 @@ SettingsDialog::SettingsDialog()
   button->clicked.connect( bind( slot( this, &SettingsDialog::fontsel_cb ), 1 ) );
   hbox->pack_end( *button, false );
 
-  table->attach( *hbox, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0 );
+  table->attach( *hbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
 
   spell_check.set_active( g_settings.getValueBool("spell_check") );
-  table->attach( spell_check, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  table->attach( spell_check, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
   spell_check_aspell.set_active( g_settings.getValueBool("spell_check_aspell") );
-  table->attach( spell_check_aspell, 0, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  table->attach( spell_check_aspell, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
   
-  label = manage( new Gtk::Label( "Language (e.g. english, german or french) Leave blank for default", 0 ) );
-  table->attach( *label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Language (e.g. english, german or french)\nLeave blank for default", 0, 0 ) );
+  label->set_justify(GTK_JUSTIFY_LEFT);
+  table->attach( *label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, 0);
   spell_check_lang.set_text(g_settings.getValueString("spell_check_lang"));
-  table->attach( spell_check_lang, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( spell_check_lang, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   
 
-  table->set_row_spacings(10);
-  table->set_col_spacings(10);
-  table->set_border_width(10);
+  table->set_row_spacings(5);
+  table->set_col_spacings(5);
+  table->set_border_width(5);
 
   frame = manage( new Gtk::Frame("Message Box") );
   frame->set_border_width(5);
@@ -341,9 +348,9 @@ SettingsDialog::SettingsDialog()
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autona_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  table->set_row_spacings(10);
-  table->set_col_spacings(10);
-  table->set_border_width(10);
+  table->set_row_spacings(5);
+  table->set_col_spacings(5);
+  table->set_border_width(5);
 
   vbox = manage(new Gtk::VBox());
   vbox->pack_start(*table);
@@ -357,7 +364,7 @@ SettingsDialog::SettingsDialog()
 
   /* Edit away-messages */
   away_response_msg.set_editable(true);
-
+  away_response_msg.set_usize(100,50);
   {
     using namespace Gtk::CList_Helpers;
 
@@ -583,7 +590,7 @@ SettingsDialog::SettingsDialog()
   vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
-  set_border_width(10);
+  notebook.set_border_width(5);
   show_all();
 }
 
