@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.58 2003-07-06 15:54:45 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.59 2003-09-29 20:05:30 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -185,6 +185,15 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_log_packet;
   Gtk::CheckButton m_log_warn;
   Gtk::Entry m_logfile;
+
+  // Events Page
+  Gtk::Entry m_event_message;
+  Gtk::Entry m_event_sms;
+  Gtk::Entry m_event_system;
+  Gtk::Entry m_event_url;
+  Gtk::Entry m_event_user_online;
+  Gtk::CheckButton m_event_execute_all;
+  Gtk::CheckButton m_event_execute_repeated;
 
 
   // page init functions
