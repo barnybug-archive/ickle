@@ -70,11 +70,25 @@ std::string IckleTranslator::server_to_client(const std::string& str,
 
   if ( en == ICQ2000::ENCODING_CONTACT_LOCALE )
   {
-    ret = Glib::convert_with_fallback( str, "UTF-8", encoding, "?" );
+    try
+    {
+      ret = Glib::convert_with_fallback( str, "UTF-8", encoding, "?" );
+    }
+    catch(Glib::ConvertError& e)
+    {
+      /* the encoding set for the contact is wrong! warn them.. somehow */
+    }
   }
   else if (en == ICQ2000::ENCODING_ISO_8859_1 )
   {
-    ret = Glib::convert_with_fallback( str, "UTF-8", "ISO-8859-1", "?" );
+    try
+    {
+      ret = Glib::convert_with_fallback( str, "UTF-8", "ISO-8859-1", "?" );
+    }
+    catch(Glib::ConvertError& e)
+    {
+      /* shouldn't get exceptions here?! */
+    }
   }
   else
   {
