@@ -37,6 +37,7 @@
 #include "Translator.h"
 
 using std::string;
+using std::exception;
 using SigC::Signal1;
 
 namespace ICQ2000 {
@@ -46,6 +47,7 @@ namespace ICQ2000 {
     enum State { WAITING_FOR_INIT,
 		 WAITING_FOR_UIN_CONFIRMATION,
 		 WAITING_FOR_INIT_ACK,
+		 WAITING_FOR_INIT2,
 		 CONNECTED };
 
     State m_state;
@@ -65,7 +67,8 @@ namespace ICQ2000 {
 
     void Parse();
     void ParseInitPacket(Buffer &b);
-    void ParseInitAck(Buffer &b, unsigned short length);
+    void ParseInitAck(Buffer &b);
+    void ParseInit2(Buffer &b);
     void ParsePacket(Buffer& b);
     void ParsePacketV6(Buffer& b);
     void ParsePacketV7(Buffer& b);
