@@ -18,6 +18,8 @@ AC_DEFINE_UNQUOTED(ICKLE_VERSION, "$ICKLE_VERSION", [Full version of ickle])
 
 AM_INIT_AUTOMAKE(ickle,0.3.0)
 
+AM_ACLOCAL_INCLUDE(macros)
+
 AM_CONFIG_HEADER(config.h)
 
 # Checks for programs.
@@ -81,9 +83,14 @@ AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries ins
 # libicq2000 checks
 AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed - see the README for more information])])
 
+# Switch to C++ mode - on some systems with the gtkmm libs they need libstdc++
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+
 # Check for XScreenSaver support, adapted from gnomeicu
 xss_ldflags=""
-AC_ARG_WITH(xss, AC_HELP_STRING([--with-xss=PREFIX], [Enable XScreenSaver support (default: check for it)] ),
+AC_ARG_WITH(xss, [  --with-xss=PREFIX
+                          Enable XScreenSaver support (default: check for it)],
         if test "x$withval" != "xno"; then
                 want_xss=yes
                 if test "x$withval" != "xyes" && test -d "$withval/lib"; then
@@ -112,6 +119,8 @@ if test "x$want_xss" = xyes; then
         fi
 fi
 
+AC_LANG_RESTORE
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
@@ -120,15 +129,14 @@ AC_C_INLINE
 AC_HEADER_TIME
 
 # Checks for library functions.
-AC_FUNC_MKTIME
-AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
+AC_CHECK_FUNCS([mktime stat mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
-AC_CONFIG_FILES([Makefile ickle/Makefile share/Makefile share/icons/Makefile
-share/icons/ickle/Makefile share/icons/doors/Makefile share/icons/icq/Makefile
-share/icons/new/Makefile share/icons/gnomeicu/Makefile share/translations/Makefile])
-AC_OUTPUT
+AC_OUTPUT([Makefile ickle/Makefile share/Makefile \
+           share/icons/Makefile share/icons/ickle/Makefile \
+           share/icons/doors/Makefile share/icons/icq/Makefile \
+           share/icons/new/Makefile share/icons/gnomeicu/Makefile \
+           share/translations/Makefile macros/Makefile])
 
 $ECHO
 $ECHO "-----------------------------------------------------------------"
