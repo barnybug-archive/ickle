@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.61 2002-04-25 20:09:31 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.62 2002-04-25 20:31:48 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -308,7 +308,6 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scaleadj.set_value( upper );
 
   show_all();
-  realize();
   set_contact_title();
 }
 
