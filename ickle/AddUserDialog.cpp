@@ -120,6 +120,8 @@ void AddUserDialog::ok_cb() {
 	ICQ2000::UserAddEvent *ev = new ICQ2000::UserAddEvent(nc);
 	icqclient.SendEvent(ev);
       }
+      // fetch user info
+      icqclient.fetchDetailContactInfo(nc);
     }
 
   } else {

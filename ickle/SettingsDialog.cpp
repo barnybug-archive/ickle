@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.45 2002-04-10 13:27:21 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.46 2002-04-16 19:41:51 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -199,11 +199,11 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   icons_combo.set_value_in_list(true, false);
 
   string current = g_settings.getValueString("icons_dir");
+  string current_name = "Default";
   list<string> icon_names;
   
   // Default icons (compiled in ones)
   icon_names.push_back( "Default" );
-  icons_combo.get_entry()->set_text( "Default " );
     
   // Icons in share/ickle/icons directory
   Dir dir;
@@ -218,12 +218,13 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     else name = string(filename,pos+1);
 
     icon_names.push_back(name);
-    if (current == filename+"/") icons_combo.get_entry()->set_text(name);
+    if (current == filename+"/") current_name = name;
     ++iter;
   }
 
   icons_combo.set_popdown_strings(icon_names);
   icons_combo.get_entry()->set_editable(false);
+  icons_combo.get_entry()->set_text(current_name);
   icons_combo.get_entry()->changed.connect( slot( this, &SettingsDialog::icons_cb ) );
 
   vbox->pack_start(icons_combo, true, true);
