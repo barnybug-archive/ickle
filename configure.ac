@@ -32,7 +32,7 @@ AC_CHECK_FUNC(gethostbyname, ,
 dnl optional GNOME support
 dnl The GNOME_INIT_HOOK macro is broken so we check for the additional
 dnl applets libraries ourselves.    
-GNOME_INIT()
+dnl GNOME_INIT()
 
 if test -n "$GNOME_CONFIG"; then
    AC_MSG_CHECKING(extra library \"applets\")

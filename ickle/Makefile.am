@@ -5,11 +5,9 @@
 EXTRA_PROGRAMS = ickle ickle_applet
 bin_PROGRAMS = @ICKLE_PROGRAM@
 
-AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
-LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @GNOME_APPLETS_LIBS@
-INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/share/icons/ickle/  \
-           @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@
-
+AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" -I$(top_srcdir)/src/ -I$(top_srcdir)/share/icons/ickle/  \
+              @SIGC_CFLAGS@ @GTKMM_CFLAGS@
+LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp \
                 Settings.cpp ContactListView.cpp \
@@ -24,8 +22,11 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
 		 SettingsDialog.h PromptDialog.h History.h \
 		 MobileNoEntry.h Dir.h IckleApplet.h AwayMessageDialog.h
 ickle_LDADD = $(top_srcdir)/src/libicq2000.la
+
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
 ickle_applet_LDADD = $(ickle_LDADD)
+ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@
+ickle_applet_CPPFLAGS = @GNOME_INCLUDEDIR@ $(AM_CPPFLAGS)
 
 corbadir = $(sysconfdir)/CORBA/servers
 desktopdir = $(datadir)/applets/Network
