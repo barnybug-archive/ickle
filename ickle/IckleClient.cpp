@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.123 2003-01-26 23:39:52 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.124 2003-02-09 17:02:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -108,7 +108,7 @@ void IckleClient::init()
   m_message_queue.added.connect(SigC::slot(m_event_system, &EventSystem::queue_added_cb));
 
   // set up GUI callbacks
-  gui.signal_settings_changed().connect(SigC::slot(*this,&IckleClient::settings_changed_cb));
+  gui.signal_save_settings().connect(SigC::slot(*this,&IckleClient::save_settings_cb));
   gui.signal_send_event().connect(SigC::slot(*this,&IckleClient::send_event_cb));
 
   gui.setDisplayTimes(true);
@@ -1073,7 +1073,7 @@ void IckleClient::update_group_settings()
   }
 }
 
-void IckleClient::settings_changed_cb()
+void IckleClient::save_settings_cb()
 {
   saveSettings();
 }

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.73 2003-02-02 20:03:48 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.74 2003-02-09 17:02:29 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -715,24 +715,9 @@ void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
 {
   SettingsDialog dialog(w, away);
 
-  if (dialog.run())
+  if (dialog.run() == Gtk::RESPONSE_OK)
   {
-    /* TODO
-    bool reconnect = false;
-    if (dialog.getUIN() != icqclient.getUIN() ||
-	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
-
-    if (reconnect) icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
-    
-    dialog.updateSettings();
-
-    if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
-    if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
-  
-    if (reconnect) status_menu_status_changed_cb(ICQ2000::STATUS_ONLINE);
-
-    settings_changed.emit();
-    */
+    m_signal_save_settings.emit();
   }
 }
 
@@ -860,9 +845,9 @@ SigC::Signal0<void>& IckleGUI::signal_destroy()
   return m_signal_destroy;
 }
 
-SigC::Signal0<void>& IckleGUI::signal_settings_changed()
+SigC::Signal0<void>& IckleGUI::signal_save_settings()
 {
-  return m_signal_settings_changed;
+  return m_signal_save_settings;
 }
 
 SigC::Signal1<void, ICQ2000::MessageEvent*>& IckleGUI::signal_send_event()

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.45 2003-02-06 19:01:16 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.46 2003-02-09 17:02:29 barnabygray Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -61,17 +61,22 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::Frame m_main_frame;
 
   // lots of widgets storing settings
-  Gtk::Button * m_apply_button;
+  Gtk::Button m_apply_button, m_ok_button;
 
   // login page
   Gtk::SpinButton m_login_uin;
   Gtk::Entry m_login_pass;
 
+  // look'n'feel - charset
+  Gtk::Entry m_lnf_charset;
+  Gtk::Label m_lnf_charset_valid;
 
   // Away/Idle page
   Gtk::SpinButton m_auto_away;
   Gtk::SpinButton m_auto_na;
   Gtk::CheckButton m_auto_return;
+
+  Gtk::TreeModel::iterator m_row_lnf_charset;
 
   // page init functions
   void init_pages();
@@ -80,6 +85,7 @@ class SettingsDialog : public Gtk::Dialog
   void init_look_message_page();
   void init_look_contact_list_page();
   void init_look_icons_page();
+  void init_look_charset_page();
   void init_away_page();
   void init_away_idle_page();
   void init_away_message_page();
@@ -95,6 +101,7 @@ class SettingsDialog : public Gtk::Dialog
   void load_look_message_page();
   void load_look_contact_list_page();
   void load_look_icons_page();
+  void load_look_charset_page();
   void load_away_page();
   void load_away_idle_page();
   void load_away_message_page();
@@ -110,6 +117,7 @@ class SettingsDialog : public Gtk::Dialog
   void save_look_message_page();
   void save_look_contact_list_page();
   void save_look_icons_page();
+  void save_look_charset_page();
   void save_away_page();
   void save_away_idle_page();
   void save_away_message_page();
@@ -118,14 +126,21 @@ class SettingsDialog : public Gtk::Dialog
   void save_advanced_smtp_page();
   void save_advanced_logging_page();
 
-  void add_page(const Glib::ustring& title, Gtk::Widget * page, bool toplevel);
+  // validate entries
+  bool validate_pages();
+  bool validate_look_charset_page();
+
+  Gtk::TreeModel::iterator add_page(const Glib::ustring& title, Gtk::Widget * page, bool toplevel);
 
   // various callbacks
   void page_tree_select_cb();
   void changed_cb();
 
-  virtual void on_response(int response_id);
+  void on_apply_clicked();
+  void on_ok_clicked();
   
+  void lnf_charset_validate_cb();
+
  public:
   SettingsDialog(Gtk::Window& parent, bool start_on_away);
   ~SettingsDialog();

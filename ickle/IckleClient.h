@@ -133,7 +133,7 @@ class IckleClient : public sigslot::has_slots<>,
   void fetch_cb(ICQ2000::ContactRef c);
   void exit_cb();
   gint close_cb(GdkEventAny*);
-  void settings_changed_cb();
+  void save_settings_cb();
 
   // -- Callback for a socket ready --
   bool socket_select_cb(Glib::IOCondition cond, int source);

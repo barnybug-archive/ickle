@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.49 2003-01-18 12:00:19 nordman Exp $
+/* $Id: IckleGUI.h,v 1.50 2003-02-09 17:02:29 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -91,7 +91,7 @@ class IckleGUI : public Gtk::Window,
   HistoryMap& m_histmap;
 
   // signals
-  SigC::Signal0<void> m_signal_settings_changed;
+  SigC::Signal0<void> m_signal_save_settings;
   SigC::Signal1<void, ICQ2000::MessageEvent*> m_signal_send_event;
   SigC::Signal0<void> m_signal_exit;
   SigC::Signal0<void> m_signal_destroy;
@@ -195,7 +195,7 @@ class IckleGUI : public Gtk::Window,
   // signal accessors
   SigC::Signal0<void>& signal_exit();
   SigC::Signal0<void>& signal_destroy();
-  SigC::Signal0<void>& signal_settings_changed();
+  SigC::Signal0<void>& signal_save_settings();
   SigC::Signal1<void,ICQ2000::MessageEvent*>& signal_send_event();
 };
 

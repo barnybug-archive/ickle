@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.60 2003-02-07 00:11:28 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.61 2003-02-09 17:02:29 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -23,12 +23,14 @@
 #include <gtkmm/table.h>
 #include <gtkmm/entry.h>
 #include <gtkmm/stock.h>
+#include <gtkmm/messagedialog.h>
 
 #include "main.h"
 #include "Settings.h"
 
 #include "ickle.h"
 #include "ucompose.h"
+#include "utils.h"
 
 class SectionFrame : public Gtk::Frame
 {
@@ -46,15 +48,18 @@ SectionFrame::SectionFrame(const Glib::ustring& label)
 }
 
 SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
-  : Gtk::Dialog( _("ickle Preferences"), parent), m_page_title( "", 1.0, 0.5 )
+  : Gtk::Dialog( _("ickle Preferences"), parent), m_page_title( "", 1.0, 0.5 ),
+    m_apply_button(Gtk::Stock::APPLY), m_ok_button(Gtk::Stock::OK)
 {
   set_modal(true);
   set_default_size( 600, 400 );
   set_position( Gtk::WIN_POS_CENTER );
   set_border_width(5);
 
-  m_apply_button = add_button(Gtk::Stock::APPLY,  Gtk::RESPONSE_APPLY);
-  add_button(Gtk::Stock::OK,     Gtk::RESPONSE_OK);
+  m_apply_button.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::on_apply_clicked ) );
+  m_ok_button.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::on_ok_clicked ) );
+  get_action_area()->pack_end( m_apply_button );
+  get_action_area()->pack_end( m_ok_button );
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   Gtk::HBox * top_hbox;
@@ -126,7 +131,25 @@ SettingsDialog::~SettingsDialog()
   }
 }
 
-void SettingsDialog::add_page(const Glib::ustring& title, Gtk::Widget * page, bool toplevel)
+void SettingsDialog::on_apply_clicked()
+{
+  if (validate_pages())
+  {
+    save_pages();
+    m_apply_button.set_sensitive(false);
+  }
+}
+
+void SettingsDialog::on_ok_clicked()
+{
+  if (validate_pages())
+  {
+    save_pages();
+    response(Gtk::RESPONSE_OK);
+  }
+}
+
+Gtk::TreeModel::iterator SettingsDialog::add_page(const Glib::ustring& title, Gtk::Widget * page, bool toplevel)
 {
   Gtk::TreeModel::Row row;
   
@@ -141,6 +164,8 @@ void SettingsDialog::add_page(const Glib::ustring& title, Gtk::Widget * page, bo
   }
   row[ m_columns.label ] = title;
   row[ m_columns.widget ] = page;
+
+  return row;
 }
 
 void SettingsDialog::page_tree_select_cb()
@@ -214,6 +239,7 @@ void SettingsDialog::init_look_page()
   init_look_message_page();
   init_look_contact_list_page();
   init_look_icons_page();
+  init_look_charset_page();
 }
 
 void SettingsDialog::init_look_message_page()
@@ -226,6 +252,52 @@ void SettingsDialog::init_look_contact_list_page()
 {
   Gtk::VBox * vbox = manage( new Gtk::VBox() );
   add_page( _("Contact list"), vbox, false );
+}
+
+void SettingsDialog::init_look_charset_page()
+{
+  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+
+  SectionFrame * frame = manage( new SectionFrame( _("Character set") ) );
+
+  Gtk::VBox * vbox2 = manage( new Gtk::VBox() );
+  
+  Gtk::Table * table = new Gtk::Table( 3, 1 );
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  table->attach( * manage( new Gtk::Label( _("Default"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_lnf_charset.signal_changed().connect( SigC::slot( *this, &SettingsDialog::lnf_charset_validate_cb ) );
+  m_lnf_charset.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_lnf_charset, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_lnf_charset_valid.set_markup( _("<b>Valid</b>") );
+  table->attach( m_lnf_charset_valid, 2, 3, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  vbox2->pack_start( * table, Gtk::PACK_SHRINK );
+
+  Gtk::Label * label = new Gtk::Label();
+
+  label->set_markup( _("This setting determines the global default character set used when sending and receiving "
+		       "to the <i>ICQ</i> network. You can set per-contact encodings by choosing the relevant option "
+		       "from the right-click menu for a contact.\n\n"
+		       "You should use a character set name supported by iconv. "
+		       "If you are using GNU <tt>iconv</tt>, you should be able to list the available encodings "
+		       "by running the command:\n"
+		       "<tt>iconv --list</tt>\n\n") );
+  label->set_line_wrap(true);
+  label->set_justify(Gtk::JUSTIFY_FILL);
+
+  vbox2->pack_start( * label, Gtk::PACK_SHRINK );
+
+  frame->add( * vbox2 );
+
+  vbox->pack_start( *frame );
+  
+  m_row_lnf_charset = add_page( _("Character set"), vbox, false );
 }
 
 void SettingsDialog::init_look_icons_page()
@@ -330,6 +402,7 @@ void SettingsDialog::load_pages()
   load_look_message_page();
   load_look_contact_list_page();
   load_look_icons_page();
+  load_look_charset_page();
   load_away_page();
   load_away_idle_page();
   load_away_message_page();
@@ -338,7 +411,7 @@ void SettingsDialog::load_pages()
   load_advanced_smtp_page();
   load_advanced_logging_page();
 
-  m_apply_button->set_sensitive(false);
+  m_apply_button.set_sensitive(false);
 }
 
 void SettingsDialog::load_login_page()
@@ -361,6 +434,11 @@ void SettingsDialog::load_look_contact_list_page()
 
 void SettingsDialog::load_look_icons_page()
 {
+}
+
+void SettingsDialog::load_look_charset_page()
+{
+  m_lnf_charset.set_text( g_settings.getValueString("encoding") );
 }
 
 void SettingsDialog::load_away_page()
@@ -402,6 +480,7 @@ void SettingsDialog::save_pages()
   save_look_message_page();
   save_look_contact_list_page();
   save_look_icons_page();
+  save_look_charset_page();
   save_away_page();
   save_away_idle_page();
   save_away_message_page();
@@ -429,6 +508,11 @@ void SettingsDialog::save_look_contact_list_page()
 
 void SettingsDialog::save_look_icons_page()
 {
+}
+
+void SettingsDialog::save_look_charset_page()
+{
+  g_settings.setValue( "encoding", m_lnf_charset.get_text() );
 }
 
 void SettingsDialog::save_away_page()
@@ -461,23 +545,41 @@ void SettingsDialog::save_advanced_logging_page()
 
 void SettingsDialog::changed_cb()
 {
-  m_apply_button->set_sensitive(true);
+  m_apply_button.set_sensitive(true);
 }
 
-void SettingsDialog::on_response(int response_id)
+void SettingsDialog::lnf_charset_validate_cb()
 {
-  if (response_id == Gtk::RESPONSE_APPLY
-      || response_id == Gtk::RESPONSE_OK)
+  m_lnf_charset_valid.set_sensitive( Utils::is_valid_encoding(m_lnf_charset.get_text() ) );
+}
+
+bool SettingsDialog::validate_pages()
+{
+  bool valid = true;
+  
+  if (valid)
   {
-    // apply stuff
+    valid = validate_look_charset_page();
   }
 
-  if (response_id == Gtk::RESPONSE_APPLY)
+  return valid;
+}
+
+bool SettingsDialog::validate_look_charset_page()
+{
+  if ( ! Utils::is_valid_encoding(m_lnf_charset.get_text()) )
   {
-    return;
+    m_lnf_charset.grab_focus();
+    m_page_tree.get_selection()->select(m_row_lnf_charset);
+
+    Gtk::MessageDialog dialog (*this,
+			       String::ucompose( _("\"%1\" is not a valid encoding on your system."), m_lnf_charset.get_text()),
+			       Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+    
+    dialog.run();
+
+    return false;
   }
-  else
-  {
-    Dialog::on_response(response_id);
-  }
+
+  return true;
 }
