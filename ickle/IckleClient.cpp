@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.99 2002-04-20 16:47:14 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.100 2002-04-21 14:56:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -275,6 +275,9 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("network_override_port", false);
   g_settings.defaultValueBool("network_in_dc", true);
   g_settings.defaultValueBool("network_out_dc", true);
+  g_settings.defaultValueBool("network_use_portrange", false);
+  g_settings.defaultValueUnsignedShort("network_lower_bind_port", 9000, 1, 65535);
+  g_settings.defaultValueUnsignedShort("network_upper_bind_port", 9010, 1, 65535);
 
   /* Default SMTP server settings */
   g_settings.defaultValueBool("network_smtp", true);

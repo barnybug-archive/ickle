@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.39 2002-04-18 16:33:59 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.40 2002-04-21 14:56:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -76,6 +76,9 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::SpinButton *network_smtp_port;
   Gtk::Label network_smtp_host_label, network_smtp_port_label;
   Gtk::CheckButton network_in_dc, network_out_dc;
+  Gtk::CheckButton network_use_portrange;
+  Gtk::SpinButton *network_lower_port_spinner, *network_upper_port_spinner;
+  Gtk::Label network_lower_port_label, network_upper_port_label;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
   Gtk::RadioButton spell_check_no, spell_check_ispell, spell_check_aspell;
   Gtk::Entry spell_check_lang;
@@ -129,6 +132,11 @@ class SettingsDialog : public Gtk::Dialog {
 
   void network_smtp_toggle_cb();
   void network_smtp_update();
+
+  void network_port_range_toggle_cb();
+  void network_port_range_update();
+  void network_port_range_lower_cb();
+  void network_port_range_upper_cb();
 
   void away_remove_button_cb();
   void away_up_button_cb();

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.49 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.50 2002-04-21 14:56:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -73,6 +73,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     network_override_port("Override server redirect port with login port", 0),
     network_in_dc("Accept incoming direct connections", 0),
     network_out_dc("Make outgoing direct connections", 0),
+    network_use_portrange("Specify port range for listening server", 0),
+    network_lower_port_label("From:", 0),
+    network_upper_port_label("To:", 0),
     network_smtp("Use an SMTP server", 0),
     network_smtp_host_label("SMTP Host", 0),
     network_smtp_port_label("SMTP Port", 0),
@@ -594,7 +597,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   // ------------------ Network ------------------------------
 
-  table = manage( new Gtk::Table( 2, 8, false ) );
+  table = manage( new Gtk::Table( 2, 10, false ) );
 
   label = manage( new Gtk::Label( "Login Host", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
@@ -624,6 +627,41 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   network_out_dc.set_active( g_settings.getValueBool("network_out_dc") );
   table->attach( network_out_dc, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0);
 
+  network_use_portrange.set_active( g_settings.getValueBool( "network_use_portrange" ) );
+  network_use_portrange.toggled.connect( slot( this, &SettingsDialog::network_port_range_toggle_cb ) );
+  table->attach( network_use_portrange, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND, 0);
+  
+  m_tooltips.set_tip( network_use_portrange, "If you are behind a firewall and still wish to be able to "
+		      "receive direct connections then you may get ickle to only use a certain port range "
+		      "for it's listening server. You can then configure your firewall to let through connections "
+		      "to this restricted range. A sensible range is 9000-9010.");
+
+  hbox = manage( new Gtk::HBox() );
+
+  hbox->pack_start( network_lower_port_label );
+
+  unsigned lower, upper;
+  lower = g_settings.getValueUnsignedShort( "network_lower_bind_port" );
+  upper = g_settings.getValueUnsignedShort( "network_upper_bind_port" );
+
+  adj = manage( new Gtk::Adjustment( lower, 1.0, upper ) );
+  network_lower_port_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  hbox->pack_start( *network_lower_port_spinner );
+
+  hbox->pack_start( network_upper_port_label );
+
+  adj = manage( new Gtk::Adjustment( upper, lower, 65535.0 ) );
+  network_upper_port_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  hbox->pack_start( *network_upper_port_spinner );
+
+  network_lower_port_spinner->get_adjustment()->value_changed.connect( slot( this, &SettingsDialog::network_port_range_lower_cb ) );
+  network_upper_port_spinner->get_adjustment()->value_changed.connect( slot( this, &SettingsDialog::network_port_range_upper_cb ) );
+
+  network_port_range_update();
+  // setup enabled or disabled for widget initially
+
+  table->attach( *hbox, 0, 2, 6, 7, GTK_FILL | GTK_EXPAND, 0);
+
   m_tooltips.set_tip( network_smtp, "Some Mobile providers provide SMS support for their phones "
 		      "by using an SMTP (email) gateway.\n"
 		      "If you would like to send messages to someone using one of these providers "
@@ -632,19 +670,19 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   network_smtp.set_active( g_settings.getValueBool("network_smtp") );
   network_smtp.toggled.connect( slot( this, &SettingsDialog::network_smtp_toggle_cb ) );
-  table->attach( network_smtp, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( network_smtp, 0, 2, 7, 8, GTK_FILL | GTK_EXPAND, 0);
 
-  table->attach( network_smtp_host_label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( network_smtp_host_label, 0, 1, 8, 9, GTK_FILL | GTK_EXPAND, 0);
 
   network_smtp_host.set_text( g_settings.getValueString("network_smtp_host") );
-  table->attach( network_smtp_host, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( network_smtp_host, 1, 2, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   
-  table->attach( network_smtp_port_label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( network_smtp_port_label, 0, 1, 9, 10, GTK_FILL | GTK_EXPAND, 0);
 
   port = g_settings.getValueUnsignedShort( "network_smtp_port" );
   adj = manage( new Gtk::Adjustment( port, 1.0, 65535.0 ) );
   network_smtp_port = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
-  table->attach( *network_smtp_port, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *network_smtp_port, 1, 2, 9, 10, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   network_smtp_update();
   // setup enabled or disabled for widget initially
@@ -813,6 +851,11 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("network_in_dc", network_in_dc.get_active());
   g_settings.setValue("network_out_dc", network_out_dc.get_active());
 
+  bool use_portrange = network_use_portrange.get_active();
+  g_settings.setValue("network_use_portrange", use_portrange);
+  g_settings.setValue("network_lower_bind_port", (unsigned short)network_lower_port_spinner->get_value_as_int());
+  g_settings.setValue("network_upper_bind_port", (unsigned short)network_upper_port_spinner->get_value_as_int());
+
   g_settings.setValue("network_smtp", network_smtp.get_active());
   g_settings.setValue("network_smtp_host", network_smtp_host.get_text() );
   g_settings.setValue("network_smtp_port", (unsigned short)network_smtp_port->get_value_as_int());
@@ -827,6 +870,13 @@ void SettingsDialog::updateSettings() {
   icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
   icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
 
+  icqclient.setUsePortRange(use_portrange);
+  if (use_portrange) {
+    // use a port range
+    icqclient.setPortRangeLowerBound( g_settings.getValueUnsignedShort("network_lower_bind_port") );
+    icqclient.setPortRangeUpperBound( g_settings.getValueUnsignedShort("network_upper_bind_port") );
+  }
+  
   if (g_settings.getValueBool("network_smtp")) {
     // enable SMTP
     icqclient.setSMTPServerHost( g_settings.getValueString("network_smtp_host") );
@@ -877,6 +927,32 @@ void SettingsDialog::network_smtp_update()
   network_smtp_host.set_sensitive(b);
   network_smtp_port_label.set_sensitive(b);
   network_smtp_port->set_sensitive(b);
+}
+
+void SettingsDialog::network_port_range_toggle_cb()
+{
+  network_port_range_update();
+}
+
+void SettingsDialog::network_port_range_lower_cb()
+{
+  Gtk::Adjustment *adj = network_lower_port_spinner->get_adjustment();
+  network_upper_port_spinner->get_adjustment()->set_lower( adj->get_value() );
+}
+
+void SettingsDialog::network_port_range_upper_cb()
+{
+  Gtk::Adjustment *adj = network_upper_port_spinner->get_adjustment();
+  network_lower_port_spinner->get_adjustment()->set_upper( adj->get_value() );
+}
+
+void SettingsDialog::network_port_range_update()
+{
+  bool b = network_use_portrange.get_active();
+  network_lower_port_label.set_sensitive(b);  
+  network_lower_port_spinner->set_sensitive(b);  
+  network_upper_port_label.set_sensitive(b);  
+  network_upper_port_spinner->set_sensitive(b);  
 }
 
 void SettingsDialog::okay_cb() {
