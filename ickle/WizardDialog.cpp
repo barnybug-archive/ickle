@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.7 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: WizardDialog.cpp,v 1.8 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -47,7 +47,6 @@ WizardDialog::WizardDialog()
     retval(false)
 {
   // for use with manage and temporary vars
-  Gtk::Table *tbl, *tbl2;
   Gtk::Frame *fr; 
   Gtk::Label *lbl;
   Gtk::VBox *vb;
@@ -235,7 +234,6 @@ void WizardDialog::intro_next() {
 }
 
 void WizardDialog::new_pass_next() {
-  Gtk::Label *lbl;
   if( !en_new_pass1.get_text_length() ) {
     PromptDialog pd( this, PromptDialog::PROMPT_INFO,
                      "You must supply a password before registering the account" );
@@ -327,14 +325,13 @@ void WizardDialog::existing_details_prev() {
 }
 
 void WizardDialog::finished_prev() {
-  Gtk::Label *lbl;
   if( rb_existing_uin.get_active() )
     curpage = &page_existing_details;
   else
     curpage = &page_new_pass;
 }
 
-int WizardDialog::delete_event_impl(GdkEventAny *event) {
+int WizardDialog::delete_event_impl(GdkEventAny *) {
   PromptDialog pd( this, PromptDialog::PROMPT_CONFIRM,
                    "Are you sure you want to exit the wizard?" );
   if( pd.run() ) {

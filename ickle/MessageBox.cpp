@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.69 2002-07-20 23:01:05 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.70 2002-07-21 00:23:37 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -61,21 +61,21 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   : m_self_contact(self),
     m_contact(c),
     m_history(h),
-    m_send_button("Send"), m_close_button("Close"),
+    m_scaleadj(0, 0, 0),
+    m_scale(m_scaleadj),
     m_vbox_top(false,10),
+    m_send_button("Send"), m_close_button("Close"),
     m_history_vbox(false, 0),
+    m_focus(false),
+    m_pending(false),
     m_sms_count_label("", 0),
     m_sms_count_over(false),
     m_sms_enabled(true),
-    m_scaleadj(0, 0, 0),
-    m_scale(m_scaleadj),
-    m_focus(false),
-    m_pending(false),
-    m_message_queue(mq),
     m_send_normal("Normal", 0),
     m_send_urgent("Urgent", 0),
     m_send_tocontactlist("To Contact List", 0),
-    m_last_ev(NULL)
+    m_last_ev(NULL),
+    m_message_queue(mq)
 {
   Gtk::Box *history_hbox;
   Gtk::Box *hbox;
@@ -448,7 +448,7 @@ void MessageBox::set_contact_title() {
   }
 }
 
-void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *ev) {
+void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *) {
   if (m_contact->isSMSable()) enable_sms();
   else disable_sms();
 
@@ -564,7 +564,7 @@ void MessageBox::delivery_toggle_cb() {
     m_delivery_buttons.hide_all();
 }
 
-void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
+void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page*, guint n) {
   if (n == 0 && m_contact->isICQContact() ) {
     m_message_type = ICQ2000::MessageEvent::Normal;
     m_message_text.grab_focus();
@@ -579,7 +579,7 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
   send_button_update();
 }
 
-void MessageBox::new_entry_cb(History::Entry *ev) {
+void MessageBox::new_entry_cb(History::Entry *) {
   gfloat old_upper = m_scaleadj.get_upper() - m_nr_shown;
   if (old_upper < 0) old_upper = 0;
 
@@ -740,6 +740,8 @@ void MessageBox::display_message(History::Entry &e)
     m_history_text.insert( normal_context, e.message);
     break;
       
+  default:
+    break;
   }
 
 }
@@ -819,7 +821,7 @@ string MessageBox::format_time(time_t t) {
   return string(time_str);
 }
 
-gint MessageBox::delete_event_impl(GdkEventAny *ev) {
+gint MessageBox::delete_event_impl(GdkEventAny *) {
   return false;
 }
 
@@ -917,24 +919,24 @@ void MessageBox::spell_detach()
   gtkspell_detach(GTK_TEXT(m_sms_text.gtkobj()));
 }
 
-void MessageBox::resized_cb(GtkAllocation *allocation) {
+void MessageBox::resized_cb(GtkAllocation *) {
   g_settings.setValue("message_box_width", width());
   g_settings.setValue("message_box_height", height());
 }
 
-void MessageBox::pane_position_changed_cb(GtkAllocation *allocation) {
+void MessageBox::pane_position_changed_cb(GtkAllocation *) {
   /* Pane position is the same as m_history_table.height() */
   g_settings.setValue("message_box_pane_position", m_history_vbox.height());
 }
 
-gint MessageBox::focus_in_event_impl(GdkEventFocus* p0)
+gint MessageBox::focus_in_event_impl(GdkEventFocus*)
 {
   m_focus = true;
   if (m_pending) clear_queue();
   return 0;
 }
 
-gint MessageBox::focus_out_event_impl(GdkEventFocus* p0)
+gint MessageBox::focus_out_event_impl(GdkEventFocus*)
 {
   m_focus = false;
   return 0;

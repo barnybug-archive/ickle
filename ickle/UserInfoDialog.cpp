@@ -39,10 +39,11 @@ using SigC::slot;
 using namespace ICQ2000;
 
 UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool self)
-  : Gtk::Dialog(), m_self(self),
+  : Gtk::Dialog(),
     okay("OK"), cancel("Cancel"), fetchb("Fetch"), uploadb("Upload"),
-    m_contact(c), m_changed(false), birth_year_spin((gfloat)1, 0), 
-    birth_month_spin((gfloat)1, 0), birth_day_spin((gfloat)1, 0)
+    birth_year_spin((gfloat)1, 0), birth_month_spin((gfloat)1, 0),
+    birth_day_spin((gfloat)1, 0),
+    m_contact(c), m_changed(false), m_self(self)
 {
   set_transient_for (*parent);
 
@@ -479,7 +480,7 @@ void UserInfoDialog::raise() const {
   get_window().show();
 }
 
-void UserInfoDialog::userinfo_change_cb(UserInfoChangeEvent *ev) {
+void UserInfoDialog::userinfo_change_cb(UserInfoChangeEvent *) {
   update_from_userinfo();
 }
 

@@ -55,15 +55,15 @@ bool CommandLineOption::isOption (const string & long_opt, const string & short_
   if ((m_opt == "--" + long_opt && !long_opt.empty()) ||
       (m_opt == "-" + short_opt && !short_opt.empty()))
   {
-    if (max_args == -1 && m_args.size() != min_args) {
+    if (max_args == -1 && int(m_args.size()) != min_args) {
       s << "Option `" << m_opt << "' requires " << min_args << " arguments";
       throw CommandLineException (s.str());
     }
-    if (m_args.size() < min_args) {
+    if (int(m_args.size()) < min_args) {
       s << "Option `" << m_opt << "' requires at least " << min_args << " arguments";
       throw CommandLineException (s.str());
     }
-    if (m_args.size() > max_args) {
+    if (int(m_args.size()) > max_args) {
       s << "Option `" << m_opt << "' doesn't take more than " << max_args << " arguments";
       throw CommandLineException (s.str());
     }

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.30 2002-07-20 22:51:33 bugcreator Exp $
+/* $Id: IckleApplet.cpp,v 1.31 2002-07-21 00:23:37 bugcreator Exp $
  *
  * GNOME applet for ickle.
  *
@@ -37,7 +37,7 @@ using std::string;
 using std::map;
 using std::endl;
 
-void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, gpointer data)
+void IckleApplet::applet_click_converter(GtkWidget *, GdkEventButton *ev, gpointer data)
 {
   ((IckleApplet *)data)->applet_click_cb(ev);
 }
@@ -50,7 +50,7 @@ void IckleApplet::applet_sizechange_converter(GtkWidget *w, int size, gpointer d
 }
  
 
-void IckleApplet::applet_orientchange_converter(AppletWidget *applet, PanelOrientType orient, gpointer data)
+void IckleApplet::applet_orientchange_converter(AppletWidget *, PanelOrientType orient, gpointer data)
 {
   ((IckleApplet *)data)->applet_orientchange_cb(orient);
 }
@@ -72,7 +72,7 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
 }
 
 
-void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
+void IckleApplet::applet_status_menu_cb(AppletWidget *, gpointer data)
 {
   ICQ2000::Status st = (ICQ2000::Status)(int)data;
   if (g_settings.getValueBool("status_classic_invisibility"))
@@ -82,13 +82,13 @@ void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
 }
 
 
-void IckleApplet::applet_toogle_menu_cb(AppletWidget *applet, gpointer data)
+void IckleApplet::applet_toogle_menu_cb(AppletWidget *, gpointer data)
 {
   ((IckleApplet *)data)->toggle_gui();
 }
 
 
-gint IckleApplet::applet_delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer data)
+gint IckleApplet::applet_delete_cb(GtkWidget *, GdkEvent *, gpointer data)
 {
   IckleApplet *appl = ((IckleApplet *)data);
   appl->m_applet = NULL;
@@ -111,7 +111,7 @@ void IckleApplet::applet_orientchange_cb(PanelOrientType orient)
 }
 
 
-void IckleApplet::queue_added_cb(MessageEvent* ev)
+void IckleApplet::queue_added_cb(MessageEvent*)
 {
   if (!m_applet)
     return;
@@ -121,7 +121,7 @@ void IckleApplet::queue_added_cb(MessageEvent* ev)
   update_applet_tooltip();
 }
 
-void IckleApplet::queue_removed_cb(MessageEvent* ev)
+void IckleApplet::queue_removed_cb(MessageEvent*)
 {
   if (!m_applet)
     return;
@@ -131,7 +131,7 @@ void IckleApplet::queue_removed_cb(MessageEvent* ev)
   update_applet_tooltip();
 }
 
-void IckleApplet::icq_self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
+void IckleApplet::icq_self_status_change_cb(ICQ2000::StatusChangeEvent *)
 {
   if (!m_applet) 
     return;
@@ -306,11 +306,10 @@ IckleApplet::IckleApplet(MessageQueue& mq)
 
 void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 {
-  Gtk::ImageLoader *il;
   struct poptOption popts[] = {
     {NULL,'h', POPT_ARG_NONE, NULL, 0, NULL, NULL},
     {NULL,'b', POPT_ARG_STRING, NULL, 0, NULL, NULL},
-    NULL,
+    {NULL, 0, 0, NULL, 0, NULL, NULL}
   };
     
   m_gui = &g;

@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.16 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.17 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,12 +29,12 @@
 #include "ffc.xpm"
 #include "dnd.xpm"
 #include "occ.xpm"
-#include "chat.xpm"
+//#include "chat.xpm"
 #include "invisible.xpm"
 #include "message.xpm"
 #include "url.xpm"
 #include "sms.xpm"
-#include "file.xpm"
+//#include "file.xpm"
 #include "sysmsg.xpm"
 
 using std::string;

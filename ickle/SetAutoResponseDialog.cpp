@@ -177,6 +177,7 @@ void SetAutoResponseDialog::build_optionmenu()
   autoresponse_option.set_menu( menu );
 }
 
-gint SetAutoResponseDialog::option_button_pressed(GdkEventButton *b) {
+gint SetAutoResponseDialog::option_button_pressed(GdkEventButton *) {
   cancel_timeout();
+  return 0;
 }

@@ -300,20 +300,20 @@ static gboolean get_word_from_pos(GtkText* gtktext, int pos, char* buf,
 		int *pstart, int *pend) {
 	gint start, end;
 
-	if (iswordsep(GTK_TEXT_INDEX(gtktext, pos))) return FALSE;
+	if (iswordsep(GTK_TEXT_INDEX(gtktext, (unsigned int)pos))) return FALSE;
 
 	for (start = pos; start >= 0; --start) {
-		if (iswordsep(GTK_TEXT_INDEX(gtktext, start))) break;
+		if (iswordsep(GTK_TEXT_INDEX(gtktext, (unsigned int)start))) break;
 	}
 	start++;
 
-	for (end = pos; end <= gtk_text_get_length(gtktext); end++) {
-		if (iswordsep(GTK_TEXT_INDEX(gtktext, end))) break;
+	for (end = pos; end <= (gint)gtk_text_get_length(gtktext); end++) {
+		if (iswordsep(GTK_TEXT_INDEX(gtktext, (unsigned int)end))) break;
 	}
 
 	if (buf) {
 		for (pos = start; pos < end; pos++) 
-			buf[pos-start] = GTK_TEXT_INDEX(gtktext, pos);
+			buf[pos-start] = GTK_TEXT_INDEX(gtktext, (unsigned int)pos);
 		buf[pos-start] = 0;
 	}
 
@@ -397,7 +397,7 @@ void gtkspell_check_all(GtkText *gtktext) {
 }
 
 static void entry_insert_cb(GtkText *gtktext, 
-		gchar *newtext, guint len, guint *ppos, gpointer d) {
+		gchar *newtext, guint len, guint *ppos, gpointer) {
 	int origpos;
 
 	if (!gtkspell_running()) return;
@@ -436,7 +436,7 @@ static void entry_insert_cb(GtkText *gtktext,
 }
 
 static void entry_delete_cb(GtkText *gtktext,
-		gint start, gint end, gpointer d) {
+		gint start, gint /*end*/, gpointer) {
 	int origpos;
 
 	if (!gtkspell_running()) return;
@@ -611,7 +611,7 @@ void gtkspell_detach(GtkText *gtktext) {
 	gtkspell_uncheck_all(gtktext);
 }
 
-static void sigchld(int param) {
+static void sigchld(int) {
 	if (gtkspell_running() &&
 		(waitpid(spell_pid, NULL, WNOHANG) == spell_pid)) {
 		spell_pid = 0;

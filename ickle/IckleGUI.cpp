@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.61 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.62 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -47,11 +47,11 @@ using ICQ2000::ContactRef;
 
 IckleGUI::IckleGUI(MessageQueue& mq)
   :  m_message_queue(mq),
+     m_status(ICQ2000::STATUS_OFFLINE),
+     m_invisible(false),
      m_top_vbox(false),
      m_contact_scroll(),
      m_contact_list(*this, mq),
-     m_status(ICQ2000::STATUS_OFFLINE),
-     m_invisible(false),
      m_away_message( this ),
      m_exiting(false)
 {
@@ -189,7 +189,7 @@ void IckleGUI::queue_added_cb(MessageEvent *ev) {
   set_ickle_title();
 }
 
-void IckleGUI::queue_removed_cb(MessageEvent *ev) {
+void IckleGUI::queue_removed_cb(MessageEvent *) {
   // update ickle title/icon
   set_ickle_title();
 }
@@ -451,7 +451,7 @@ void IckleGUI::self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
   set_ickle_title();
 }
 
-void IckleGUI::self_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
+void IckleGUI::self_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *)
 {
   // update window title & icon
   set_ickle_title();
@@ -724,11 +724,11 @@ void IckleGUI::exit_cb() {
   destroy ();
 }
 
-void IckleGUI::connecting_cb(ICQ2000::ConnectingEvent *ev) {
+void IckleGUI::connecting_cb(ICQ2000::ConnectingEvent *) {
   m_status_menu.connecting();
 }
 
-void IckleGUI::disconnected_cb(ICQ2000::DisconnectedEvent *ev)
+void IckleGUI::disconnected_cb(ICQ2000::DisconnectedEvent *)
 {
   // ensure StatusMenu is set back to offline, ie. for when connecting fails
   m_status_menu.set_status(ICQ2000::STATUS_OFFLINE, icqclient.getInvisibleWanted());

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.53 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.54 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -58,32 +58,20 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel"),
     subs_b("Substitutions legend..."),
+    window_icons_check("Set window icons", 0),
     event_execute_all("Execute all events", 0),
     away_autoposition("Autoposition away messages dialog", 0),
-    auto_return("Automatically return (from auto-away or auto-N/A)", 0),
-    status_cl_inv("Classic Invisibility", 0),
-    popup_away_response("Popup auto response dialog on status change", 0),
     reconnect_checkbox("Auto Reconnect", 0),
-    reconnect_label( "Retries", 0),
-    window_icons_check("Set window icons", 0),
-    log_info("Information", 0),
-    log_warn("Warnings", 0),
-    log_error("Errors", 0),
-    log_packet("Server Packets", 0),
-    log_directpacket("Direct Packets", 0),
-    log_to_nowhere("The void", 0),
-    log_to_console("Console", 0),
-    log_to_file("File (~/.ickle/messages.log)", 0),
-    log_to_consolefile("Selected to console, all to file", 0),
+    auto_return("Automatically return (from auto-away or auto-N/A)", 0),
     network_override_port("Override server redirect port with login port", 0),
+    network_smtp("Use an SMTP server", 0),
+    network_smtp_host_label("SMTP Host", 0),
+    network_smtp_port_label("SMTP Port", 0),
     network_in_dc("Accept incoming direct connections", 0),
     network_out_dc("Make outgoing direct connections", 0),
     network_use_portrange("Specify port range for listening server", 0),
     network_lower_port_label("From:", 0),
     network_upper_port_label("To:", 0),
-    network_smtp("Use an SMTP server", 0),
-    network_smtp_host_label("SMTP Host", 0),
-    network_smtp_port_label("SMTP Port", 0),
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
@@ -93,11 +81,23 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     spell_check_lang(100),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
+    status_cl_inv("Classic Invisibility", 0),
+    popup_away_response("Popup auto response dialog on status change", 0),
+    reconnect_label( "Retries", 0),
     history_shownr_label("Number of messages per history page", 0),
-    finished_okay(false),
+    log_info("Information", 0),
+    log_warn("Warnings", 0),
+    log_error("Errors", 0),
+    log_packet("Server Packets", 0),
+    log_directpacket("Direct Packets", 0),
+    log_to_nowhere("The void", 0),
+    log_to_console("Console", 0),
+    log_to_file("File (~/.ickle/messages.log)", 0),
+    log_to_consolefile("Selected to console, all to file", 0),
     away_remove_button("X"),
+    away_response_list(1),
     away_response_label_entry(15),
-    away_response_list(1)
+    finished_okay(false)
 {
   Gtk::VBox *vbox;
   Gtk::VBox *vbox2;
@@ -832,7 +832,7 @@ void SettingsDialog::updateSettings() {
   }
 
   g_settings.setValue("no_autoresponses", (unsigned short)away_response_msg_list.size());
-  for (int i = 0; i < away_response_msg_list.size(); i++) {
+  for (unsigned int i = 0; i < away_response_msg_list.size(); i++) {
     ostringstream fetch_str;
     fetch_str << "autoresponse_" << i + 1 << "_label";
     g_settings.setValue(fetch_str.str(), away_response_label_list[i]);
@@ -1186,7 +1186,7 @@ void SettingsDialog::away_response_select_row(unsigned int row)
   away_response_buttons_update();
 }
 
-void SettingsDialog::away_response_list_select_row_cb(gint p0, gint p1, GdkEvent *ev)
+void SettingsDialog::away_response_list_select_row_cb(gint p0, gint, GdkEvent *)
 {
   if (away_current_item_number < away_response_msg_list.size()) {
     // save old

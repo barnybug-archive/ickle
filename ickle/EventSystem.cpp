@@ -1,4 +1,4 @@
-/* $Id: EventSystem.cpp,v 1.6 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: EventSystem.cpp,v 1.7 2002-07-21 00:23:37 bugcreator Exp $
  *
  * EventSystem
  *
@@ -53,6 +53,8 @@ void EventSystem::queue_added_cb(MessageEvent *ev)
 
   switch (icq->getICQMessageType()) {
   case ICQMessageEvent::Normal:
+  case ICQMessageEvent::EmailEx:
+  case ICQMessageEvent::WebPager:
     event_system("event_message", c, t);
     break;
   case ICQMessageEvent::URL:
@@ -66,7 +68,9 @@ void EventSystem::queue_added_cb(MessageEvent *ev)
   case ICQMessageEvent::UserAdd:
     event_system("event_system", c, t);
     break;
-  // what do we do with SMS_Receipt and EmailEx?
+  // what do we do with SMS_Receipt?
+  default:
+    break;
   }
 }
 

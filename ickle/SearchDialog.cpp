@@ -50,16 +50,14 @@ using SigC::slot;
 using namespace ICQ2000;
 
 SearchDialog::SearchDialog(Gtk::Window * parent)
-  : Gtk::Dialog(), m_clist(7), m_ev(NULL),
-    m_ok_button("OK"), m_search_button("Search"), m_stop_button("Stop"),
-    m_add_button("Add to List"), m_reset_button("Reset form"), m_sex_selected(SEX_UNSPECIFIED),
-    m_agerange_selected(range_NoRange), m_only_online_check("Only Online Users", 0)
+  : Gtk::Dialog(), m_only_online_check("Only Online Users", 0),
+    m_sex_selected(SEX_UNSPECIFIED), m_agerange_selected(range_NoRange),
+    m_clist(7), m_ok_button("OK"), m_search_button("Search"), m_stop_button("Stop"),
+    m_add_button("Add to List"), m_reset_button("Reset form"), m_ev(NULL)
 {
   Gtk::Label *label;
   Gtk::Table *table;
-  Gtk::Button *button;
   Gtk::Frame *frame;
-  Gtk::ScrolledWindow *scrolled_window;
   Gtk::Menu *m;
   
   set_title("Search for contacts");
@@ -462,12 +460,12 @@ void SearchDialog::clist_data_destroy_cb(gpointer data)
   delete (ContactRef*)data;
 }
 
-void SearchDialog::select_row_cb(gint x, gint y, GdkEvent *ev) 
+void SearchDialog::select_row_cb(gint, gint, GdkEvent *) 
 {
   m_add_button.set_sensitive(true);
 }
 
-void SearchDialog::unselect_row_cb(gint x, gint y, GdkEvent *ev) 
+void SearchDialog::unselect_row_cb(gint, gint, GdkEvent *) 
 {
   m_add_button.set_sensitive(false);
 }

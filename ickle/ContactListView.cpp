@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.40 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.41 2002-07-21 00:23:37 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -46,10 +46,10 @@ using ICQ2000::ContactRef;
 
 ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
   : CList(2),
-    m_single_click(false),
-    m_check_away_click(false),
+    m_message_queue(mq),
     m_gui(gui),
-    m_message_queue(mq)
+    m_single_click(false),
+    m_check_away_click(false)
 {
   column(0).set_title("S");
   column(0).set_width(15);
@@ -158,6 +158,7 @@ int ContactListView::status_order (ICQ2000::Status s)
     case ICQ2000::STATUS_NA:           return 6;
     case ICQ2000::STATUS_OFFLINE:      return 7;
   }
+  return 0;
 }
 
 void ContactListView::clear() {

@@ -32,10 +32,10 @@ using std::ostringstream;
 using std::endl;
 
 AuthRespDialog::AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev)
-  : Gtk::Dialog(),
+  : Gtk::Dialog(), m_contact(contact),
     m_ok("Send Response"), m_cancel("Ignore"),
     m_grant("Grant", 0), m_refuse("Refuse", 0),
-    m_contact(contact), m_label("Enter your refusal message:", 0)
+    m_label("Enter your refusal message:", 0)
 {
   set_title("Authorisation Response");
   set_transient_for (*parent);

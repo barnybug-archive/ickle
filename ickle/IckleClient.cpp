@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.110 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.111 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -67,14 +67,13 @@ IckleClient::IckleClient(int argc, char* argv[])
   : m_message_queue(),
     m_event_system(m_message_queue),
     gui( m_message_queue ),
-    
+    status(ICQ2000::STATUS_OFFLINE)
 #ifdef GNOME_ICKLE
-    applet(m_message_queue),
+    , applet(m_message_queue)
 #endif
 #ifdef CONTROL_SOCKET
-    ctrl(*this),
+    , ctrl(*this)
 #endif
-    status(ICQ2000::STATUS_OFFLINE)
 {
   // process command line parameters
   processCommandLine(argc,argv);
@@ -464,7 +463,7 @@ void IckleClient::quit() {
 #endif
 }
 
-void IckleClient::connected_cb(ICQ2000::ConnectedEvent *c) {
+void IckleClient::connected_cb(ICQ2000::ConnectedEvent *) {
   /* the library needs to be polled regularly
    * to ensure timeouts are respected and the server is pinged every minute
    * A 5 second interval is sensible for this
@@ -506,6 +505,8 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
     case ICQ2000::DisconnectedEvent::FAILED_DUALLOGIN:
       ostr << "Dual login, disconnected";
       break;
+    default:
+      break;
     }
     SignalLog(ICQ2000::LogEvent::ERROR, ostr.str() );
   }
@@ -528,6 +529,8 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
     case ICQ2000::DisconnectedEvent::FAILED_DUALLOGIN:
       gui.duallogin_prompt();
       return;
+    default:
+      break;
     }
 
   if (m_retries > 0) {
@@ -810,7 +813,7 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   
 }
 
-void IckleClient::queue_added_cb(MessageEvent *ev)
+void IckleClient::queue_added_cb(MessageEvent *)
 {
   // anything ?
 }
@@ -877,7 +880,6 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   }
   case ICQ2000::MessageEvent::UserAdd:
   {
-    ICQ2000::UserAddEvent *cev = static_cast<ICQ2000::UserAddEvent*>(ev);
     ret = new UserAddICQMessageEvent( ev->getTime(), c );
     break;
   }

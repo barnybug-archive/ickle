@@ -29,18 +29,16 @@
 AddUserDialog::AddUserDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
     m_ok("OK"), m_cancel("Cancel"),
+    m_uin_label("User Number (UIN)", 0),
     m_icq_user("An ICQ contact (has a uin)", 0),
-    m_alert_check("Alert User", 0),
     m_mobile_user("A Mobile contact (cellular)", 0),
+    m_alert_check("Alert User", 0),
     m_mode_frame("Type of contact"),
     m_icq_frame("ICQ Contacts"),
     m_mobile_frame("Mobile Contacts"),
     m_alias_label("Alias", 0),
-    m_mobileno_label("Mobile Number", 0, 1),
-    m_uin_label("User Number (UIN)", 0)
+    m_mobileno_label("Mobile Number", 0, 1)
 {
-  Gtk::Label *label;
-
   set_title("Add Contact");
   set_transient_for (*parent);
 

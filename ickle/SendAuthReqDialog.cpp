@@ -29,8 +29,8 @@
 
 SendAuthReqDialog::SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact)
   : Gtk::Dialog(),
-    m_ok("Send Request"), m_cancel("Cancel"),
-    m_contact(contact)
+    m_contact(contact),
+    m_ok("Send Request"), m_cancel("Cancel")
 {
   set_title("Send Authorisation Request");
   set_transient_for (*parent);

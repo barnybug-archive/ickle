@@ -38,7 +38,7 @@ using std::endl;
 using Gtk::Text_Helpers::Context;
 
 AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
-  : m_pos(0), m_count(0), m_main_window(main_window)
+  : m_main_window(main_window), m_pos(0), m_count(0)
 {
 
   set_title("Away Messages");
@@ -67,7 +67,7 @@ AwayMessageDialog::AwayMessageDialog(Gtk::Window *main_window)
 
 AwayMessageDialog::~AwayMessageDialog() { }
 
-gint AwayMessageDialog::delete_event_impl(GdkEventAny *ev) {
+gint AwayMessageDialog::delete_event_impl(GdkEventAny *) {
   hide();
   return true;
 }

@@ -45,7 +45,7 @@ class CommandLineOption
     : m_opt (o), m_args (a) { }
 
   bool isOption (const std::string & long_opt, const std::string & short_opt, int min_args = 0, int max_args = -1) const;
-  std::string argument (int n = 0) const { return (m_args.size() > n) ? m_args[n] : ""; }
+  std::string argument (int n = 0) const { return (int(m_args.size()) > n) ? m_args[n] : ""; }
   void invalid () const;
 
  private:

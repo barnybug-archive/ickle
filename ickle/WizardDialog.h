@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.h,v 1.1 2002-01-27 23:11:45 nordman Exp $
+/* $Id: WizardDialog.h,v 1.2 2002-07-21 00:23:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -81,7 +81,7 @@ class WizardDialog : public Gtk::Dialog {
 
   virtual int delete_event_impl(GdkEventAny *event);
 
-  int popup_delete_cb(GdkEventAny *event) { return 1; }
+  int popup_delete_cb(GdkEventAny *) { return 1; }
   gint timeout_cb();
   void newuin_cb(ICQ2000::NewUINEvent *nue);
     
