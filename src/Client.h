@@ -99,7 +99,9 @@ namespace ICQ2000 {
     hash_map<unsigned int, DirectClient*> m_uinmap;
 
     Buffer m_recv;
-    
+   
+    unsigned int m_buddy_uin;	// store uin here. Server does not send back
+				// the uin we're looking for 
     void Init();
     unsigned short NextSeqNum();
 
@@ -212,6 +214,8 @@ namespace ICQ2000 {
 
     // -- Send calls --
     void SendEvent(MessageEvent *ev);
+
+    void fetchAwayMsg(Contact *c);
     
     // -- Set Status --
     void setStatus(const Status st);

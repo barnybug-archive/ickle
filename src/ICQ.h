@@ -28,6 +28,7 @@
 #include "Xml.h"
 #include "buffer.h"
 #include "exceptions.h"
+#include "constants.h"
 
 namespace ICQ2000 {
 
@@ -54,6 +55,7 @@ namespace ICQ2000 {
   const unsigned char MSG_Type_AutoReq_DND  = 0xeb;
   const unsigned char MSG_Type_AutoReq_FFC  = 0xec;
 
+  const unsigned char MSG_Flag_AutoReq = 0x03;
   const unsigned char MSG_Flag_Multi   = 0x80;
 
   /* ICQSubtype classes
@@ -93,21 +95,27 @@ namespace ICQ2000 {
   class UINRelatedSubType : public ICQSubType {
    protected:
     unsigned int m_source, m_destination;
+    bool m_advanced, m_ack;
 
    public:
-    UINRelatedSubType();
-    UINRelatedSubType(unsigned int s, unsigned int d);
+    UINRelatedSubType(bool adv);
+    UINRelatedSubType(unsigned int s, unsigned int d, bool adv);
 
     void setDestination(unsigned int uin);
     void setSource(unsigned int uin);
     unsigned int getSource() const;
     unsigned int getDestination() const;
+
+    bool isAdvanced() const;
+    void setAdvanced(bool b);
+    void setACK(bool b);
+    bool isACK() const;
   };
 
   class NormalICQSubType : public UINRelatedSubType {
    private:
     string m_message;
-    bool m_multi, m_advanced;
+    bool m_multi;
     unsigned int m_foreground, m_background;
     
    public:
@@ -148,6 +156,26 @@ namespace ICQ2000 {
     void OutputBody(Buffer& b) const;
     unsigned short Length() const;
     unsigned char getType() const;
+  };
+
+  class ReqAwayICQSubType : public UINRelatedSubType {
+   private:
+    unsigned char m_type;
+    string m_message;
+
+   public:
+    ReqAwayICQSubType(Status s, unsigned int destination);
+    ReqAwayICQSubType(unsigned char m_type);
+
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
+
+    string getMessage() const;
+    void setMessage(const string& msg);
+
+    unsigned short Length() const;
+    unsigned char getType() const;
+    unsigned char getFlags() const;
   };
 
   class SMSICQSubType : public ICQSubType {

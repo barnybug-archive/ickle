@@ -22,6 +22,8 @@
 
 #include <sstream>
 
+#include "socket.h"
+
 UserInfoDialog::UserInfoDialog(Contact *c)
        : Gtk::Dialog(),
 	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
@@ -41,6 +43,8 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
   cancel.clicked.connect(slot(this,&UserInfoDialog::cancel_cb));
   fetchb.clicked.connect( fetch.slot() );
+  
+  notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::Label *label;
 
@@ -49,47 +53,167 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
-  Gtk::Table *table = manage( new Gtk::Table( 3, 6, false ) );
+  // ******************** General Information ********************
+  Gtk::Table *table = manage( new Gtk::Table( 4, 11, false ) );
 
-  label = manage( new Gtk::Label( "UIN", 0 ) );
-  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  if (c->isICQContact()) uin_entry.set_text( ICQ2000::Contact::UINtoString(c->getUIN()) );
+  label = manage( new Gtk::Label( "Alias:", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  table->attach( alias_entry, 1, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "UIN:", 0 ) );
+  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   uin_entry.set_editable(false);
   uin_entry.set_sensitive(false);
-  table->attach( uin_entry, 1, 3, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( uin_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Alias", 0 ) );
-  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  alias_entry.set_text( c->getAlias() );
-  table->attach( alias_entry, 1, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "IP:", 0 ) );
+  table->attach( *label, 2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  ip_entry.set_editable(false);
+  //  ip_entry.set_sensitive(false);
+  
+  table->attach( ip_entry, 3, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Mobile No", 0 ) );
-  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  label = manage( new Gtk::Label( "+", 0) );
-  table->attach( *label, 1, 2, 2, 3, 0, GTK_FILL | GTK_EXPAND, 3);
-  mobileno_entry.set_text( c->getMobileNo() );
-  table->attach( mobileno_entry, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Status:", 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  status_entry.set_editable(false);
+  status_entry.set_sensitive(false);
+  table->attach( status_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "First Name", 0 ) );
-  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  firstname_entry.set_text( c->getFirstName() );
-  table->attach( firstname_entry, 1, 3, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Timezone:", 0 ) );
+  table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  gmt_entry.set_editable(false);
+  gmt_entry.set_sensitive(false);
+  table->attach( gmt_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Last Name", 0 ) );
-  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  lastname_entry.set_text( c->getLastName() );
-  table->attach( lastname_entry, 1, 3, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Name:", 0 ) );
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( firstname_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  table->attach( lastname_entry, 2, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Email", 0 ) );
-  table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  email_entry.set_text( c->getEmail() );
-  table->attach( email_entry, 1, 3, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Email 1:", 0 ) );
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( email_entry1, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Email 2:", 0 ) );
+  table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( email_entry2, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  label = manage( new Gtk::Label( "Email 3:", 0 ) );
+  table->attach( *label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( email_entry3, 1, 4, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  
+  label = manage( new Gtk::Label( "Address:", 0 ) );
+  table->attach( *label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  addr_entry.set_editable(false);
+  addr_entry.set_sensitive(false);
+  table->attach( addr_entry, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Phone:", 0 ) );
+  table->attach( *label, 2, 3, 7, 8, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( phone_entry, 3, 4, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "State:", 0 ) );
+  table->attach( *label, 0, 1, 8, 9, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  state_entry.set_editable(false);
+  state_entry.set_sensitive(false);
+  table->attach( state_entry, 1, 2, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Fax:", 0 ) );
+  table->attach( *label, 2, 3, 8, 9, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( fax_entry, 3, 4, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "City:", 0 ) );
+  table->attach( *label, 0, 1, 9, 10, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  city_entry.set_editable(false);
+  city_entry.set_sensitive(false);
+  table->attach( city_entry, 1, 2, 9, 10, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  
+  label = manage( new Gtk::Label( "Cellular:", 0 ) );
+  table->attach( *label, 2, 3, 9, 10, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  table->attach( cellular_entry, 3, 4, 9, 10, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Zip:", 0 ) );
+  table->attach( *label, 0, 1, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  zip_entry.set_editable(false);
+  zip_entry.set_sensitive(false);
+  table->attach( zip_entry, 1, 2, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Country:", 0 ) );
+  table->attach( *label, 2, 3, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
+  country_entry.set_editable(false);
+  country_entry.set_sensitive(false);
+  table->attach( country_entry, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  table->set_border_width(10);
+  label = manage( new Gtk::Label( "General" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
+
+  // -------------------------- More Info Dialog -------------------
+  table = manage( new Gtk::Table( 4, 11, false ) );
+
+  label = manage( new Gtk::Label( "Age:", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  age_entry.set_editable(false);
+  age_entry.set_sensitive(false);
+  table->attach( age_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Gender:", 0 ) );
+  table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  sex_entry.set_editable(false);
+  sex_entry.set_sensitive(false);
+  table->attach( sex_entry, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Homepage:", 0 ) );
+  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  homepage_entry.set_editable(false);
+  homepage_entry.set_sensitive(false);
+  table->attach( homepage_entry, 1, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Birthday:", 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  birthday_entry.set_editable(false);
+  birthday_entry.set_sensitive(false);
+  table->attach( birthday_entry, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Language 1:", 0 ) );
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  lang_entry1.set_editable(false);
+  lang_entry1.set_sensitive(false);
+  table->attach( lang_entry1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Language 2:", 0 ) );
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  lang_entry2.set_editable(false);
+  lang_entry2.set_sensitive(false);
+  table->attach( lang_entry2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Language 3:", 0 ) );
+  table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
+  lang_entry3.set_editable(false);
+  lang_entry3.set_sensitive(false);
+  table->attach( lang_entry3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+
+  table->set_border_width(10);
+  table->set_row_spacings(5);
+  label = manage( new Gtk::Label( "More" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
+
+  // ------------------------- About Dialog ------------------------
+  table = manage( new Gtk::Table( 4, 11, false ) );
+
+  label = manage( new Gtk::Label( "About:", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  table->attach( about_text, 0, 4, 1, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  table->set_border_width(10);
+  label = manage( new Gtk::Label( "About" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
   Gtk::VBox *vbox = get_vbox();
-  vbox->pack_start( *table, true, true );
+  vbox->pack_start( notebook, true, true );
+
+  userinfochange_cb(); // fill in values
 
   set_border_width(10);
-  set_usize(400,300);
+  set_usize(400,400);
   show_all();
 }
 
@@ -102,9 +226,9 @@ bool UserInfoDialog::run() {
       finished_okay = true;
       contact->setAlias(alias_entry.get_text());
     }
-    if (contact->getMobileNo() != mobileno_entry.get_text()) {
+    if (contact->getMobileNo() != cellular_entry.get_text()) {
       finished_okay = true;
-      contact->setMobileNo(mobileno_entry.get_text());
+      contact->setMobileNo(cellular_entry.get_text());
     }
     if (contact->getFirstName() != firstname_entry.get_text()) {
       finished_okay = true;
@@ -114,10 +238,24 @@ bool UserInfoDialog::run() {
       finished_okay = true;
       contact->setLastName(lastname_entry.get_text());
     }
-    if (contact->getEmail() != email_entry.get_text()) {
+    if (contact->getEmail() != email_entry1.get_text()) {
       finished_okay = true;
-      contact->setEmail(email_entry.get_text());
+      contact->setEmail(email_entry1.get_text());
     }
+    MainHomeInfo& mhi = contact->getMainHomeInfo();
+    if (mhi.phone != phone_entry.get_text()) {
+      finished_okay = true;
+      mhi.phone = phone_entry.get_text();
+    }
+    if (mhi.fax != fax_entry.get_text()) {
+      finished_okay = true;
+      mhi.fax = fax_entry.get_text();
+    }
+    if (mhi.cellular != cellular_entry.get_text()) {
+      finished_okay = true;
+      mhi.cellular = cellular_entry.get_text();
+    }
+    
     return finished_okay;
   }
 }
@@ -133,10 +271,70 @@ void UserInfoDialog::cancel_cb() {
 }
 
 void UserInfoDialog::userinfochange_cb() {
+  if (contact->isICQContact()) uin_entry.set_text( ICQ2000::Contact::UINtoString(contact->getUIN()) );
+
+  status_entry.set_text( contact->getStatusStr() );
   alias_entry.set_text( contact->getAlias() );
-  mobileno_entry.set_text( contact->getMobileNo() );
   firstname_entry.set_text( contact->getFirstName() );
   lastname_entry.set_text( contact->getLastName() );
-  email_entry.set_text( contact->getEmail() );
-}
+  email_entry1.set_text( contact->getEmail() );
+  city_entry.set_text( contact->getMainHomeInfo().city );
+  state_entry.set_text( contact->getMainHomeInfo().state );
+  phone_entry.set_text( contact->getMainHomeInfo().phone );
+  fax_entry.set_text( contact->getMainHomeInfo().fax );
+  addr_entry.set_text( contact->getMainHomeInfo().street );
+  cellular_entry.set_text( contact->getMobileNo() );
+  zip_entry.set_text( contact->getMainHomeInfo().zip );
 
+  lang_entry1.set_text( contact->getHomepageInfo().getLanguage(1) );
+  lang_entry2.set_text( contact->getHomepageInfo().getLanguage(2) );
+  lang_entry3.set_text( contact->getHomepageInfo().getLanguage(3) );
+  
+  ostringstream ostr;
+  ostr << IPtoString( contact->getLanIP() )
+       << ":"
+       << contact->getLanPort()
+       << " / "
+       << IPtoString( contact->getExtIP() )
+       << ":"
+       << contact->getExtPort();
+
+  ip_entry.set_text( ostr.str() );
+
+  // decipher gmt and country code - code copied from LICQ
+  country_entry.set_text( contact->getMainHomeInfo().getCountry() );
+
+  // need a list of timezones before we can implement this
+  unsigned char gmt = contact->getMainHomeInfo().gmt;
+  if (gmt == 0)
+    gmt_entry.set_text("Unknown");
+
+  // About box
+  about_text.delete_text(0,-1);
+  about_text.insert( contact->getAboutInfo() );
+
+  // More info dialog
+  if (contact->getHomepageInfo().age == 0) {
+    age_entry.set_text( "Unspecified" );
+  } else {
+    ostr.seekp(0);
+    ostr << (unsigned int)contact->getHomepageInfo().age;
+    age_entry.set_text( ostr.str() );
+  }
+
+  switch( contact->getHomepageInfo().sex ) {
+  case 1:
+    sex_entry.set_text("Female");
+    break;
+  case 2:
+    sex_entry.set_text("Male");
+    break;
+  default:
+    sex_entry.set_text("Unspecified");
+  }
+
+  homepage_entry.set_text( contact->getHomepageInfo().homepage );
+
+  birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
+
+}

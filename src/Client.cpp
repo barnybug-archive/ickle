@@ -56,6 +56,7 @@ namespace ICQ2000 {
     m_invisible = false;
 
     m_ext_ip = 0;
+    m_buddy_uin = 0;
   }
 
   unsigned short Client::NextSeqNum() {
@@ -182,22 +183,21 @@ namespace ICQ2000 {
     if (st->getType() == MSG_Type_Normal) {
       NormalICQSubType *nst = static_cast<NormalICQSubType*>(st);
       
-      const UserInfoBlock &userinfo = snac->getUserInfo();
-      unsigned int uin = userinfo.getUIN();
-      contact = lookupICQ(uin);
+      contact = lookupICQ( nst->getSource() );
       e = new NormalMessageEvent(contact,
 				 nst->getMessage(), nst->isMultiParty() );
       
+      if (nst->isAdvanced()) SendAdvancedACK(snac);
 
     } else if (st->getType() == MSG_Type_URL) {
       URLICQSubType *ust = static_cast<URLICQSubType*>(st);
       
-      const UserInfoBlock &userinfo = snac->getUserInfo();
-      unsigned int uin = userinfo.getUIN();
-      contact = lookupICQ(uin);
+      contact = lookupICQ( ust->getSource() );
       e = new URLMessageEvent(contact,
 			      ust->getMessage(),
 			      ust->getURL());
+
+      if (ust->isAdvanced()) SendAdvancedACK(snac);
 
     } else if (st->getType() == MSG_Type_SMS) {
       SMSICQSubType *sst = static_cast<SMSICQSubType*>(st);
@@ -209,7 +209,7 @@ namespace ICQ2000 {
 				sst->getSource(),
 				sst->getSenders_network(),
 				sst->getTime());
-	
+
       } else if (sst->getSMSType() == SMSICQSubType::SMS_Receipt_Success) {
 	contact = lookupMobile(sst->getDestination());
 	e = new SMSReceiptEvent(contact,
@@ -227,9 +227,6 @@ namespace ICQ2000 {
       if (messaged.emit(e)) contact->erasePendingMessage(e);
     }
 
-
-    // should ACK the message if it was an advanced one
-    if (snac->isAdvanced()) SendAdvancedACK(snac);
   }
 
   void Client::SignalMessageEvent_cb(MessageEvent *ev) {
@@ -293,13 +290,12 @@ namespace ICQ2000 {
       if (e != NULL) {
 	contact->addPendingMessage(e);
 	if (messaged.emit(e)) contact->erasePendingMessage(e);
-      }
+	}
 
        *
        */
 
     } else if (snac->getType() == SrvResponseSNAC::SimpleUserInfo) {
-
       // update Contact
       if ( m_contact_list.exists( snac->getUIN() ) ) {
 	Contact& c = m_contact_list[ snac->getUIN() ];
@@ -310,11 +306,35 @@ namespace ICQ2000 {
 	UserInfoChangeEvent ev(&c);
 	contactlist.emit(&ev);
       }
+      
+    } else if (snac->getType() == SrvResponseSNAC::RMainHomeInfo) {
+      if ( m_buddy_uin > 0) {
+        Contact& c = m_contact_list[ m_buddy_uin ];
+        
+        c.setMainHomeInfo( snac->getMainHomeInfo() );
+        UserInfoChangeEvent ev(&c);
+        contactlist.emit(&ev);
+      }
+    } else if (snac->getType() == SrvResponseSNAC::RHomepageInfo) {
+      if ( m_buddy_uin > 0) {
+        Contact& c = m_contact_list[ m_buddy_uin ];
+        
+        c.setHomepageInfo( snac->getHomepageInfo() );
+        UserInfoChangeEvent ev(&c);
+        contactlist.emit(&ev);
+      }
 
+    } else if (snac->getType() == SrvResponseSNAC::RAboutInfo) {
+      if ( m_buddy_uin > 0) {
+        Contact& c = m_contact_list[ m_buddy_uin ];
+        m_buddy_uin = 0;
+        c.setAboutInfo( snac->getAboutInfo() );
+	UserInfoChangeEvent ev(&c);
+        contactlist.emit(&ev);
+      }
     }
-
   }
-
+  
   void Client::SignalUINResponse(UINResponseSNAC *snac) {
     unsigned int uin = snac->getUIN();
     NewUINEvent e(uin);
@@ -585,14 +605,14 @@ namespace ICQ2000 {
   void Client::SendAdvancedACK(MessageSNAC *snac) {
     ICQSubType *st = snac->getICQSubType();
     if (st == NULL || dynamic_cast<UINRelatedSubType*>(st) == NULL ) return;
+    UINRelatedSubType *ust = dynamic_cast<UINRelatedSubType*>(snac->grabICQSubType());
 
     Buffer b;
     unsigned int d;
     
     d = FLAPHeader(b,0x02);
 
-    const UserInfoBlock &userinfo = snac->getUserInfo();
-    MessageACKSNAC ssnac( snac->getICBMCookie(), userinfo.getUIN(), st->getSeqNum(), st->getType(), st->getFlags() );
+    MessageACKSNAC ssnac( snac->getICBMCookie(), ust );
     b << ssnac;
     FLAPFooter(b,d);
 
@@ -1198,11 +1218,30 @@ namespace ICQ2000 {
     if ( !c->isICQContact() ) return;
 
     d = FLAPHeader(b,0x02);
-    SrvRequestSimpleUserInfo ssnac( m_uin, c->getUIN() );
+    SrvRequestDetailUserInfo ssnac( m_uin, m_buddy_uin = c->getUIN() );
     b << ssnac;
     FLAPFooter(b,d);
 
     Send(b);
+  }
+
+  void Client::fetchAwayMsg(Contact *c) {
+    Buffer b;
+    unsigned int d;
+
+    if ( !c->isICQContact() ) return;
+    if ( c->acceptAdvancedMsgs() ) {
+      
+      d = FLAPHeader(b,0x02);
+      ReqAwayICQSubType ra( c->getStatus(), c->getUIN() );
+      MsgSendSNAC msg( &ra, true );
+      b << msg;
+      FLAPFooter(b,d);
+      
+      Send(b);
+    } else {
+      // direct connection
+    }
   }
 
   void Client::Disconnect() {

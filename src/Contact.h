@@ -33,8 +33,73 @@ using namespace std;
 
 namespace ICQ2000 {
 
+  // DetailedUserInfo classes
+
+  class MainHomeInfo {
+   public:
+    MainHomeInfo();
+
+    string alias, firstname, lastname, email, city, state, phone, fax, street, cellular, zip;
+    unsigned short country;
+    unsigned char gmt;
+
+    string getCountry() const;
+  };
+
+  class HomepageInfo {
+   public:
+    HomepageInfo();
+
+    unsigned char age, sex;
+    string homepage;
+    unsigned short birth_year;
+    unsigned char birth_month, birth_day, lang1, lang2, lang3;
+
+    string getBirthDate() const;
+    string getLanguage(int l) const;
+  };
+
+  class EmailInfo {
+   private:
+    list<string> email_list;
+
+   public:
+    EmailInfo();
+
+    void addEmailAddress(const string&);
+  };
+  
+  class WorkInfo {
+   public:
+    WorkInfo();
+    
+    string city, state, street, zip;
+    unsigned short country;
+    string company_name, company_dept, company_position, company_web;
+  };
+
+  class BackgroundInfo {
+    list<string> schools;   // school names
+
+   public:
+    BackgroundInfo();
+
+    void addSchool(const string& s);
+  };
+
+  class PersonalInterestInfo {
+    list<unsigned short> categories;
+    list<string> specifics;
+    
+   public:
+    PersonalInterestInfo();
+    
+    void addInterest(unsigned short cat, const string& s);
+  };
+
   class Contact {
-  private:
+   private:
+    void Init();
     bool m_icqcontact;
     bool m_mobilecontact;
 
@@ -42,8 +107,6 @@ namespace ICQ2000 {
 
     // static fields
     unsigned int m_uin;
-    string m_alias;
-    string m_mobileno, m_firstname, m_lastname, m_email;
 
     // dynamic fields - updated when they come online
     unsigned char m_tcp_version;
@@ -56,6 +119,14 @@ namespace ICQ2000 {
     
     // other fields
     unsigned short m_seqnum;
+
+    // detailed fields
+    MainHomeInfo m_main_home_info;
+    HomepageInfo m_homepage_info;
+    EmailInfo m_email_info;
+    WorkInfo m_work_info;
+    PersonalInterestInfo m_personal_interest_info;
+    string m_about;
 
   public:
     Contact();
@@ -73,6 +144,7 @@ namespace ICQ2000 {
     string getEmail() const;
 
     Status getStatus() const;
+    string getStatusStr() const;
     bool isInvisible() const;
     unsigned int getExtIP() const;
     unsigned int getLanIP() const;
@@ -94,7 +166,21 @@ namespace ICQ2000 {
     void setExtPort(unsigned short port);
     void setLanPort(unsigned short port);
     void setTCPVersion(unsigned char v);
-    
+   
+    void setMainHomeInfo(const MainHomeInfo& m);
+    void setHomepageInfo(const HomepageInfo& s);
+    void setEmailInfo(const EmailInfo &e);
+    void setWorkInfo(const WorkInfo &w);
+    void setInterestInfo(const PersonalInterestInfo& p);
+    void setAboutInfo(const string& about);
+
+    MainHomeInfo& getMainHomeInfo();
+    HomepageInfo& getHomepageInfo();
+    EmailInfo& getEmailInfo();
+    WorkInfo& getWorkInfo();
+    PersonalInterestInfo& getInterestInfo();
+    const string& getAboutInfo() const;
+
     bool isICQContact() const;
     bool isMobileContact() const;
 

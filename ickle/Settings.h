@@ -61,14 +61,24 @@ class Settings {
   int getValueInt(const string& k);
   unsigned int getValueUnsignedInt(const string& k, unsigned int dflt = 0,
 				 unsigned int lower = 0, unsigned int upper = 0xffffffff);
+  unsigned short getValueUnsignedShort(const string& k, unsigned short dflt = 0,
+				 unsigned short lower = 0, unsigned short upper = 0xffff);
+  unsigned char getValueUnsignedChar(const string& k, unsigned char dflt = 0,
+				 unsigned char lower = 0, unsigned char upper = 0xff);
 
   void setValue(const string& k, const string& v);
   void setValue(const string& k, int v);
   void setValue(const string& k, unsigned int v);
+  void setValue(const string& k, unsigned short v);
+  void setValue(const string& k, unsigned char v);
 
   bool exists(const string& k);
 
   virtual void defaultSettings();
+
+  static string Escape(const string& t);
+  static string Unescape(const string& t);
+
 };
 
 #endif

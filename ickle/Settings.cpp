@@ -20,6 +20,8 @@
 
 #include "Settings.h"
 
+#include <sstream>
+
 Settings::Settings() {
   defaultSettings();
 }
@@ -36,7 +38,7 @@ bool Settings::load(const string& filename) {
       while(inf.peek() == ' ') inf.ignore();
       getline(inf,v);
 
-      m_map[k] = v;
+      m_map[k] = Unescape(v);
     }
   }
 
@@ -48,11 +50,63 @@ bool Settings::save(const string& filename) {
   if (!of) return false;
   hash_map<const string,string,_HashString>::iterator curr = m_map.begin();
   while (curr != m_map.end()) {
-    of << (*curr).first << " = " << (*curr).second << endl;
+    of << (*curr).first << " = " << Escape((*curr).second) << endl;
     ++curr;
   }
   of.close();
   return true;
+}
+
+string Settings::Escape(const string& s) {
+  ostringstream ostr;
+  string::const_iterator curr = s.begin();
+  while (curr != s.end()) {
+    switch(*curr) {
+    case '\n':
+      ostr << "\\n";
+      break;
+    case '\r':
+      ostr << "\\r";
+      break;
+    case '\\':
+      ostr << "\\\\";
+      break;
+    default:
+      ostr << (*curr);
+    }
+    ++curr;
+  }
+
+  return ostr.str();
+}
+
+string Settings::Unescape(const string& s) {
+  ostringstream ostr;
+  string::const_iterator curr = s.begin();
+  while (curr != s.end()) {
+    if (*curr == '\\') {
+      ++curr;
+      if (curr != s.end()) {
+	switch(*curr) {
+	case 'n':
+	  ostr << "\n";
+	  break;
+	case 'r':
+	  ostr << "\r";
+	  break;
+	case '\\':
+	  ostr << "\\";
+	  break;
+	}
+      } else {
+	ostr << "\\";
+      }
+    } else {
+      ostr << (*curr);
+    }
+    ++curr;
+  }
+  return ostr.str();
 }
 
 string Settings::getValueString(const string& k) {
@@ -66,6 +120,8 @@ int Settings::getValueInt(const string& k) {
   return ret;
 }
 
+
+// mmm.. could template a lot of this, oh well.
 unsigned int Settings::getValueUnsignedInt(const string& k, unsigned int dflt,
 					 unsigned int lower, unsigned int upper) {
   unsigned int v;
@@ -74,6 +130,36 @@ unsigned int Settings::getValueUnsignedInt(const string& k, unsigned int dflt,
     istr >> v;
     if (v < lower) v = lower;
     if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  return v;
+}
+
+unsigned short Settings::getValueUnsignedShort(const string& k, unsigned short dflt,
+					 unsigned short lower, unsigned short upper) {
+  unsigned short v;
+  if ( exists(k) ) {
+    istringstream istr(m_map[k]);
+    istr >> v;
+    if (v < lower) v = lower;
+    if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  return v;
+}
+
+unsigned char Settings::getValueUnsignedChar(const string& k, unsigned char dflt,
+					     unsigned char lower, unsigned char upper) {
+  unsigned char v;
+  if ( exists(k) ) {
+    istringstream istr(m_map[k]);
+    unsigned int vi;
+    istr >> vi;
+    v = (unsigned char)vi;
+    if (vi < lower) v = lower;
+    if (vi > upper) v = upper;
   } else {
     v = dflt;
   }
@@ -93,6 +179,18 @@ void Settings::setValue(const string& k, int v) {
 void Settings::setValue(const string& k, unsigned int v) {
   ostringstream ostr;
   ostr << v;
+  m_map[k] = ostr.str();
+}
+
+void Settings::setValue(const string& k, unsigned short v) {
+  ostringstream ostr;
+  ostr << v;
+  m_map[k] = ostr.str();
+}
+
+void Settings::setValue(const string& k, unsigned char v) {
+  ostringstream ostr;
+  ostr << (unsigned int)v;
   m_map[k] = ostr.str();
 }
 

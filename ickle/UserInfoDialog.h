@@ -28,6 +28,8 @@
 #include <gtk--/label.h>
 #include <gtk--/entry.h>
 #include <gtk--/table.h>
+#include <gtk--/notebook.h>
+#include <gtk--/text.h>
 
 #include <sigc++/signal_system.h>
 
@@ -37,11 +39,20 @@ using namespace std;
 using namespace SigC;
 
 using ICQ2000::Contact;
+using ICQ2000::MainHomeInfo;
+using ICQ2000::HomepageInfo;
 
 class UserInfoDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel, fetchb;
-  Gtk::Entry uin_entry, alias_entry, mobileno_entry, firstname_entry, lastname_entry, email_entry;
+  Gtk::Entry uin_entry, alias_entry, firstname_entry, lastname_entry,
+    email_entry1, email_entry2, email_entry3, ip_entry, status_entry, gmt_entry,
+    addr_entry, phone_entry, state_entry, fax_entry, city_entry, cellular_entry,
+    zip_entry, country_entry, age_entry, sex_entry, homepage_entry, birthday_entry,
+    lang_entry1, lang_entry2, lang_entry3;
+
+  Gtk::Text about_text;
+  Gtk::Notebook notebook;
 
   Contact *contact;
   bool finished_okay;

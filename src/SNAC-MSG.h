@@ -74,7 +74,6 @@ namespace ICQ2000 {
    protected:
 
     // General fields
-    bool m_advanced;
     UserInfoBlock m_userinfo;
     ICQSubType *m_icqsubtype;
     ICBMCookie m_cookie;
@@ -86,31 +85,28 @@ namespace ICQ2000 {
     ~MessageSNAC();
 
     ICQSubType* getICQSubType() const { return m_icqsubtype; }
-    UserInfoBlock getUserInfo() const { return m_userinfo; }
+    ICQSubType* grabICQSubType();
     ICBMCookie getICBMCookie() const { return m_cookie; }
-    bool isAdvanced() const { return m_advanced; }
 
     unsigned short Subtype() const { return SNAC_MSG_Message; }
   };
 
   class MessageACKSNAC : public MsgFamilySNAC, public InSNAC, public OutSNAC {
    protected:
-    unsigned int m_uin;
     ICBMCookie m_cookie;
-    unsigned short m_seqnum;
-    unsigned char m_icqsubtype, m_icqflags;
+    UINRelatedSubType *m_icqsubtype;
 
     void ParseBody(Buffer& b);
     void OutputBody(Buffer& b) const;
 
    public:
     MessageACKSNAC();
-    MessageACKSNAC(ICBMCookie c, unsigned int uin, unsigned short sn, unsigned char type, unsigned char flags);
+    MessageACKSNAC(ICBMCookie c, UINRelatedSubType *icqsubtype);
+    ~MessageACKSNAC();
+
+    UINRelatedSubType* getICQSubType() const { return m_icqsubtype; }  
 
     unsigned short Subtype() const { return SNAC_MSG_MessageACK; }
-    unsigned int getUIN() const { return m_uin; }  
-    unsigned short getSeqNum() const { return m_seqnum; }  
-    unsigned short getSubType() const { return m_icqsubtype; }  
   };
 
   class MessageSentOfflineSNAC : public MsgFamilySNAC, public InSNAC {

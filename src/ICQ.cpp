@@ -52,6 +52,13 @@ namespace ICQ2000 {
     case MSG_Type_SMS:
       ist = new SMSICQSubType();
       break;
+    case MSG_Type_AutoReq_Away:
+    case MSG_Type_AutoReq_Occ:
+    case MSG_Type_AutoReq_NA:
+    case MSG_Type_AutoReq_DND:
+    case MSG_Type_AutoReq_FFC:
+      ist = new ReqAwayICQSubType(type);
+      break;
     default:
       throw ParseException("Unknown ICQ Subtype");
     }
@@ -85,11 +92,11 @@ namespace ICQ2000 {
     }
   }
 
-  UINRelatedSubType::UINRelatedSubType()
-    : m_source(0), m_destination(0) { }
+  UINRelatedSubType::UINRelatedSubType(bool adv)
+    : m_source(0), m_destination(0), m_advanced(adv) { }
 
-  UINRelatedSubType::UINRelatedSubType(unsigned int s, unsigned int d)
-    : m_source(s), m_destination(d) { }
+  UINRelatedSubType::UINRelatedSubType(unsigned int s, unsigned int d, bool adv)
+    : m_source(s), m_destination(d), m_advanced(adv) { }
 
   unsigned int UINRelatedSubType::getSource() const { return m_source; }
 
@@ -99,13 +106,21 @@ namespace ICQ2000 {
 
   void UINRelatedSubType::setSource(unsigned int s) { m_source = s; }
 
+  bool UINRelatedSubType::isAdvanced() const { return m_advanced; }
+
+  void UINRelatedSubType::setAdvanced(bool b) { m_advanced = b; }
+
+  bool UINRelatedSubType::isACK() const { return m_ack; }
+
+  void UINRelatedSubType::setACK(bool b) { m_ack = b; }
+
   NormalICQSubType::NormalICQSubType(bool multi, bool adv)
-    : m_multi(multi), m_foreground(0x00000000),
-      m_background(0x00ffffff), m_advanced(adv) { }
+    : UINRelatedSubType(adv), m_multi(multi), m_foreground(0x00000000),
+      m_background(0x00ffffff) { }
 
   NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin, bool adv)
-    : m_message(msg), m_foreground(0x00000000), m_advanced(adv),
-      m_background(0x00ffffff), UINRelatedSubType(0, uin) { }
+    : UINRelatedSubType(0, uin, adv), m_message(msg), m_foreground(0x00000000),
+      m_background(0x00ffffff) { }
 
   string NormalICQSubType::getMessage() const { return m_message; }
   
@@ -129,16 +144,25 @@ namespace ICQ2000 {
   void NormalICQSubType::OutputBody(Buffer& b) const {
     if (m_advanced) {
       b << (unsigned short)0x0000
-	<< (unsigned short)0x0001;
+	<< (unsigned short)(m_ack ? 0x0000: 0x0001);
     }
 
-    string m_text = m_message;
-    ICQSubType::LFtoCRLF(m_text);
-    b.PackUint16StringNull(m_text);
+    if (m_ack) {
+      b.PackUint16StringNull("");
+    } else {
+      string m_text = m_message;
+      ICQSubType::LFtoCRLF(m_text);
+      b.PackUint16StringNull(m_text);
+    }
     
     if (m_advanced) {
-      b << (unsigned int)m_foreground
-	<< (unsigned int)m_background;
+      if (m_ack) {
+	b << (unsigned int)0x00000000
+	  << (unsigned int)0xffffffff;
+      } else {
+	b << (unsigned int)m_foreground
+	  << (unsigned int)m_background;
+      }
     }
   }
 
@@ -146,7 +170,7 @@ namespace ICQ2000 {
     string text = m_message;
     ICQSubType::LFtoCRLF(text);
 
-    return text.size() + (m_advanced ? 11 : 3);
+    return text.size() + (m_advanced ? 13 : 5);
   }
 
   unsigned char NormalICQSubType::getType() const { return MSG_Type_Normal; }
@@ -160,10 +184,10 @@ namespace ICQ2000 {
   unsigned int NormalICQSubType::getBackground() const { return m_background; }
 
   URLICQSubType::URLICQSubType(bool adv)
-    : m_advanced(adv) { }
+    : UINRelatedSubType(adv) { }
 
   URLICQSubType::URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination, bool adv)
-    : m_message(msg), m_url(url), UINRelatedSubType(source, destination), m_advanced(adv) { }
+    : m_message(msg), m_url(url), UINRelatedSubType(source, destination, adv) { }
 
   string URLICQSubType::getMessage() const { return m_message; }
 
@@ -199,21 +223,79 @@ namespace ICQ2000 {
 	<< (unsigned short)0x0001;
     }
 
-    ostringstream ostr;
-    ostr << m_message << (unsigned char)0xfe << m_url;
-    string m_text = ostr.str();
-    ICQSubType::LFtoCRLF(m_text);
-    b.PackUint16StringNull(m_text);
+    if (m_ack) {
+      b.PackUint16StringNull("");
+    } else {
+      ostringstream ostr;
+      ostr << m_message << (unsigned char)0xfe << m_url;
+      string m_text = ostr.str();
+      ICQSubType::LFtoCRLF(m_text);
+      b.PackUint16StringNull(m_text);
+    }
   }
 
   unsigned short URLICQSubType::Length() const {
     string text = m_message + m_url;
     ICQSubType::LFtoCRLF(text);
 
-    return text.size() + 4;
+    return text.size() + 6;
   }
 
   unsigned char URLICQSubType::getType() const { return MSG_Type_URL; }
+
+  ReqAwayICQSubType::ReqAwayICQSubType(unsigned char type)
+   : UINRelatedSubType(true), m_type(type) { }
+
+  ReqAwayICQSubType::ReqAwayICQSubType(Status s, unsigned int uin)
+    : UINRelatedSubType(0, uin, true) {
+
+    switch(s) {
+    case STATUS_AWAY:
+      m_type = MSG_Type_AutoReq_Away;
+      break;
+    case STATUS_OCCUPIED:
+      m_type = MSG_Type_AutoReq_Occ;
+      break;
+    case STATUS_NA:
+      m_type = MSG_Type_AutoReq_NA;
+      break;
+    case STATUS_DND:
+      m_type = MSG_Type_AutoReq_DND;
+      break;
+    case STATUS_FREEFORCHAT:
+      m_type = MSG_Type_AutoReq_FFC;
+      break;
+    default:
+      m_type = MSG_Type_AutoReq_Away;
+    }
+
+  }
+
+  void ReqAwayICQSubType::Parse(Buffer& b) {
+    b.UnpackUint16StringNull(m_message);
+    ICQSubType::CRLFtoLF(m_message);
+  }
+
+  void ReqAwayICQSubType::OutputBody(Buffer& b) const {
+    b << (unsigned short)0x0000
+      << (unsigned short)0x0001;
+
+    // empty message
+    b << (unsigned short)0x0001
+      << (unsigned char)0x00;
+  }
+
+  unsigned short ReqAwayICQSubType::Length() const {
+    return 9;
+  }
+
+  unsigned char ReqAwayICQSubType::getType() const { return m_type; }
+
+  unsigned char ReqAwayICQSubType::getFlags() const { return 0x03; }
+
+  string ReqAwayICQSubType::getMessage() const { return m_message; }
+
+  void ReqAwayICQSubType::setMessage(const string& msg) { m_message = msg; }
 
   SMSICQSubType::SMSICQSubType() { }
 

@@ -15,7 +15,7 @@ libicq2000_la_SOURCES = Client.cpp buffer.cpp socket.cpp TLV.cpp \
 pkginclude_HEADERS = Client.h buffer.h socket.h TLV.h constants.h \
     SNAC.h SNAC-base.h SNAC-BUD.h SNAC-LOC.h SNAC-GEN.h SNAC-UIN.h SNAC-MSG.h SNAC-SRV.h \
     events.h Xml.h Contact.h ContactList.h exceptions.h custom_marshal.h \
-    DirectClient.h ICQ.h UserInfoBlock.h ICBMCookie.h
+    DirectClient.h ICQ.h UserInfoBlock.h ICBMCookie.h userinfoconstants.h
 
 libicq2000_la_LDFLAGS = -version-info 1:0:0
 

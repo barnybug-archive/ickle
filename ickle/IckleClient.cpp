@@ -91,6 +91,32 @@ void IckleClient::loadContactList() {
 	  c.setLastName(cs.getValueString("lastname"));
 	  c.setEmail(cs.getValueString("email"));
 
+	  // Main Home Info
+	  MainHomeInfo& mhi = c.getMainHomeInfo();
+	  mhi.city = cs.getValueString("city");
+	  mhi.state = cs.getValueString("state");
+	  mhi.phone = cs.getValueString("phone");
+	  mhi.fax = cs.getValueString("fax");
+	  mhi.street = cs.getValueString("street");
+	  mhi.zip = cs.getValueString("zip");
+	  mhi.country = cs.getValueUnsignedShort("country");
+	  mhi.gmt = cs.getValueUnsignedChar("gmt");
+	  
+	  // Homepage Info
+	  HomepageInfo& hpi = c.getHomepageInfo();
+	  hpi.age = cs.getValueUnsignedChar("age", 0, 150, 0);
+	  hpi.sex = cs.getValueUnsignedChar("sex", 0, 2, 0);
+	  hpi.homepage = cs.getValueString("homepage");
+	  hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+	  hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 12, 0);
+	  hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 31, 0);
+	  hpi.lang1 = cs.getValueUnsignedChar("lang1");
+	  hpi.lang2 = cs.getValueUnsignedChar("lang2");
+	  hpi.lang3 = cs.getValueUnsignedChar("lang3");
+
+	  // About Info
+	  c.setAboutInfo( cs.getValueString("about") );
+
 	  m_fmap[c.getUIN()] = string(*nextp);
 	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
 	  icqclient.addContact(c);
@@ -401,61 +427,60 @@ void IckleClient::event_system(const string& s, MessageEvent *ev) {
       if(c=='%'){
         c = istr.get();
         switch(c){
-           case 'i':
-             ostr << IPtoString( co->getExtIP() );
-             break;
-           case 'p':
-             ostr << co->getExtPort();
-             break;
-           case 'e':
-             ostr << co->getEmail();
-             break;
-           case 'n':
-             ostr << co->getFirstName()
-                  << " " << co->getLastName();
-             break;
-           case 'f':
-             ostr << co->getFirstName();
-             break;
-           case 'l':
-             ostr << co->getLastName();
-             break;
-           case 'a':
-             ostr << co->getAlias();
-             break;
-           case 'u':
-             ostr << co->getStringUIN();
-             break;
-           // case 'w': would be the web address
-           // case 'h': would be home phone number
-           case 'c':
-             ostr << co->getMobileNo();
-             break;
-           // Should implement a getStatusStr() for these
-           // case 's':
-           // case 'S':
-           //  ostr << co->getStatus();
-           //  break;
-           case 't':
-	     ev_time = ev->getTime();
-             strftime(timebuf, 100, "%b %d %r", localtime(&ev_time));
-             ostr << timebuf;
-             break;
-           case 'T':
-	     ev_time = ev->getTime();
-             strftime(timebuf, 100, "%b %d %R %Z", localtime(&ev_time));
-             ostr << timebuf;
-             break;
-           // case 'o' would be last time they were online
-           case 'm':
-             ostr << co->numberPendingMessages();
-             break;
-           case '%':
-             ostr << "%";
-             break;
-           default:
-	     cout << "Warning: no substitution for %" << c << endl;
-             break;
+	case 'i':
+	  ostr << IPtoString( co->getExtIP() );
+	  break;
+	case 'p':
+	  ostr << co->getExtPort();
+	  break;
+	case 'e':
+	  ostr << co->getEmail();
+	  break;
+	case 'n':
+	  ostr << co->getFirstName()
+	       << " " << co->getLastName();
+	  break;
+	case 'f':
+	  ostr << co->getFirstName();
+	  break;
+	case 'l':
+	  ostr << co->getLastName();
+	  break;
+	case 'a':
+	  ostr << co->getAlias();
+	  break;
+	case 'u':
+	  ostr << co->getStringUIN();
+	  break;
+	  // case 'w': would be the web address
+	  // case 'h': would be home phone number
+	case 'c':
+	  ostr << co->getMobileNo();
+	  break;
+	case 's':
+	case 'S':
+	  ostr << co->getStatusStr();
+	  break;
+	case 't':
+	  ev_time = ev->getTime();
+	  strftime(timebuf, 100, "%b %d %r", localtime(&ev_time));
+	  ostr << timebuf;
+	  break;
+	case 'T':
+	  ev_time = ev->getTime();
+	  strftime(timebuf, 100, "%b %d %R %Z", localtime(&ev_time));
+	  ostr << timebuf;
+	  break;
+	  // case 'o' would be last time they were online
+	case 'm':
+	  ostr << co->numberPendingMessages();
+	  break;
+	case '%':
+	  ostr << "%";
+	  break;
+	default:
+	  cout << "Warning: no substitution for %" << c << endl;
+	  break;
         }
       } else {
         ostr << c;
@@ -506,6 +531,33 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     user.setValue( "firstname", c->getFirstName() );
     user.setValue( "lastname", c->getLastName() );
     user.setValue( "email", c->getEmail() );
+
+    // Main Home Info
+    MainHomeInfo& mhi = c->getMainHomeInfo();
+    user.setValue( "city", mhi.city );
+    user.setValue( "state", mhi.state );
+    user.setValue( "phone", mhi.phone );
+    user.setValue( "fax", mhi.fax );
+    user.setValue( "street", mhi.street );
+    user.setValue( "zip", mhi.zip );
+    user.setValue( "country", mhi.country );
+    user.setValue( "gmt", mhi.gmt );
+    
+    // Homepage Info
+    HomepageInfo& hpi = c->getHomepageInfo();
+    user.setValue( "age", hpi.age );
+    user.setValue( "sex", hpi.sex );
+    user.setValue( "homepage", hpi.homepage );
+    user.setValue( "birth_year", hpi.birth_year );
+    user.setValue( "birth_month", hpi.birth_month );
+    user.setValue( "birth_day", hpi.birth_day );
+    user.setValue( "lang1", hpi.lang1 );
+    user.setValue( "lang2", hpi.lang2 );
+    user.setValue( "lang3", hpi.lang3 );
+    
+    // About Info
+    user.setValue( "about", c->getAboutInfo() );
+
     user.save(m_fmap[c->getUIN()]);
 
   } else if (ev->getType() == ContactListEvent::UserRemoved) {

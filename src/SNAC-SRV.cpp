@@ -23,7 +23,6 @@
 
 #include "TLV.h"
 #include "Xml.h"
-#include "Contact.h"
 
 namespace ICQ2000 {
 
@@ -144,11 +143,29 @@ namespace ICQ2000 {
     b << (unsigned short)0x000e;
     b << m_my_uin;
 
-    b << (unsigned short)2000
+    b << (unsigned short)2000	/* type 9808 */
       << (unsigned short)0x0000
-      << (unsigned short)1311
+      << (unsigned short)1311	/* subtype (unsigned short)1311 */
       << m_user_uin;
     
+  }
+
+  SrvRequestDetailUserInfo::SrvRequestDetailUserInfo(unsigned int my_uin, unsigned int user_uin)
+    : m_my_uin(my_uin), m_user_uin(user_uin) { }
+
+  void SrvRequestDetailUserInfo::OutputBody(Buffer& b) const {
+    b << (unsigned short)0x0001
+      << (unsigned short)0x0010;
+
+    b.setEndianness(Buffer::LITTLE);
+    b << (unsigned short)0x000e;
+    b << m_my_uin;
+
+    b << (unsigned short)2000   /* type 9808 */
+      << (unsigned short)0x0000
+      << (unsigned short)0x04b2 /* subtype (unsigned short)1311 */
+      << m_user_uin;
+   
   }
 
   SrvResponseSNAC::SrvResponseSNAC() : m_icqsubtype(NULL) { }
@@ -245,8 +262,25 @@ namespace ICQ2000 {
       ParseSMSError(b);
     else if (subtype == 100 || subtype == 150)
       ParseSMSResponse(b);
-    else if (subtype == 410)
+    else if (subtype == 410)	// simple user info 0x9a010a
       ParseSimpleUserInfo(b);
+    else if (subtype == 0x00c8)
+      ParseDetailedUserInfo(b,0);
+    else if (subtype == 0x00dc)
+      ParseDetailedUserInfo(b,1);
+    else if (subtype == 0x00eb)
+      ParseDetailedUserInfo(b,2);
+    else if (subtype == 0x010e)
+      ParseDetailedUserInfo(b,3);
+    else if (subtype == 0x00d2)
+      ParseDetailedUserInfo(b,4);
+    else if (subtype == 0x00e6)
+      ParseDetailedUserInfo(b,5);
+    else if (subtype == 0x00f0)
+      ParseDetailedUserInfo(b,6);
+    else if (subtype == 0x00fa)
+      ParseDetailedUserInfo(b,7);
+
     else
       throw ParseException("Unknown ICQ subtype for Server response SNAC");
 
@@ -341,6 +375,136 @@ namespace ICQ2000 {
     } // end deliverable = No
 
 
+  }
+
+  void SrvResponseSNAC::ParseDetailedUserInfo(Buffer& b, int mode) {
+    unsigned char wb;
+    switch(mode) {
+    case 0: {
+      b >> wb; // status code ?
+      string s;
+      b.UnpackUint16StringNull(m_main_home_info.alias);     // alias
+      b.UnpackUint16StringNull(m_main_home_info.firstname); // first name
+      b.UnpackUint16StringNull(m_main_home_info.lastname);  // last name
+      b.UnpackUint16StringNull(m_main_home_info.email);	    // email
+      b.UnpackUint16StringNull(m_main_home_info.city);	    // city
+      b.UnpackUint16StringNull(m_main_home_info.state);     // state
+      b.UnpackUint16StringNull(m_main_home_info.phone);     // phone
+      b.UnpackUint16StringNull(m_main_home_info.fax);       // fax
+      b.UnpackUint16StringNull(m_main_home_info.street);    // street
+      b.UnpackUint16StringNull(m_main_home_info.cellular);  // cellular
+      b.UnpackUint16StringNull(m_main_home_info.zip);       // zip
+      b >> m_main_home_info.country;
+      unsigned char unk;
+      b >> m_main_home_info.gmt;
+      b >> unk;
+
+      // some end marker?
+      unsigned short wi;
+      b >> wi;
+
+      m_type = RMainHomeInfo;
+      break;
+    }
+    case 1: {
+      b >> wb; // status code ?
+      b >> m_homepage_info.age;
+      unsigned char unk;
+      b >> unk;
+      b >> m_homepage_info.sex;
+      b.UnpackUint16StringNull(m_homepage_info.homepage);
+      b >> m_homepage_info.birth_year;
+      b >> m_homepage_info.birth_month;
+      b >> m_homepage_info.birth_day;
+      b >> m_homepage_info.lang1;
+      b >> m_homepage_info.lang2;
+      b >> m_homepage_info.lang3;
+      b >> wb;
+      b >> wb;
+      m_type = RHomepageInfo;
+      break;
+    }
+    case 2: {
+      b >> wb; // status code ?
+      
+      unsigned char n;
+      b >> n;
+      while(n > 0) {
+	string s;
+	b.UnpackUint16StringNull(s);
+	m_email_info.addEmailAddress(s);
+	--n;
+      }
+      m_type = REmailInfo;
+      break;
+    }
+    case 3: {
+      b >> wb; // 0a status code
+      unsigned short ws;
+      b >> ws;
+      m_type = RUnknown;
+      break;
+    }
+    case 4: {
+      b >> wb; // 0a status code
+      b.UnpackUint16StringNull(m_work_info.city);
+      b.UnpackUint16StringNull(m_work_info.state);
+      string s;	// these fields are incorrect in the spec
+      b.UnpackUint16StringNull(s);
+      b.UnpackUint16StringNull(s);
+      b.UnpackUint16StringNull(m_work_info.street);
+      b.UnpackUint16StringNull(m_work_info.zip);
+      b >> m_work_info.country;
+      b.UnpackUint16StringNull(m_work_info.company_name);
+      b.UnpackUint16StringNull(m_work_info.company_dept);
+      b.UnpackUint16StringNull(m_work_info.company_position);
+      unsigned short ws;
+      b >> ws;
+      b.UnpackUint16StringNull(m_work_info.company_web);
+      m_type = RWorkInfo;
+      break;
+    }
+    case 5:
+      b >> wb; // 0a status code
+      b.UnpackUint16StringNull(m_about);
+      ICQSubType::CRLFtoLF(m_about);
+      m_type = RAboutInfo;
+      break;
+    case 6: {
+      b >> wb; // 0a status code
+      unsigned char n;
+      b >> n;
+      while (n > 0) {
+	unsigned short cat;
+	string spec;
+	b >> cat;
+	b.UnpackUint16StringNull(spec);
+	m_personal_interest_info.addInterest(cat,spec);
+	--n;
+      }
+      m_type = RInterestInfo;
+      break;
+    }
+    case 7: {
+      b >> wb; // 0a status code
+      // not sure how to decipher this properly... seems there are 3 strings
+      // perhaps that's because all my friends are in university
+      unsigned short ws;
+      b >> ws; // number of fields?
+
+      if (ws > 0) b >> wb;
+      for (int i=0; i < 3; i++) {
+	string s;
+	b.UnpackUint16StringNull(s);
+	m_background_info.addSchool(s);
+      }
+      b >> wb; // end marker?
+      m_type = RBackgroundInfo;
+      break;
+    }
+    default:
+      throw ParseException("Unknown mode for Detailed user info parsing");
+    } 
   }
 
   void SrvResponseSNAC::ParseSimpleUserInfo(Buffer& b) {

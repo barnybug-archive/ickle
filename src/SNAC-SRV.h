@@ -23,9 +23,10 @@
 
 #include <string>
 #include <time.h>
-
 #include "SNAC-base.h"
 #include "ICQ.h"
+#include "constants.h"
+#include "Contact.h"
 
 namespace ICQ2000 {
 
@@ -98,6 +99,18 @@ namespace ICQ2000 {
     unsigned short Subtype() const { return SNAC_SRV_Send; }
   };
 
+  class SrvRequestDetailUserInfo : public SrvFamilySNAC, public OutSNAC {
+   private:
+    unsigned int m_my_uin, m_user_uin;
+
+   protected:
+    void OutputBody(Buffer& b) const;
+
+   public:
+    SrvRequestDetailUserInfo(unsigned int my_uin, unsigned int user_uin);
+    unsigned short Subtype() const { return SNAC_SRV_Send; }
+  };
+
   class SrvResponseSNAC : public SrvFamilySNAC, public InSNAC {
    public:
     enum ResponseType {
@@ -105,7 +118,15 @@ namespace ICQ2000 {
       OfflineMessagesComplete,
       SMS_Error,
       SMS_Response,
-      SimpleUserInfo
+      SimpleUserInfo,
+      RMainHomeInfo,
+      RHomepageInfo,
+      REmailInfo,
+      RUnknown,
+      RWorkInfo,
+      RAboutInfo,
+      RInterestInfo,
+      RBackgroundInfo
     };
 
    protected:
@@ -125,6 +146,16 @@ namespace ICQ2000 {
     // SimpleUserInfo fields
     unsigned int m_uin;
     string m_alias, m_first_name, m_last_name, m_email;
+
+    // DetailedUserInfo fields
+    MainHomeInfo m_main_home_info;
+    HomepageInfo m_homepage_info;
+    EmailInfo m_email_info;
+    WorkInfo m_work_info;
+    BackgroundInfo m_background_info;
+    PersonalInterestInfo m_personal_interest_info;
+    string m_about;
+
     bool m_authreq;
     unsigned char m_status;
 
@@ -134,6 +165,7 @@ namespace ICQ2000 {
     void ParseSMSError(Buffer& b);
     void ParseSMSResponse(Buffer& b);
     void ParseSimpleUserInfo(Buffer &b);
+    void ParseDetailedUserInfo(Buffer &b, int mode);
     
    public:
     SrvResponseSNAC();
@@ -159,6 +191,11 @@ namespace ICQ2000 {
     string getEmail() const { return m_email; }
 
     unsigned short Subtype() const { return SNAC_SRV_Response; }
+
+    // detailed user info structures
+    MainHomeInfo& getMainHomeInfo() { return m_main_home_info; }
+    HomepageInfo& getHomepageInfo() { return m_homepage_info; }
+    string getAboutInfo() const { return m_about; }
   };
 
 }

@@ -42,6 +42,7 @@ ContactListView::ContactListView()
    {
      using namespace Menu_Helpers;
      MenuList& ml = rc_popup.items();
+     ml.push_back( MenuElem( "Check away message", slot( this, &ContactListView::fetch_away_msg_cb ) ) );
      ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::user_info_cb ) ) );
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
@@ -81,10 +82,7 @@ void ContactListView::clear() {
 }
 
 void ContactListView::user_info_cb() {
-  Gtk::CList_Helpers::SelectionList sl = selection();
-  Row r = *(sl.begin());
-  RowData *p = (RowData*)(*r).get_data();
-  user_info.emit(p->uin);
+  user_info.emit( current_selection_uin() );
 }
 
 void ContactListView::remove_user_cb() {
@@ -92,6 +90,18 @@ void ContactListView::remove_user_cb() {
   Row r = *(sl.begin());
   RowData *p = (RowData*)(*r).get_data();
   icqclient.removeContact(p->uin);
+}
+
+void ContactListView::fetch_away_msg_cb() {
+  Contact *c = icqclient.getContact( current_selection_uin() );
+  if (c != NULL) icqclient.fetchAwayMsg(c);
+}
+
+unsigned int ContactListView::current_selection_uin() {
+  Gtk::CList_Helpers::SelectionList sl = selection();
+  Row r = *(sl.begin());
+  RowData *p = (RowData*)(*r).get_data();
+  return p->uin;
 }
 
 gint ContactListView::button_press_cb(GdkEventButton *ev) {

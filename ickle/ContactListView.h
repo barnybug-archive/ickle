@@ -75,6 +75,11 @@ class ContactListView : public Gtk::CList {
 
   citerator lookupUIN(unsigned int uin);
 
+  void user_info_cb();
+  void remove_user_cb();
+  void fetch_away_msg_cb();
+  unsigned int current_selection_uin();
+
  public:
   ContactListView();
   ~ContactListView();
@@ -83,8 +88,6 @@ class ContactListView : public Gtk::CList {
 
   void clear();
 
-  void user_info_cb();
-  void remove_user_cb();
   gint button_press_cb(GdkEventButton *ev);
 
   bool message_cb(MessageEvent *ev);
