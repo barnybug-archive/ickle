@@ -23,6 +23,9 @@
 
 #include "Translator.h"
 
+using std::ifstream;
+using std::istringstream;
+
 namespace ICQ2000 {
   //============ Translator ============//
 
@@ -74,7 +77,7 @@ namespace ICQ2000 {
     while(mapFile.getline(buffer, 80) != NULL && c < 512){
 
       istringstream istr(buffer);
-      istr.setf(ios::hex,ios::basefield);
+      istr.setf(std::ios::hex,std::ios::basefield);
       istr>>skip>>skip>>inputs[0]
 	  >>skip>>skip>>skip>>inputs[1]
 	  >>skip>>skip>>skip>>inputs[2]
