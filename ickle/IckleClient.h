@@ -68,7 +68,7 @@ class IckleClient : public SigC::Object {
 #endif
 
   hash_map<unsigned int, string> m_fmap;
-  hash_map<unsigned int, History> m_histmap;
+  hash_map<unsigned int, History *> m_histmap;
 
   hash_map<int, Connection> m_sockets;
   Connection poll_server_cnt;

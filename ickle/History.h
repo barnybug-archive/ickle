@@ -1,8 +1,9 @@
-/*
- * History
- * Logging and later loading of history
+/* $Id: History.h,v 1.5 2001-12-10 00:12:33 nordman Exp $
  *
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * Logging and loading of history.
+ *
+ * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>,
+ * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,32 +26,71 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
+#include <stdexcept>
+#include <glib.h>
+#include <sys/types.h>
+#include <time.h>
+#include <sigc++/signal_system.h>
 
-#include <Contact.h>
 #include "events.h"
 
 using ICQ2000::MessageEvent;
-using ICQ2000::Contact;
 
 using std::string;
-
 using std::ifstream;
 using std::ofstream;
 using std::ostream;
+using std::vector;
 
-class History {
+class History : public SigC::Object {
+  
  private:
-  string        m_filename;
-  Contact *     m_contact;
 
-  void          quote_output    (ostream& ostr, const string& text);
+  ifstream              m_if;
+  bool                  m_streamlock;
+  string                m_filename;
+  guint                 m_size;
+  vector<streampos>     m_index;
+  bool                  m_builtindex;
+  unsigned int          m_uin;
+
+  void                  quote_output    (ostream& ostr, const string& text);
+  void                  build_index     ();
 
  public:
-  History();
-  History(Contact *c);
+
+  struct Entry {
+    enum Direction {
+      RECEIVED,
+      SENT
+    };
   
-  void          log             (MessageEvent *ev, bool received);
-  string        getFilename     () const;
+    MessageEvent::MessageType type;
+    time_t timestamp;
+    Direction dir;
+    bool offline;
+    bool multiparty;
+    string message;
+    string URL;
+    bool receipt;
+    bool delivered; // for SMS receipts
+  };
+
+  History();
+  History(unsigned int uin);
+  ~History();
+
+  void                  log             (MessageEvent *ev, bool received) throw (std::runtime_error);
+  void                  get_msg         (guint index, Entry &he)
+    throw(std::out_of_range, std::runtime_error);
+
+  void                  stream_lock     () throw (std::runtime_error);
+  void                  stream_release  () throw (std::runtime_error);
+  string                getFilename     () const { return m_filename; }
+  guint                 size            ();
+
+  SigC::Signal1<void,Entry *> new_entry;
 };
 
 #endif

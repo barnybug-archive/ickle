@@ -1,5 +1,5 @@
-/*
- * MessageBox
+/* $Id: MessageBox.h,v 1.7 2001-12-10 00:12:33 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -21,8 +21,6 @@
 #ifndef MESSAGEBOX_H
 #define MESSAGEBOX_H
 
-#include <string>
-
 #include <gtk--/window.h>
 #include <gtk--/table.h>
 #include <gtk--/text.h>
@@ -34,24 +32,34 @@
 #include <gtk--/entry.h>
 #include <gtk--/statusbar.h>
 #include <gtk--/togglebutton.h>
+#include <gtk--/adjustment.h>
+#include <gtk--/scale.h>
 
+#include <string>
 #include <time.h>
 
 #include <sigc++/signal_system.h>
 
 #include "Contact.h"
 #include "events.h"
-
 #include "Icons.h"
+#include "History.h"
 
 using namespace ICQ2000;
 
 using std::string;
-using SigC::Signal1;
 
 class MessageBox : public Gtk::Window {
  private:
   Contact *m_contact;
+
+  History *m_history;
+  SigC::Connection m_histconn;
+  guint m_nrmsgs_shown;
+
+  Gtk::Adjustment m_scaleadj;
+  Gtk::HScale m_scale;
+  Gtk::Label m_scalelabel;
 
   Gtk::VBox m_vbox_top;
   Gtk::Button m_send_button, m_close_button;
@@ -87,14 +95,17 @@ class MessageBox : public Gtk::Window {
   void send_button_update();
   void set_contact_title();
   string format_time(time_t t);
-  void display_message(MessageEvent *ev, bool sent, const string& nick);
+  void display_message(History::Entry &he);
   void set_status( const string& text );
+  void scaleadj_value_changed_cb();
 
  public:
-  MessageBox(Contact *c);
+  MessageBox(Contact *c, History *h);
   ~MessageBox();
 
-  bool message_cb(MessageEvent *ev);
+  void popup();
+
+  void new_entry_cb(History::Entry *ev);
   void messageack_cb(MessageEvent *ev);
   void contactlist_cb(ContactListEvent *ev);
 

@@ -125,21 +125,15 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
     AuthAckEvent *ack = new AuthAckEvent(c, true);
     icqclient.SendEvent( ack );
   }
-  /*
-   * Call the callback in the MessageBox
-   * we do it this way so we don't have loads of
-   * MessageBoxes listening to all the Message events
-   * pointlessly
-   */
   if ( g_settings.getValueBool("message_autopopup") ) {
-    messagebox_popup(c);
+    user_popup.emit( c->getUIN() );
     // popup a new/raise a current one
   }
 
   if (m_message_boxes.count(c->getUIN()) == 0) {
     return m_contact_list.message_cb(ev);
   } else {
-    return m_message_boxes[c->getUIN()]->message_cb(ev);
+    return true;
   }
 
 }
@@ -186,9 +180,9 @@ ContactListView* IckleGUI::getContactListView() {
   return &m_contact_list;
 }
 
-void IckleGUI::messagebox_popup(Contact *c) {
+void IckleGUI::messagebox_popup(Contact *c, History *h) {
   if (m_message_boxes.count(c->getUIN()) == 0) {
-    MessageBox *m = new MessageBox(c);
+    MessageBox *m = new MessageBox(c, h);
     manage(m);
     /*
      * gtkmm doesn't delete it on destroy event unless it's managed
@@ -206,6 +200,7 @@ void IckleGUI::messagebox_popup(Contact *c) {
     if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
 
     m->setDisplayTimes(m_display_times);
+    m->popup();
   } else {
     // raise MessageBox
     MessageBox *m = m_message_boxes[c->getUIN()];
@@ -213,8 +208,8 @@ void IckleGUI::messagebox_popup(Contact *c) {
   }
 }
 
-void IckleGUI::user_popup(Contact *c) {
-  messagebox_popup(c);
+void IckleGUI::popup_messagebox(Contact *c, History *h) {
+  messagebox_popup(c,h);
 
   if (m_message_boxes.count(c->getUIN()) > 0) {
     MessageBox *m = m_message_boxes[c->getUIN()];
@@ -222,10 +217,9 @@ void IckleGUI::user_popup(Contact *c) {
     // signal all waiting messages
     while (c->numberPendingMessages() > 0) {
       MessageEvent *ev = c->getPendingMessage();
-      m->message_cb(ev);
       c->erasePendingMessage(ev);
-      icqclient.SignalMessageQueueChanged(c);
     }
+    icqclient.SignalMessageQueueChanged(c);
   }
 }
 

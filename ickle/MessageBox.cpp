@@ -1,5 +1,5 @@
-/*
- * MessageBox
+/* $Id: MessageBox.cpp,v 1.22 2001-12-10 00:12:33 nordman Exp $
+ * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -31,14 +31,18 @@
 using std::ostringstream;
 using std::endl;
 
-MessageBox::MessageBox(Contact *c)
+MessageBox::MessageBox(Contact *c, History *h)
   : m_contact(c),
+    m_history(h),
+    m_nrmsgs_shown(10),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
-    m_history_table(2,1,false),
+    m_history_table(4,1,false),
     m_sms_count_label("", 0),
     m_sms_count_over(false),
-    m_sms_enabled(true)
+    m_sms_enabled(true),
+    m_scaleadj(0, 0, 0),
+    m_scale(m_scaleadj)
 {
   Gtk::Box *hbox;
 
@@ -53,14 +57,33 @@ MessageBox::MessageBox(Contact *c)
 
   Gtk::Scrollbar *scrollbar;
   
-  m_history_table.set_usize(400,100);
+  m_history_table.set_usize(400,140);
   m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
 			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
 
   // scrollbars
   scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
   m_history_table.attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-  
+
+  // scale adjustment
+  gfloat upper = m_history->size() / m_nrmsgs_shown;
+  if( !(m_history->size() % m_nrmsgs_shown) && upper )
+    --upper;
+  m_scaleadj.set_lower(0);
+  m_scaleadj.set_upper( upper );
+  m_scaleadj.set_step_increment(1);
+  m_scaleadj.set_page_increment(1);
+  m_scaleadj.set_page_size(0);
+  m_scaleadj.set_value( m_scaleadj.get_upper() );
+  m_scaleadj.value_changed.connect( slot(this, &MessageBox::scaleadj_value_changed_cb) );
+
+  // scale
+  m_scale.set_draw_value( false );
+  m_scale.set_update_policy(GTK_UPDATE_DELAYED);
+  m_scale.set_digits(0);
+  m_history_table.attach( m_scalelabel, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL );
+  m_history_table.attach( m_scale, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+
   m_history_text.set_editable(false);
   m_history_text.set_word_wrap(true);
 
@@ -162,7 +185,7 @@ MessageBox::MessageBox(Contact *c)
   m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *sms_vbox, *i )  );
   // -------------------------
 
-  m_pane.add2(m_tab);
+  m_pane.pack2(m_tab, false, true);
 
   m_vbox_top.pack_start(m_pane,true,true);
 
@@ -193,12 +216,14 @@ MessageBox::MessageBox(Contact *c)
   hbox->pack_end(m_close_button);
   m_vbox_top.pack_start(*hbox,false);
 
+  m_histconn = m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
+  
   add(m_vbox_top);
-
-  show_all();
 }
 
-MessageBox::~MessageBox() { }
+MessageBox::~MessageBox() {
+  m_histconn.disconnect();
+}
 
 void MessageBox::raise() const {
   get_window().show();
@@ -322,6 +347,18 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
   send_button_update();
 }
 
+void MessageBox::new_entry_cb(History::Entry *ev) {
+  gfloat upper = m_history->size() / m_nrmsgs_shown;
+  if( !(m_history->size() % m_nrmsgs_shown) && upper )
+    --upper;
+
+  m_scaleadj.set_upper( upper );
+  if( upper != m_scaleadj.get_value() )
+    m_scaleadj.set_value( upper );
+  else
+    scaleadj_value_changed_cb();
+}
+
 void MessageBox::messageack_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
   if (c->getUIN() != m_contact->getUIN()) return;
@@ -330,7 +367,6 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
 
   if (ev->isFinished()) {
     if (ev->isDelivered()) {
-      display_message(ev, false, "You");
       
       if (m_message_type == MessageEvent::Normal) {
 	m_message_text.delete_text(0,-1);
@@ -354,78 +390,73 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
 
 }
 
-void MessageBox::display_message(MessageEvent *ev, bool sent, const string& nick) {
-
+void MessageBox::display_message(History::Entry &e)
+{
   Gdk_Font normal_font;
   Gdk_Font bold_font("-*-*-bold-*-*-*-*-*-*-*-*-*-*-*");
-
   Gdk_Color nickc;
-  if (sent) nickc = Gdk_Color("red");
-  else nickc = Gdk_Color("blue");
+  string nick;
+  
+  if( e.dir == History::Entry::SENT ) {
+    nickc = Gdk_Color("blue");
+    nick = "You";
+  }
+  else {
+    nickc = Gdk_Color("red");
+    nick = m_contact->getAlias();
+  }
 
   Gdk_Color white("white");
   Gdk_Color black("black");
   
-  m_history_text.freeze();
-
-  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
-  gfloat bot = adj->get_upper();
-
   m_history_text.insert( normal_font, black, white, "\n", -1);
 
   ostringstream ostr;
-  if (m_display_times) {
-    time_t t = ev->getTime();
-    ostr << format_time(t) << " ";
-  }
+  if (m_display_times)
+    ostr << format_time(e.timestamp) << " ";
 
   ostr << nick << " ";
-  if (ev->getType() == MessageEvent::Normal) {
-    NormalMessageEvent *msg = static_cast<NormalMessageEvent*>(ev);
+  if (e.type == MessageEvent::Normal) {
 
-    if ( msg->isMultiParty() ) ostr << "[multiparty] ";
+    if ( e.multiparty ) ostr << "[multiparty] ";
     m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, msg->getMessage(), -1);
+    m_history_text.insert( normal_font, black, white, e.message, -1);
       
-  } else if (ev->getType() == MessageEvent::URL) {
-    URLMessageEvent *url = static_cast<URLMessageEvent*>(ev);
+  } else if (e.type == MessageEvent::URL) {
 
     m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, url->getURL(), -1);
+    m_history_text.insert( normal_font, black, white, e.URL, -1);
     m_history_text.insert( normal_font, black, white, "\n", -1);
-    m_history_text.insert( normal_font, black, white, url->getMessage(), -1);
+    m_history_text.insert( normal_font, black, white, e.message, -1);
       
-  } else if (ev->getType() == MessageEvent::SMS) {
-    SMSMessageEvent *smsmsg = static_cast<SMSMessageEvent*>(ev);
+  } else if (e.type == MessageEvent::SMS) {
 
     ostr << "[sms] ";
     m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
-    m_history_text.insert( normal_font, black, white, smsmsg->getMessage(), -1);
+    m_history_text.insert( normal_font, black, white, e.message, -1);
       
-  } else if (ev->getType() == MessageEvent::SMS_Receipt) {
-    SMSReceiptEvent *rcpt = static_cast<SMSReceiptEvent*>(ev);
-
-    if (rcpt->delivered()) {
+  } else if (e.type == MessageEvent::SMS_Receipt) {
+    if (e.delivered) {
       ostr << "[sms delivered]";
     } else {
       ostr << "[sms not delivered]";
     }
     ostr << endl;
     m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
-
   }
-
-  m_history_text.thaw();
-  adj->set_value( bot );
 }
 
-bool MessageBox::message_cb(MessageEvent *ev) {
-  Contact *c = ev->getContact();
-  if (c->getUIN() != m_contact->getUIN()) return false;
-  display_message(ev, true, m_contact->getAlias());
-  return true;
-}
+void MessageBox::popup() {
+  Gtk::Adjustment *adj;
+
+  show_all();
   
+  scaleadj_value_changed_cb();
+
+  adj = m_history_text.get_vadjustment();
+  adj->set_value( adj->get_upper() );
+}
+
 void MessageBox::send_clicked_cb() {
 
   set_status("Sending message...");
@@ -459,4 +490,42 @@ void MessageBox::set_status( const string& text )
   if( m_status.messages().size() )
     m_status.pop( m_status_context );
   m_status.push( m_status_context, text);
+}
+
+void MessageBox::scaleadj_value_changed_cb()
+{
+  History::Entry he;
+  guint i, end;
+  Gtk::Adjustment *adj;
+  ostringstream os;
+
+  m_history_text.freeze();
+  
+  try {
+    m_history->stream_lock();
+  }
+  catch ( exception &e ) {
+    g_warning( e.what() );
+    return;
+  }
+
+  m_history_text.delete_text(0,-1);
+  i = m_nrmsgs_shown * (guint)m_scaleadj.get_value();
+  end = i + m_nrmsgs_shown;
+  if( end > m_history->size() )
+    end = m_history->size();
+
+  os << "displaying msgs " << i + 1 << " to " << end << " out of " << m_history->size();
+  m_scalelabel.set( os.str() );
+
+  for( ; i < end; ++i ) {
+    m_history->get_msg( i, he );
+    display_message( he );
+  }
+
+  m_history->stream_release();
+  m_history_text.thaw();
+  
+  adj = m_history_text.get_vadjustment();
+  adj->set_value( adj->get_upper() );
 }

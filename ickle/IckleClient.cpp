@@ -75,6 +75,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   // set up GUI callbacks
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
   gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
+  gui.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->userinfo.connect( slot( this, &IckleClient::userinfo_cb ) );
 
@@ -97,6 +98,10 @@ IckleClient::IckleClient(int argc, char* argv[])
 
 IckleClient::~IckleClient() {
   g_icons.FreeIcons();
+
+  // free History objects
+  for( hash_map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
+    delete itr->second;
 }
 
 void IckleClient::loadContactList() {
@@ -153,12 +158,12 @@ void IckleClient::loadContactList() {
 	c.setAboutInfo( cs.getValueString("about") );
 	
 	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = History( &c );
+	m_histmap[c.getUIN()] = new History( c.getUIN() );
 	icqclient.addContact(c);
       } else {
 	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
 	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = History( &c );
+	m_histmap[c.getUIN()] = new History( c.getUIN() );
 	icqclient.addContact(c);
       }
     }
@@ -185,6 +190,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   if (BASE_DIR.empty()) {
     // default to ~/.ickle/ if home is defined, otherwise just .ickle/ in the current directory
     char *dir = getenv("HOME");
+    dir = NULL;
     if (dir == NULL) dir = getenv("PWD");
 
     if (dir != NULL) {
@@ -459,7 +465,7 @@ int IckleClient::poll_server_cb() {
 void IckleClient::user_popup_cb(unsigned int uin) {
   Contact *c = icqclient.getContact(uin);
   if (c != NULL) {
-    gui.user_popup(c);
+    gui.popup_messagebox(c, m_histmap[c->getUIN()]);
   }
 }
 
@@ -476,7 +482,7 @@ void IckleClient::send_event_cb(MessageEvent *ev) {
 
 void IckleClient::messageack_cb(MessageEvent *ev) {
   if (ev->isFinished() && ev->isDelivered() && ev->getType() != MessageEvent::AwayMessage)
-    m_histmap[ev->getContact()->getUIN()].log(ev, false);
+    m_histmap[ev->getContact()->getUIN()]->log(ev, false);
 }
 
 void IckleClient::add_user_cb(unsigned int uin) {
@@ -532,7 +538,7 @@ bool IckleClient::message_cb(MessageEvent *ev) {
   } else if (ev->getType() == MessageEvent::SMS) {
     event_system("event_sms", ev);
   }
-  m_histmap[ev->getContact()->getUIN()].log(ev, true);
+  m_histmap[ev->getContact()->getUIN()]->log(ev, true);
 
   return false;
 }
@@ -651,7 +657,7 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       }
       // ensure uniqueness
       m_fmap[c->getUIN()] = filename;
-      m_histmap[c->getUIN()] = History( c );
+      m_histmap[c->getUIN()] = new History( c->getUIN() );
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {

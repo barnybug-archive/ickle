@@ -1,6 +1,7 @@
-/*
- * History
+/* $Id: History.cpp,v 1.6 2001-12-10 00:12:33 nordman Exp $
+ * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,69 +23,123 @@
 #include "History.h"
 #include "sstream_fix.h"
 
+#include "Contact.h"
+
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
+using ICQ2000::SMSReceiptEvent;
+using ICQ2000::Contact;
 
 using std::endl;
+using std::out_of_range;
+using std::runtime_error;
 
 History::History() { }
 
-History::History(Contact *c) {
+History::History(unsigned int uin) {
   ostringstream fn;
 
-  m_contact = c;
-  fn << CONTACT_DIR << c->getUIN() << ".history";
+  fn << CONTACT_DIR << uin << ".history";
   m_filename = fn.str();
+  m_builtindex = false;
+  m_size = 0;
+  m_uin =  uin;
+  m_streamlock = false;
 }
 
-string History::getFilename() const { return m_filename; }
+History::~History() {
+  if( m_streamlock ) {
+    cerr << "Warning: History::~History: stream was not released properly" << endl;
+    m_if.close();
+  }
+}
 
-void History::log(MessageEvent *ev, bool received) {
-  ofstream of( m_filename.c_str(), std::ios::out | std::ios::app );
+void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
+  Entry he;
+  ofstream of;
 
-  if (of) {
+  Contact *c = ev->getContact();
+  if (c->getUIN() != m_uin)
+    return;
 
-    if (ev->getType() == MessageEvent::Normal) {
-      NormalMessageEvent *nev = static_cast<NormalMessageEvent*>(ev);
+  of.open( m_filename.c_str(), std::ios::out | std::ios::ate );
+  if (!of.is_open())
+    throw runtime_error( string("History::log: Could not open historyfile for writing: ") + m_filename );
 
-      of << "Type: Normal" << endl
-	 << "Time: " << ev->getTime() << endl 
-	 << "Direction: " << ( received ? "Received" : "Sent" ) << endl
-	 << "Offline: " << ( nev->isOfflineMessage() ? "Yes" : "No" ) << endl
-	 << "Multiparty: " << ( nev->isMultiParty() ? "Yes" : "No" ) << endl
-	 << "Message: ";
-
-      quote_output( of, nev->getMessage() );
-      of << endl;
-      
-    } else if (ev->getType() == MessageEvent::URL) {
-      URLMessageEvent *uev = static_cast<URLMessageEvent*>(ev);
-
-      of << "Type: URL" << endl
-	 << "Time: " << ev->getTime() << endl 
-	 << "Direction: " << ( received ? "Received" : "Sent" ) << endl
-	 << "Offline: " << ( uev->isOfflineMessage() ? "Yes" : "No" ) << endl
-	 << "Message: ";
-
-      quote_output( of, uev->getMessage() );
-      of << "URL: ";
-      quote_output( of, uev->getURL() );
-      of << endl;
-      
-    } else if (ev->getType() == MessageEvent::SMS) {
-      SMSMessageEvent *sev = static_cast<SMSMessageEvent*>(ev);
-      of << "Type: SMS" << endl
-	 << "Time: " << ev->getTime() << endl 
-	 << "Direction: " << ( received ? "Received" : "Sent" ) << endl;
-      if (!received) of << "Receipt: " << ( sev->getRcpt() ? "Yes" : "No" ) << endl;
-      of << "Message: ";
-      quote_output( of, sev->getMessage() );
-      of << endl;
-    }
+  // add to index
+  if( m_builtindex ) {
+    if( m_size >= m_index.size() )
+      m_index.resize( m_index.size() + 100 );
+    m_index[ m_size++ ] = of.tellp();
   }
 
+  // at the same time convert the stuff into a Entry, for the signal
+  he.type = ev->getType();
+  he.timestamp = ev->getTime();
+  he.dir = received ? Entry::RECEIVED : Entry::SENT;
+
+  of << "Time: " << ev->getTime() << endl 
+     << "Direction: " << ( received ? "Received" : "Sent" ) << endl;
+
+  
+  if (ev->getType() == MessageEvent::Normal) {
+
+    NormalMessageEvent *nev = static_cast<NormalMessageEvent*>(ev);
+    he.message = nev->getMessage();
+    he.offline = nev->isOfflineMessage();
+    he.multiparty = nev->isMultiParty();
+
+    of << "Type: Normal" << endl
+       << "Offline: " << ( nev->isOfflineMessage() ? "Yes" : "No" ) << endl
+       << "Multiparty: " << ( nev->isMultiParty() ? "Yes" : "No" ) << endl
+       << "Message: ";
+
+    quote_output( of, nev->getMessage() );
+    of << endl;
+      
+  } else if (ev->getType() == MessageEvent::URL) {
+
+    URLMessageEvent *uev = static_cast<URLMessageEvent*>(ev);
+    he.message = uev->getMessage();
+    he.offline = uev->isOfflineMessage();
+    he.URL = uev->getURL();
+
+    of << "Type: URL" << endl
+       << "Offline: " << ( uev->isOfflineMessage() ? "Yes" : "No" ) << endl
+       << "Message: ";
+
+    quote_output( of, uev->getMessage() );
+    of << "URL: ";
+    quote_output( of, uev->getURL() );
+    of << endl;
+      
+  } else if (ev->getType() == MessageEvent::SMS) {
+
+    SMSMessageEvent *sev = static_cast<SMSMessageEvent*>(ev);
+    he.message = sev->getMessage();
+
+    of << "Type: SMS" << endl;
+    if (!received) {
+      of << "Receipt: " << ( sev->getRcpt() ? "Yes" : "No" ) << endl;
+      he.receipt = sev->getRcpt();
+    }
+    of << "Message: ";
+    quote_output( of, sev->getMessage() );
+    of << endl;
+  } else if (ev->getType() == MessageEvent::SMS_Receipt) {
+
+    SMSReceiptEvent *srev = static_cast<SMSReceiptEvent*>(ev);
+    he.message = srev->getMessage();
+
+    of << "Type: SMSReceipt" << endl;
+    of << "Delivered: " << ( srev->delivered() ? "Yes" : "No" ) << endl;
+    of << "Message: ";
+    quote_output( of, srev->getMessage() );
+    of << endl;
+  }
   of.close();
+  new_entry.emit( &he );
 }
 
 void History::quote_output(ostream& ostr, const string& text) {
@@ -94,4 +149,144 @@ void History::quote_output(ostream& ostr, const string& text) {
     a = l + 1;
   }
   ostr << text.substr( a ) << " " << endl;
+}
+
+void History::build_index() {
+  string s;
+  bool escaped = false; // was this empty line escaped?
+
+  if( !m_streamlock )
+    m_if.open( m_filename.c_str() );
+
+  if( !m_if.is_open() ) { // this does not warrant an exception
+    cerr << "Could not open historyfile for reading: " << m_filename << endl;
+    return;
+  }
+
+  m_index.resize( 100 );
+  m_index[ m_size++ ] = m_if.tellg(); // first msg at ios::beg
+
+  while (true) {
+    getline( m_if, s );
+    if( m_if.eof() )
+      break;
+    if( !s.size() && !escaped ) {
+      if( m_size >= m_index.size() )
+        m_index.resize( m_index.size() + 100 );
+      m_index[ m_size++ ] = m_if.tellg();
+    }
+    escaped = s[ s.size() -1 ] == '\\';
+  }
+  
+  // Ok, we got one msg to many, lose the last one
+  m_index[ --m_size ] = 0;
+  
+  if( !m_streamlock )
+    m_if.close();
+  m_builtindex = true;
+}
+
+void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
+  string s,s2;
+
+  if( !m_builtindex )
+    build_index();
+
+  if( index >= m_size ) {
+    ostringstream os;
+    os << "History::get_msg illegal index: " << index;
+    throw out_of_range( os.str() );
+  }
+  
+  if( !m_streamlock )
+    m_if.open( m_filename.c_str() );
+
+  if( !m_if.is_open() )
+    throw runtime_error( string("History::get_msg: Could not open historyfile for reading: ") + m_filename );
+
+  m_if.seekg( m_index[ index ] );
+
+  while (true) {
+    getline( m_if, s );
+    if( m_if.eof() || !s.size() ) // eof or end of entry
+      break;
+
+    if( s.find( "Type: " ) != string::npos ) {
+      s2 = s.substr( string( "Type: ").size() );
+      if( s2 == "Normal" )
+        e.type = MessageEvent::Normal;
+      else if( s2 == "SMS" )
+        e.type = MessageEvent::SMS;
+      else if( s2 == "SMSReceipt" )
+        e.type = MessageEvent::SMS_Receipt;
+      else if( s2 == "URL" )
+        e.type = MessageEvent::URL;
+    }
+    else if( s.find( "Time: " ) != string::npos ) {
+      istringstream iss( s.substr( string( "Time: ").size() ) );
+      iss >> e.timestamp;
+    }
+    else if( s.find( "Direction: " ) != string::npos ) {
+      s2 = s.substr( string( "Direction: ").size() );
+      if( s2 == "Sent" )
+        e.dir = Entry::SENT;
+      else if( s2 == "Received" )
+        e.dir = Entry::RECEIVED;
+    }
+    else if( s.find( "Offline: " ) != string::npos ) {
+      e.offline = s.substr( string( "Offline: ").size() ) == "Yes";
+    }
+    else if( s.find( "Multiparty: " ) != string::npos ) {
+      e.multiparty = s.substr( string( "Multiparty: ").size() ) == "Yes";
+    }
+    else if( s.find( "URL: " ) != string::npos ) {
+      e.URL = s.substr( string( "URL: ").size() );
+    }
+    else if( s.find( "Receipt: " ) != string::npos ) {
+      e.receipt = s.substr( string( "Receipt: ").size() ) == "Yes";
+    }
+    else if( s.find( "Delivered: " ) != string::npos ) {
+      e.delivered = s.substr( string( "Delivered: ").size() ) == "Yes";
+    }
+    else if( s.find( "Message: " ) != string::npos ) {
+      int start = string( "Message: ").size();
+      e.message = s.substr( start, s.size() - start - 1 );
+      while( s[ s.size() - 1 ] != ' ' ) {
+        e.message += '\n';
+        getline( m_if, s );
+        e.message += s.substr(0, s.size() - 1 );
+      }
+    }
+  }
+  if( !m_streamlock )
+    m_if.close();
+}
+
+void History::stream_lock() throw(runtime_error)
+{
+  if( m_streamlock )
+    throw( runtime_error( "History::stream_lock: stream is already locked!" ) );
+  
+  m_if.open( m_filename.c_str() );
+  if( !m_if.is_open() )
+    throw runtime_error( string("History::stream_lock: Could not open historyfile for reading: " )
+                         + m_filename );
+  m_streamlock = true;
+}
+
+void History::stream_release() throw(runtime_error)
+{
+  if( !m_if.is_open() )
+    throw( runtime_error( "History::stream_release: stream is not locked!" ) );
+
+  m_if.close();
+  m_streamlock = false;
+}
+
+guint History::size()
+{
+  if( !m_builtindex )
+    build_index();
+
+  return m_size;
 }

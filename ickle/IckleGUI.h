@@ -61,6 +61,7 @@
 #include "UserInfoDialog.h"
 #include "PromptDialog.h"
 #include "AwayMessageDialog.h"
+#include "History.h"
 
 #include "constants.h"
 
@@ -96,7 +97,7 @@ class IckleGUI : public Gtk::Window {
   void menu_status_update();
   Gtk::MenuItem* menu_status_widget( Status s );
 
-  void messagebox_popup(Contact *c);
+  void messagebox_popup(Contact *c, History *h);
 
  public:
   IckleGUI();
@@ -105,7 +106,7 @@ class IckleGUI : public Gtk::Window {
   ContactListView* getContactListView();
 
   void status_change_menu_cb(Status st);
-  void user_popup(Contact *c);
+  void popup_messagebox(Contact *c, History *h);
   void userinfo_popup(Contact *c);
   void message_box_close_cb(Contact *c);
   void userinfo_dialog_close_cb(Contact *c);
@@ -133,6 +134,7 @@ class IckleGUI : public Gtk::Window {
   Signal1<void,unsigned int> add_user;
   Signal2<void,string,string> add_mobile_user;
   Signal1<void,Contact*> fetch;
+  Signal1<void,unsigned int> user_popup;
 
   // handle wm calls
   gint delete_event_impl(GdkEventAny*);
