@@ -129,7 +129,9 @@ name ickle_applet. You should then run ickle by rightclicking
 the panel and choosing Applets->Network->Ickle ICQ.
 
 The configure script will tell you whether the GNOME applet will
-be built or not.
+be built or not. If you don't want the GNOME applet to be built even
+though you have the required GNOME development packages installed run
+configure with the '--without-gnome' option.
 
 Shortcuts
 ---------
