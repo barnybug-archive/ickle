@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.4 2002-01-16 19:54:34 oizoken Exp $
+/* $Id: AboutDialog.cpp,v 1.5 2002-01-27 23:56:16 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -72,7 +72,7 @@ AboutDialog::AboutDialog()
 
   text->insert(hd, "\nDevelopers\n");
   text->insert(p, "* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n");
-  text->insert(p, "* Nils Nordman <nino@nforced.com>\n");
+  text->insert(p, "* Nils Nordman <nino@nforced.com> ICQ: 778602\n");
   text->insert(p, "* Alex Antropoff <alex@tirastel.md>\n\n");
   text->insert(p, "Further contributions by many other developers are listed in the THANKS file.\n");
   text->insert(hd, "\nFurther information\n");
