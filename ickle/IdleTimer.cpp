@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.6 2002-04-18 16:33:59 barnabygray Exp $
+/* $Id: IdleTimer.cpp,v 1.7 2002-04-18 17:30:00 nordman Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -81,12 +81,14 @@ gint IdleTimer::timer_cb()
   // we don't make any assumptions about auto_away being smaller than auto_na,
   // if the user wants to set a smaller auto_na than auto_away, fine.
 
-  unsigned short lim;
-  if ( (lim = max(auto_away, auto_na)) * 60 > m_idletime ) {
-    lim = (auto_away == 0 ? auto_na
-	   : auto_na == 0 ? auto_away
-	   : min(auto_away, auto_na)) * 60;
-    if ( lim > m_idletime ) {
+  // determine the limit that has been reached, auto-away or auto-na (if any).
+  // if we'we not idled long enough for one of these to happen, check if we're currently
+  // auto-{na,away}, in which case we need to reset the previous status.
+  // note that one of the two might be disabled in which case only the enabled one should be checked.
+  unsigned short limit = max(auto_away, auto_na) * 60;
+  if ( m_idletime < limit ) {
+    limit = min(auto_away, auto_na) * 60;
+    if ( m_idletime < limit || !limit ) { // !limit == this one is disabled
       if (m_autostatus) { // back from idling, reset previous status
         icqclient.setStatus( m_prevstatus );
         m_autostatus = false;
@@ -100,7 +102,7 @@ gint IdleTimer::timer_cb()
   if (!m_autostatus)
     m_prevstatus = currstatus;
 
-  if ( lim == auto_na ) {
+  if ( limit == auto_na ) {
     if( currstatus != ICQ2000::STATUS_NA )
       icqclient.setStatus( ICQ2000::STATUS_NA );
   }
