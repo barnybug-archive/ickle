@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.28 2002-04-18 22:00:29 bugcreator Exp $
+/* $Id: IckleApplet.cpp,v 1.29 2002-07-20 02:41:47 bugcreator Exp $
  *
  * GNOME applet for ickle.
  *
@@ -20,11 +20,12 @@
  *
  */
 
-#include <gnome.h>
 #include <map>
 
 #include <libicq2000/Client.h>
 #include <libicq2000/constants.h>
+
+#include <gnome.h>
 
 #include "sstream_fix.h"
 #include "main.h"
