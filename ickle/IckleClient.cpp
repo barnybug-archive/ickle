@@ -48,6 +48,11 @@ IckleClient::IckleClient(int argc, char* argv[])
   // process command line parameters
   processCommandLine(argc,argv);
 
+#ifdef GNOME_ICKLE
+  // initialize GNOME applet
+  applet.init(argc, argv, gui);
+#endif
+
   // let us know when the gui is destroyed
   gui.destroy.connect(slot(this,&IckleClient::quit));
   gui.delete_event.connect(slot(this,&IckleClient::close_cb));

@@ -1,3 +1,10 @@
+#include <iostream>
+
+#include <gtk--/main.h>
+
+#include "main.h"
+#include "IckleClient.h"
+
 /*
  * ickle
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
@@ -25,6 +32,10 @@
 #include "main.h"
 #include "IckleClient.h"
 
+#ifdef GNOME_ICKLE
+# include <applet-widget.h>
+#endif
+
 class ICQ2000::Client icqclient;
 
 class Settings g_settings;
@@ -37,9 +48,11 @@ string ICONS_DIR;
 
 int main(int argc, char* argv[]) {
   Gtk::Main gtkmain(argc,argv,true);
-
   IckleClient client(argc,argv);
-
+#ifdef GNOME_ICKLE
+  applet_widget_gtk_main();
+#else
   gtkmain.run();
+#endif 
   return 0;
 }

@@ -47,6 +47,10 @@
 
 using std::hash_map;
 
+#ifdef GNOME_ICKLE
+# include "IckleApplet.h"
+#endif
+
 using SigC::slot;
 
 using Gtk::Connection;
@@ -57,6 +61,10 @@ class IckleClient : public SigC::Object {
  private:
   IckleGUI gui;
   Status status;
+
+#ifdef GNOME_ICKLE
+  IckleApplet applet;
+#endif
 
   hash_map<unsigned int, string> m_fmap;
   hash_map<unsigned int, History> m_histmap;
