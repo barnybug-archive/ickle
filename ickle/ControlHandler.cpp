@@ -28,6 +28,9 @@
 #include "IckleClient.h"
 #include "ControlHandler.h"
 
+using std::make_pair;
+using std::ostringstream;
+
 using namespace SigC;
 
 // ============================================================================

@@ -65,7 +65,7 @@ private:
   ControlSocketServer m_socket;
 
   map <int, SigC::Connection> m_connections;
-  map <int, pair <SigC::Connection, SigC::Connection> > m_timeouts;
+  map <int, std::pair <SigC::Connection, SigC::Connection> > m_timeouts;
 };
 
 #endif // CONTROL_SOCKET

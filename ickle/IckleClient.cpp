@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.94 2002-04-14 19:09:46 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.95 2002-04-16 21:05:19 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -51,6 +51,7 @@
 using std::string;
 using std::ostringstream;
 using std::istringstream;
+using std::fstream;
 using std::ofstream;
 using std::cout;
 using std::endl;
@@ -1103,7 +1104,7 @@ void IckleClient::check_pid_file(){
 
   if (!mkdir_BASE_DIR()) return;
 
-  pidfile.open(PID_FILENAME.c_str(), std::ios::in|std::ios::nocreate);
+  pidfile.open(PID_FILENAME.c_str(), std::ios::in);
 
   if (pidfile.is_open()) {
     pidfile >> pid;

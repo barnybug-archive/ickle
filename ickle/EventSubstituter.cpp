@@ -39,6 +39,8 @@
 #include <signal.h>
 #include <string.h>
 
+using std::ostringstream;
+
 using ICQ2000::ContactRef;
 using ICQ2000::Status;
 

@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.11 2002-04-01 11:25:50 barnabygray Exp $
+/* $Id: History.h,v 1.12 2002-04-16 21:05:19 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -43,7 +43,7 @@ class History : public SigC::Object {
   bool                    m_streamlock;
   std::string             m_filename;
   guint                   m_size;
-  std::vector<streampos>  m_index;
+  std::vector<std::streampos>  m_index;
   bool                    m_builtindex;
   unsigned int            m_uin;
 
