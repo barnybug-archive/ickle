@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.24 2002-10-30 20:59:40 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.25 2002-10-30 22:09:37 barnabygray Exp $
  *
  * Well actually it's a tree now.. :-)
  *
@@ -125,7 +125,7 @@ class ContactListView : public Gtk::CTree {
   void load_sort_column ();
   static int status_order(ICQ2000::Status);
 
-  //  static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
+  static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
   static gboolean drag_compare_func( GtkCTree *clist,
 				     GtkCTreeNode *source_node,
 				     GtkCTreeNode *new_parent,

@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.43 2002-10-30 21:54:45 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.44 2002-10-30 22:09:37 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -84,9 +84,9 @@ ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
   set_selection_mode(GTK_SELECTION_BROWSE);
   set_row_height(18);
 
-  // set_sort_column(0);
-  // set_auto_sort(false);
-  // set_compare_func(&ContactListView::sort_func);
+  set_sort_column(0);
+  set_auto_sort(false);
+  set_compare_func(&ContactListView::sort_func);
   set_user_data (this);
 
   button_press_event.connect(slot(this,&ContactListView::button_press_cb));
@@ -195,8 +195,7 @@ void ContactListView::tree_move_impl(GtkCTree *ctree, GtkCTreeNode *child, GtkCT
   }
 }
 
-/*
-gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 )
+gint ContactListView::sort_func( GtkCList *ctree, gconstpointer ptr1, gconstpointer ptr2 )
 {
   RowData *d1 = (RowData*)((const GtkCListRow*)ptr1)->data;
   RowData *d2 = (RowData*)((const GtkCListRow*)ptr2)->data;
@@ -208,15 +207,15 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
   int m = (d1->msgs > d2->msgs) ? -1 : (d1->msgs < d2->msgs) ? 1 : 0;
   int a = d1->alias.compare(d2->alias);
 
-  ContactListView * clist_obj = ((ContactListView*)gtk_object_get_user_data((GtkObject*)clist));
+  ContactListView * clist_obj = ((ContactListView*)gtk_object_get_user_data((GtkObject*)ctree));
 
   switch (clist_obj->m_sort) {
-    case 0: return m ? m : s ? s : a;
-    case 1: return a ? a : m ? m : s;
+  case 0: return m ? m : s ? s : a;
+  case 1: return a ? a : m ? m : s;
   }
+  
   return 0;
 }
-*/
 
 int ContactListView::status_order (ICQ2000::Status s)
 {
