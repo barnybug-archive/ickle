@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.26 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.27 2002-01-25 14:04:02 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -193,10 +193,8 @@ void ContactListView::remove_user_cb() {
 
 void ContactListView::fetch_away_msg_cb() {
   Contact *c = icqclient.getContact( current_selection_uin() );
-  if (c != NULL) {
-    MessageEvent *ev = new AwayMessageEvent(c);
-    icqclient.SendEvent(ev);
-  }
+  if (c != NULL && c->getStatus() != STATUS_ONLINE && c->getStatus() != STATUS_OFFLINE)
+    icqclient.SendEvent( new AwayMessageEvent(c) );
 }
 
 unsigned int ContactListView::current_selection_uin() {
@@ -232,7 +230,9 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
 
     if (col == 0 && m_check_away_click == true) {
       c = icqclient.getContact( p->uin );
-      if (c != NULL) icqclient.SendEvent( new AwayMessageEvent(c) );
+      if (c != NULL && c->getStatus() != STATUS_ONLINE && c->getStatus() != STATUS_OFFLINE)
+	icqclient.SendEvent( new AwayMessageEvent(c) );
+
       return true;
     }
 
