@@ -143,6 +143,8 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
     ++row_iter;
   }
 
+  moveto( (*row_iter).get_row_num(), 0 );
+
   return Gtk::CList::key_press_event_impl(ev);
 }
 
