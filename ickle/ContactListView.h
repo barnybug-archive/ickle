@@ -1,6 +1,6 @@
-/* $Id: ContactListView.h,v 1.28 2002-11-02 21:47:23 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.29 2003-01-02 16:39:53 barnabygray Exp $
  *
- * Well actually it's a tree now.. :-)
+ * ContactList(Tree)View
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -23,97 +23,25 @@
 #ifndef CONTACTLISTVIEW_H
 #define CONTACTLISTVIEW_H
 
-#include <gtk--/ctree.h>
-#include <gtk--/menu.h>
-#include <gtk--/pixmap.h>
+#include <map>
 
-#include <sigc++/signal_system.h>
-#include <string>
+#include <gtkmm/treeview.h>
+#include <gtkmm/treestore.h>
+#include <gtkmm/menu.h>
 
-#include "main.h"
-#include <libicq2000/ContactTree.h>
-#include <libicq2000/Contact.h>
+#include <libicq2000/events.h>
 
-#include "Icons.h"
 #include "MessageQueue.h"
 
-using SigC::Signal1;
-
-class ContactListView : public Gtk::CTree {
+class ContactListView : public Gtk::TreeView,
+	                public sigslot::has_slots<>
+{
  private:
-  typedef Gtk::CTree_Helpers::RowIterator citerator;
-  typedef Gtk::CTree_Helpers::TreeList::iterator titerator;
-
-  struct RowData 
-  {
-    enum { Contact, Group } type;
-
-    unsigned short group_id;
-    
-    unsigned int uin;
-    ICQ2000::Status status;
-    unsigned int msgs;
-    std::string alias;
-  };
-  
-  Gtk::Menu rc_popup_contact, rc_popup_group, rc_popup_blank;
-  Gtk::MenuItem *rc_popup_away, *rc_popup_auth;
+  Gtk::Window& m_parent;
 
   MessageQueue& m_message_queue;
-  class IckleGUI& m_gui;
 
-  SigC::Connection contactlist_conn;
-
-  void update_row(const ICQ2000::ContactRef& c);
-  void update_list();
-  void remove_row(Gtk::CTree_Helpers::Row& row);
-  void add_group(const ICQ2000::ContactTree::Group& gp);
-  void add_contact(const ICQ2000::ContactRef& c, const ICQ2000::ContactTree::Group& gp);
-
-  citerator lookup_contact(const ICQ2000::ContactRef& c);
-  Gtk::CTree_Helpers::RowIterator get_tree_group( const ICQ2000::ContactTree::Group& gp );
-
-  // contact rc callbacks
-  void userinfo_cb();
-  void remove_contact_cb();
-  void fetch_away_msg_cb();
-  void send_auth_req_cb();
-
-  // group rc callbacks
-  void group_rename_cb();
-  void group_remove_cb();
-
-  // blank rc callbacks
-  void blank_add_group_cb();
-
-  unsigned int get_selection_contact_uin();
-  ICQ2000::ContactTree::Group* get_selection_group();
-
- protected:
-  //  virtual gint key_press_event_impl(GdkEventKey* ev);
-
-  static void tree_move_cfunc(GtkCTree *ctree, GtkCTreeNode *child, GtkCTreeNode *parent,
-			      GtkCTreeNode *sibling, gpointer data);
-  void tree_move_impl(GtkCTree *ctree, GtkCTreeNode *child, GtkCTreeNode *parent,
-		      GtkCTreeNode *sibling, gpointer data);
-
- private:
-  bool m_single_click, m_check_away_click, m_offline_contacts;
-  int m_sort;
-
- public:
-  ContactListView(IckleGUI& gui, MessageQueue& mq);
-  ~ContactListView();
-
-  void setupAccelerators();
-
-  void clear();
-
-  void setSingleClick(bool b);
-  void setCheckAwayClick(bool b);
-  void setShowOfflineContacts(bool b);
-
-  gint button_press_cb(GdkEventButton *ev);
+  // --- callbacks           ----
 
   // -- library callbacks      --
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
@@ -128,18 +56,92 @@ class ContactListView : public Gtk::CTree {
   void icons_changed_cb();
   void settings_changed_cb(const std::string&);
 
-  void post_settings_loaded ();
-  static int status_order(ICQ2000::Status);
-
-  static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
-  static gboolean drag_compare_func( GtkCTree *clist,
-				     GtkCTreeNode *source_node,
-				     GtkCTreeNode *new_parent,
-				     GtkCTreeNode *new_sibling);
+  // -- Gtk callbacks          --
+  virtual bool on_button_press_event(GdkEventButton * event);
+  virtual void on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn * col);
   
+  void add_group(const ICQ2000::ContactTree::Group& gp);
+  void add_contact(const ICQ2000::ContactRef& c, const ICQ2000::ContactTree::Group& gp);
+  void remove_group(const ICQ2000::ContactTree::Group& gp);
+  void remove_contact(const ICQ2000::ContactRef& c);
+
+  void update_contact(const ICQ2000::ContactRef& c);
+  void update_icon(Gtk::TreeModel::Row& row, const ICQ2000::ContactRef& c);
+  void update_group(const ICQ2000::ContactTree::Group& gp);
+  void update_list();
+
+  // right-click popup callbacks
+  void contact_fetch_away_msg_cb();
+  void contact_userinfo_cb();
+  void contact_send_auth_req_cb();
+  void contact_add_cb();
+  void contact_remove_cb();
+  void group_rename_cb();
+  void group_remove_cb();
+  void group_add_cb();
+
+  gint sort_func(const Gtk::TreeModel::iterator& iter1, const Gtk::TreeModel::iterator& iter2);
+  int status_order (ICQ2000::Status s);
+
+  ICQ2000::ContactRef get_selected_contact();
+  ICQ2000::ContactTree::Group * get_selected_group();
+
+  // Tree model columns
+  struct ModelColumns : public Gtk::TreeModelColumnRecord
+  {
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> > icon;
+    Gtk::TreeModelColumn< Glib::ustring >  nick;
+    Gtk::TreeModelColumn< std::string >  nick_sort_key;
+    Gtk::TreeModelColumn< bool > is_contact;
+    Gtk::TreeModelColumn< unsigned int > id;
+    Gtk::TreeModelColumn< ICQ2000::Status > status;
+    Gtk::TreeModelColumn< unsigned int > messages;
+    Gtk::TreeModelColumn< bool > visible;
+
+    ModelColumns()
+    {
+      add(icon);
+      add(nick);
+      add(nick_sort_key);
+      add(is_contact);
+      add(id);
+      add(status);
+      add(messages);
+      add(visible);
+    }
+  };
+
+  const ModelColumns m_columns;
+
+  // the Tree store
+  Glib::RefPtr<Gtk::TreeStore> m_reftreestore;
+
+  // group mapping
+  std::map< unsigned int, Gtk::TreeModel::iterator > m_group_map;
+  
+  // contact mapping
+  std::map< unsigned int, Gtk::TreeModel::iterator > m_contact_map;
+
+  bool m_offline_contacts;
+  bool m_single_click;
+  bool m_check_away_click;
+
+  Gtk::Menu m_rc_popup_contact, m_rc_popup_group, m_rc_popup_blank;
+  Gtk::MenuItem *m_rc_popup_away, *m_rc_popup_auth;
+
   // signals
-  SigC::Signal1<void,unsigned int> user_popup;
-  SigC::Signal1<void,unsigned int> userinfo;
+  SigC::Signal1<void, unsigned int> m_signal_messagebox_popup;
+  SigC::Signal1<void, unsigned int> m_signal_userinfo_popup;
+  
+ public:
+  ContactListView(Gtk::Window& parent, MessageQueue& mq);
+  ~ContactListView();
+
+  void set_show_offline_contacts(bool b);
+
+  // signal accessors
+  SigC::Signal1<void, unsigned int>& signal_messagebox_popup();
+  SigC::Signal1<void, unsigned int>& signal_userinfo_popup();
 };
 
-#endif
+#endif /* CONTACTLISTVIEW_H */

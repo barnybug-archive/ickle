@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.20 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: History.cpp,v 1.21 2003-01-02 16:39:54 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -22,6 +22,7 @@
 #include "main.h"
 #include "History.h"
 #include "sstream_fix.h"
+#include "utils.h"
 
 #include <libicq2000/Contact.h>
 
@@ -56,28 +57,34 @@ using std::streampos;
 /**
  *  Note the historyfile should be given relative to the current CONTACT_DIR.
  */
-History::History(const string &historyfile) {
+History::History(const string &historyfile)
+{
   m_filename = CONTACT_DIR + historyfile;
   m_builtindex = false;
   m_size = 0;
   m_streamlock = false;
+  m_utf8 = true;
 
   touch();
 }
 
-History::~History() {
-  if( m_streamlock ) {
+History::~History()
+{
+  if( m_streamlock )
+  {
     cerr << "Warning: History::~History: stream was not released properly" << endl;
     m_if.close();
   }
 }
 
-void History::touch() {
+void History::touch()
+{
   // should just create a blank history file if none exists
   ofstream( m_filename.c_str(), std::ios::out | std::ios::app );
 }
 
-void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error) {
+void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
+{
   Entry he;
   ofstream of;
 
@@ -99,7 +106,8 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
 
   // add to index
   of.seekp( 0, std::ios::end );
-  if( m_builtindex ) {
+  if( m_builtindex )
+  {
     if( m_size >= m_index.size() )
       m_index.resize( m_index.size() + 100 );
     m_index[ m_size++ ] = of.tellp();
@@ -114,11 +122,13 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
      << "Direction: " << ( received ? "Received" : "Sent" ) << endl;
 
   ICQ2000::ICQMessageEvent *icq = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
-  if (icq != NULL && icq->isUrgent()) {
+  if (icq != NULL && icq->isUrgent())
+  {
     of << "Urgent: Yes" << endl;
   }
   
-  if (ev->getType() == ICQ2000::MessageEvent::Normal) {
+  if (ev->getType() == ICQ2000::MessageEvent::Normal)
+  {
 
     ICQ2000::NormalMessageEvent *nev = static_cast<ICQ2000::NormalMessageEvent*>(ev);
     he.message = nev->getMessage();
@@ -130,10 +140,16 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
        << "Multiparty: " << ( nev->isMultiParty() ? "Yes" : "No" ) << endl
        << "Message: ";
 
-    quote_output( of, nev->getMessage() );
+    if (m_utf8)
+      quote_output( of, nev->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(nev->getMessage()) );
+      
     of << endl;
       
-  } else if (ev->getType() == ICQ2000::MessageEvent::URL) {
+  }
+  else if (ev->getType() == ICQ2000::MessageEvent::URL)
+  {
 
     ICQ2000::URLMessageEvent *uev = static_cast<ICQ2000::URLMessageEvent*>(ev);
     he.message = uev->getMessage();
@@ -144,12 +160,20 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
        << "Offline: " << ( uev->isOfflineMessage() ? "Yes" : "No" ) << endl
        << "Message: ";
 
-    quote_output( of, uev->getMessage() );
+    if (m_utf8)
+      quote_output( of, uev->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(uev->getMessage()) );
     of << "URL: ";
-    quote_output( of, uev->getURL() );
+    if (m_utf8)
+      quote_output( of, uev->getURL() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(uev->getURL()) );
     of << endl;
       
-  } else if (ev->getType() == ICQ2000::MessageEvent::SMS) {
+  }
+  else if (ev->getType() == ICQ2000::MessageEvent::SMS)
+  {
 
     ICQ2000::SMSMessageEvent *sev = static_cast<ICQ2000::SMSMessageEvent*>(ev);
     he.message = sev->getMessage();
@@ -160,10 +184,15 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
       he.receipt = sev->getRcpt();
     }
     of << "Message: ";
-    quote_output( of, sev->getMessage() );
+    if (m_utf8)
+      quote_output( of, sev->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(sev->getMessage()) );
     of << endl;
 
-  } else if (ev->getType() == ICQ2000::MessageEvent::SMS_Receipt) {
+  }
+  else if (ev->getType() == ICQ2000::MessageEvent::SMS_Receipt)
+  {
 
     ICQ2000::SMSReceiptEvent *srev = static_cast<ICQ2000::SMSReceiptEvent*>(ev);
     he.message = srev->getMessage();
@@ -171,32 +200,46 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
     of << "Type: SMSReceipt" << endl;
     of << "Delivered: " << ( srev->delivered() ? "Yes" : "No" ) << endl;
     of << "Message: ";
-    quote_output( of, srev->getMessage() );
+    if (m_utf8)
+      quote_output( of, srev->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(srev->getMessage()) );
     of << endl;
-  } else if (ev->getType() == ICQ2000::MessageEvent::EmailEx) {
+  }
+  else if (ev->getType() == ICQ2000::MessageEvent::EmailEx)
+  {
 
     ICQ2000::EmailExEvent *ee = static_cast<ICQ2000::EmailExEvent*>(ev);
     he.message = ee->getMessage();
 
     of << "Type: EmailExpress" << endl
        << "Message: ";
-    quote_output( of, ee->getMessage() );
+    if (m_utf8)
+      quote_output( of, ee->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(ee->getMessage()) );
     of << endl;
-  } else if (ev->getType() == ICQ2000::MessageEvent::WebPager) {
+  }
+  else if (ev->getType() == ICQ2000::MessageEvent::WebPager)
+  {
 
     ICQ2000::WebPagerEvent *ee = static_cast<ICQ2000::WebPagerEvent*>(ev);
     he.message = ee->getMessage();
 
     of << "Type: WebPager" << endl
        << "Message: ";
-    quote_output( of, ee->getMessage() );
+    if (m_utf8)
+      quote_output( of, ee->getMessage() );
+    else
+      quote_output( of, Utils::locale_from_utf8_with_fallback(ee->getMessage()) );
     of << endl;
   }
   of.close();
   new_entry.emit( &he );
 }
 
-void History::quote_output(ostream& ostr, const string& text) {
+void History::quote_output(ostream& ostr, const string& text)
+{
   int a = 0, l;
   while ( (l = text.find( '\n', a )) != -1 ) {
     ostr << text.substr( a, l-a ) << "\\" << endl;
@@ -205,26 +248,43 @@ void History::quote_output(ostream& ostr, const string& text) {
   ostr << text.substr( a ) << " " << endl;
 }
 
-void History::build_index() {
+void History::build_index()
+{
   string s;
   bool escaped = false; // was this empty line escaped?
 
   if( !m_streamlock )
     m_if.open( m_filename.c_str() );
 
-  if( !m_if.is_open() ) { // this does not warrant an exception
+  if( !m_if.is_open() )
+  {
+    // this does not warrant an exception
     cerr << "Could not open historyfile for reading: " << m_filename << endl;
     return;
+  }
+
+  getline( m_if, s );
+  if ( s == "UTF8" )
+  {
+    m_utf8 = true;
+  }
+  else
+  {
+    m_utf8 = false;
+    m_if.seekg(0);
   }
 
   m_index.resize( 100 );
   m_index[ m_size++ ] = m_if.tellg(); // first msg at ios::beg
 
-  while (true) {
+  while (true)
+  {
     getline( m_if, s );
     if( m_if.eof() )
       break;
-    if( !s.size() && !escaped ) {
+
+    if( !s.size() && !escaped )
+    {
       if( m_size >= m_index.size() )
         m_index.resize( m_index.size() + 100 );
       m_index[ m_size++ ] = m_if.tellg();
@@ -237,16 +297,19 @@ void History::build_index() {
   
   if( !m_streamlock )
     m_if.close();
+
   m_builtindex = true;
 }
 
-void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
+void History::get_msg(guint index, Entry &e) throw(out_of_range, runtime_error)
+{
   string s,s2;
 
   if( !m_builtindex )
     build_index();
 
-  if( index >= m_size ) {
+  if( index >= m_size )
+  {
     ostringstream os;
     os << "History::get_msg illegal index: " << index;
     throw out_of_range( os.str() );
@@ -270,12 +333,14 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
   e.message.erase();
   e.URL.erase();
 
-  while (true) {
+  while (true)
+  {
     getline( m_if, s );
     if( m_if.eof() || !s.size() ) // eof or end of entry
       break;
 
-    if( s.find( "Type: " ) != string::npos ) {
+    if( s.find( "Type: " ) != string::npos )
+    {
       s2 = s.substr( string( "Type: ").size() );
       if( s2 == "Normal" )
         e.type = ICQ2000::MessageEvent::Normal;
@@ -290,43 +355,59 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
       else if( s2 == "URL" )
         e.type = ICQ2000::MessageEvent::URL;
     }
-    else if( s.find( "Time: " ) != string::npos ) {
+    else if( s.find( "Time: " ) != string::npos )
+    {
       istringstream iss( s.substr( string( "Time: ").size() ) );
       iss >> e.timestamp;
     }
-    else if( s.find( "Direction: " ) != string::npos ) {
+    else if( s.find( "Direction: " ) != string::npos )
+    {
       s2 = s.substr( string( "Direction: ").size() );
       if( s2 == "Sent" )
         e.dir = Entry::SENT;
       else if( s2 == "Received" )
         e.dir = Entry::RECEIVED;
     }
-    else if( s.find( "Offline: " ) != string::npos ) {
+    else if( s.find( "Offline: " ) != string::npos )
+    {
       e.offline = s.substr( string( "Offline: ").size() ) == "Yes";
     }
-    else if( s.find( "Multiparty: " ) != string::npos ) {
+    else if( s.find( "Multiparty: " ) != string::npos )
+    {
       e.multiparty = s.substr( string( "Multiparty: ").size() ) == "Yes";
     }
-    else if( s.find( "URL: " ) != string::npos ) {
+    else if( s.find( "URL: " ) != string::npos )
+    {
       e.URL = s.substr( string( "URL: ").size() );
+      if (!m_utf8)
+	e.URL = Utils::locale_to_utf8(e.URL);
     }
-    else if( s.find( "Receipt: " ) != string::npos ) {
+    else if( s.find( "Receipt: " ) != string::npos )
+    {
       e.receipt = s.substr( string( "Receipt: ").size() ) == "Yes";
     }
-    else if( s.find( "Delivered: " ) != string::npos ) {
+    else if( s.find( "Delivered: " ) != string::npos )
+    {
       e.delivered = s.substr( string( "Delivered: ").size() ) == "Yes";
     }
-    else if( s.find( "Urgent: " ) != string::npos ) {
+    else if( s.find( "Urgent: " ) != string::npos )
+    {
       e.urgent = s.substr( string( "Urgent: ").size() ) == "Yes";
     }
-    else if( s.find( "Message: " ) != string::npos ) {
+    else if( s.find( "Message: " ) != string::npos )
+    {
       int start = string( "Message: ").size();
       e.message = s.substr( start, s.size() - start - 1 );
-      while( s[ s.size() - 1 ] != ' ' ) {
+
+      while( s[ s.size() - 1 ] != ' ' )
+      {
         e.message += '\n';
         getline( m_if, s );
-        e.message += s.substr(0, s.size() - 1 );
+	e.message += s.substr( 0, s.size() - 1 );
       }
+
+      if (!m_utf8)
+	e.message = Utils::locale_to_utf8(e.message);
     }
   }
   if( !m_streamlock )

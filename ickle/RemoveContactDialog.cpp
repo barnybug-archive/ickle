@@ -23,35 +23,27 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
-#include <gtk--/buttonbox.h>
-#include <gtk--/label.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/label.h>
+#include <gtkmm/stock.h>
 
 #include "sstream_fix.h"
 
 using std::ostringstream;
 
-RemoveContactDialog::RemoveContactDialog(Gtk::Window * parent, const ICQ2000::ContactRef& c)
-  : Gtk::Dialog(),
-    m_ok("OK"), m_cancel("Cancel"),
+RemoveContactDialog::RemoveContactDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c)
+  : Gtk::Dialog("Remove Contact", parent),
     m_contact(c)
 {
+  set_position(Gtk::WIN_POS_CENTER);
+
   Gtk::Label *label;
 
-  set_title("Remove Contact");
-  set_transient_for (*parent);
-
-  m_ok.clicked.connect(slot(this,&RemoveContactDialog::ok_cb));
-  m_cancel.clicked.connect( destroy.slot() );
+  add_button(Gtk::Stock::REMOVE, Gtk::RESPONSE_OK);
+  add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   // libicq2000 callbacks
-  icqclient.contactlist.connect( slot( this, &RemoveContactDialog::contactlist_cb ) );
-
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  hbbox->pack_start(m_ok, true, true, 0);
-  hbbox->pack_start(m_cancel, true, true, 0);
-  hbox->pack_start( *hbbox );
+  icqclient.contactlist.connect( this, &RemoveContactDialog::contactlist_cb );
 
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
@@ -70,15 +62,26 @@ RemoveContactDialog::RemoveContactDialog(Gtk::Window * parent, const ICQ2000::Co
 void RemoveContactDialog::contactlist_cb(ICQ2000::ContactListEvent *ev)
 {
   // pick up remove from elsewhere, and kill the dialog
-  if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
+  if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved)
+  {
     ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
     ICQ2000::ContactRef c = cev->getContact();
-    if (m_contact->getUIN() == c->getUIN()) destroy.emit();
+    if (m_contact->getUIN() == c->getUIN())
+      delete this;
   }
 }
 
-void RemoveContactDialog::ok_cb() {
-  ICQ2000::ContactTree& ct = icqclient.getContactTree();
-  ct.remove( m_contact->getUIN() );
-  //  destroy.emit() - not necessary, will be caught from signals
+void RemoveContactDialog::on_response(int response_id)
+{
+  if (response_id == Gtk::RESPONSE_OK)
+  {
+    ICQ2000::ContactTree& ct = icqclient.getContactTree();
+    ct.remove( m_contact->getUIN() );
+    //  destroy - not necessary, will be caught from signals
+  }
+  else
+  {
+    delete this;
+  }
+    
 }

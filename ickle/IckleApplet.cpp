@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.31 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: IckleApplet.cpp,v 1.32 2003-01-02 16:39:55 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -315,14 +315,14 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   m_gui = &g;
 
   // setup callbacks
-  icqclient.self_contact_status_change_signal.connect(slot(this, &IckleApplet::icq_self_status_change_cb));
-  icqclient.contact_status_change_signal.connect(slot(this, &IckleApplet::icq_status_change_cb));
-  icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
+  icqclient.self_contact_status_change_signal.connect(SigC::slot(*this, &IckleApplet::icq_self_status_change_cb));
+  icqclient.contact_status_change_signal.connect(SigC::slot(*this, &IckleApplet::icq_status_change_cb));
+  icqclient.contactlist.connect(SigC::slot(*this,&IckleApplet::icq_contactlist_cb));
 
-  m_msg_queue.added.connect(slot(this,&IckleApplet::queue_added_cb));
-  m_msg_queue.removed.connect(slot(this,&IckleApplet::queue_removed_cb));
+  m_msg_queue.added.connect(SigC::slot(*this,&IckleApplet::queue_added_cb));
+  m_msg_queue.removed.connect(SigC::slot(*this,&IckleApplet::queue_removed_cb));
 
-  g_icons.icons_changed.connect(slot(this, &IckleApplet::icons_changed_cb));
+  g_icons.icons_changed.connect(SigC::slot(*this, &IckleApplet::icons_changed_cb));
 
   // create applet
   applet_widget_init("ickle_applet", NULL, argc, argv, popts, 0, NULL);
@@ -333,16 +333,16 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   // connect applet signals
   gtk_widget_set_events(m_applet, gtk_widget_get_events(m_applet) | GDK_BUTTON_PRESS_MASK);
   gtk_widget_realize(m_applet);
-  gtk_signal_connect(GTK_OBJECT(m_applet), "button_press_event",
-		     GTK_SIGNAL_FUNC(applet_click_converter), this);
-  gtk_signal_connect(GTK_OBJECT(m_applet), "delete_event",
-  		     GTK_SIGNAL_FUNC(applet_delete_cb), this);
-  gtk_signal_connect(GTK_OBJECT(m_applet), "change_orient",
-  		     GTK_SIGNAL_FUNC(applet_orientchange_converter), this);
+  gtk_signal_connect(Gtk::OBJECT(m_applet), "button_press_event",
+		     Gtk::SIGNAL_FUNC(applet_click_converter), this);
+  gtk_signal_connect(Gtk::OBJECT(m_applet), "delete_event",
+  		     Gtk::SIGNAL_FUNC(applet_delete_cb), this);
+  gtk_signal_connect(Gtk::OBJECT(m_applet), "change_orient",
+  		     Gtk::SIGNAL_FUNC(applet_orientchange_converter), this);
 
 #ifdef HAVE_PANEL_PIXEL_SIZE
-  gtk_signal_connect(GTK_OBJECT(m_applet),"change_pixel_size",
-		     GTK_SIGNAL_FUNC(applet_sizechange_converter), this);
+  gtk_signal_connect(Gtk::OBJECT(m_applet),"change_pixel_size",
+		     Gtk::SIGNAL_FUNC(applet_sizechange_converter), this);
 #endif
 
   // create context menus
@@ -380,7 +380,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 
   // whip the layout together
   reset_applet_box();
-  applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()));
+  applet_widget_add(APPLET_WIDGET(m_applet), Gtk::WIDGET(m_frame.gtkobj()));
 
   update_applet_icon();
   update_applet_tooltip();

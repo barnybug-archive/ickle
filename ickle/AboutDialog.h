@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.h,v 1.2 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: AboutDialog.h,v 1.3 2003-01-02 16:39:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,13 +21,12 @@
 #ifndef ABOUTDIALOG_H
 #define ABOUTDIALOG_H
 
-#include <gtk--/dialog.h>
+#include <gtkmm/dialog.h>
 
-class AboutDialog : public Gtk::Dialog {
+class AboutDialog : public Gtk::Dialog
+{
  public:
-  AboutDialog(Gtk::Window * parent);
-
-  void run();
+  AboutDialog(Gtk::Window& parent);
 };
 
 #endif

@@ -23,8 +23,8 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
-#include <gtk--/table.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/table.h>
+#include <gtkmm/buttonbox.h>
 
 AddUserDialog::AddUserDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
@@ -42,8 +42,8 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   set_title("Add Contact");
   set_transient_for (*parent);
 
-  m_ok.clicked.connect(slot(this,&AddUserDialog::ok_cb));
-  m_cancel.clicked.connect( destroy.slot() );
+  m_ok.clicked.connect(SigC::slot(*this,&AddUserDialog::ok_cb));
+  m_cancel.clicked.connect( destroy.SigC::slot() );
 
   Gtk::HBox *hbox = get_action_area();
   hbox->set_border_width(0);
@@ -60,8 +60,8 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   // -- mode selection frame
 
   vbox2 = manage( new Gtk::VBox() );
-  m_icq_user.clicked.connect( slot( this, &AddUserDialog::update_stuff ) );
-  m_mobile_user.clicked.connect( slot( this, &AddUserDialog::update_stuff ) );
+  m_icq_user.clicked.connect( SigC::slot( *this, &AddUserDialog::update_stuff ) );
+  m_mobile_user.clicked.connect( SigC::slot( *this, &AddUserDialog::update_stuff ) );
   m_mobile_user.set_group( m_icq_user.group() );
   m_icq_user.set_active(true);
   vbox2->set_border_width(5);
@@ -75,12 +75,12 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   // -- icq frame
   table = manage( new Gtk::Table( 2, 2, false ) );
   
-  table->attach( m_uin_label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 5 );
-  m_uin_entry.changed.connect( slot( this, &AddUserDialog::uin_changed_cb ) );
+  table->attach( m_uin_label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND, 5 );
+  m_uin_entry.changed.connect( SigC::slot( *this, &AddUserDialog::uin_changed_cb ) );
   m_uin_entry.set_max_length(12);
   table->set_border_width(5);
-  table->attach( m_uin_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND );
-  table->attach( m_alert_check, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
+  table->attach( m_uin_entry, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND | Gtk::SHRINK, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_alert_check, 0, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
   m_icq_frame.set_border_width(0);
   m_icq_frame.add( *table );
   vbox->pack_start( m_icq_frame );
@@ -88,12 +88,12 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   // -- mobile frame
   table = manage( new Gtk::Table( 2, 2, false ) );
 
-  table->attach( m_alias_label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 5);
-  table->attach( m_alias_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
+  table->attach( m_alias_label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND, 5);
+  table->attach( m_alias_entry, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND | Gtk::SHRINK, Gtk::FILL | Gtk::EXPAND);
 
-  table->attach( m_mobileno_label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 5);
-  m_mobileno_entry.changed.connect( slot( this, &AddUserDialog::mobileno_changed_cb ) );
-  table->attach( m_mobileno_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
+  table->attach( m_mobileno_label, 0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND, 5);
+  m_mobileno_entry.changed.connect( SigC::slot( *this, &AddUserDialog::mobileno_changed_cb ) );
+  table->attach( m_mobileno_entry, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND | Gtk::SHRINK, Gtk::FILL | Gtk::EXPAND);
 
   m_mobile_frame.set_border_width(0);
   m_mobile_frame.add( *table );

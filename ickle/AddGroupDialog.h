@@ -21,19 +21,19 @@
 #ifndef ADDGROUPDIALOG_H
 #define ADDGROUPDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/entry.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/entry.h>
 
-class AddGroupDialog : public Gtk::Dialog {
+class AddGroupDialog : public Gtk::Dialog
+{
  private:
-  Gtk::Button m_ok, m_cancel;
   Gtk::Entry m_group_label;
 
- public:
-  AddGroupDialog(Gtk::Window *parent);
+  void on_response(int response_id);
 
-  void ok_cb();
+ public:
+  AddGroupDialog(Gtk::Window& parent);
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.h,v 1.3 2002-06-25 18:08:35 barnabygray Exp $
+/* $Id: StatusMenu.h,v 1.4 2003-01-02 16:40:01 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,10 +21,10 @@
 #ifndef STATUSMENU_H
 #define STATUSMENU_H
 
-#include <gtk--/menu.h>
-#include <gtk--/menuitem.h>
-#include <gtk--/checkmenuitem.h>
-#include <sigc++/signal_system.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/menuitem.h>
+#include <gtkmm/checkmenuitem.h>
+#include <sigc++/signal.h>
 
 #include <libicq2000/constants.h>
 
@@ -45,7 +45,8 @@ class InvisibleStatusMenuItem : public Gtk::CheckMenuItem
   InvisibleStatusMenuItem();
 };
 
-class StatusMenu : public StatusMenuItem {
+class StatusMenu : public StatusMenuItem
+{
  private:
   ICQ2000::Status m_current_status;
   bool m_current_invisible;

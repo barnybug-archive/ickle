@@ -20,93 +20,53 @@
 
 #include "PromptDialog.h"
 
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/main.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/main.h>
+#include <gtkmm/buttonbox.h>
 
 using std::string;
 
-PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal)
-  : Gtk::Dialog(),
+PromptDialog::PromptDialog(Gtk::Window& parent, Gtk::MessageType t, const Glib::ustring& msg, bool modal)
+  : Gtk::MessageDialog(parent, msg, t,
+		       t == Gtk::MESSAGE_QUESTION ? Gtk::BUTTONS_YES_NO : Gtk::BUTTONS_OK),
     m_type(t),
-    m_finish_bool(false),
     m_modal(modal)
 {
   set_modal(modal);
-  set_position(GTK_WIN_POS_MOUSE);
-  if (parent) set_transient_for (*parent);
-
-  if (modal) destroy.connect( Gtk::Main::quit.slot() );
-
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  Gtk::Button *button;
-  hbox->pack_start( *hbbox );
-
-  switch(t) {
-  case PROMPT_INFO:
+  set_position(Gtk::WIN_POS_CENTER);
+  
+  switch(t)
+  {
+  case Gtk::MESSAGE_INFO:
     set_title("ickle information");
-    button = manage( new Gtk::Button("OK") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbbox->pack_start(*button, true, false);
     break;
-  case PROMPT_WARNING:
+  case Gtk::MESSAGE_WARNING:
     set_title("ickle warning");
-    button = manage( new Gtk::Button("OK") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbbox->pack_start(*button, true, false);
     break;
-  case PROMPT_CONFIRM:
-    set_title("ickle confirmation");
-    button = manage( new Gtk::Button("OK") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbbox->pack_start(*button, true, false, 0);
-    button = manage( new Gtk::Button("Cancel") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::false_cb ) );
-    hbbox->pack_start(*button, true, false, 0);
-    break;
-  case PROMPT_QUESTION:
+  case Gtk::MESSAGE_QUESTION:
     set_title("ickle question");
-    button = manage( new Gtk::Button("Yes") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbbox->pack_start(*button, true, false, 0);
-    button = manage( new Gtk::Button("No") );
-    button->set_usize(70,20);
-    button->clicked.connect( slot( this, &PromptDialog::false_cb ) );
-    hbbox->pack_start(*button, true, false, 0);
+    break;
+  case Gtk::MESSAGE_ERROR:
+    set_title("ickle error");
     break;
   }
-
-  Gtk::Label *label = manage( new Gtk::Label( msg, 0 ) );
-  label->set_justify(GTK_JUSTIFY_FILL);
-  label->set_line_wrap(true);
-  Gtk::VBox *vbox = get_vbox();
-  vbox->pack_start( *label, true, true );
-  vbox->set_spacing(10);
 
   set_border_width(10);
   show_all();
 }
 
-bool PromptDialog::run() {
-  Gtk::Main::run();
-  return m_finish_bool;
-}
-
-void PromptDialog::true_cb() {
-  m_finish_bool = true;
-  destroy.emit();
-}
-
-void PromptDialog::false_cb() {
-  m_finish_bool = false;
-  destroy.emit();
+void PromptDialog::on_response(int response_id)
+{
+  if (m_modal)
+  {
+    // pass to base on_response
+    Gtk::MessageDialog::on_response(response_id);
+  }
+  else
+  {
+    // destroy me
+    delete this;
+  }
 }

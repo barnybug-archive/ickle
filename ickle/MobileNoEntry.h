@@ -21,21 +21,22 @@
 #ifndef MOBILENOENTRY_H
 #define MOBILENOENTRY_H
 
-#include <gtk--/entry.h>
-#include <gtk--/table.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/table.h>
 
 #include <string>
 
 class MobileNoEntry : public Gtk::Table {
  private:
   Gtk::Entry m_country, m_areacode, m_number;
+  SigC::Signal0<void> m_signal_changed;
 
  public:
   MobileNoEntry();
 
   std::string get_text() const;
 
-  SigC::Signal0<void> changed;
+  SigC::Signal0<void>& signal_changed();
 };
 
 #endif

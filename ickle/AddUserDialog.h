@@ -21,14 +21,14 @@
 #ifndef ADDUSERDIALOG_H
 #define ADDUSERDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/entry.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/checkbutton.h>
-#include <gtk--/frame.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/checkbutton.h>
+#include <gtkmm/frame.h>
 
 #include "MobileNoEntry.h"
 

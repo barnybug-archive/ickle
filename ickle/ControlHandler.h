@@ -20,7 +20,7 @@
 
 #ifdef CONTROL_SOCKET
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #include "ControlSocket.h"
 
@@ -38,8 +38,8 @@ class ControlHandler : public SigC::Object
   void quit ();
 
  private:
-  void input_cb (int, GdkInputCondition);
-  void connection_input_cb (int, GdkInputCondition);
+  bool input_cb (Glib::IOCondition);
+  bool connection_input_cb (Glib::IOCondition, int sd);
 
   void command (ControlSocket &);
 
@@ -58,7 +58,7 @@ class ControlHandler : public SigC::Object
   void addTimeout (int, SigC::Connection, SigC::Connection);
   void endTimeout (int, bool, const std::string &);
   void endTimeout (int sd, bool success) { endTimeout (sd, success, ""); }
-  int timeout_cb (int);
+  bool timeout_cb (int);
 
   void self_status_change_cb (ICQ2000::StatusChangeEvent *, int, ICQ2000::Status);
   void messageack_cb         (ICQ2000::MessageEvent *, int, ICQ2000::MessageEvent *);

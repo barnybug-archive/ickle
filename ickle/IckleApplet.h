@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.21 2002-07-20 22:51:33 bugcreator Exp $
+/* $Id: IckleApplet.h,v 1.22 2003-01-02 16:39:56 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -23,11 +23,11 @@
 #ifndef ICKLEAPPLET_H
 #define ICKLEAPPLET_H
 
-#include <sigc++/signal_system.h>
-#include <gtk--/box.h>
-#include <gtk--/label.h> 
-#include <gtk--/frame.h>
-#include <gtk--/pixmap.h>
+#include <sigc++/signal.h>
+#include <gtkmm/box.h>
+#include <gtkmm/label.h> 
+#include <gtkmm/frame.h>
+#include <gtkmm/pixmap.h>
 #include <applet-widget.h>
 
 #include <list>

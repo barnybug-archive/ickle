@@ -22,7 +22,7 @@
 
 #include "sstream_fix.h"
 
-#include <gtk--/label.h>
+#include <gtkmm/label.h>
 
 using std::string;
 using std::ostringstream;
@@ -33,26 +33,29 @@ MobileNoEntry::MobileNoEntry()
   Gtk::Label *label;
 
   label = manage( new Gtk::Label( "Country" ) );
-  attach( *label, 1, 2, 0, 1, 0, GTK_FILL );
+  attach( *label, 1, 2, 0, 1, Gtk::SHRINK, Gtk::FILL );
   label = manage( new Gtk::Label( "Area Code" ) );
-  attach( *label, 2, 3, 0, 1, 0, GTK_FILL );
+  attach( *label, 2, 3, 0, 1, Gtk::SHRINK, Gtk::FILL );
   label = manage( new Gtk::Label( "Number" ) );
-  attach( *label, 3, 4, 0, 1, 0, GTK_FILL );
+  attach( *label, 3, 4, 0, 1, Gtk::SHRINK, Gtk::FILL );
 
   label = manage( new Gtk::Label( "+" ) );
-  attach( *label, 0, 1, 1, 2, GTK_FILL, GTK_FILL );  
+  attach( *label, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );  
+
   m_country.set_max_length(3);
-  m_country.set_usize(40,0);
-  m_country.changed.connect( changed.slot() );
-  attach( m_country, 1, 2, 1, 2, 0, GTK_FILL );
+  m_country.set_width_chars(3);
+  m_country.signal_changed().connect( m_signal_changed.slot() );
+  attach( m_country, 1, 2, 1, 2, Gtk::SHRINK, Gtk::FILL );
+
   m_areacode.set_max_length(5);
-  m_areacode.set_usize(50,0);
-  m_areacode.changed.connect( changed.slot() );
-  attach( m_areacode, 2, 3, 1, 2, 0, GTK_FILL );
+  m_areacode.set_width_chars(5);
+  m_areacode.signal_changed().connect( m_signal_changed.slot() );
+  attach( m_areacode, 2, 3, 1, 2, Gtk::SHRINK, Gtk::FILL );
+
   m_number.set_max_length(10);
-  m_number.set_usize(80,0);
-  m_number.changed.connect( changed.slot() );
-  attach( m_number, 3, 4, 1, 2, 0, GTK_FILL );
+  m_number.set_width_chars(10);
+  m_number.signal_changed().connect( m_signal_changed.slot() );
+  attach( m_number, 3, 4, 1, 2, Gtk::SHRINK, Gtk::FILL );
 }
 
 string MobileNoEntry::get_text() const {
@@ -62,3 +65,9 @@ string MobileNoEntry::get_text() const {
        << m_number.get_text();
   return ostr.str();
 }
+
+SigC::Signal0<void>& MobileNoEntry::signal_changed()
+{
+  return m_signal_changed;
+}
+

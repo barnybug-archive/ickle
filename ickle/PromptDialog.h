@@ -21,31 +21,19 @@
 #ifndef PROMPTDIALOG_H
 #define PROMPTDIALOG_H
 
-#include <gtk--/dialog.h>
+#include <gtkmm/messagedialog.h>
 
-#include <string>
-
-class PromptDialog : public Gtk::Dialog {
- public:
-  enum PromptType {
-    PROMPT_WARNING,
-    PROMPT_CONFIRM,
-    PROMPT_QUESTION,
-    PROMPT_INFO
-  };
-
+class PromptDialog : public Gtk::MessageDialog
+{
  private:
-  PromptType m_type;
-  bool m_finish_bool;
+  Gtk::MessageType m_type;
   bool m_modal;
 
+ protected:
+  virtual void on_response(int response_id);
+
  public:
-  PromptDialog(Gtk::Window * parent, PromptType t, const std::string& msg, bool modal = true);
-
-  bool run();
-
-  void true_cb();
-  void false_cb();
+  PromptDialog(Gtk::Window& parent, Gtk::MessageType t, const Glib::ustring& msg, bool modal = true);
 };
 
 #endif

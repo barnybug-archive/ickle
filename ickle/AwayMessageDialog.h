@@ -21,12 +21,11 @@
 #ifndef AWAYMESSAGEDIALOG_H
 #define AWAYMESSAGEDIALOG_H
 
-#include <gtk--/window.h>
-#include <gtk--/box.h>
-#include <gtk--/text.h>
-#include <gtk--/button.h>
+#include <gtkmm/window.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/scrolledwindow.h>
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #include "main.h"
 #include "Settings.h"
@@ -34,22 +33,26 @@
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
 
-class AwayMessageDialog : public Gtk::Window {
+class AwayMessageDialog : public Gtk::Window,
+			  public sigslot::has_slots<>
+{
  private:
-  Gtk::Window *m_main_window;
-  Gtk::Text m_awaytext;
-  Gtk::Button m_close_button;
-  unsigned int m_pos, m_count;
+  Gtk::Window& m_main_window;
+
+  Gtk::ScrolledWindow m_away_scr_win;
+  Gtk::TextView m_away_textview;
+  Glib::RefPtr<Gtk::TextTag> m_tag_header, m_tag_normal;
+  unsigned int m_count;
 
   std::string format_time(time_t t);
+
  public:
-  AwayMessageDialog(Gtk::Window *main_window);
+  AwayMessageDialog(Gtk::Window& main_window);
   ~AwayMessageDialog();
   
   void messageack_cb(ICQ2000::MessageEvent *ev);
-  gint button_press_cb(GdkEventButton *ev);
+  bool button_press_cb(GdkEventButton *ev);
   void close_cb();
-  gint delete_event_impl(GdkEventAny *ev);
 };
 
 #endif

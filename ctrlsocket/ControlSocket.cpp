@@ -111,22 +111,26 @@ bool ControlSocketServer::init (const string & socket_path)
   snprintf (m_saddr.sun_path, UNIX_PATH_MAX, "%s/ctrlsocket", socket_path.c_str());
 
   // try to create the directory where the socket should be created
-  if ((mkdir (socket_path.c_str(), 0700) == -1) && errno != EEXIST) {
+  if ((mkdir (socket_path.c_str(), 0700) == -1) && errno != EEXIST)
+  {
     cerr << "Failed to create directory `" << socket_path.c_str() << "' (Error: " << strerror(errno) << ")" << endl;
     return false;
   }
   // try to delete the socket if it already exists
-  if ((unlink (m_saddr.sun_path) == -1) && errno != ENOENT) {
+  if ((unlink (m_saddr.sun_path) == -1) && errno != ENOENT)
+  {
     cerr << "Failed to unlink `" << m_saddr.sun_path << "' (Error: " << strerror(errno) << ")" << endl;
     return false;
   }
 
   // create the socket
-  if ((m_sd = socket (AF_UNIX, SOCK_STREAM, 0)) == -1) {
+  if ((m_sd = socket (AF_UNIX, SOCK_STREAM, 0)) == -1)
+  {
     cerr << "Failed to open socket" << endl;
     return false;
   }
-  if (bind (m_sd, (struct sockaddr *) &m_saddr, sizeof(m_saddr)) == -1) {
+  if (bind (m_sd, (struct sockaddr *) &m_saddr, sizeof(m_saddr)) == -1)
+  {
     cerr << "Failed to assign `" << m_saddr.sun_path << "' to a socket (Error: " << strerror(errno) << ")" << endl;
     close (m_sd);
     return false;

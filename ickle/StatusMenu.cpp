@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.6 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.7 2003-01-02 16:40:01 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -20,10 +20,10 @@
 
 #include "StatusMenu.h"
 
-#include <gtk--/box.h>
-#include <gtk--/label.h>
-#include <gtk--/pixmap.h>
-#include <gtk--/checkmenuitem.h>
+#include <gtkmm/box.h>
+#include <gtkmm/label.h>
+#include <gtkmm/image.h>
+#include <gtkmm/checkmenuitem.h>
 
 #include "Icons.h"
 #include "Settings.h"
@@ -59,52 +59,58 @@ void StatusMenuItem::add_status(Status st, bool inv)
 
 void StatusMenuItem::add_status(const string& lbl, Status st, bool inv)
 {
-  Gtk::ImageLoader *p = g_icons.IconForStatus(st, inv);
+  Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(st, inv);
 
-  Gtk::Pixmap* pmap = manage( new Gtk::Pixmap( p->pix(), p->bit() ) );
-  Gtk::Label* label = manage( new Gtk::Label( lbl , 1.0) );
-  Gtk::HBox* box = manage( new Gtk::HBox(false,5) );
+  Gtk::Image* img = manage( new Gtk::Image( p ) );
+  Gtk::Label* label = manage( new Gtk::Label( lbl, 1.0 ) );
+  Gtk::HBox* box = manage( new Gtk::HBox( false, 5 ) );
 
-  box->pack_start(*label);
-  box->pack_end(*pmap,false);
+  box->pack_start(*label, Gtk::PACK_EXPAND_WIDGET);
+  label->set_alignment( 1.0, 0.5 );
+  box->pack_start(*img,   Gtk::PACK_SHRINK);
+
   box->show_all();
 
+  set_right_justified(true);
   add(*box);
 }
 
 InvisibleStatusMenuItem::InvisibleStatusMenuItem()
 {
-  Gtk::ImageLoader *p = g_icons.IconForStatus(STATUS_ONLINE, true);
+  Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(STATUS_ONLINE, true);
 
-  Gtk::Pixmap* pmap = manage( new Gtk::Pixmap( p->pix(), p->bit() ) );
-  Gtk::Label* label = manage( new Gtk::Label( "Invisible" , 1.0) );
-  Gtk::HBox* box = manage( new Gtk::HBox(false,5) );
+  Gtk::Image* img = manage( new Gtk::Image( p ) );
+  Gtk::Label* label = manage( new Gtk::Label( "Invisible", 1.0) );
+  Gtk::HBox* box = manage( new Gtk::HBox( false, 5 ) );
 
-  box->pack_start(*label);
-  box->pack_end(*pmap,false);
+  box->pack_start(*label, Gtk::PACK_EXPAND_WIDGET);
+  label->set_alignment( 1.0, 0.5 );
+  box->pack_start(*img,   Gtk::PACK_SHRINK);
+
   box->show_all();
 
+  set_right_justified(true);
   add(*box);
 }
 
 StatusMenu::StatusMenu()
   : m_current_status(STATUS_OFFLINE), m_current_invisible(false)
 {
-  g_icons.icons_changed.connect( slot( this, &StatusMenu::icons_changed_cb ) );
-  g_settings.settings_changed.connect( slot( this, &StatusMenu::settings_changed_cb ) );
+  g_icons.icons_changed.connect( SigC::slot( *this, &StatusMenu::icons_changed_cb ) );
+  g_settings.settings_changed.connect( SigC::slot( *this, &StatusMenu::settings_changed_cb ) );
   build_list();
   set_submenu(m_menu);
 }
 
 void StatusMenu::icons_changed_cb()
 {
-  build_list();
+  // TODO build_list();
 }
 
 void StatusMenu::settings_changed_cb(const string& s)
 {
-  if (s == "status_classic_invisibility")
-    build_list();
+  //  if (s == "status_classic_invisibility")
+    // TODO build_list();
 }
 
 void StatusMenu::build_list()
@@ -118,51 +124,53 @@ void StatusMenu::build_list()
   bool cl_inv = g_settings.getValueBool("status_classic_invisibility");
 
   // menu list
-  MenuList& sl = m_menu.items();
-  sl.clear();
-  sl.push_back(* menu_status_widget( STATUS_ONLINE, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_AWAY, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_NA, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_DND, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_OCCUPIED, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT, cl_inv ) );
+  m_menu.items().clear();
+  m_menu.append( * menu_status_widget( STATUS_ONLINE, cl_inv ) );
+  m_menu.append( * menu_status_widget( STATUS_AWAY, cl_inv ) );
+  m_menu.append( * menu_status_widget( STATUS_NA, cl_inv ) );
+  m_menu.append( * menu_status_widget( STATUS_DND, cl_inv ) );
+  m_menu.append( * menu_status_widget( STATUS_OCCUPIED, cl_inv ) );
+  m_menu.append( * menu_status_widget( STATUS_FREEFORCHAT, cl_inv ) );
   if (cl_inv) {
-    sl.push_back(* menu_status_nice_inv_widget() );
-    sl.push_back(* menu_status_widget( STATUS_OFFLINE, cl_inv ) );
+    m_menu.append( * menu_status_nice_inv_widget() );
+    m_menu.append( * menu_status_widget( STATUS_OFFLINE, cl_inv ) );
   } else {
-    sl.push_back(* menu_status_widget( STATUS_OFFLINE, cl_inv ) );
-    sl.push_back( SeparatorElem() );
-    sl.push_back(* menu_status_inv_widget() );
+    m_menu.append( * menu_status_widget( STATUS_OFFLINE, cl_inv ) );
+    m_menu.items().push_back( SeparatorElem() );
+    m_menu.append( * menu_status_inv_widget() );
   }
-  
+
   m_menu.show_all();
 }
 
-Gtk::MenuItem* StatusMenu::menu_status_widget( Status s, bool set_inv ) {
+Gtk::MenuItem* StatusMenu::menu_status_widget( Status s, bool set_inv )
+{
   StatusMenuItem *mi = manage( new StatusMenuItem( s, false ) );
   if (set_inv)
-    mi->activate.connect( bind(bind(slot(this,&StatusMenu::menu_activate_inv_cb), false), s) );
+    mi->signal_activate().connect( SigC::bind(SigC::bind(SigC::slot(*this,&StatusMenu::menu_activate_inv_cb), false), s) );
   else
-    mi->activate.connect( bind(slot(this,&StatusMenu::menu_activate_cb),s) );
+    mi->signal_activate().connect( SigC::bind(SigC::slot(*this,&StatusMenu::menu_activate_cb),s) );
 
   return mi;
 }
   
-Gtk::MenuItem* StatusMenu::menu_status_nice_inv_widget() {
+Gtk::MenuItem* StatusMenu::menu_status_nice_inv_widget()
+{
   StatusMenuItem *mi = manage( new StatusMenuItem( "Invisible", STATUS_ONLINE, true ) );
-  mi->activate.connect( bind(bind(slot(this,&StatusMenu::menu_activate_inv_cb), true), STATUS_ONLINE) );
+  mi->signal_activate().connect( SigC::bind(SigC::bind(SigC::slot(*this,&StatusMenu::menu_activate_inv_cb), true), STATUS_ONLINE) );
   return mi;
 }
   
-Gtk::MenuItem* StatusMenu::menu_status_inv_widget() {
+Gtk::MenuItem* StatusMenu::menu_status_inv_widget()
+{
   InvisibleStatusMenuItem *mi = manage( new InvisibleStatusMenuItem() );
-  mi->toggled.connect( bind(slot(this,&StatusMenu::inv_toggled_cb), mi) );
+  mi->signal_toggled().connect( SigC::bind(SigC::slot(*this,&StatusMenu::inv_toggled_cb), mi) );
   return mi;
 }
 
 void StatusMenu::inv_toggled_cb(InvisibleStatusMenuItem *mi) 
 {
-  status_changed_invisible.emit(mi->is_active());
+  status_changed_invisible.emit(mi->get_active());
 }
 
 void StatusMenu::menu_activate_cb(Status st) 

@@ -20,11 +20,12 @@
 
 #include "ResendDialog.h"
 
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/main.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/main.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/stock.h>
 
 #include "sstream_fix.h"
 #include "main.h"
@@ -36,33 +37,23 @@ using std::string;
 using std::ostringstream;
 using std::endl;
 
-ResendDialog::ResendDialog(Gtk::Window *parent, ICQ2000::ICQMessageEvent *ev)
+enum
 {
-  set_position(GTK_WIN_POS_MOUSE);
-  if (parent) set_transient_for (*parent);
+  Response_Resend_Urgent        = 1,
+  Response_Resend_ToContactList = 2
+};
+
+ResendDialog::ResendDialog(Gtk::Window& parent, ICQ2000::ICQMessageEvent *ev)
+  : Gtk::Dialog("Resend message", parent)
+{
+  set_position(Gtk::WIN_POS_MOUSE);
 
   // take a copy of the event, for resending
   m_event = ev->copy();
 
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  Gtk::Button *button;
-  hbox->pack_start( *hbbox );
-
-  set_title("Resend Message");
-
-  button = manage( new Gtk::Button("Send as urgent") );
-  button->clicked.connect( slot( this, &ResendDialog::resend_as_urgent_cb ) );
-  hbbox->pack_start(*button, true, false, 0);
-
-  button = manage( new Gtk::Button("Send to contact list") );
-  button->clicked.connect( slot( this, &ResendDialog::resend_as_tocontactlist_cb ) );
-  hbbox->pack_start(*button, true, false, 0);
-
-  button = manage( new Gtk::Button("Cancel") );
-  button->clicked.connect( destroy.slot() );
-  hbbox->pack_start(*button, true, false, 0);
+  add_button("Send as urgent", Response_Resend_Urgent);
+  add_button("Send to contact list", Response_Resend_ToContactList);
+  add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   ostringstream ostr;
   ostr << "Your message to " << ev->getContact()->getNameAlias()
@@ -75,7 +66,7 @@ ResendDialog::ResendDialog(Gtk::Window *parent, ICQ2000::ICQMessageEvent *ev)
        << "You should resend the message as 'Urgent' or 'to Contact List'" << endl;
   
   Gtk::Label *label = manage( new Gtk::Label( ostr.str(), 0 ) );
-  label->set_justify(GTK_JUSTIFY_FILL);
+  label->set_justify(Gtk::JUSTIFY_FILL);
   label->set_line_wrap(true);
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *label, true, true );
@@ -90,16 +81,20 @@ ResendDialog::~ResendDialog()
   if (m_event != NULL) delete m_event;
 }
 
-void ResendDialog::resend_as_urgent_cb() {
-  m_event->setUrgent(true);
-  icqclient.SendEvent(m_event);
-  m_event = NULL;
-  destroy.emit();
-}
+void ResendDialog::on_response(int response_id)
+{
+  if (response_id == Response_Resend_Urgent)
+  {
+    m_event->setUrgent(true);
+    icqclient.SendEvent(m_event);
+    m_event = NULL;
+  }
+  else if (response_id == Response_Resend_ToContactList)
+  {
+    m_event->setToContactList(true);
+    icqclient.SendEvent(m_event);
+    m_event = NULL;
+  }
 
-void ResendDialog::resend_as_tocontactlist_cb() {
-  m_event->setToContactList(true);
-  icqclient.SendEvent(m_event);
-  m_event = NULL;
-  destroy.emit();
+  delete this;
 }

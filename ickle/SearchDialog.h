@@ -21,76 +21,14 @@
 #ifndef SEARCHDIALOG_H
 #define SEARCHDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/notebook.h>
-#include <gtk--/entry.h>
-#include <gtk--/combo.h>
-#include <gtk--/clist.h>
-#include <gtk--/button.h>
-#include <gtk--/statusbar.h>
-#include <gtk--/checkbutton.h>
-#include <gtk--/spinbutton.h>
-#include <gtk--/optionmenu.h>
-#include <gtk--/list.h>
+#include <gtkmm/dialog.h>
 
-#include <libicq2000/events.h>
-#include <libicq2000/userinfoconstants.h>
-
-class SearchDialog : public Gtk::Dialog {
- private:
-  Gtk::Notebook m_notebook;
-
-  // -- whitepage search --
-  Gtk::Entry m_alias_entry, m_firstname_entry, m_lastname_entry;
-  Gtk::Entry m_email_entry, m_city_entry, m_state_entry;
-  Gtk::Entry m_company_name_entry, m_department_entry, m_position_entry;
-  Gtk::CheckButton m_only_online_check;
-  Gtk::OptionMenu m_sex_menu, m_agerange_menu;
-  ICQ2000::Sex m_sex_selected;
-  ICQ2000::AgeRange m_agerange_selected;
-  Gtk::Combo m_language_combo, m_country_combo;
-
-  // -- uin search --
-  Gtk::Entry m_uin_entry;
-
-  // -- keyword search --
-  Gtk::Entry m_keyword_entry;
-
-  Gtk::CList m_clist;
-
-  Gtk::Button m_ok_button, m_search_button, m_stop_button, m_add_button, m_reset_button;
-  Gtk::Statusbar m_status;
-  guint m_status_context;
-
-  bool m_in_progress;
-  ICQ2000::SearchResultEvent *m_ev;
-  
-  static void clist_data_destroy_cb(gpointer data);
-
- protected:
-
-  // -- GUI button callbacks --
-  void ok_cb();
-  void search_cb();
-  void stop_cb();
-  void add_cb();
-  void reset_cb();
-
-  void select_row_cb(gint x, gint y, GdkEvent *ev);
-  void unselect_row_cb(gint x, gint y, GdkEvent *ev);
-
-  void set_status(const std::string& s);
-
-  void set_sex(ICQ2000::Sex s);
-  void set_agerange(ICQ2000::AgeRange age);
-
-  // -- library callbacks    --
-  void result_cb(ICQ2000::SearchResultEvent *ev);
-  void self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
-
+class SearchDialog : public Gtk::Dialog
+{
  public:
   SearchDialog(Gtk::Window * parent);
-  
+
+  // TODO
 };
 
 #endif

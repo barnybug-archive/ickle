@@ -20,10 +20,11 @@
 
 #include "SetAutoResponseDialog.h"
 
-#include <gtk--/table.h>
-#include <gtk--/scrollbar.h>
+#include <gtkmm/table.h>
+#include <gtkmm/scrollbar.h>
 #include <gdk/gdkkeysyms.h>
-#include <gtk--/menu.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/stock.h>
 
 #include "main.h"
 #include "Settings.h"
@@ -33,124 +34,146 @@
 using std::string;
 using std::ostringstream;
 
-SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string& prev_msg, bool timeout)
-  : Gtk::Dialog(),
-    okay("OK"), cancel("Cancel")
+SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window& parent, const string& prev_msg, bool timeout)
+  : Gtk::Dialog("Set Auto Response", parent)
 {
-  set_title("Set Auto Response");
-  set_position(GTK_WIN_POS_MOUSE);
-  set_transient_for (*parent);
-  set_usize(350,150);
+  set_position(Gtk::WIN_POS_MOUSE);
+  set_default_size(350,150);
 
-  msg_input.set_word_wrap(true);
-  msg_input.insert(prev_msg);
-  msg_input.set_editable(true);
+  m_msg_textview.set_wrap_mode(Gtk::WRAP_WORD);
+  m_msg_textview.get_buffer()->set_text(prev_msg);
+  m_msg_textview.set_editable(true);
 
-  okay.clicked.connect(slot(this,&SetAutoResponseDialog::okay_cb));
-  cancel.clicked.connect(slot(this,&SetAutoResponseDialog::cancel_cb));
+  m_msg_scr_win.add(m_msg_textview);
+  m_msg_scr_win.set_size_request(0, -1); // workaround for textview horizontal resizing
+  m_msg_scr_win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+  m_msg_scr_win.set_shadow_type(Gtk::SHADOW_IN);
 
   build_optionmenu();
-  autoresponse_option.button_press_event.connect( slot(this, &SetAutoResponseDialog::option_button_pressed) );
+  m_autoresponse_option.signal_button_press_event().connect( SigC::slot(*this, &SetAutoResponseDialog::option_button_pressed) );
 
-  Gtk::HBox *hbox = get_action_area();
+  Gtk::HButtonBox *hbox = get_action_area();
+
   hbox->set_border_width(0);
-  hbox->pack_start(autoresponse_option, true, true, 0);
-  hbox->pack_start(okay, true, true, 0);
-  hbox->pack_start(cancel, true, true, 0);
-  m_tooltip.set_tip(okay, "Shortcuts: Ctrl+Enter or Alt-O");
-  m_tooltip.set_tip(cancel, "Shortcuts: Esc or Alt-C");
+  hbox->pack_start(m_autoresponse_option, Gtk::PACK_EXPAND_PADDING, 0);
 
-  Gtk::Table *table = manage( new Gtk::Table(2,1,false) );
-  table->attach( msg_input, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
-		 GTK_FILL | GTK_EXPAND | GTK_SHRINK);
-  Gtk::Scrollbar *scrollbar = manage( new Gtk::VScrollbar (*(msg_input.get_vadjustment())) );
-  table->attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-
+  // add buttons
+  Gtk::Button *button;
+  m_ok = button = add_button( Gtk::Stock::OK, Gtk::RESPONSE_OK );
+  m_tooltip.set_tip(*button, "Shortcuts: Ctrl+Enter or Alt-O");
+  button = add_button( Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL );
+  m_tooltip.set_tip(*button, "Shortcuts: Esc or Alt-C");
+  
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
-  vbox->pack_start(*table, true, true);
+  vbox->pack_start(m_msg_scr_win, Gtk::PACK_EXPAND_WIDGET);
 
-  if (timeout) {
+  if (timeout)
+  {
     timeout = g_settings.getValueBool("set_away_response_timeout");
   }
 
   m_timeout = 0;
-  if (timeout) {
-    m_timeout = 5;
-    Gtk::Label *label = static_cast<Gtk::Label*>(okay.get_child());
-    label->set_text("OK (5)");
-    timeout_connection = Gtk::Main::timeout.connect( slot( this, &SetAutoResponseDialog::auto_timeout ), 1000 );
+  if (timeout)
+  {
+    m_timeout = 6;
+    timeout_connection = Glib::signal_timeout().connect( SigC::slot( *this, &SetAutoResponseDialog::auto_timeout ), 1000 );
+    auto_timeout();
   }
 
   set_border_width(10);
   show_all();
-  msg_input.grab_focus();
+
+  m_msg_textview.grab_focus();
 }
 
-int SetAutoResponseDialog::auto_timeout() {
+bool SetAutoResponseDialog::auto_timeout()
+{
   --m_timeout;
-  if (m_timeout == 0) {
-    okay.clicked();
+  
+  if (m_timeout == 0)
+  {
+    response(Gtk::RESPONSE_OK);
     return false;
-  } else {
+  }
+  else
+  {
     std::ostringstream ostr;
-    ostr << "OK (" << m_timeout << ")";
-    Gtk::Label *label = static_cast<Gtk::Label*>(okay.get_child());
-    label->set_text(ostr.str());
+    ostr << "Set Auto Response"
+	 << " (" << m_timeout << ")";
+    set_title(ostr.str());
     return true;
   }
 }
 
 void SetAutoResponseDialog::cancel_timeout()
 {
-  if (m_timeout) {
+  if (m_timeout)
+  {
     timeout_connection.disconnect();
-    Gtk::Label *label = static_cast<Gtk::Label*>(okay.get_child());
-    label->set_text("OK");
+    set_title("Set Auto Response");
   }
 }
 
-gint SetAutoResponseDialog::key_press_event_impl(GdkEventKey* ev) {
+bool SetAutoResponseDialog::on_key_press_event(GdkEventKey* ev)
+{
   if (m_timeout) cancel_timeout();
 
-  if (ev->state & GDK_CONTROL_MASK ) {
+  if (ev->state & GDK_CONTROL_MASK )
+  {
     if (ev->keyval == GDK_Return || ev->keyval== GDK_KP_Enter)
-      okay.clicked();
-  } else if (ev->state & GDK_MOD1_MASK) {
-    if (ev->keyval == GDK_o) // licq shortcut
-      okay.clicked();
+    {
+      response(Gtk::RESPONSE_OK);
+      return true;
+    }
+  }
+  else if (ev->state & GDK_MOD1_MASK)
+  {
+    if (ev->keyval == GDK_o)
+    { // licq shortcut
+      response(Gtk::RESPONSE_OK);
+      return true;
+    }
   }
   if ( (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c ) ||
        ev->keyval == GDK_Escape)
-    cancel.clicked();
+  {
+    response(Gtk::RESPONSE_CANCEL);
+    return true;
+  }
 
-  return Gtk::Dialog::key_press_event_impl(ev);
+  return Gtk::Dialog::on_key_press_event(ev);
 }
 
-gint SetAutoResponseDialog::button_press_event_impl(GdkEventButton *ev)
+bool SetAutoResponseDialog::on_button_press_event(GdkEventButton *ev)
 {
   if (m_timeout) cancel_timeout();
-  return Gtk::Dialog::button_press_event_impl(ev);
+  return Gtk::Dialog::on_button_press_event(ev);
 }
 
-void SetAutoResponseDialog::okay_cb() {
-  save_new_msg.emit(msg_input.get_chars(0, -1));
-  destroy.emit();
+void SetAutoResponseDialog::on_response(int response_id)
+{
+  if (response_id == Gtk::RESPONSE_OK)
+  {
+    save_new_msg.emit(m_msg_textview.get_buffer()->get_text());
+  }
+
+  delete this;
 }
 
-void SetAutoResponseDialog::cancel_cb() {
-  destroy.emit();
-}
-
-void SetAutoResponseDialog::activate_menu_item_cb(int msg_index) {
+void SetAutoResponseDialog::activate_menu_item_cb(int msg_index)
+{
   cancel_timeout();
   ostringstream fetch_str;
   fetch_str << "autoresponse_" << msg_index << "_text";
-  msg_input.delete_text(0,-1);
-  msg_input.insert( g_settings.getValueString(fetch_str.str()) );  
+
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_msg_textview.get_buffer();
+  buffer->erase( buffer->begin(), buffer->end() );
+  buffer->insert( buffer->end(), g_settings.getValueString(fetch_str.str()) );  
 }
 
-void SetAutoResponseDialog::edit_messages_cb() {
+void SetAutoResponseDialog::edit_messages_cb()
+{
   cancel_timeout();
   settings_dialog.emit();
   build_optionmenu();
@@ -159,25 +182,29 @@ void SetAutoResponseDialog::edit_messages_cb() {
 void SetAutoResponseDialog::build_optionmenu()
 {
   using namespace Gtk::Menu_Helpers;
-  using SigC::bind;
+  
   /* Insert element in option menu */
-  Gtk::Menu *menu = manage( new Gtk::Menu() );
-  MenuList& menu_list     = menu->items();
+  Gtk::Menu *menu = Gtk::manage( new Gtk::Menu() );
+  m_autoresponse_option.set_menu( *menu );
+  MenuList menu_list     = menu->items();
+
   int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
-  for (int i = 1; i <= n_autoresponses; i++) {
+  for (int i = 1; i <= n_autoresponses; i++)
+  {
     ostringstream fetch_str;
     fetch_str << "autoresponse_" << i << "_label";
     menu_list.push_back( MenuElem( g_settings.getValueString(fetch_str.str()),
-				   bind<int>( slot(this, 
-						   &SetAutoResponseDialog::activate_menu_item_cb), i) )
-			 );
+				   SigC::bind<int>( SigC::slot(*this,
+							       &SetAutoResponseDialog::activate_menu_item_cb),
+						    i) ) );
   }
+
   menu_list.push_back( SeparatorElem() );
-  menu_list.push_back( MenuElem("Edit...", slot(this, &SetAutoResponseDialog::edit_messages_cb)) );
-  autoresponse_option.set_menu( menu );
+  menu_list.push_back( MenuElem("Edit...", SigC::slot(*this, &SetAutoResponseDialog::edit_messages_cb)) );
 }
 
-gint SetAutoResponseDialog::option_button_pressed(GdkEventButton *) {
+bool SetAutoResponseDialog::option_button_pressed(GdkEventButton *)
+{
   cancel_timeout();
-  return 0;
+  return false;
 }

@@ -21,42 +21,48 @@
 #ifndef SETAWAYMSGDIALOG_H
 #define SETAWAYMSGDIALOG_H
 
-#include <gtk--/main.h>
-#include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/text.h>
-#include <gtk--/tooltips.h>
-#include <gtk--/optionmenu.h>
-#include <string>
-#include <sigc++/signal_system.h>
+#include <gtkmm/main.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/tooltips.h>
+#include <gtkmm/optionmenu.h>
 
-class SetAutoResponseDialog : public Gtk::Dialog {
+#include <string>
+
+#include <sigc++/signal.h>
+
+class SetAutoResponseDialog : public Gtk::Dialog
+{
  private:
-  Gtk::Button okay, cancel;
-  Gtk::OptionMenu autoresponse_option;
-  Gtk::Text msg_input;
+  Gtk::OptionMenu m_autoresponse_option;
+  Gtk::TextView m_msg_textview;
+  Gtk::ScrolledWindow m_msg_scr_win;
   Gtk::Tooltips m_tooltip;
+  Gtk::Button * m_ok;
+
   unsigned int m_timeout;
   SigC::Connection timeout_connection;
 
   void build_optionmenu();
 
  public:
-  SetAutoResponseDialog(Gtk::Window * parent, const std::string& prev_msg, bool timeout);
+  SetAutoResponseDialog(Gtk::Window& parent, const std::string& prev_msg, bool timeout);
 
-  gint key_press_event_impl(GdkEventKey* ev);
-  gint button_press_event_impl(GdkEventButton* ev);
-  int auto_timeout();
+  bool auto_timeout();
   void cancel_timeout();
 
-  void okay_cb();
-  void cancel_cb();
+  virtual void on_response(int response_id);
+  virtual bool on_key_press_event(GdkEventKey* ev);
+  virtual bool on_button_press_event(GdkEventButton* ev);
+
   void activate_menu_item_cb(int);
   void edit_messages_cb();
   
-  gint option_button_pressed(GdkEventButton *);
+  bool option_button_pressed(GdkEventButton *);
 
   SigC::Signal1<void, const std::string&> save_new_msg;
   SigC::Signal0<void> settings_dialog;

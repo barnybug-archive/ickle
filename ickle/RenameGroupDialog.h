@@ -21,9 +21,9 @@
 #ifndef RENAMEGROUPDIALOG_H
 #define RENAMEGROUPDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/entry.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/entry.h>
 
 #include <libicq2000/ContactTree.h>
 
@@ -32,7 +32,9 @@ namespace ICQ2000
   class ContactListEvent;
 }
 
-class RenameGroupDialog : public Gtk::Dialog {
+class RenameGroupDialog : public Gtk::Dialog,
+			  public sigslot::has_slots<>
+{
  private:
   Gtk::Button m_ok, m_cancel;
   Gtk::Entry m_old_group_label, m_group_label;
@@ -40,10 +42,10 @@ class RenameGroupDialog : public Gtk::Dialog {
 
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
 
- public:
-  RenameGroupDialog(Gtk::Window *parent, ICQ2000::ContactTree::Group *gp);
+  void on_response(int response_id);
 
-  void ok_cb();
+ public:
+  RenameGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp);
 };
 
 #endif

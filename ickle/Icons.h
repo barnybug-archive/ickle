@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.13 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: Icons.h,v 1.14 2003-01-02 16:39:58 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,10 +21,9 @@
 #ifndef ICONS_H
 #define ICONS_H
 
-#include <gtk--/imageloader.h>
-#include <sigc++/signal_system.h>
+#include <gdkmm/pixbuf.h>
+#include <sigc++/signal.h>
 
-#include <memory>
 #include <string>
 
 #include "main.h"
@@ -35,26 +34,26 @@
 
 class Icons {
  private:
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Online;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Away;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_NA;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Occupied;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_DND;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_FFC;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Offline;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Message;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_URL;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_SMS;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_SystemMessage;
-  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Invisible;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Online;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Away;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_NA;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Occupied;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_DND;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_FFC;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Offline;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Message;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_URL;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_SMS;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_SystemMessage;
+  Glib::RefPtr<Gdk::Pixbuf> Icon_Status_Invisible;
 
  public:
   Icons();
 
   void setDefaultIcons();
   bool setIcons(const std::string& dir);
-  Gtk::ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
-  Gtk::ImageLoader* IconForEvent(ICQMessageEvent::ICQMessageType t);
+  Glib::RefPtr<Gdk::Pixbuf> get_icon_for_status(ICQ2000::Status s,bool inv);
+  Glib::RefPtr<Gdk::Pixbuf> get_icon_for_event(ICQMessageEvent::ICQMessageType t);
 
   void settings_changed_cb(const std::string& key);
 

@@ -24,32 +24,25 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
-#include <gtk--/box.h>
-#include <gtk--/label.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/box.h>
+#include <gtkmm/label.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/stock.h>
 
-AddGroupDialog::AddGroupDialog(Gtk::Window *parent)
-  : Gtk::Dialog(),
-    m_ok("Add"), m_cancel("Cancel")
+AddGroupDialog::AddGroupDialog(Gtk::Window& parent)
+  : Gtk::Dialog("Add Group", parent)
 {
+  set_position(Gtk::WIN_POS_CENTER);
+
   Gtk::Label *label;
-
-  set_title("Add Group");
-  set_transient_for(*parent);
-
-  m_ok.clicked.connect(slot(this,&AddGroupDialog::ok_cb));
-  m_cancel.clicked.connect( destroy.slot() );
-
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  hbbox->pack_start(m_ok, true, true, 0);
-  hbbox->pack_start(m_cancel, true, true, 0);
-  hbox->pack_start( *hbbox );
+  
+  add_button(Gtk::Stock::ADD,    Gtk::RESPONSE_OK);
+  add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
   Gtk::HBox *hbox2 = manage( new Gtk::HBox() );
+  hbox2->set_spacing(5);
   label = manage( new Gtk::Label("Group label") );
   hbox2->pack_start( *label );
   hbox2->pack_start( m_group_label );
@@ -59,8 +52,13 @@ AddGroupDialog::AddGroupDialog(Gtk::Window *parent)
   show_all();
 }
 
-void AddGroupDialog::ok_cb() {
-  ICQ2000::ContactTree& ct = icqclient.getContactTree();
-  ct.add_group( m_group_label.get_text() );
-  destroy.emit();
+void AddGroupDialog::on_response(int response_id)
+{
+  if (response_id == Gtk::RESPONSE_OK)
+  {
+    ICQ2000::ContactTree& ct = icqclient.getContactTree();
+    ct.add_group( m_group_label.get_text() );
+  }
+
+  delete this;
 }

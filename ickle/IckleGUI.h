@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.45 2002-11-02 18:03:28 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.46 2003-01-02 16:39:58 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -23,15 +23,15 @@
 #ifndef ICKLEGUI_H
 #define ICKLEGUI_H
 
-#include <gtk--/window.h>
-#include <gtk--/button.h>
-#include <gtk--/box.h>
-#include <gtk--/menu.h>
-#include <gtk--/menubar.h>
-#include <gtk--/scrolledwindow.h>
-#include <gtk--/dialog.h>
+#include <gtkmm/window.h>
+#include <gtkmm/button.h>
+#include <gtkmm/box.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/menubar.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/dialog.h>
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #include <string>
 #include <map>
@@ -54,7 +54,9 @@
 #include "MessageQueue.h"
 #include "LogWindow.h"
 
-class IckleGUI : public Gtk::Window {
+class IckleGUI : public Gtk::Window,
+	         public sigslot::has_slots<>
+{
  private:
   MessageQueue& m_message_queue;
 
@@ -71,6 +73,7 @@ class IckleGUI : public Gtk::Window {
   Gtk::ScrolledWindow  m_contact_scroll;
   ContactListView m_contact_list;
   AwayMessageDialog m_away_message;
+  bool m_exiting;
   LogWindow m_log_window;
 
   Gtk::MenuBar m_ickle_menubar;
@@ -82,19 +85,29 @@ class IckleGUI : public Gtk::Window {
   int geometry_x, geometry_y;
   int geometry_w, geometry_h;
 
+  typedef std::map<unsigned int, History *> HistoryMap;
+  HistoryMap& m_histmap;
+
+  // signals
+  SigC::Signal0<void> m_signal_settings_changed;
+  SigC::Signal1<void, ICQ2000::MessageEvent*> m_signal_send_event;
+  SigC::Signal0<void> m_signal_exit;
+  SigC::Signal0<void> m_signal_destroy;
+
   // --
 
   void create_messagebox(const ICQ2000::ContactRef& c, History *h);
   void raise_messagebox(const ICQ2000::ContactRef& c);
 
-  gint remove_from_queue_idle_cb(MessageEvent *ev);
+  void show_settings_dialog(Gtk::Window& w, bool away);
+
+  bool remove_from_queue_idle_cb(MessageEvent *ev);
   void remove_from_queue_delayed(MessageEvent *ev);
 
   void set_ickle_title();
-  bool m_exiting;
 
  public:
-  IckleGUI(MessageQueue& mq);
+  IckleGUI(MessageQueue& mq, HistoryMap& histmap);
   ~IckleGUI();
 
   ContactListView* getContactListView();
@@ -112,10 +125,10 @@ class IckleGUI : public Gtk::Window {
   void popup_user_added_you(const ICQ2000::ContactRef& c, UserAddICQMessageEvent *ev);
   void popup_userinfo(const ICQ2000::ContactRef& c);
 
-  // important - this are not passed by reference, as otherwise ref
+  // important - these are not passed by reference, as otherwise ref
   // counting screws up when used inconjunction with SigC::bind
-  void message_box_close_cb(ICQ2000::ContactRef c);
-  void userinfo_dialog_close_cb(ICQ2000::ContactRef c);
+  void messagebox_destroy_cb(ICQ2000::ContactRef c);
+  void userinfo_dialog_destroy_cb(ICQ2000::ContactRef c);
   void userinfo_dialog_upload_cb(ICQ2000::ContactRef c);
   
   // -- menu callbacks --
@@ -154,7 +167,8 @@ class IckleGUI : public Gtk::Window {
   void queue_removed_cb(MessageEvent *ev);
 
   // -- other callbacks --
-  void settings_cb(Gtk::Window * away_dlg);
+  void settings_cb();
+  void settings_away_cb(Gtk::Window * w);
   void icons_changed_cb();
   void log_window_hidden_cb();
   void userinfo_toggle_cb(bool b, ICQ2000::ContactRef c);
@@ -163,20 +177,23 @@ class IckleGUI : public Gtk::Window {
   void my_userinfo_fetch_cb();
   void settings_changed_cb(const std::string& k);
 
+  // -- contactlist callbacks --
+  void messagebox_popup_cb(unsigned int uin);
+  void userinfo_popup_cb(unsigned int uin);
+
   void spell_check_setup();
 
   void post_settings_loaded();
 
-  // signals
-  SigC::Signal0<void> settings_changed;
-  SigC::Signal1<void,ICQ2000::MessageEvent*> send_event;
-  SigC::Signal1<void,unsigned int> user_popup;
-  SigC::Signal0<void> exit;
+  // signal accessors
+  SigC::Signal0<void>& signal_exit();
+  SigC::Signal0<void>& signal_destroy();
+  SigC::Signal0<void>& signal_settings_changed();
+  SigC::Signal1<void,ICQ2000::MessageEvent*>& signal_send_event();
 
   // handle wm calls
-  void show_impl();
-  void hide_impl();
-  gint delete_event_impl(GdkEventAny*);
+  void on_show();
+  void on_hide();
 };
 
 #endif

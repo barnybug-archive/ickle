@@ -21,7 +21,7 @@
 
 #include "sstream_fix.h"
 
-#include <gtk--/main.h>
+#include <gtkmm/main.h>
 
 #include <libicq2000/Client.h>
 
@@ -33,8 +33,6 @@ using std::string;
 using std::ostringstream;
 using std::cerr;
 using std::endl;
-
-using namespace SigC;
 
 // ============================================================================
 //  ControlHandler
@@ -48,8 +46,8 @@ void ControlHandler::init ()
   }
 
   // connect input callback
-  Gtk::Main::input.connect ( slot (this, &ControlHandler::input_cb), m_socket.sd(),
-                             GdkInputCondition (GDK_INPUT_READ | GDK_INPUT_EXCEPTION) );
+  Glib::signal_io().connect ( SigC::slot (*this, &ControlHandler::input_cb), m_socket.sd(),
+			      (Glib::IO_IN | Glib::IO_ERR) );
 }
 
 void ControlHandler::quit ()
@@ -58,34 +56,41 @@ void ControlHandler::quit ()
 }
 
 
-void ControlHandler::input_cb (int, GdkInputCondition)
+bool ControlHandler::input_cb (Glib::IOCondition cond)
 {
   // look for new connections
   int sd = m_socket.getConnection ();
-  if (sd != -1) {
+  if (sd != -1)
+  {
     // connect an input callback for the new socket
-    Connection c = Gtk::Main::input.connect ( slot (this, &ControlHandler::connection_input_cb), sd,
-                                              GdkInputCondition (GDK_INPUT_READ | GDK_INPUT_EXCEPTION) );
+    SigC::Connection c = Glib::signal_io().connect ( SigC::bind( SigC::slot (*this, &ControlHandler::connection_input_cb), sd), sd,
+						     (Glib::IO_IN | Glib::IO_ERR) );
     m_connections.insert (make_pair (sd, c));
   }
+
+  return true;
 }
 
-void ControlHandler::connection_input_cb (int sd, GdkInputCondition)
+bool ControlHandler::connection_input_cb (Glib::IOCondition cond, int sd)
 {
   ControlSocket c (sd);
 
   ControlSocket::ReadStatus s = c.readStatus ();
 
-  if (s == ControlSocket::READ) {
+  if (s == ControlSocket::READ)
+  {
     command (c);
   }
-  else if (s == ControlSocket::CLOSED) {
+  else if (s == ControlSocket::CLOSED)
+  {
     // disconnect input callback
     m_connections[sd].disconnect ();
     m_connections.erase (sd);
     // close socket
     m_socket.closeConnection (sd);
   }
+
+  return true;
 }
 
 
@@ -111,7 +116,7 @@ void ControlHandler::command (ControlSocket & s)
 
 // --- timeout ---
 
-void ControlHandler::addTimeout (int sd, Connection c1, Connection c2)
+void ControlHandler::addTimeout (int sd, SigC::Connection c1, SigC::Connection c2)
 {
   m_timeouts.insert (make_pair (sd, make_pair (c1, c2)));
 }
@@ -120,14 +125,15 @@ void ControlHandler::endTimeout (int sd, bool success, const string & info)
 {
   ControlSocket (sd) << success << info;
 
-  if (m_timeouts.find (sd) != m_timeouts.end ()) {
+  if (m_timeouts.find (sd) != m_timeouts.end ())
+  {
     m_timeouts[sd].first.disconnect ();
     m_timeouts[sd].second.disconnect ();
     m_timeouts.erase (sd);
   }
 }
 
-int ControlHandler::timeout_cb (int sd)
+bool ControlHandler::timeout_cb (int sd)
 {
   endTimeout (sd, false, "timeout reached");
   return false;
@@ -141,19 +147,24 @@ void ControlHandler::cmdSetStatus (ControlSocket & s)
   int timeout;
   s >> status >> timeout;
 
-  if (icqclient.getStatus() == status) {
+  if (icqclient.getStatus() == status)
+  {
     endTimeout (s.sd(), true);
     return;
   }
 
-  if (timeout != 0) {
+  /* TODO
+  if (timeout != 0)
+  {
     addTimeout ( s.sd(),
-                 Gtk::Main::timeout.connect (bind (slot (this, &ControlHandler::timeout_cb), s.sd()), timeout),
-                 icqclient.self_contact_status_change_signal.connect (bind (slot (this, &ControlHandler::self_status_change_cb),
+                 Glib::signal_timeout().connect (SigC::bind (SigC::slot (*this, &ControlHandler::timeout_cb), s.sd()), timeout),
+                 icqclient.self_contact_status_change_signal.connect (SigC::bind (SigC::slot (*this, &ControlHandler::self_status_change_cb),
 									    s.sd(), status)) );
   }
-
+  */
   icqclient.setStatus (status);
+
+  endTimeout(s.sd(), true); // TODO remove!
 }
 
 void ControlHandler::cmdGetStatus (ControlSocket & s)
@@ -243,18 +254,23 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
     break;
   }
   
-  if (timeout != 0) {
+  /* TODO
+  if (timeout != 0)
+  {
     addTimeout ( s.sd(),
-                 Gtk::Main::timeout.connect (bind (slot (this, &ControlHandler::timeout_cb), s.sd()), timeout),
-                 icqclient.messageack.connect (bind (slot (this, &ControlHandler::messageack_cb), s.sd(), ev)) );
+                 Glib::signal_timeout().connect (SigC::bind (SigC::slot (*this, &ControlHandler::timeout_cb), s.sd()), timeout),
+                 icqclient.messageack.connect (SigC::bind (SigC::slot (*this, &ControlHandler::messageack_cb), s.sd(), ev)) );
   }
+  */
 
   icqclient.SendEvent (ev);
+  endTimeout(s.sd(), true); // TODO remove!
 }
 
 void ControlHandler::messageack_cb (ICQ2000::MessageEvent *ack, int sd, ICQ2000::MessageEvent *ev)
 {
-  if (ack == ev) {
+  if (ack == ev)
+  {
     endTimeout (sd, true);
   }
 }
@@ -267,7 +283,8 @@ void ControlHandler::cmdSetSetting (ControlSocket & s)
 
   s >> key >> value;
 
-  if (!(g_settings.getValueString (key).empty())) {
+  if (!(g_settings.getValueString (key).empty()))
+  {
     g_settings.setValue (key, value);
     s << true;
   }

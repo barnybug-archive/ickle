@@ -20,9 +20,10 @@
 
 #include "LogWindow.h"
 
-#include <gtk--/box.h>
-#include <gtk--/scrollbar.h>
-#include <gtk--/table.h>
+#include <gtkmm/box.h>
+#include <gtkmm/scrollbar.h>
+#include <gtkmm/table.h>
+#include <gtkmm/stock.h>
 
 #include <time.h>
 
@@ -37,51 +38,72 @@ using std::string;
 using std::ostringstream;
 using std::endl;
 
-using Gtk::Text_Helpers::Context;
-
-LogWindow::LogWindow(Gtk::Window *main_window)
-  : m_main_window(main_window),
-    m_close_button("Close"),
-    m_pos(0), m_count(0),
+LogWindow::LogWindow()
+  : m_close_button(Gtk::Stock::CLOSE), m_count(0),
     m_log_info("Info", 0), m_log_warn("Warn", 0), m_log_error("Error", 0),
     m_log_packet("Packet", 0), m_log_directpacket("Direct Packet", 0)
 {
 
   set_title("Log Window");
-  set_usize(400,400);
+  set_default_size(400,400);
 
-  m_log_text.set_word_wrap(true);
+  m_log_text.set_wrap_mode(Gtk::WRAP_WORD);
+  m_log_text.set_editable(false);
+  m_log_text.set_cursor_visible(false);
   
-  icqclient.logger.connect( slot(this,&LogWindow::logger_cb) );
-  m_close_button.clicked.connect( slot(this, &LogWindow::close_cb) );
+  icqclient.logger.connect( this,&LogWindow::logger_cb );
+  m_close_button.signal_clicked().connect( SigC::slot(*this, &LogWindow::close_cb) );
 
   Gtk::VBox *box = manage( new Gtk::VBox(false) );
 
   // scrollbars
-  Gtk::HBox *hbox = manage( new Gtk::HBox() );
-  Gtk::Scrollbar *scrollbar = manage( new Gtk::VScrollbar (*(m_log_text.get_vadjustment())) );
-  hbox->pack_start(m_log_text, true, true, 0);
-  hbox->pack_start(*scrollbar, false);
-  
-  box->pack_start(*hbox, true, true);
+  m_log_scr_win.set_policy( Gtk::POLICY_AUTOMATIC, Gtk::POLICY_ALWAYS );
+  m_log_scr_win.add(m_log_text);
+  m_log_text.get_buffer()->create_mark("pos", m_log_text.get_buffer()->end(), true);
+
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_log_text.get_buffer();
+
+  m_tag_normal = buffer->create_tag("normal");
+
+  m_tag_log_info = buffer->create_tag("log_info");
+  m_tag_log_info->property_foreground().set_value( "blue" );
+  m_tag_log_info->property_family().set_value( "monospace" );
+
+  m_tag_log_warn = buffer->create_tag("log_warn");
+  m_tag_log_warn->property_foreground().set_value( "red" );
+  m_tag_log_warn->property_family().set_value( "monospace" );
+
+  m_tag_log_error = buffer->create_tag("log_error");
+  m_tag_log_error->property_foreground().set_value( "cyan" );
+  m_tag_log_error->property_family().set_value( "monospace" );
+
+  m_tag_log_packet = buffer->create_tag("log_packet");
+  m_tag_log_packet->property_foreground().set_value( "green" );
+  m_tag_log_packet->property_family().set_value( "monospace" );
+
+  m_tag_log_directpacket = buffer->create_tag("log_directpacket");
+  m_tag_log_directpacket->property_foreground().set_value( "green" );
+  m_tag_log_directpacket->property_family().set_value( "monospace" );
+
+  box->pack_start(m_log_scr_win, true, true);
 
   Gtk::Table *table = manage( new Gtk::Table(3, 2) );
 
-  m_log_info.toggled.connect( slot( this, &LogWindow::checkbutton_info_cb ) );
-  m_log_warn.toggled.connect( slot( this, &LogWindow::checkbutton_warn_cb ) );
-  m_log_error.toggled.connect( slot( this, &LogWindow::checkbutton_error_cb ) );
-  m_log_packet.toggled.connect( slot( this, &LogWindow::checkbutton_packet_cb ) );
-  m_log_directpacket.toggled.connect( slot( this, &LogWindow::checkbutton_directpacket_cb ) );
+  m_log_info.signal_toggled().connect( SigC::slot( *this, &LogWindow::checkbutton_info_cb ) );
+  m_log_warn.signal_toggled().connect( SigC::slot( *this, &LogWindow::checkbutton_warn_cb ) );
+  m_log_error.signal_toggled().connect( SigC::slot( *this, &LogWindow::checkbutton_error_cb ) );
+  m_log_packet.signal_toggled().connect( SigC::slot( *this, &LogWindow::checkbutton_packet_cb ) );
+  m_log_directpacket.signal_toggled().connect( SigC::slot( *this, &LogWindow::checkbutton_directpacket_cb ) );
 
-  table->attach( m_log_info,         0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_log_warn,         1, 2, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_log_error,        2, 3, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_log_packet,       0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_log_directpacket, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_close_button,     2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
+  table->attach( m_log_info,         0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_log_warn,         1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_log_error,        2, 3, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_log_packet,       0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_log_directpacket, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_close_button,     2, 3, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
   table->set_border_width(5);
 
-  box->pack_start(*table, false);
+  box->pack_start(*table, Gtk::PACK_SHRINK);
 
   add( *box );
   box->show_all();
@@ -104,52 +126,55 @@ void LogWindow::close_cb()
 
 void LogWindow::logger_cb(ICQ2000::LogEvent *ev)
 {
-  Context normal_context, log_context;
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_log_text.get_buffer();
+  Glib::RefPtr<Gtk::TextBuffer::Tag> tag_log;
 
-  switch(ev->getType()) {
+  switch(ev->getType())
+  {
   case ICQ2000::LogEvent::INFO:
     if (!g_settings.getValueBool("log_window_info")) return;
-    log_context.set_foreground( Gdk_Color("blue") );
-    break;
-  case ICQ2000::LogEvent::ERROR:
-    if (!g_settings.getValueBool("log_window_error")) return;
-    log_context.set_foreground( Gdk_Color("red") );
+    tag_log = m_tag_log_info;
     break;
   case ICQ2000::LogEvent::WARN:
     if (!g_settings.getValueBool("log_window_warn")) return;
-    log_context.set_foreground( Gdk_Color("cyan") );
+    tag_log = m_tag_log_warn;
+    break;
+  case ICQ2000::LogEvent::ERROR:
+    if (!g_settings.getValueBool("log_window_error")) return;
+    tag_log = m_tag_log_error;
     break;
   case ICQ2000::LogEvent::PACKET:
     if (!g_settings.getValueBool("log_window_packet")) return;
-    log_context.set_foreground( Gdk_Color("green") );
+    tag_log = m_tag_log_packet;
     break;
   case ICQ2000::LogEvent::DIRECTPACKET:
     if (!g_settings.getValueBool("log_window_directpacket")) return;
-    log_context.set_foreground( Gdk_Color("green") );
+    tag_log = m_tag_log_directpacket;
     break;
+  default:
+    tag_log = m_tag_normal;
   }
   
-  m_log_text.freeze();
-
-  if (++m_count == 100) {
-    m_log_text.delete_text(0,m_pos);
-    m_pos = m_log_text.get_length();
-    m_log_text.set_point(m_pos);
+  if (++m_count == 100)
+  {
+    Glib::RefPtr<Gtk::TextBuffer::Mark> pos = buffer->get_mark("pos");
+    buffer->erase( buffer->begin(), pos->get_iter() );
+    buffer->move_mark( pos, buffer->end() );
     m_count = 0;
   }
 
-  Gtk::Adjustment *adj = m_log_text.get_vadjustment();
+  Gtk::Adjustment *adj = m_log_scr_win.get_vadjustment();
   gfloat bot = adj->get_upper();
     
-  if (m_log_text.get_point() > 0)
-    m_log_text.insert( normal_context, "\n" );
+  // new-line between messages if not the first
+  if (buffer->size() > 0)
+    buffer->insert_with_tag( buffer->end(), "\n", m_tag_normal );
 
   ostringstream ostr;
   ostr << "[" << format_time( ev->getTime() ) << "] ";
-  m_log_text.insert( normal_context, ostr.str() );
-  m_log_text.insert( log_context, ev->getMessage() );
+  buffer->insert_with_tag( buffer->end(), ostr.str(), m_tag_normal );
+  buffer->insert_with_tag( buffer->end(), ev->getMessage(), tag_log );
 
-  m_log_text.thaw();
   adj->set_value(bot);
 }
 
@@ -186,7 +211,7 @@ void LogWindow::checkbutton_directpacket_cb()
   g_settings.setValue( "log_window_directpacket", m_log_directpacket.get_active() );
 }
 
-void LogWindow::show_impl()
+void LogWindow::on_show()
 {
   // read from settings
   m_log_info.set_active( g_settings.getValueBool("log_window_info") );
@@ -195,5 +220,5 @@ void LogWindow::show_impl()
   m_log_packet.set_active( g_settings.getValueBool("log_window_packet") );
   m_log_directpacket.set_active( g_settings.getValueBool("log_window_directpacket") );
 
-  Gtk::Window::show_impl();
+  Gtk::Window::on_show();
 }

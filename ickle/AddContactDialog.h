@@ -21,25 +21,25 @@
 #ifndef ADDCONTACTDIALOG_H
 #define ADDCONTACTDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/entry.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/checkbutton.h>
-#include <gtk--/frame.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/checkbutton.h>
+#include <gtkmm/frame.h>
 
 #include "MobileNoEntry.h"
 
 #include <libicq2000/Contact.h>
 
-class AddContactDialog : public Gtk::Dialog {
+class AddContactDialog : public Gtk::Dialog
+{
  private:
-  Gtk::Button m_ok, m_cancel;
+  Gtk::RadioButton m_icq_contact, m_mobile_contact;
   Gtk::Label m_uin_label;
   Gtk::Entry m_uin_entry;
-  Gtk::RadioButton m_icq_contact, m_mobile_contact;
   Gtk::CheckButton m_alert_check;
   Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame, m_group_frame;
   Gtk::Label m_alias_label, m_mobileno_label;
@@ -50,10 +50,10 @@ class AddContactDialog : public Gtk::Dialog {
   void uin_changed_cb();
   void mobileno_changed_cb();
 
- public:
-  AddContactDialog(Gtk::Window * parent);
+  void on_response(int response_id);
 
-  void ok_cb();
+ public:
+  AddContactDialog(Gtk::Window& parent);
 };
 
 #endif

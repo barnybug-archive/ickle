@@ -21,23 +21,22 @@
 #ifndef RESENDDIALOG_H
 #define RESENDDIALOG_H
 
-#include <gtk--/dialog.h>
+#include <gtkmm/dialog.h>
 
 #include <string>
 
 #include <libicq2000/events.h>
 
-class ResendDialog : public Gtk::Dialog {
+class ResendDialog : public Gtk::Dialog
+{
  private:
   ICQ2000::ICQMessageEvent *m_event;
 
  protected:
-  void resend_as_urgent_cb();
-  void resend_as_tocontactlist_cb();
-  void cancel_cb();
+  void on_response(int response_id);
 
  public:
-  ResendDialog(Gtk::Window *parent, ICQ2000::ICQMessageEvent *ev);
+  ResendDialog(Gtk::Window& parent, ICQ2000::ICQMessageEvent *ev);
   ~ResendDialog();
 };
 

@@ -1,4 +1,4 @@
-/* $Id: MessageQueue.h,v 1.4 2002-03-31 22:01:54 barnabygray Exp $
+/* $Id: MessageQueue.h,v 1.5 2003-01-02 16:39:59 barnabygray Exp $
  *
  * Queueing for MessageEvents.
  *
@@ -27,7 +27,7 @@
 
 #include <list>
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 // ============================================================================
 //  MessageQueue

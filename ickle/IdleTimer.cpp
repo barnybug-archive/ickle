@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.9 2002-07-28 01:07:17 bugcreator Exp $
+/* $Id: IdleTimer.cpp,v 1.10 2003-01-02 16:39:58 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -20,7 +20,7 @@
  *
  */
 
-#include <gtk--/main.h>
+#include <gtkmm/main.h>
 #include <algorithm>
 #include <libicq2000/Client.h>
 #include <gdk/gdkx.h>
@@ -67,7 +67,7 @@ void IdleTimer::get_idle()
 }
 
 
-gint IdleTimer::timer_cb()
+bool IdleTimer::timer_cb()
 {
   unsigned short auto_away = g_settings.getValueUnsignedShort("auto_away");
   unsigned short auto_na = g_settings.getValueUnsignedShort("auto_na");
@@ -75,7 +75,7 @@ gint IdleTimer::timer_cb()
 
   if( (icqclient.getStatus() != ICQ2000::STATUS_ONLINE && !m_autostatus) ||
       ( !auto_away && !auto_na ) )
-    return 1;
+    return true;
   
   get_idle();
 
@@ -94,7 +94,7 @@ gint IdleTimer::timer_cb()
         if (auto_return) icqclient.setStatus( m_prevstatus );
         m_autostatus = false;
       }
-      return 1;
+      return true;
     }
   }
 
@@ -111,7 +111,7 @@ gint IdleTimer::timer_cb()
     icqclient.setStatus( ICQ2000::STATUS_AWAY );
 
   m_autostatus = true;
-  return 1;
+  return true;
 }
 
 
@@ -128,7 +128,7 @@ IdleTimer::IdleTimer()
   m_idletime = 0;
 
   // setup callbacks
-  m_timeoutconn = Gtk::Main::timeout.connect( slot( this, &IdleTimer::timer_cb ), 2000 );
+  m_timeoutconn = Glib::signal_timeout().connect( SigC::slot( *this, &IdleTimer::timer_cb ), 2000 );
 }
 
 IdleTimer::~IdleTimer()

@@ -1,6 +1,6 @@
-/* $Id: MessageBox.cpp,v 1.70 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.71 2003-01-02 16:39:58 barnabygray Exp $
  * 
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,26 +28,23 @@
 #include "main.h"
 #include "Settings.h"
 
-#include <gtk--/imageloader.h>
-#include <gtk--/pixmap.h>
-#include <gtk--/scrollbar.h>
-#include <gtk--/toolbar.h>
-#include <gtk--/main.h>
+#include <gtkmm/toolbar.h>
+#include <gtkmm/image.h>
+#include <gtkmm/stock.h>
+#include <gtkmm/main.h>
+#include <gtkmm/separator.h>
 #include <gdk/gdkkeysyms.h>
 
 #include <libicq2000/Client.h>
 
-#include "gtkspell.h"
+// TODO #include "gtkspell.h"
 
 #include "PromptDialog.h"
 
 #include "pixmaps/info.xpm"
 #include "pixmaps/delivery.xpm"
 
-using Gtk::Text;
-using Gtk::Text_Helpers::Context;
-using SigC::bind;
-using SigC::slot;
+using Gtk::TextView;
 
 using std::string;
 using std::ostringstream;
@@ -64,37 +61,27 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_scaleadj(0, 0, 0),
     m_scale(m_scaleadj),
     m_vbox_top(false,10),
-    m_send_button("Send"), m_close_button("Close"),
     m_history_vbox(false, 0),
     m_focus(false),
     m_pending(false),
-    m_sms_count_label("", 0),
+    m_sms_count_label("", 0.0, 0.5),
     m_sms_count_over(false),
     m_sms_enabled(true),
     m_send_normal("Normal", 0),
-    m_send_urgent("Urgent", 0),
-    m_send_tocontactlist("To Contact List", 0),
+    m_send_urgent("Urgent", 0 ),
+    m_send_tocontactlist( "To Contact List", 0 ),
     m_last_ev(NULL),
     m_message_queue(mq)
 {
-  Gtk::Box *history_hbox;
   Gtk::Box *hbox;
 
   set_border_width(10);
 
-  m_pane.set_handle_size (8);
-  m_pane.set_gutter_size (12);                       
-  
   // -- top pane --
-
-  Gtk::Scrollbar *scrollbar;
-  
-  history_hbox = manage( new Gtk::HBox() );
-
-  // scrollbars
-  scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
-  history_hbox->pack_start(m_history_text, true, true);
-  history_hbox->pack_start(*scrollbar, false, false);
+  m_history_scr_win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+  m_history_scr_win.set_size_request(100,100); // gtk - otherwise the text widget forces it to enlarge (!?)
+  m_history_scr_win.add(m_history_text);
+  m_history_scr_win.set_shadow_type(Gtk::SHADOW_IN);
 
   // initial scale adjustment
   m_scaleadj.set_lower(0);
@@ -105,79 +92,81 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scaleadj.set_step_increment(1);
   m_scaleadj.set_page_increment(m_nr_shown);
   m_scaleadj.set_page_size(m_nr_shown);
-  m_scaleadj.value_changed.connect( slot(this, &MessageBox::scaleadj_value_changed_cb) );
+  m_scaleadj.signal_value_changed().connect( SigC::slot(*this, &MessageBox::scaleadj_value_changed_cb) );
 
   // scale
   m_scale.set_draw_value( false );
-  m_scale.set_update_policy(GTK_UPDATE_DELAYED);
+  m_scale.set_update_policy(Gtk::UPDATE_DELAYED);
   m_scale.set_digits(0);
 
-  m_history_vbox.pack_start(*history_hbox, true, true);
+  m_history_vbox.pack_start(m_history_scr_win, true, true);
   m_history_vbox.pack_start(m_scalelabel, false, false);
   m_history_vbox.pack_start(m_scale, false, false);
 
   m_history_text.set_editable(false);
-  m_history_text.set_word_wrap(true);
+  m_history_text.set_cursor_visible(false);
+  m_history_text.set_wrap_mode(Gtk::WRAP_WORD);
 
   m_pane.pack1(m_history_vbox, true, false);
 
   // -- bottom pane --
 
-  Gtk::ImageLoader *l;
-  Gtk::Pixmap *i;
-  Gtk::Table *table;
+  Glib::RefPtr<Gdk::Pixbuf> pixbuf;
+  Gtk::Image *img;
 
   // tab index
 
-  m_tab.set_tab_pos(GTK_POS_LEFT);
+  m_tab.set_tab_pos(Gtk::POS_LEFT);
 
-  if ( c->isICQContact() ) {
+  Gtk::ScrolledWindow *scrolled_win;
+
+  if ( c->isICQContact() )
+  {
     m_message_type = ICQ2000::MessageEvent::Normal;
-    m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
+    m_tab.signal_change_current_page().connect(SigC::slot(*this,&MessageBox::change_current_page_cb));
 
     // -- normal message tab --
-    table = manage( new Gtk::Table( 2, 1, false ) );
-    table->set_usize(400,50);
-    table->attach(m_message_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
-		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-    scrollbar = manage( new Gtk::VScrollbar (*(m_message_text.get_vadjustment())) );
-    table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+    scrolled_win = manage( new Gtk::ScrolledWindow() );
+    scrolled_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+    scrolled_win->set_size_request(100, 100); // gtk - otherwise the text widget forces it to enlarge (!?)
+    scrolled_win->add(m_message_text);
+    scrolled_win->set_shadow_type(Gtk::SHADOW_IN);
   
-    m_message_text.set_word_wrap(true);
+    m_message_text.set_wrap_mode(Gtk::WRAP_WORD);
     m_message_text.set_editable(true);
-    m_message_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+    m_message_text.signal_key_press_event().connect(SigC::slot(*this,&MessageBox::key_press_cb), false /* connect before widget gets it */);
 
-    l = g_icons.IconForEvent(ICQMessageEvent::Normal);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pixbuf = g_icons.get_icon_for_event(ICQMessageEvent::Normal);
+    img = manage( new Gtk::Image(pixbuf) );
 
-    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
+    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *scrolled_win, *img )  );
     // -------------------------
 
     // -------- url tab --------
     Gtk::Box *url_hbox = manage( new Gtk::HBox() );
     Gtk::Box *url_vbox = manage( new Gtk::VBox() );
-    table = manage( new Gtk::Table( 2, 1, false ) );
-    table->set_usize(400,50);
-    table->attach(m_url_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
-		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-    scrollbar = manage( new Gtk::VScrollbar (*(m_url_text.get_vadjustment())) );
-    table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+
+    scrolled_win = manage( new Gtk::ScrolledWindow() );
+    scrolled_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+    scrolled_win->set_size_request(100,100); // gtk - otherwise the text widget forces it to enlarge (!?)
+    scrolled_win->add(m_url_text);
+    scrolled_win->set_shadow_type(Gtk::SHADOW_IN);
   
-    m_url_text.set_word_wrap(true);
+    m_url_text.set_wrap_mode(Gtk::WRAP_WORD);
     m_url_text.set_editable(true);
-    m_url_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+    m_url_text.signal_key_press_event().connect(SigC::slot(*this,&MessageBox::key_press_cb), false /* connect before widget gets it */);
 
-    url_vbox->pack_start( *table, true, true );
+    url_vbox->pack_start( *scrolled_win, Gtk::PACK_EXPAND_WIDGET );
 
-    url_hbox->pack_start( * manage( new Gtk::Label("URL:") ), false );
-    url_hbox->pack_start( m_url_entry, true, true );
+    url_hbox->pack_start( * manage( new Gtk::Label("URL:") ), Gtk::PACK_SHRINK );
+    url_hbox->pack_start( m_url_entry, Gtk::PACK_EXPAND_WIDGET );
 
-    url_vbox->pack_start( *url_hbox, false );
+    url_vbox->pack_start( *url_hbox, Gtk::PACK_SHRINK );
 
-    l = g_icons.IconForEvent(ICQMessageEvent::URL);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pixbuf = g_icons.get_icon_for_event(ICQMessageEvent::URL);
+    img = manage( new Gtk::Image(pixbuf) );
 
-    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
+    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *img )  );
     // -------------------------
   } else {
     m_message_type = ICQ2000::MessageEvent::SMS;
@@ -186,35 +175,35 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   // -------- sms tab --------
   Gtk::Box *sms_hbox = manage( new Gtk::HBox() );
   Gtk::Box *sms_vbox = manage( new Gtk::VBox() );
-  table = manage( new Gtk::Table( 2, 1, false ) );
-  table->set_usize(400,50);
-  table->attach(m_sms_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
-		GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-  scrollbar = manage( new Gtk::VScrollbar (*(m_sms_text.get_vadjustment())) );
-  table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+
+  scrolled_win = manage( new Gtk::ScrolledWindow() );
+  scrolled_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
+  scrolled_win->set_size_request(100,100); // gtk - otherwise the text widget forces it to enlarge (!?)
+  scrolled_win->add(m_sms_text);
+  scrolled_win->set_shadow_type(Gtk::SHADOW_IN);
   
-  m_sms_text.set_word_wrap(true);
+  m_sms_text.set_wrap_mode(Gtk::WRAP_WORD);
   m_sms_text.set_editable(true);
-  m_sms_text.changed.connect( slot( this, &MessageBox::sms_count_update_cb ) );
-  m_sms_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+  m_sms_text.get_buffer()->signal_changed().connect( SigC::slot( *this, &MessageBox::sms_count_update_cb ) );
+  m_sms_text.signal_key_press_event().connect(SigC::slot(*this,&MessageBox::key_press_cb), false /* connect before widget gets it */);
   if (!c->isSMSable()) disable_sms();
   sms_count_update_cb();
 
-  sms_vbox->pack_start( *table, true, true );
+  sms_vbox->pack_start( *scrolled_win, Gtk::PACK_EXPAND_WIDGET );
 
   m_sms_count.set_editable(false);
-  m_sms_count.set_usize(40,-1);
-  sms_hbox->pack_start( m_sms_count, false );
+  m_sms_count.set_width_chars(3);
+  sms_hbox->pack_start( m_sms_count, Gtk::PACK_SHRINK );
 
-  m_sms_count_label.set_justify(GTK_JUSTIFY_LEFT);
-  sms_hbox->pack_start( m_sms_count_label, true, true );
+  m_sms_count_label.set_justify(Gtk::JUSTIFY_LEFT);
+  sms_hbox->pack_start( m_sms_count_label, Gtk::PACK_EXPAND_WIDGET );
 
-  sms_vbox->pack_start( *sms_hbox, false );
+  sms_vbox->pack_start( *sms_hbox, Gtk::PACK_SHRINK );
 
-  l = g_icons.IconForEvent(ICQMessageEvent::SMS);
-  i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+  pixbuf = g_icons.get_icon_for_event(ICQMessageEvent::SMS);
+  img = manage( new Gtk::Image(pixbuf) );
 
-  m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *sms_vbox, *i )  );
+  m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *sms_vbox, *img )  );
   // -------------------------
 
   Gtk::VBox *pane_vbox = manage( new Gtk::VBox() );
@@ -222,68 +211,73 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   
   // -- sending modes --
   
-  m_send_urgent.set_group( m_send_normal.group() );
-  m_send_tocontactlist.set_group( m_send_normal.group() );
   if (m_contact->getStatus() == ICQ2000::STATUS_DND
-      || m_contact->getStatus() == ICQ2000::STATUS_OCCUPIED) m_send_tocontactlist.set_active(true);
+      || m_contact->getStatus() == ICQ2000::STATUS_OCCUPIED)
+    m_send_tocontactlist.set_active(true);
 
-  m_delivery_buttons.pack_end( m_send_normal, false );
-  m_delivery_buttons.pack_end( m_send_urgent, false );
-  m_delivery_buttons.pack_end( m_send_tocontactlist, false );
+  Gtk::RadioButton::Group gp = m_send_normal.get_group();
+  m_send_urgent.set_group(gp);
+  m_send_tocontactlist.set_group(gp);
+  m_delivery_buttons.pack_end( m_send_normal, Gtk::PACK_SHRINK );
+  m_delivery_buttons.pack_end( m_send_urgent, Gtk::PACK_SHRINK );
+  m_delivery_buttons.pack_end( m_send_tocontactlist, Gtk::PACK_SHRINK );
 
-  pane_vbox->pack_start( m_delivery_buttons, false );
+  pane_vbox->pack_start( m_delivery_buttons );
 
   m_pane.pack2(*pane_vbox, false, false);
 
-  m_vbox_top.pack_start(m_pane,true,true);
+  m_vbox_top.pack_start(m_pane, true, true);
 
-  // -- button bar --
-
-  hbox = manage( new Gtk::HBox() );
-
-  Gtk::Toolbar *toolbar = manage( new Gtk::Toolbar() );
-  toolbar->set_usize (-1, 22);
-  {
-    using namespace Gtk::Toolbar_Helpers;
-    ToolList& tl = toolbar->tools();
-    tl.push_back( ToggleElem( * manage( new Gtk::Pixmap(info_xpm) ),
-			      slot( this, &MessageBox::userinfo_toggle_cb ),
-			      "Popup User Information Dialog" ) );
-    m_userinfo_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
-    tl.push_back( ToggleElem( * manage( new Gtk::Pixmap(delivery_xpm) ),
-			      slot( this, &MessageBox::delivery_toggle_cb ),
-			      "Show/Hide Delivery urgency options" ) );
-    m_delivery_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
-  }
-
-  hbox->pack_start(*toolbar, false);
+  // -- status bar --
 
   m_status_context = m_status.get_context_id("messagebox");
-  hbox->pack_start(m_status, true, true, 5);
+  m_status.set_has_resize_grip(false);
 
-  m_vbox_top.pack_start(*hbox, false);
+  // -- buttons --
 
-  hbox = manage( new Gtk::HButtonBox() );
+  hbox = manage( new Gtk::HBox(false, 5) );
 
-  m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
-  m_close_button.clicked.connect( destroy.slot() );
+  Glib::RefPtr<Gdk::Pixbuf> info_pixbuf = Gdk::Pixbuf::create_from_xpm_data( info_xpm );
+  m_userinfo_button.add( * manage( new Gtk::Image( info_pixbuf ) ) );
+  m_userinfo_button.signal_toggled().connect( SigC::slot( *this, &MessageBox::userinfo_toggle_cb ) );
+  m_tooltips.set_tip(m_userinfo_button, "Popup User Information Dialog");
+
+  Glib::RefPtr<Gdk::Pixbuf> delivery_pixbuf = Gdk::Pixbuf::create_from_xpm_data( delivery_xpm );
+  m_delivery_button.add( * manage( new Gtk::Image( delivery_pixbuf ) ) );
+  m_delivery_button.signal_toggled().connect( SigC::slot( *this, &MessageBox::delivery_toggle_cb ) );
+  m_tooltips.set_tip(m_delivery_button, "Show/Hide Delivery urgency options");
+
+  hbox->pack_start( m_status, Gtk::PACK_EXPAND_WIDGET );
+  hbox->pack_start( m_userinfo_button, Gtk::PACK_SHRINK);
+  hbox->pack_start( m_delivery_button, Gtk::PACK_SHRINK);
+
+  Glib::RefPtr<Gdk::Pixbuf> send_pixbuf = g_icons.get_icon_for_event(ICQMessageEvent::Normal);
+  m_send_button.add( * manage( new Gtk::Image( send_pixbuf ) ) );
+  m_send_button.signal_clicked().connect(  SigC::slot( *this, &MessageBox::send_clicked_cb ) );
   m_tooltips.set_tip(m_send_button, "Send Message\nShortcuts: Ctrl-Enter or Alt-S");
+
+  m_close_button.add( * manage( new Gtk::Image(Gtk::Stock::CLOSE, Gtk::ICON_SIZE_MENU) ) );
+  m_close_button.signal_clicked().connect( SigC::slot( *this, &MessageBox::close_clicked_cb ) );
   m_tooltips.set_tip(m_close_button, "Close window\nShortcuts: Alt-C or Escape");
 
-  hbox->pack_start(m_send_button);
-  hbox->pack_end(m_close_button);
-  m_vbox_top.pack_start(*hbox,false);
+  hbox->pack_end( m_close_button, Gtk::PACK_SHRINK);
+  hbox->pack_end( m_send_button, Gtk::PACK_SHRINK);
+  //  hbox->pack_end( * manage( new Gtk::VSeparator() ), Gtk::PACK_SHRINK );
+
+  m_vbox_top.pack_start(*hbox, Gtk::PACK_SHRINK);
 
   // hook up for mousewheel support
-  m_history_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_history_text ) );
-  m_message_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_message_text ) );
-  m_url_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_url_text ) );
-  m_sms_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_sms_text ) );
+  /* TODO
+  m_history_text.signal_button_press_event().connect( SigC::bind( SigC::slot(*this, &MessageBox::text_button_press_cb), &m_history_text ) );
+  m_message_text.signal_button_press_event().connect( SigC::bind( SigC::slot(*this, &MessageBox::text_button_press_cb), &m_message_text ) );
+  m_url_text.signal_button_press_event().connect( SigC::bind( SigC::slot(*this, &MessageBox::text_button_press_cb), &m_url_text ) );
+  m_sms_text.signal_button_press_event().connect( SigC::bind( SigC::slot(*this, &MessageBox::text_button_press_cb), &m_sms_text ) );
+  */
   
-  m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
-  g_settings.settings_changed.connect( slot(this, &MessageBox::settings_changed_cb) );
+  m_history->new_entry.connect( SigC::slot(*this, &MessageBox::new_entry_cb) );
+  g_settings.settings_changed.connect( SigC::slot(*this, &MessageBox::settings_changed_cb) );
 
-  g_icons.icons_changed.connect( slot(this, &MessageBox::icons_changed_cb) );
+  g_icons.icons_changed.connect( SigC::slot(*this, &MessageBox::icons_changed_cb) );
   
   add(m_vbox_top);
 
@@ -292,28 +286,40 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   int message_box_height = g_settings.getValueInt("message_box_height");
   int message_box_pane_position = g_settings.getValueInt("message_box_pane_position");
 
-  if ( (message_box_width > 0) && (message_box_width > 0) ) {
+  if ( (message_box_width > 0) && (message_box_width > 0) )
+  {
     set_default_size( message_box_width, message_box_height );
   } 
-  if ( message_box_pane_position > 0 ) {
+
+  if ( message_box_pane_position > 0 )
+  {
     m_pane.set_position( message_box_pane_position );
   }
-  size_allocate.connect( slot(this, &MessageBox::resized_cb) );
 
   /* m_history_table height == pane position */
-  m_history_vbox.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
+  m_history_vbox.signal_size_allocate().connect( SigC::slot(*this, &MessageBox::pane_position_changed_cb) );
 
   // -- callbacks for libicq2000   --
-  m_contact->status_change_signal.connect( slot( this, &MessageBox::status_change_cb ) );
+  m_contact->status_change_signal.connect( this, &MessageBox::status_change_cb );
 
   // -- callbacks for MessageQueue --
-  m_message_queue.added.connect( slot( this, &MessageBox::queue_added_cb ) );
-  m_message_queue.removed.connect( slot( this, &MessageBox::queue_removed_cb ) );
+  m_message_queue.added.connect( SigC::slot( *this, &MessageBox::queue_added_cb ) );
+  m_message_queue.removed.connect( SigC::slot( *this, &MessageBox::queue_removed_cb ) );
 
-  Gtk::Main::idle.connect( slot( this, &MessageBox::clear_queue_idle_cb ) );
+  Glib::signal_idle().connect( SigC::slot( *this, &MessageBox::clear_queue_idle_cb ) );
   /* erk.. this is a kludge if ever I saw one, basically it's not safe
      after popping up a new dialog to clear out the message queue as
      it might be popped up inside callback for a message */
+
+  /* history font tags
+     important: define tags before displaying history */
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
+  m_tag_header_blue = buffer->create_tag("heading_blue");
+  m_tag_header_red  = buffer->create_tag("heading_red");
+  m_tag_normal      = buffer->create_tag("normal");
+
+  m_tag_header_blue->property_foreground().set_value( "blue" );
+  m_tag_header_red->property_foreground().set_value( "red" );
 
   // scroll down to the end of the history
   gfloat upper =  m_scaleadj.get_upper() - m_nr_shown;
@@ -325,35 +331,48 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   set_contact_title();
 }
 
-MessageBox::~MessageBox() {
+MessageBox::~MessageBox()
+{
+  m_signal_destroy.emit();
 }
 
-void MessageBox::raise() const {
-  get_window().show();
+void MessageBox::raise()
+{
+  get_window()->show();
 }
 
-gint MessageBox::key_press_cb(GdkEventKey* ev) {
-
-  if (ev->state & GDK_CONTROL_MASK) {
-    if (ev->keyval == GDK_Page_Up) {
+bool MessageBox::key_press_cb(GdkEventKey* ev)
+{
+  if (ev->state & GDK_CONTROL_MASK)
+  {
+    if (ev->keyval == GDK_Page_Up)
+    {
       history_page_up();
       return true;
-    } else if (ev->keyval == GDK_Page_Down) {
+    }
+    else if (ev->keyval == GDK_Page_Down)
+    {
       history_page_down();
       return true;
     }
   }
 
-  // key shortcuts dependant on online/offline
-  if (m_online) {
-    if (ev->state & GDK_CONTROL_MASK ) {
-      if (ev->keyval == GDK_Return || ev->keyval == GDK_KP_Enter) {
+  // key shortcuts dependent on online/offline
+  if (m_online)
+  {
+    if (ev->state & GDK_CONTROL_MASK )
+    {
+      if (ev->keyval == GDK_Return || ev->keyval == GDK_KP_Enter)
+      {
         m_send_button.clicked();
 	return true;
       }
       
-    } else if (ev->state & GDK_MOD1_MASK) {
-      if (ev->keyval == GDK_s) {
+    }
+    else if (ev->state & GDK_MOD1_MASK)
+    {
+      if (ev->keyval == GDK_s)
+      {
         m_send_button.clicked();
 	return true;
       }
@@ -361,30 +380,34 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
     }
   }
 
-  if ( (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c ) ||
-       ev->keyval == GDK_Escape)
-    destroy.emit();
+  if ( (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c )
+       || ev->keyval == GDK_Escape)
+    delete this;
 
   return false;
 }
 
 void MessageBox::history_page_up()
 {
-  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
+  Gtk::Adjustment *adj = m_history_scr_win.get_vadjustment();
   gfloat p = adj->get_value();
   
-  if (p <= adj->get_lower()) {
+  if (p <= adj->get_lower())
+  {
     // horizontal scroller
     p = m_scaleadj.get_value();
     p -= m_scaleadj.get_page_increment();
     if (p < m_scaleadj.get_lower()) p = m_scaleadj.get_lower();
 
-    if (p != m_scaleadj.get_value()) {
+    if (p != m_scaleadj.get_value())
+    {
       m_scaleadj.set_value(p);
       adj->set_value( adj->get_upper() );
     }
     
-  } else {
+  }
+  else
+  {
     // vertical scroller
     p -= adj->get_page_increment();
     if (p < adj->get_lower()) p = adj->get_lower();
@@ -394,7 +417,7 @@ void MessageBox::history_page_up()
 
 void MessageBox::history_page_down()
 {
-  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
+  Gtk::Adjustment *adj = m_history_scr_win.get_vadjustment();
   gfloat p = adj->get_value();
   if (p + adj->get_page_size() >= adj->get_upper()) {
     // horizontal scroller
@@ -418,7 +441,8 @@ void MessageBox::history_page_down()
   }
 }
 
-void MessageBox::set_contact_title() {
+void MessageBox::set_contact_title()
+{
   ostringstream ostr;
   ostr << m_contact->getNameAlias();
   if (m_contact->isICQContact()) {
@@ -426,31 +450,38 @@ void MessageBox::set_contact_title() {
   }
   ostr << " - ";
   ostr << m_contact->getStatusStr();
-  set_title(ostr.str());
+
+  Glib::RefPtr<Gdk::Pixbuf> p;
 
   if (g_settings.getValueBool("window_status_icons"))
   {
-    Gtk::ImageLoader *p;
-
-    if (m_message_queue.get_contact_size(m_contact) > 0) {
+    if (m_message_queue.get_contact_size(m_contact) > 0)
+    {
       ostr << "*";
       MessageEvent *ev = m_message_queue.get_contact_first_message(m_contact);
-      if (ev->getServiceType() == MessageEvent::ICQ) {
+      if (ev->getServiceType() == MessageEvent::ICQ)
+      {
         ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-        p = g_icons.IconForEvent(icq->getICQMessageType());
+        p = g_icons.get_icon_for_event(icq->getICQMessageType());
       }
     }
-    else {
-      p = g_icons.IconForStatus( m_contact->getStatus(), m_contact->isInvisible() );
+    else
+    {
+      p = g_icons.get_icon_for_status( m_contact->getStatus(), m_contact->isInvisible() );
     }
 
-    gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
+    set_icon(p);
   }
+
+  set_title(ostr.str());
 }
 
-void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *) {
-  if (m_contact->isSMSable()) enable_sms();
-  else disable_sms();
+void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *)
+{
+  if (m_contact->isSMSable())
+    enable_sms();
+  else
+    disable_sms();
 
   // in case Alias or Status has changed
   set_contact_title();
@@ -482,33 +513,49 @@ void MessageBox::offline() {
   send_button_update();
 }
 
-void MessageBox::userinfo_dialog_cb(bool b) {
-  m_userinfo_toggle->set_active(b);
+void MessageBox::userinfo_dialog_cb(bool b)
+{
+  m_userinfo_button.set_active(b);
 }
 
-void MessageBox::setDisplayTimes(bool d) {
+void MessageBox::setDisplayTimes(bool d)
+{
   m_display_times = d;
 }
 
-void MessageBox::send_button_update() {
-  if (m_message_type == ICQ2000::MessageEvent::SMS) {
-    if (m_sms_enabled && m_online && !m_sms_count_over) m_send_button.set_sensitive(true);
-    else m_send_button.set_sensitive(false);
-  } else {
-    if (m_online) m_send_button.set_sensitive(true);
-    else m_send_button.set_sensitive(false);
+void MessageBox::send_button_update()
+{
+  if (m_message_type == ICQ2000::MessageEvent::SMS)
+  {
+    if (m_sms_enabled && m_online && !m_sms_count_over)
+      m_send_button.set_sensitive(true);
+    else
+      m_send_button.set_sensitive(false);
+  }
+  else
+  {
+    if (m_online)
+      m_send_button.set_sensitive(true);
+    else
+      m_send_button.set_sensitive(false);
   }
 }
 
-void MessageBox::sms_count_update_cb() {
-  guint len = m_sms_text.get_length();
+void MessageBox::sms_count_update_cb()
+{
+  guint len = m_sms_text.get_buffer()->get_char_count();
+  // UTF-8 consideration? - for that matter, how does UTF-8 work with SMS ??
+
   ostringstream ostr;
-  if (len > ICQ2000::SMS_Max_Length) {
+  if (len > ICQ2000::SMS_Max_Length)
+  {
     m_sms_count_over = true;
     ostr << (len - ICQ2000::SMS_Max_Length);
     m_sms_count_label.set_text("chars over");
     send_button_update();
-  } else {
+  }
+  else
+  {
     m_sms_count_over = false;
     ostr << (ICQ2000::SMS_Max_Length - len);
     m_sms_count_label.set_text("chars left");
@@ -517,8 +564,10 @@ void MessageBox::sms_count_update_cb() {
   m_sms_count.set_text(ostr.str());
 }
 
-void MessageBox::settings_changed_cb(const string &key) {
-  if( key == "history_shownr" ) {
+void MessageBox::settings_changed_cb(const string &key)
+{
+  if( key == "history_shownr" )
+  {
     m_nr_shown = g_settings.getValueUnsignedChar("history_shownr");
     m_scaleadj.set_upper( m_history->size() );
 
@@ -528,58 +577,73 @@ void MessageBox::settings_changed_cb(const string &key) {
   }
 }
 
-void MessageBox::icons_changed_cb() {
+void MessageBox::icons_changed_cb()
+{
   using namespace Gtk::Notebook_Helpers;
   PageList& pl = m_tab.pages();
-  Gtk::ImageLoader *l;
-  Gtk::Pixmap *i;
-  if (m_contact->isICQContact()) {
-    l = g_icons.IconForEvent(ICQMessageEvent::Normal);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
-    pl[0]->set_tab( i );
-    l = g_icons.IconForEvent(ICQMessageEvent::URL);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
-    pl[1]->set_tab( i );
-    l = g_icons.IconForEvent(ICQMessageEvent::SMS);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
-    pl[2]->set_tab( i );
-  } else {
-    l = g_icons.IconForEvent(ICQMessageEvent::SMS);
-    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
-    pl[0]->set_tab( i );
+
+  Glib::RefPtr<Gdk::Pixbuf> l;
+  Gtk::Image *i;
+  if (m_contact->isICQContact())
+  {
+    l = g_icons.get_icon_for_event(ICQMessageEvent::Normal);
+    i = manage( new Gtk::Image(l) );
+    pl[0].set_tab_label( *i ); // MM ?
+    l = g_icons.get_icon_for_event(ICQMessageEvent::URL);
+    i = manage( new Gtk::Image(l) );
+    pl[1].set_tab_label( *i );
+    l = g_icons.get_icon_for_event(ICQMessageEvent::SMS);
+    i = manage( new Gtk::Image(l) );
+    pl[2].set_tab_label( *i );
+  }
+  else
+  {
+    l = g_icons.get_icon_for_event(ICQMessageEvent::SMS);
+    i = manage( new Gtk::Image(l) );
+    pl[0].set_tab_label( *i );
   }
 
   // update title icon
   set_contact_title();
 }
 
-void MessageBox::userinfo_toggle_cb() {
-  userinfo_dialog.emit( m_userinfo_toggle->get_active() );
+void MessageBox::userinfo_toggle_cb()
+{
+  m_signal_userinfo_dialog.emit( m_userinfo_button.get_active() );
 }
 
-void MessageBox::delivery_toggle_cb() {
-  if ( m_delivery_toggle->get_active() )
+void MessageBox::delivery_toggle_cb()
+{
+  if ( m_delivery_button.get_active() )
     m_delivery_buttons.show_all();
   else
     m_delivery_buttons.hide_all();
 }
 
-void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page*, guint n) {
-  if (n == 0 && m_contact->isICQContact() ) {
+void MessageBox::change_current_page_cb(int n)
+{
+  if (n == 0 && m_contact->isICQContact() )
+  {
     m_message_type = ICQ2000::MessageEvent::Normal;
     m_message_text.grab_focus();
-  } else if ( n == 1 ) {
+  }
+  else if ( n == 1 )
+  {
     m_message_type = ICQ2000::MessageEvent::URL;
     m_url_text.grab_focus();
-  } else if ( n == 2 || ( n == 0 && !m_contact->isICQContact() ) ) {
+  }
+  else if ( n == 2 || ( n == 0 && !m_contact->isICQContact() ) )
+  {
     m_message_type = ICQ2000::MessageEvent::SMS;
     m_sms_text.grab_focus();
     sms_count_update_cb();
   }
+
   send_button_update();
 }
 
-void MessageBox::new_entry_cb(History::Entry *) {
+void MessageBox::new_entry_cb(History::Entry *)
+{
   gfloat old_upper = m_scaleadj.get_upper() - m_nr_shown;
   if (old_upper < 0) old_upper = 0;
 
@@ -597,9 +661,10 @@ void MessageBox::new_entry_cb(History::Entry *) {
     update_scalelabel((guint)m_scaleadj.get_value());
   }
 
-  if (m_focus) {
+  if (m_focus)
+  {
     // already focused, empty the queue
-    Gtk::Main::idle.connect( slot( this, &MessageBox::clear_queue_idle_cb ) );
+    Glib::signal_idle().connect( SigC::slot( *this, &MessageBox::clear_queue_idle_cb ) );
   } else {
     m_pending = true;
   }
@@ -607,7 +672,8 @@ void MessageBox::new_entry_cb(History::Entry *) {
   set_contact_title();
 }
 
-void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
+void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev)
+{
   if (ev != m_last_ev) return;
   if (ev->getType() == ICQ2000::MessageEvent::AwayMessage) return;
 
@@ -628,7 +694,8 @@ void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
       set_status(string("Sent message ") + method);
 
       if( g_settings.getValueBool( "message_autoclose" ) )
-        destroy.emit();
+	delete this;
+
     } else {
       switch(ev->getDeliveryFailureReason()) {
       case ICQ2000::MessageEvent::Failed_Denied:
@@ -662,33 +729,38 @@ void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
 
 void MessageBox::display_message(History::Entry &e)
 {
-  Context header_context, normal_context;
-  
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
+  Glib::RefPtr<Gtk::TextBuffer::Tag> tag_header;
+
+  /*  
   string message_text_font = g_settings.getValueString("message_text_font");
   string message_header_font = g_settings.getValueString("message_header_font");
-  if ( !message_text_font.empty() ) {
-    normal_context.set_font( Gdk_Font( message_text_font ) );
+  if ( !message_text_font.empty() )
+  {
+    normal_tag->property_font().set_value( message_text_font );
   }
-  if ( !message_header_font.empty() ) {
-    header_context.set_font( Gdk_Font( message_header_font ) );
+  if ( !message_header_font.empty() )
+  {
+    header_tag->property_font().set_value( message_header_font );
   }
+  */
 
   string nick;
-  
-  if( e.dir == History::Entry::SENT ) {
-    header_context.set_foreground( Gdk_Color("blue") );
+
+  if( e.dir == History::Entry::SENT )
+  {
+    tag_header = m_tag_header_blue;
     nick = m_self_contact->getAlias();
   }
-  else {
-    header_context.set_foreground( Gdk_Color("red") );
+  else
+  {
+    tag_header = m_tag_header_red;
     nick = m_contact->getAlias();
   }
 
-  Gdk_Color white("white");
-  Gdk_Color black("black");
-  
-  if (m_history_text.get_point() > 0)
-    m_history_text.insert( normal_context, "\n");
+  // new-line between messages if not the first
+  if (buffer->size() > 0)
+    buffer->insert_with_tag( buffer->end(), "\n", m_tag_normal );
 
   ostringstream ostr;
   if (m_display_times)
@@ -697,25 +769,26 @@ void MessageBox::display_message(History::Entry &e)
   ostr << nick << " ";
   if (e.urgent) ostr << "[urgent] ";
 
-  switch(e.type) {
+  switch(e.type)
+  {
 
   case ICQ2000::MessageEvent::Normal:
     if ( e.multiparty ) ostr << "[multiparty] ";
-    m_history_text.insert( header_context, ostr.str());
-    m_history_text.insert( normal_context, e.message);
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
+    buffer->insert_with_tag( buffer->end(), e.message,  m_tag_normal);
     break;
     
   case ICQ2000::MessageEvent::URL:
-    m_history_text.insert( header_context, ostr.str());
-    m_history_text.insert( normal_context, e.URL);
-    m_history_text.insert( normal_context, "\n");
-    m_history_text.insert( normal_context, e.message);
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
+    buffer->insert_with_tag( buffer->end(), e.URL,      m_tag_normal);
+    buffer->insert_with_tag( buffer->end(), "\n",       m_tag_normal);
+    buffer->insert_with_tag( buffer->end(), e.message,  m_tag_normal);
     break;
     
   case ICQ2000::MessageEvent::SMS:
     ostr << "[sms] ";
-    m_history_text.insert( header_context, ostr.str());
-    m_history_text.insert( normal_context, e.message);
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
+    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   case ICQ2000::MessageEvent::SMS_Receipt:
@@ -725,19 +798,19 @@ void MessageBox::display_message(History::Entry &e)
       ostr << "[sms not delivered]";
     }
     ostr << endl;
-    m_history_text.insert( header_context, ostr.str());
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
     break;
     
   case ICQ2000::MessageEvent::EmailEx:
     ostr << "[email] ";
-    m_history_text.insert( header_context, ostr.str());
-    m_history_text.insert( normal_context, e.message);
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
+    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   case ICQ2000::MessageEvent::WebPager:
     ostr << "[pager] ";
-    m_history_text.insert( header_context, ostr.str());
-    m_history_text.insert( normal_context, e.message);
+    buffer->insert_with_tag( buffer->end(), ostr.str(), tag_header);
+    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   default:
@@ -746,69 +819,98 @@ void MessageBox::display_message(History::Entry &e)
 
 }
 
-void MessageBox::popup() {
+void MessageBox::popup()
+{
   show_all();
-  if (!m_delivery_toggle->get_active()) m_delivery_buttons.hide_all();
+  if (!m_delivery_button.get_active()) m_delivery_buttons.hide_all();
   redraw_history();
 }
 
 struct isnotspace
 {
-  bool operator()(int n) { return !isspace(n); }
+  bool operator()(int n) { return !isspace(n); } // UTF-8 consideration?
 };
 
-bool MessageBox::isBlank(const string& s)
+bool MessageBox::is_blank(const Glib::ustring& s)
 {
   return (find_if(s.begin(), s.end(), isnotspace() ) == s.end());
 }
 
-void MessageBox::send_clicked_cb() {
+void MessageBox::send_clicked_cb()
+{
+  if (m_message_type == ICQ2000::MessageEvent::Normal)
+  {
+    Glib::RefPtr<Gtk::TextBuffer> buffer = m_message_text.get_buffer();
 
-  if (m_message_type == ICQ2000::MessageEvent::Normal) {
-    if (isBlank(m_message_text.get_chars(0,-1))) {
-      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
-      if (!pd.run()) return;
+    if (is_blank(buffer->get_text()))
+    {
+      PromptDialog pd(*this, Gtk::MESSAGE_QUESTION, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (pd.run() != Gtk::RESPONSE_YES) return;
     }
     
     set_status("Sending message...");
-    ICQ2000::NormalMessageEvent *nv = new ICQ2000::NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
-    if (m_send_urgent.get_active()) nv->setUrgent(true);
-    if (m_send_tocontactlist.get_active()) nv->setToContactList(true);
+    ICQ2000::NormalMessageEvent *nv = new ICQ2000::NormalMessageEvent( m_contact, buffer->get_text() );
+
+    if (m_send_urgent.get_active())
+      nv->setUrgent(true);
+
+    if (m_send_tocontactlist.get_active())
+      nv->setToContactList(true);
+
     m_last_ev = nv;
-    send_event.emit( nv );
-    m_message_text.delete_text(0,-1);
+    m_signal_send_event.emit( nv );
+    buffer->erase( buffer->begin(), buffer->end() );
   }
-  else if (m_message_type == ICQ2000::MessageEvent::URL) {
-    if (isBlank(m_url_entry.get_text())) {
-      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
-      if (!pd.run()) return;
+  else if (m_message_type == ICQ2000::MessageEvent::URL)
+  {
+    Glib::RefPtr<Gtk::TextBuffer> buffer = m_url_text.get_buffer();
+
+    if (is_blank(buffer->get_text()))
+    {
+      PromptDialog pd(*this, Gtk::MESSAGE_QUESTION, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (pd.run() != Gtk::RESPONSE_YES) return;
     }
 
     set_status("Sending URL...");
-    ICQ2000::URLMessageEvent *uv = new ICQ2000::URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
-    if (m_send_urgent.get_active()) uv->setUrgent(true);
-    if (m_send_tocontactlist.get_active()) uv->setToContactList(true);
+    ICQ2000::URLMessageEvent *uv = new ICQ2000::URLMessageEvent( m_contact, buffer->get_text(), m_url_entry.get_text() );
+
+    if (m_send_urgent.get_active())
+      uv->setUrgent(true);
+
+    if (m_send_tocontactlist.get_active())
+      uv->setToContactList(true);
+
     m_last_ev = uv;
-    send_event.emit( uv );
-    m_url_entry.delete_text(0,-1);
-    m_url_text.delete_text(0,-1);
+    m_signal_send_event.emit( uv );
+    m_url_entry.delete_text( 0, -1 );
+    buffer->erase( buffer->begin(), buffer->end() );
   }
-  else if (m_message_type == ICQ2000::MessageEvent::SMS) {
-    if (isBlank(m_sms_text.get_chars(0,-1))) {
-      PromptDialog pd(this, PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
-      if (!pd.run()) return;
+  else if (m_message_type == ICQ2000::MessageEvent::SMS)
+  {
+    Glib::RefPtr<Gtk::TextBuffer> buffer = m_sms_text.get_buffer();
+
+    if (is_blank(buffer->get_text()))
+    {
+      PromptDialog pd(*this, Gtk::MESSAGE_QUESTION, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (pd.run() != Gtk::RESPONSE_YES) return;
     }
 
     set_status("Sending SMS...");
-    ICQ2000::SMSMessageEvent *sv = new ICQ2000::SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
+    ICQ2000::SMSMessageEvent *sv = new ICQ2000::SMSMessageEvent( m_contact, buffer->get_text(), true );
     m_last_ev = sv;
-    send_event.emit( sv );
-    m_sms_text.delete_text(0,-1);
+    m_signal_send_event.emit( sv );
+    buffer->erase( buffer->begin(), buffer->end() );
   }
 
 }
 
-string MessageBox::format_time(time_t t) {
+void MessageBox::close_clicked_cb()
+{
+  delete this;
+}
+
+string MessageBox::format_time(time_t t)
+{
   time_t now = time(NULL);
   struct tm now_tm = * (localtime(&now));
   struct tm tm = * (localtime(&t));
@@ -821,15 +923,10 @@ string MessageBox::format_time(time_t t) {
   return string(time_str);
 }
 
-gint MessageBox::delete_event_impl(GdkEventAny *) {
-  return false;
-}
-
 void MessageBox::set_status( const string& text )
 {
-  if( m_status.messages().size() )
-    m_status.pop( m_status_context );
-  m_status.push( m_status_context, text);
+  m_status.pop( m_status_context );
+  m_status.push( text, m_status_context );
 }
 
 void MessageBox::redraw_history()
@@ -841,29 +938,31 @@ void MessageBox::scaleadj_value_changed_cb()
 {
   History::Entry he;
   guint i, end;
-  Gtk::Adjustment *adj;
+  Gtk::Adjustment *adj = m_history_scr_win.get_vadjustment();
 
-  try {
+  try
+  {
     m_history->stream_lock();
   }
-  catch ( exception &e ) {
+  catch ( exception &e )
+  {
     g_warning( e.what() );
     return;
   }
 
-  m_history_text.freeze();
-  m_history_text.delete_text(0,-1);
+  Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
+  buffer->erase( buffer->begin(), buffer->end() );
+
   i = (guint)m_scaleadj.get_value();
   end = update_scalelabel(i);
-  for( ; i < end; ++i ) {
+  for( ; i < end; ++i )
+  {
     m_history->get_msg( i, he );
     display_message( he );
   }
 
   m_history->stream_release();
-  m_history_text.thaw();
   
-  adj = m_history_text.get_vadjustment();
   adj->set_value( adj->get_upper() );
 }
 
@@ -874,78 +973,98 @@ guint MessageBox::update_scalelabel(guint i)
   
   end = i + m_nr_shown;
   if (end > m_history->size()) end = m_history->size();
-  if ( m_history->size() == 0) {
+  if ( m_history->size() == 0)
+  {
     os << "No messages in history";
-  } else {
+  }
+  else
+  {
     if (i+1 == end) os << "Message " << end;
     else os << "Messages " << i + 1 << " to " << end;
     os << " (" << m_history->size() << " total)";
   }
-  m_scalelabel.set( os.str() );
+  m_scalelabel.set_text( os.str() );
   return end;
 }
 
-// provides mousewheel support for Gtk::Text controls
-gint MessageBox::text_button_press_cb(GdkEventButton *b, Text *t) {
+// provides mousewheel support for Gtk::TextView controls
+/* TODO!
+bool MessageBox::text_button_press_cb(GdkEventButton *b, Text *t)
+{
   Gtk::Adjustment *adj;
   gfloat val;
 
   if( b->button != 4 && b->button != 5 )
-    return FALSE;
+    return false;
   
   adj = t->get_vadjustment();
   val = adj->get_value();
-  if( b->button == 4 ) {
+  if( b->button == 4 )
+  {
     val -= adj->get_page_increment();
   }
-  else if( b->button == 5 ) {
+  else if( b->button == 5 )
+  {
     val += adj->get_page_increment();
   }
   adj->set_value( val );
-  return TRUE;
+
+  return true;
 }
+*/
 
 void MessageBox::spell_attach()
 {
-  gtkspell_attach(GTK_TEXT(m_message_text.gtkobj()));
-  gtkspell_attach(GTK_TEXT(m_url_text.gtkobj()));
-  gtkspell_attach(GTK_TEXT(m_sms_text.gtkobj()));
+  /* TODO
+  gtkspell_attach(Gtk::TEXT(m_message_text.gtkobj()));
+  gtkspell_attach(Gtk::TEXT(m_url_text.gtkobj()));
+  gtkspell_attach(Gtk::TEXT(m_sms_text.gtkobj()));
+  */
 }
 
 void MessageBox::spell_detach()
 {
-  gtkspell_detach(GTK_TEXT(m_message_text.gtkobj()));
-  gtkspell_detach(GTK_TEXT(m_url_text.gtkobj()));
-  gtkspell_detach(GTK_TEXT(m_sms_text.gtkobj()));
+  /* TODO
+  gtkspell_detach(Gtk::TEXT(m_message_text.gtkobj()));
+  gtkspell_detach(Gtk::TEXT(m_url_text.gtkobj()));
+  gtkspell_detach(Gtk::TEXT(m_sms_text.gtkobj()));
+  */
 }
 
-void MessageBox::resized_cb(GtkAllocation *) {
-  g_settings.setValue("message_box_width", width());
-  g_settings.setValue("message_box_height", height());
+void MessageBox::on_size_allocate(GtkAllocation *al)
+{
+  g_settings.setValue("message_box_width", al->width);
+  g_settings.setValue("message_box_height", al->height);
+
+  Gtk::Window::on_size_allocate(al);
 }
 
-void MessageBox::pane_position_changed_cb(GtkAllocation *) {
+void MessageBox::pane_position_changed_cb(GtkAllocation *)
+{
   /* Pane position is the same as m_history_table.height() */
-  g_settings.setValue("message_box_pane_position", m_history_vbox.height());
+  g_settings.setValue("message_box_pane_position", m_history_vbox.get_height());
 }
 
-gint MessageBox::focus_in_event_impl(GdkEventFocus*)
+bool MessageBox::on_focus_in_event(GdkEventFocus* ev)
 {
   m_focus = true;
-  if (m_pending) clear_queue();
-  return 0;
+  if (m_pending)
+    clear_queue();
+
+  return Gtk::Window::on_focus_in_event(ev);
 }
 
-gint MessageBox::focus_out_event_impl(GdkEventFocus*)
+bool MessageBox::on_focus_out_event(GdkEventFocus* ev)
 {
   m_focus = false;
-  return 0;
+
+  return Gtk::Window::on_focus_out_event(ev);
 }
 
-gint MessageBox::clear_queue_idle_cb()
+bool MessageBox::clear_queue_idle_cb()
 {
   clear_queue();
-  return 0;
+  return false;
 }
 
 void MessageBox::clear_queue()
@@ -1000,3 +1119,19 @@ void MessageBox::status_change_cb(ICQ2000::StatusChangeEvent *ev)
 
   set_contact_title();
 }
+
+SigC::Signal0<void>& MessageBox::signal_destroy()
+{
+  return m_signal_destroy;
+}
+
+SigC::Signal1<void,ICQ2000::MessageEvent *>& MessageBox::signal_send_event()
+{
+  return m_signal_send_event;
+}
+
+SigC::Signal1<void,bool>& MessageBox::signal_userinfo_dialog()
+{
+  return m_signal_userinfo_dialog;
+}
+

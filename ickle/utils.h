@@ -1,6 +1,6 @@
-/*
- * SearchDialog
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+/* $Id $
+ * 
+ * Copyright (C) 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,17 @@
  *
  */
 
-#include "SearchDialog.h"
+#ifndef UTILS_H
+#define UTILS_H
 
-SearchDialog::SearchDialog(Gtk::Window * parent)
-  : Gtk::Dialog()
+#include <glibmm/convert.h>
+
+namespace Utils
 {
-  set_title("Search for contacts");
-  set_transient_for (*parent);
-  set_modal(false);
-}
+  std::string locale_from_utf8_with_fallback(const Glib::ustring& utf8_string,
+					     const Glib::ustring& fallback = "?");
+
+  Glib::ustring locale_to_utf8(const Glib::ustring& utf8_string);
+};
+
+#endif /* UTILS_H */

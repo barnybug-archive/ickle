@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.9 2002-04-04 20:08:16 bugcreator Exp $
+/* $Id: AboutDialog.cpp,v 1.10 2003-01-02 16:39:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -20,13 +20,10 @@
 
 #include "AboutDialog.h"
 
-#include <gtk--/main.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/text.h>
-#include <gtk--/scrollbar.h>
-#include <gtk--/table.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/box.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/stock.h>
 
 #include <libicq2000/version.h>
 
@@ -35,71 +32,62 @@
 using std::ostringstream;
 using std::endl;
 
-AboutDialog::AboutDialog(Gtk::Window * parent)
-  : Gtk::Dialog()
+AboutDialog::AboutDialog(Gtk::Window& parent)
+  : Gtk::Dialog("About ickle", parent, true)
 {
-  set_transient_for (*parent);
+  set_position( Gtk::WIN_POS_CENTER );
+  add_button( Gtk::Stock::OK, Gtk::RESPONSE_OK );
 
-  Gtk::Button *button;
-  
-  set_title("About ickle");
-  set_modal(true);
-
-  destroy.connect( Gtk::Main::quit.slot() );
-
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  
-  button = manage( new Gtk::Button("OK") );
-  button->clicked.connect( destroy.slot() );
-  hbbox->pack_start( *button );
-  hbox->pack_start( *hbbox );
-  
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing (10);
-  Gtk::Table *table = manage( new Gtk::Table(2,1) );
 
-  Gtk::Text *text = manage( new Gtk::Text() );
-  text->set_word_wrap(true);
-  Gtk::Text_Helpers::Context hd, p;
-  hd.set_foreground(Gdk_Color("red"));
-  text->insert(hd, "About ickle\n");
+  Gtk::TextView *textview = manage( new Gtk::TextView() );
+  textview->set_editable(false);
+  textview->set_cursor_visible(false);
+  textview->set_wrap_mode(Gtk::WRAP_WORD);
 
+  Glib::RefPtr<Gtk::TextBuffer> buffer = textview->get_buffer();
+  Glib::RefPtr<Gtk::TextBuffer::Tag> hd, p;
+
+  hd = buffer->create_tag("heading");
+  p = buffer->create_tag("normal");
+  
+  hd->property_foreground().set_value( "red" );
+
+  Gtk::TextBuffer::iterator iter = buffer->end();
+  iter = buffer->insert_with_tag(iter, "About ickle\n", hd);
 
   ostringstream ostr1;
   ostr1 << "Version: " << ICKLE_VERSION << endl;
-  text->insert(p, ostr1.str() );
+  iter = buffer->insert_with_tag(iter, ostr1.str(), p );
 
   ostringstream ostr2;
   ostr2 << "Compiled on: " << __DATE__ << endl;
-  text->insert(p, ostr2.str() );
+  iter = buffer->insert_with_tag(iter, ostr2.str(), p );
 
   ostringstream ostr3;
   ostr3 << "libicq2000 Version: " << libicq2000_version << endl;
-  text->insert(p, ostr3.str() );
+  iter = buffer->insert_with_tag(iter, ostr3.str(), p );
 
-  text->insert(hd, "\nDevelopers\n");
-  text->insert(p, "* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n");
-  text->insert(p, "* Nils Nordman <nino@nforced.com> ICQ: 778602\n");
-  text->insert(p, "* Dominic Sacré <bugcreator@gmx.de> ICQ: 102496033\n");
-  text->insert(p, "* Alex Antropoff <alex@tirastel.md>\n\n");
-  text->insert(p, "Further contributions by many other developers are listed in the THANKS file.\n");
-  text->insert(hd, "\nFurther information\n");
-  text->insert(p, "If you'd like to comment on ickle, contribute to the project or file a bug report please see the README for more information.\n");
+  iter = buffer->insert_with_tag(iter, "\nDevelopers\n", hd );
+  iter = buffer->insert_with_tag(iter, "* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n", p );
+  iter = buffer->insert_with_tag(iter, "* Nils Nordman <nino@nforced.com> ICQ: 778602\n", p );
+  iter = buffer->insert_with_tag(iter, "* Dominic Sacr\xC3\xA9 <bugcreator@gmx.de> ICQ: 102496033\n", p );
+  iter = buffer->insert_with_tag(iter, "* Alex Antropoff <alex@tirastel.md>\n\n", p );
+  iter = buffer->insert_with_tag(iter, "Further contributions by many other developers are listed in the THANKS file.\n", p );
+  iter = buffer->insert_with_tag(iter, "\nFurther information\n", hd );
+  iter = buffer->insert_with_tag(iter,
+				 "If you'd like to comment on ickle, contribute to the project or file a bug "
+				 "report please see the README for more information.\n", p );
 
   // scrollbars
-  Gtk::Scrollbar *scrollbar = manage( new Gtk::VScrollbar (*(text->get_vadjustment())) );
-  table->attach(*text, 0, 1, 0, 1, GTK_EXPAND | GTK_FILL | GTK_SHRINK, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-  table->attach(*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-
-  vbox->pack_start( *table, true, true );
+  Gtk::ScrolledWindow *scr_win = manage( new Gtk::ScrolledWindow() );
+  scr_win->set_policy( Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS );
+  scr_win->add(*textview);
+  scr_win->set_shadow_type(Gtk::SHADOW_IN);
+  vbox->pack_start( *scr_win, true, true );
 
   set_border_width(10);
-  set_usize(500, 300);
+  set_default_size(500, 300);
   show_all();
-}
-
-void AboutDialog::run() {
-  Gtk::Main::run();
 }

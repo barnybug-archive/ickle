@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.h,v 1.2 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: WizardDialog.h,v 1.3 2003-01-02 16:40:03 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -27,17 +27,18 @@
 
 #include <libicq2000/events.h>
 
-#include <gtk--/window.h>
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/box.h>
-#include <gtk--/entry.h>
-#include <gtk--/table.h>
+#include <gtkmm/window.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/box.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/table.h>
 
-class WizardDialog : public Gtk::Dialog {
-
+class WizardDialog : public Gtk::Dialog,
+	             public sigslot::has_slots<>
+{
  private:
 
   // action area
@@ -79,10 +80,10 @@ class WizardDialog : public Gtk::Dialog {
   void existing_details_prev();
   void finished_prev();
 
-  virtual int delete_event_impl(GdkEventAny *event);
+  virtual bool on_delete_event(GdkEventAny *event);
 
-  int popup_delete_cb(GdkEventAny *) { return 1; }
-  gint timeout_cb();
+  bool popup_delete_cb(GdkEventAny *) { return true; }
+  bool timeout_cb();
   void newuin_cb(ICQ2000::NewUINEvent *nue);
     
  public:

@@ -1,4 +1,4 @@
-/* $Id: EventSystem.h,v 1.4 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: EventSystem.h,v 1.5 2003-01-02 16:39:54 barnabygray Exp $
  *
  * EventSystem
  *
@@ -30,11 +30,15 @@
 
 #include <libicq2000/events.h>
 
+#include <libicq2000/sigslot.h>
+#include <sigc++/object.h>
+
 // ============================================================================
 //  EventSystem
 // ============================================================================
 
-class EventSystem : public SigC::Object
+class EventSystem : public sigslot::has_slots<>,
+	            public SigC::Object
 {
  private:
   MessageQueue& m_message_queue;

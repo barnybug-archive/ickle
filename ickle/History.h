@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.13 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: History.h,v 1.14 2003-01-02 16:39:55 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -31,11 +31,14 @@
 #include <glib.h>
 #include <sys/types.h>
 #include <time.h>
-#include <sigc++/signal_system.h>
+
+#include <sigc++/object.h>
+#include <sigc++/signal.h>
 
 #include <libicq2000/events.h>
 
-class History : public SigC::Object {
+class History : public SigC::Object
+{
   
  private:
 
@@ -46,6 +49,7 @@ class History : public SigC::Object {
   std::vector<std::streampos>  m_index;
   bool                    m_builtindex;
   unsigned int            m_uin;
+  bool                    m_utf8;
 
   void                  quote_output    (std::ostream& ostr, const std::string& text);
   void                  build_index     ();

@@ -18,6 +18,7 @@ AC_DEFINE_UNQUOTED(ICKLE_VERSION, "$ICKLE_VERSION", [Full version of ickle])
 AM_INIT_AUTOMAKE(ickle,0.3.2)
 
 AM_ACLOCAL_INCLUDE(macros)
+AM_ACLOCAL_INCLUDE(m4)
 
 AM_CONFIG_HEADER(config.h)
 
@@ -51,24 +52,9 @@ AC_CHECK_HEADERS([errno.h stdlib.h string.h ctype.h sys/time.h sys/types.h sys/w
 # doesn't matter if getopt is missing it's a gnu thing
 AC_CHECK_HEADERS([getopt.h])
 
-dnl optional GNOME support
-ICKLE_GNOME_INIT(applets)
-
-if test "x$want_gnome" = xyes; then
-   ICKLE_PROGRAM=ickle_applet
-   ICKLE_MANPAGES=ickle_applet.1
-   CORBA_FILES=ickle_applet.gnorba
-   DESKTOP_FILES=ickle_applet.desktop
-   AC_DEFINE(GNOME_ICKLE,,[Define if GNOME applet should be built])
-else
-   ICKLE_PROGRAM=ickle
-   ICKLE_MANPAGES=ickle.1
-fi
-
-AC_SUBST(ICKLE_PROGRAM)
-AC_SUBST(ICKLE_MANPAGES)
-AC_SUBST(CORBA_FILES)
-AC_SUBST(DESKTOP_FILES)
+# Check for whether to use gettext support
+AM_GNU_GETTEXT_VERSION(0.11.5)
+AM_GNU_GETTEXT
 
 dnl ickle_control
 AC_ARG_WITH(ickle_control, [  --without-ickle-control don't build ickle_control], ickle_control=$withval, ickle_control=yes)
@@ -106,11 +92,18 @@ fi
 AC_LANG_RESTORE
 
 # Checks for libraries.
-AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR([You need to have the libsigc++ libraries installed - see the README for more information])])
+PKG_CHECK_MODULES(SIGC, sigc++-1.2)
+AC_SUBST(SIGC_CFLAGS)
+AC_SUBST(SIGC_LIBS)
 
-AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.5 and above - see the README for more information])])
-# libicq2000 checks
-AM_PATH_LIBICQ2000(0.3.2, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed. You can get libicq2000 from http://libicq2000.sourceforge.net/. A link to the sourceforge mirror selection page is: http://prdownloads.sourceforge.net/libicq2000/libicq2000-0.3.2.tar.gz - see the README for more information])])
+PKG_CHECK_MODULES(GTKMM, gtkmm-2.0)
+AC_SUBST(GTKMM_CFLAGS)
+AC_SUBST(GTKMM_LIBS)
+
+# libicq2000 check
+PKG_CHECK_MODULES(LIBICQ2000, libicq2000)
+AC_SUBST(LIBICQ2000_CFLAGS)
+AC_SUBST(LIBICQ2000_LIBS)
 
 # Switch to C++ mode - on some systems with the gtkmm libs they need libstdc++
 AC_LANG_SAVE
@@ -161,7 +154,7 @@ AC_HEADER_TIME
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([mktime stat mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
-AC_OUTPUT([Makefile ickle/Makefile share/Makefile \
+AC_OUTPUT([Makefile ickle/Makefile share/Makefile  po/Makefile.in m4/Makefile    intl/Makefile \
            control/Makefile ctrlsocket/Makefile \
            share/icons/Makefile share/icons/ickle/Makefile \
            share/icons/doors/Makefile share/icons/icq/Makefile \
@@ -175,16 +168,15 @@ fi
 
 $ECHO
 $ECHO "-----------------------------------------------------------------"
-if test "x$want_gnome" = xyes; then
-   $ECHO "Ickle will be built with the GNOME applet."
-   $ECHO "After installing, run ickle by rightclicking the"
-   $ECHO "panel and choosing Applets->Network->Ickle ICQ."
-   $ECHO "If you would rather ickle is not built as an applet,"
-   $ECHO "for example if you don't use the GNOME desktop enviroment,"
-   $ECHO "then re-run configure with the option --with-gnome=no"
+$ECHO "ickle $ICKLE_VERSION"
+if test "x$USE_NLS" = xyes; then
+   $ECHO "gettext support:                    enabled"
 else
-   $ECHO "Ickle will be built without the GNOME applet."
-   $ECHO "After installing, run ickle by typing 'ickle' at the prompt."
+   $ECHO "gettext support:                    disabled"
 fi
+$ECHO
+$ECHO "Now type make (or gmake) to build ickle, and then make install to"
+$ECHO "install. After installing, run ickle by typing 'ickle' at the    "
+$ECHO "prompt."
 $ECHO "-----------------------------------------------------------------"
 $ECHO

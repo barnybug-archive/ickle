@@ -1,10 +1,3 @@
-#include <iostream>
-
-#include <gtk--/main.h>
-
-#include "main.h"
-#include "IckleClient.h"
-
 /*
  * ickle
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
@@ -27,16 +20,12 @@
 
 #include <iostream>
 
-#include <gtk--/main.h>
+#include <gtkmm/main.h>
 
 #include "main.h"
 #include "IckleClient.h"
 
 #include <libicq2000/Client.h>
-
-#ifdef GNOME_ICKLE
-# include <applet-widget.h>
-#endif
 
 using std::string;
 using std::cout;
@@ -59,15 +48,12 @@ int main(int argc, char* argv[]) {
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();
     
-    IckleClient client(argc,argv);
+    IckleClient client(argc, argv);
     if (!client.check_pid_file()) return -1;
     client.init();    // finish initialising
 
-#ifdef GNOME_ICKLE
-    applet_widget_gtk_main();
-#else
     gtkmain.run();
-#endif 
+
     return 0;
   }
   catch( std::exception &e ) {

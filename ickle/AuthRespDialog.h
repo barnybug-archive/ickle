@@ -21,31 +21,33 @@
 #ifndef AUTHRESPDIALOG_H
 #define AUTHRESPDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/text.h>
-#include <gtk--/label.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/label.h>
 
 #include <libicq2000/Contact.h>
 
 #include <MessageEvent.h>
 
-class AuthRespDialog : public Gtk::Dialog {
+class AuthRespDialog : public Gtk::Dialog
+{
  private:
   ICQ2000::ContactRef m_contact;
   Gtk::Button m_ok, m_cancel;
   Gtk::RadioButton m_grant, m_refuse;
   Gtk::Label m_label;
-  Gtk::Text m_text;
+  Gtk::TextView m_textview;
 
   void grant_clicked_cb();
   void refuse_clicked_cb();
 
- public:
-  AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev);
+ protected:
+  virtual void on_response(int response_id);
 
-  void ok_cb();
+ public:
+  AuthRespDialog(Gtk::Window& parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev);
 };
 
 #endif

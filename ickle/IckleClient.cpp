@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.115 2002-11-02 19:57:56 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.116 2003-01-02 16:39:56 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -43,6 +43,7 @@
 #include "Dir.h"
 #include "EventSubstituter.h"
 #include "WizardDialog.h"
+#include "utils.h"
 
 #include <libicq2000/Client.h>
 
@@ -59,33 +60,24 @@ using std::endl;
 using std::map;
 using std::runtime_error;
 
-using SigC::slot;
+/* using SigC::slot;
+ * best not - now we have a mix of sigslot and SigC signal libraries
+ */
 
 using ICQ2000::ContactRef;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : m_message_queue(),
     m_event_system(m_message_queue),
-    gui( m_message_queue ),
+    gui( m_message_queue, m_histmap ),
     status(ICQ2000::STATUS_OFFLINE),
     m_loading(true)
-#ifdef GNOME_ICKLE
-    , applet(m_message_queue)
-#endif
 #ifdef CONTROL_SOCKET
     , ctrl(*this)
 #endif
 {
   // process command line parameters
   processCommandLine(argc,argv);
-  
-#ifdef GNOME_ICKLE
-  // initialize GNOME applet
-  applet.init(argc, argv, gui);
-  applet.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
-  applet.exit.connect(slot(this,&IckleClient::exit_cb));
-#endif
-
 }
 
 void IckleClient::init()
@@ -96,34 +88,29 @@ void IckleClient::init()
 #endif
 
   // let us know when the gui is destroyed
-  gui.destroy.connect(slot(this,&IckleClient::quit));
-  gui.delete_event.connect(slot(this,&IckleClient::close_cb));
-  gui.exit.connect(slot(this,&IckleClient::exit_cb));
+  gui.signal_destroy().connect(SigC::slot(*this,&IckleClient::quit));
+  gui.signal_exit().connect(SigC::slot(*this,&IckleClient::exit_cb));
   
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
 
-  icqclient.connected.connect(slot(this,&IckleClient::connected_cb));
-  icqclient.disconnected.connect(slot(this,&IckleClient::disconnected_cb));
-  icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
-  icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
-  icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
-  icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
-  icqclient.contact_status_change_signal.connect(slot(m_event_system,&EventSystem::status_change_cb));
-  icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
-  icqclient.want_auto_resp.connect(slot(this,&IckleClient::want_auto_resp_cb));
+  icqclient.connected.connect(this,&IckleClient::connected_cb);
+  icqclient.disconnected.connect(this,&IckleClient::disconnected_cb);
+  icqclient.logger.connect(this,&IckleClient::logger_cb);
+  icqclient.contactlist.connect(this,&IckleClient::contactlist_cb);
+  icqclient.messaged.connect(this,&IckleClient::message_cb);
+  icqclient.messageack.connect(this,&IckleClient::messageack_cb);
+  icqclient.contact_status_change_signal.connect(&m_event_system,&EventSystem::status_change_cb);
+  icqclient.socket.connect(this,&IckleClient::socket_cb);
+  icqclient.want_auto_resp.connect(this,&IckleClient::want_auto_resp_cb);
 
   // message queue callbacks
-  m_message_queue.added.connect(slot(this,&IckleClient::queue_added_cb));
-  m_message_queue.added.connect(slot(&m_event_system, &EventSystem::queue_added_cb));
+  m_message_queue.added.connect(SigC::slot(*this,&IckleClient::queue_added_cb));
+  m_message_queue.added.connect(SigC::slot(m_event_system, &EventSystem::queue_added_cb));
 
   // set up GUI callbacks
-  gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
-  gui.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
-  gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
-  gui.getContactListView()->userinfo.connect( slot( this, &IckleClient::userinfo_cb ) );
-
-  gui.send_event.connect(slot(this,&IckleClient::send_event_cb));
+  gui.signal_settings_changed().connect(SigC::slot(*this,&IckleClient::settings_changed_cb));
+  gui.signal_send_event().connect(SigC::slot(*this,&IckleClient::send_event_cb));
 
   gui.setDisplayTimes(true);
 
@@ -135,9 +122,6 @@ void IckleClient::init()
   // setup contact list
   loadContactList();
 
-#ifdef GNOME_ICKLE
-  if( !g_settings.getValueBool("hidegui_onstart") )
-#endif
   gui.show_all();
 
   ICQ2000::Status st = ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect"));
@@ -145,13 +129,14 @@ void IckleClient::init()
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
   if (st != ICQ2000::STATUS_OFFLINE) 
-    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st, false ) );
+    Glib::signal_idle().connect( SigC::bind( SigC::slot( *this, &IckleClient::idle_connect_cb ), st, false ) );
   
 
-  if( g_settings.getValueUnsignedInt("uin") == 0 ) {
+  if( g_settings.getValueUnsignedInt("uin") == 0 )
+  {
     WizardDialog wiz;
     if( wiz.run() ) // if we got an uin, automatically go online to allow the user to set his info
-      Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE, false ) );
+      Glib::signal_idle().connect( SigC::bind( SigC::slot( *this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE, false ) );
   }
 }
 
@@ -177,15 +162,13 @@ void IckleClient::loadContactList() {
 
 }
 
-void IckleClient::processCommandLine(int argc, char* argv[]) {
+void IckleClient::processCommandLine(int argc, char* argv[])
+{
   int i = 0;
   while ( ( i = getopt( argc, argv, "hb:" ) ) > 0) {
 
     switch(i) {
     case '?':
-#ifdef GNOME_ICKLE
-      break;  // We'll ignore any unknown options when run as an applet
-#endif      
     case 'h': // help
       usageInstructions(argv[0]);
       exit(0);
@@ -216,7 +199,8 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   PID_FILENAME = BASE_DIR + "ickle.pid";
 }
 
-void IckleClient::usageInstructions(const char* progname) {
+void IckleClient::usageInstructions(const char* progname)
+{
   cout << "ickle version " << ICKLE_VERSION << endl
        << "Usage: " << progname << " [-h] [-b dir]" << endl << endl
        << " -h : the help screen you are seeing" << endl
@@ -225,16 +209,21 @@ void IckleClient::usageInstructions(const char* progname) {
 }
 
 
-void IckleClient::SignalLog(ICQ2000::LogEvent::LogType type, const string& msg) {
+void IckleClient::SignalLog(ICQ2000::LogEvent::LogType type, const string& msg)
+{
   ICQ2000::LogEvent ev(type,msg);
   logger_cb(&ev);
 }
   
-void IckleClient::loadSettings() {
+void IckleClient::loadSettings()
+{
   // load in settings
-  try {
+  try
+  {
     g_settings.load(BASE_DIR + "ickle.conf");
-  } catch (runtime_error& e) {
+  }
+  catch (runtime_error& e)
+  {
     ostringstream ostr;
     ostr << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
 	 << "This is probably the first time you've run ickle.";
@@ -323,9 +312,6 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueString("autoresponse_1_label", "Away");
   g_settings.defaultValueString("autoresponse_1_text", "Hello %a, I'm away at the moment.");
 
-#ifdef GNOME_ICKLE
-  g_settings.defaultValueBool("hidegui_onstart", false);
-#endif
   g_settings.defaultValueBool("show_offline_contacts", true);
   
   // Set settings in library
@@ -382,11 +368,14 @@ void IckleClient::loadSettings() {
 
   gui.setGeometry(x, y, width, height);
   
+  /*
+    TODO
   ContactListView* clist = gui.getContactListView();
   if (clist) {
-    clist->setSingleClick(g_settings.getValueBool("mouse_single_click"));
-    clist->setCheckAwayClick(g_settings.getValueBool("mouse_check_away_click"));
+    //    clist->setSingleClick(g_settings.getValueBool("mouse_single_click"));
+    //    clist->setCheckAwayClick(g_settings.getValueBool("mouse_check_away_click"));
   }
+  */
 
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
   
@@ -418,10 +407,12 @@ void IckleClient::loadSettings() {
   m_loading = false;
 }
 
-void IckleClient::saveSettings() {
+void IckleClient::saveSettings()
+{
   int width, height, x, y;
-  gui.get_window().get_root_origin(x, y);
-  gui.get_window().get_size(width, height);
+
+  gui.get_window()->get_root_origin(x, y);
+  gui.get_window()->get_size(width, height);
   g_settings.setValue( "geometry_x", x );
   g_settings.setValue( "geometry_y", y );
   g_settings.setValue( "geometry_width", width );
@@ -462,42 +453,36 @@ void IckleClient::saveSettings() {
 
 }
 
-void IckleClient::exit_cb() {
+void IckleClient::exit_cb()
+{
   /*
    * These both need to be done while the widget
    * still exists, in IckleClient::quit is too late
    */
   saveSettings();
   icqclient.setStatus(ICQ2000::STATUS_OFFLINE);
+
+  Gtk::Main::quit();
 }
 
-gint IckleClient::close_cb(GdkEventAny*) {
-#ifndef GNOME_ICKLE
-  exit_cb();
-#endif
-  return false;
-}
-
-void IckleClient::quit() {
+void IckleClient::quit()
+{
   // remove the ickle.pid file
-  if (!PID_FILENAME.empty()) unlink(PID_FILENAME.c_str());
+  if (!PID_FILENAME.empty())
+    unlink(PID_FILENAME.c_str());
 
 #ifdef CONTROL_SOCKET
   ctrl.quit();
 #endif
-#ifdef GNOME_ICKLE
-  applet.quit();
-#else
-  Gtk::Main::quit();
-#endif
 }
 
-void IckleClient::connected_cb(ICQ2000::ConnectedEvent *) {
+void IckleClient::connected_cb(ICQ2000::ConnectedEvent *)
+{
   /* the library needs to be polled regularly
    * to ensure timeouts are respected and the server is pinged every minute
    * A 5 second interval is sensible for this
    */
-  poll_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::poll_server_cb ), 5000 );
+  poll_server_cnt = Glib::signal_timeout().connect( SigC::slot( *this, &IckleClient::poll_server_cb ), 5000 );
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 
   if( !g_settings.getValueBool("initial_userinfo_done") ) {
@@ -564,7 +549,9 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
 
   if (m_retries > 0) {
     --m_retries;
-    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), icqclient.getStatusWanted(), icqclient.getInvisibleWanted() ) );
+    Glib::signal_idle().connect( SigC::bind( SigC::slot( *this, &IckleClient::idle_connect_cb ),
+					     icqclient.getStatusWanted(),
+					     icqclient.getInvisibleWanted() ) );
   }
   else {
     m_retries = g_settings.getValueUnsignedChar("reconnect_retries"); // reset m_retries
@@ -576,31 +563,35 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
   }
 }
 
-gint IckleClient::idle_connect_cb(ICQ2000::Status s, bool inv) {
+bool IckleClient::idle_connect_cb(ICQ2000::Status s, bool inv)
+{
   icqclient.setStatus( s, inv );
-  return 0;
+  return false;
 }
 
-void IckleClient::logger_file_cb(const string& msg) {
+void IckleClient::logger_file_cb(const string& msg)
+{
   string log_file = BASE_DIR + "messages.log";
   
   // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
   mode_t old_umask = umask(0077);
 
   ofstream of(log_file.c_str(), std::ios::out | std::ios::app);
-  if (of) of << msg;
+  if (of)
+    of << msg;
   of.close();
 
   umask(old_umask);
 
   // ensure permissions on log file are secure
-  if ( chmod( log_file.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
+  if ( chmod( log_file.c_str(), S_IRUSR | S_IWUSR ) == -1 )
+  {
     cout << "The permissions on " << log_file << " couldn't be set to 0600. Your ICQ password may be logged in this file, so it could be vulnerable!" << endl;
   }
 }
 
-void IckleClient::logger_cb(ICQ2000::LogEvent *c) {
-
+void IckleClient::logger_cb(ICQ2000::LogEvent *c)
+{
   bool log_to_console = g_settings.getValueBool("log_to_console");
   bool log_to_file = g_settings.getValueBool("log_to_file");
   if (!log_to_console && !log_to_file) return;
@@ -659,7 +650,9 @@ void IckleClient::logger_cb(ICQ2000::LogEvent *c) {
       cout << "[32m {~}  ";
       break;
     }
-    cout << c->getMessage() << endl;
+    cout << Utils::locale_from_utf8_with_fallback(c->getMessage())
+            // console output should be in current locale
+	 << endl;
     cout << "[39m";
   }
 
@@ -677,46 +670,31 @@ string IckleClient::get_unique_historyname() throw (runtime_error)
   return string ( tmpl + CONTACT_DIR.size() );
 }
 
-void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
-  ostringstream ostr;
-  /*
-    ostr << "IckleClient::socket_cb " << source << " cond: " << cond;
-    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
-  */
-
-  icqclient.socket_cb(source, (ICQ2000::SocketEvent::Mode)cond);
+bool IckleClient::socket_select_cb(Glib::IOCondition cond, int source) {
+  icqclient.socket_cb(source,
+		      (ICQ2000::SocketEvent::Mode)
+		      ((cond & Glib::IO_IN ? ICQ2000::SocketEvent::READ : 0) |
+		       (cond & Glib::IO_OUT ? ICQ2000::SocketEvent::WRITE : 0) |
+		       (cond & Glib::IO_ERR ? ICQ2000::SocketEvent::EXCEPTION : 0)));
+  return true;
 }
 
-int IckleClient::poll_server_cb() {
+bool IckleClient::poll_server_cb()
+{
   icqclient.Poll();
   return true;
 }
 
-void IckleClient::user_popup_cb(unsigned int uin) {
-  ContactRef c = icqclient.getContact(uin);
-  if (c.get() != NULL) {
-    if (m_message_queue.get_contact_size(c) == 0)
-      gui.popup_messagebox(c, m_histmap[c->getUIN()]);
-    else
-      gui.popup_next_event(c, m_histmap[c->getUIN()]);
-  }
-}
-
-void IckleClient::userinfo_cb(unsigned int uin) {
-  ContactRef c = icqclient.getContact(uin);
-  if (c.get() != NULL) {
-    gui.popup_userinfo(c);
-  }
-}
-
-void IckleClient::send_event_cb(ICQ2000::MessageEvent *ev) {
+void IckleClient::send_event_cb(ICQ2000::MessageEvent *ev)
+{
   icqclient.SendEvent(ev);
 }
 
-void IckleClient::messageack_cb(ICQ2000::MessageEvent *ev) {
+void IckleClient::messageack_cb(ICQ2000::MessageEvent *ev)
+{
   if (ev->isFinished() && ev->isDelivered()
-      && ev->getType() != ICQ2000::MessageEvent::AwayMessage) {
-
+      && ev->getType() != ICQ2000::MessageEvent::AwayMessage)
+  {
     unsigned int uin = ev->getContact()->getUIN();
     if (m_histmap.count(uin) == 0) {
       ostringstream ostr;
@@ -742,15 +720,6 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
     ICQ2000::AddSocketHandleEvent *cev = dynamic_cast<ICQ2000::AddSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
-    /*
-    ostringstream ostr;
-    ostr << "Connecting socket " << fd;
-    if (cev->isRead()) ostr << " for read";
-    if (cev->isWrite()) ostr << " for write";
-    if (cev->isException()) ostr << " for exception";
-    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
-    */
-
     if (m_sockets.count(fd) > 0) {
       // uh oh..
       SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor already connected");
@@ -758,21 +727,14 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
       m_sockets.erase(fd);
     }
 
-    m_sockets[fd] = Gtk::Main::input.connect(slot(this, &IckleClient::socket_select_cb), fd,
-					     (GdkInputCondition)
-					     ((cev->isRead() ? GDK_INPUT_READ : 0) |
-					      (cev->isWrite() ? GDK_INPUT_WRITE : 0) |
-					      (cev->isException() ? GDK_INPUT_EXCEPTION : 0)));
+    m_sockets[fd] = Glib::signal_io().connect(SigC::bind(SigC::slot(*this, &IckleClient::socket_select_cb), fd), fd,
+					      (Glib::IOCondition)((cev->isRead()      ? Glib::IO_IN  : 0) |
+								  (cev->isWrite()     ? Glib::IO_OUT : 0) |
+								  (cev->isException() ? Glib::IO_ERR : 0)));
 
   } else if (dynamic_cast<ICQ2000::RemoveSocketHandleEvent*>(ev) != NULL) {
     ICQ2000::RemoveSocketHandleEvent *cev = dynamic_cast<ICQ2000::RemoveSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
-
-    /*
-    ostringstream ostr;
-    ostr << "Disconnecting socket " << fd;
-    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
-    */
 
     if (m_sockets.count(fd) == 0) {
       SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor not connected");
@@ -1040,7 +1002,6 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
     {
       ostringstream fetch_str, fetch_str2;
       string label;
-      unsigned short id;
     
       fetch_str << "group_" << i << "_label";
       fetch_str2 << "group_" << i << "_id";
@@ -1059,7 +1020,6 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
       {
 	ostringstream fetch_str, fetch_str2;
 	string label;
-	unsigned short id;
 	
 	++j;
 	
@@ -1090,7 +1050,6 @@ void IckleClient::update_group_settings()
   while (curr != ct.end()) {
     ostringstream fetch_str, fetch_str2;
     string label;
-    unsigned short id;
     
     fetch_str << "group_" << i << "_label";
     g_settings.setValue(fetch_str.str(), (*curr).get_label());

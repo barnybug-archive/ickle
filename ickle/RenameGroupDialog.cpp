@@ -23,46 +23,40 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
-#include <gtk--/box.h>
-#include <gtk--/table.h>
-#include <gtk--/label.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/box.h>
+#include <gtkmm/table.h>
+#include <gtkmm/label.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/stock.h>
 
-RenameGroupDialog::RenameGroupDialog(Gtk::Window *parent, ICQ2000::ContactTree::Group *gp)
-  : Gtk::Dialog(), m_libicq2000_group( gp ),
-    m_ok("Rename"), m_cancel("Cancel")
+RenameGroupDialog::RenameGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp)
+  : Gtk::Dialog("Rename Group", parent), m_libicq2000_group( gp )
 {
+  set_position(Gtk::WIN_POS_CENTER);
+
   Gtk::Label *label;
 
-  set_title("Rename Group");
-  set_transient_for(*parent);
-
-  m_ok.clicked.connect(slot(this,&RenameGroupDialog::ok_cb));
-  m_cancel.clicked.connect( destroy.slot() );
+  add_button("Rename",           Gtk::RESPONSE_OK);
+  add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   // libicq2000 callbacks
-  icqclient.contactlist.connect( slot( this, &RenameGroupDialog::contactlist_cb ) );
-
-  Gtk::HBox *hbox = get_action_area();
-  hbox->set_border_width(0);
-  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
-  hbbox->pack_start(m_ok, true, true, 0);
-  hbbox->pack_start(m_cancel, true, true, 0);
-  hbox->pack_start( *hbbox );
+  icqclient.contactlist.connect( this, &RenameGroupDialog::contactlist_cb );
 
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
   Gtk::Table *table = manage( new Gtk::Table(2, 2) );
+  table->set_spacings(5);
 
-  label = manage( new Gtk::Label("Old group label") );
-  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
+  label = manage( new Gtk::Label("Old group label", 0.0, 0.5 ) );
+  table->attach( *label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
   m_old_group_label.set_text( gp->get_label() );
+  m_old_group_label.set_sensitive(false);
   m_old_group_label.set_editable(false);
-  table->attach( m_old_group_label, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
+  table->attach( m_old_group_label, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
-  label = manage( new Gtk::Label("New group label") );
-  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  table->attach( m_group_label, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
+  label = manage( new Gtk::Label("New group label", 0.0, 0.5 ) );
+  table->attach( *label, 0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_group_label, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   vbox->pack_start( *table );
 
@@ -71,20 +65,29 @@ RenameGroupDialog::RenameGroupDialog(Gtk::Window *parent, ICQ2000::ContactTree::
   m_group_label.grab_focus();
 }
 
-void RenameGroupDialog::ok_cb()
+void RenameGroupDialog::on_response(int response_id)
 {
-  m_libicq2000_group->set_label( m_group_label.get_text() );
-  destroy.emit();
+  if (response_id == Gtk::RESPONSE_OK)
+  {
+    m_libicq2000_group->set_label( m_group_label.get_text() );
+  }
+  
+  delete this;
 }
 
 void RenameGroupDialog::contactlist_cb(ICQ2000::ContactListEvent *ev)
 {
-  if (ev->getType() == ICQ2000::ContactListEvent::GroupRemoved) {
+  if (ev->getType() == ICQ2000::ContactListEvent::GroupRemoved)
+  {
     ICQ2000::GroupRemovedEvent *cev = static_cast<ICQ2000::GroupRemovedEvent*>(ev);
-    if (&(cev->get_group()) == m_libicq2000_group) destroy.emit();
-  } else if (ev->getType() == ICQ2000::ContactListEvent::GroupChange) {
+    if (&(cev->get_group()) == m_libicq2000_group)
+      response(Gtk::RESPONSE_CANCEL);
+  }
+  else if (ev->getType() == ICQ2000::ContactListEvent::GroupChange)
+  {
     ICQ2000::GroupChangeEvent *cev = static_cast<ICQ2000::GroupChangeEvent*>(ev);
-    if (&(cev->get_group()) == m_libicq2000_group) {
+    if (&(cev->get_group()) == m_libicq2000_group)
+    {
       // update old name in dialog
       m_old_group_label.set_text( m_libicq2000_group->get_label());
     }

@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.h,v 1.3 2002-04-18 17:32:57 nordman Exp $
+/* $Id: IdleTimer.h,v 1.4 2003-01-02 16:39:58 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -28,7 +28,7 @@
 #endif
 
 #include <time.h>
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #ifdef USE_XSCREENSAVER
 # include <X11/Xlib.h>
@@ -41,8 +41,8 @@
 # undef Status
 #endif
 
-class IdleTimer : public SigC::Object {
-  
+class IdleTimer : public SigC::Object
+{
  private:
 
 #ifdef USE_XSCREENSAVER
@@ -59,7 +59,7 @@ class IdleTimer : public SigC::Object {
   guint                 m_idletime;     // total idle time in seconds
 
   void                  get_idle                ();
-  gint                  timer_cb                ();
+  bool                  timer_cb                ();
   
  public:
 

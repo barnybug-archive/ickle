@@ -21,22 +21,28 @@
 #ifndef LOGWINDOW_H
 #define LOGWINDOW_H
 
-#include <gtk--/window.h>
-#include <gtk--/text.h>
-#include <gtk--/button.h>
-#include <gtk--/checkbutton.h>
+#include <gtkmm/window.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/button.h>
+#include <gtkmm/checkbutton.h>
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #include <libicq2000/events.h>
 
-class LogWindow : public Gtk::Window {
+class LogWindow : public Gtk::Window,
+		  public sigslot::has_slots<>
+{
  private:
-  Gtk::Window *m_main_window;
-  Gtk::Text m_log_text;
   Gtk::Button m_close_button;
-  Gtk::CheckButton m_log_info, m_log_error, m_log_warn, m_log_packet, m_log_directpacket;
-  unsigned int m_pos, m_count;
+  unsigned int m_count;
+  Gtk::CheckButton m_log_info, m_log_warn, m_log_error, m_log_packet, m_log_directpacket;
+  Gtk::ScrolledWindow m_log_scr_win;
+  Gtk::TextView m_log_text;
+
+  Glib::RefPtr<Gtk::TextTag> m_tag_log_info, m_tag_log_warn, m_tag_log_error,
+                                     m_tag_log_packet, m_tag_log_directpacket, m_tag_normal;
 
   std::string format_time(time_t t);
 
@@ -47,10 +53,10 @@ class LogWindow : public Gtk::Window {
   void checkbutton_directpacket_cb();
 
  protected:
-  virtual void show_impl();
+  virtual void on_show();
   
  public:
-  LogWindow(Gtk::Window *main_window);
+  LogWindow();
   ~LogWindow();
   
   void logger_cb(ICQ2000::LogEvent *ev);

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.24 2002-06-16 00:01:14 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.25 2003-01-02 16:39:58 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,26 +21,27 @@
 #ifndef MESSAGEBOX_H
 #define MESSAGEBOX_H
 
-#include <gtk--/window.h>
-#include <gtk--/table.h>
-#include <gtk--/text.h>
-#include <gtk--/paned.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/buttonbox.h>
-#include <gtk--/notebook.h>
-#include <gtk--/entry.h>
-#include <gtk--/statusbar.h>
-#include <gtk--/togglebutton.h>
-#include <gtk--/adjustment.h>
-#include <gtk--/scale.h>
-#include <gtk--/tooltips.h>
-#include <gtk--/radiobutton.h>
+#include <gtkmm/window.h>
+#include <gtkmm/table.h>
+#include <gtkmm/textview.h>
+#include <gtkmm/paned.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/notebook.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/statusbar.h>
+#include <gtkmm/togglebutton.h>
+#include <gtkmm/adjustment.h>
+#include <gtkmm/scale.h>
+#include <gtkmm/tooltips.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/scrolledwindow.h>
 
 #include <string>
 #include <time.h>
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
@@ -49,7 +50,9 @@
 #include "History.h"
 #include "MessageQueue.h"
 
-class MessageBox : public Gtk::Window {
+class MessageBox : public Gtk::Window,
+                   public sigslot::has_slots<>
+{
  private:
   ICQ2000::ContactRef m_self_contact, m_contact;
 
@@ -63,7 +66,8 @@ class MessageBox : public Gtk::Window {
   Gtk::Button m_send_button, m_close_button;
 
   Gtk::VBox m_history_vbox;
-  Gtk::Text m_history_text;
+  Gtk::ScrolledWindow m_history_scr_win;
+  Gtk::TextView m_history_text;
   guchar m_nr_shown;
 
   Gtk::Notebook m_tab;
@@ -71,14 +75,14 @@ class MessageBox : public Gtk::Window {
   bool m_focus, m_pending;
 
   // normal message tab
-  Gtk::Text m_message_text;
+  Gtk::TextView m_message_text;
 
   // url tab
-  Gtk::Text m_url_text;
+  Gtk::TextView m_url_text;
   Gtk::Entry m_url_entry;
 
   // sms tab
-  Gtk::Text m_sms_text;
+  Gtk::TextView m_sms_text;
   Gtk::Entry m_sms_count;
   Gtk::Label m_sms_count_label;
   bool m_sms_count_over;
@@ -88,7 +92,7 @@ class MessageBox : public Gtk::Window {
   Gtk::RadioButton m_send_normal, m_send_urgent, m_send_tocontactlist;
 
   Gtk::VPaned m_pane;
-  Gtk::ToggleButton *m_userinfo_toggle, *m_delivery_toggle;
+  Gtk::ToggleButton m_userinfo_button, m_delivery_button;
   Gtk::HBox m_delivery_buttons;
 
   Gtk::Tooltips m_tooltips;
@@ -100,6 +104,10 @@ class MessageBox : public Gtk::Window {
 
   MessageQueue& m_message_queue;
 
+  Glib::RefPtr<Gtk::TextTag> m_tag_header_blue;
+  Glib::RefPtr<Gtk::TextTag> m_tag_header_red;
+  Glib::RefPtr<Gtk::TextTag> m_tag_normal;
+
   void send_button_update();
   void set_contact_title();
   std::string format_time(time_t t);
@@ -108,17 +116,22 @@ class MessageBox : public Gtk::Window {
   void redraw_history();
   guint update_scalelabel(guint i);
   void scaleadj_value_changed_cb();
-  gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
+  bool text_button_press_cb(GdkEventButton *b, Gtk::TextView *t);
   void clear_queue();
-  gint clear_queue_idle_cb();
+  bool clear_queue_idle_cb();
   
-  gint focus_in_event_impl(GdkEventFocus* p0);
-  gint focus_out_event_impl(GdkEventFocus* p0);
+  bool on_focus_in_event(GdkEventFocus* ev);
+  bool on_focus_out_event(GdkEventFocus* ev);
 
   void history_page_up();
   void history_page_down();
 
-  static bool isBlank(const std::string& s);
+  static bool is_blank(const Glib::ustring& s);
+
+  // signals
+  SigC::Signal1<void,ICQ2000::MessageEvent *> m_signal_send_event;
+  SigC::Signal1<void,bool> m_signal_userinfo_dialog;
+  SigC::Signal0<void> m_signal_destroy;
 
  public:
   MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const ICQ2000::ContactRef& c, History *h);
@@ -147,26 +160,28 @@ class MessageBox : public Gtk::Window {
 
   void setDisplayTimes(bool d);
   
-  void raise() const;
+  void raise();
 
   void spell_attach();
   void spell_detach();
 
-  // signals
-  SigC::Signal1<void,ICQ2000::MessageEvent *> send_event;
-  SigC::Signal1<void,bool> userinfo_dialog;
+  // signal accessors
+  SigC::Signal0<void>& signal_destroy();
+  SigC::Signal1<void,ICQ2000::MessageEvent *>& signal_send_event();
+  SigC::Signal1<void,bool>& signal_userinfo_dialog();
 
-  void resized_cb(GtkAllocation*);
+  virtual void on_size_allocate(GtkAllocation*);
+
   void pane_position_changed_cb(GtkAllocation*);
   void send_clicked_cb();
-  void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);
+  void close_clicked_cb();
+  void change_current_page_cb(int n);
   void userinfo_toggle_cb();
   void delivery_toggle_cb();
   void sms_count_update_cb();
   void icons_changed_cb();
   void settings_changed_cb(const std::string &key);
-  gint key_press_cb(GdkEventKey*);
-  virtual gint delete_event_impl(GdkEventAny *ev);
+  bool key_press_cb(GdkEventKey*);
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.17 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: Icons.cpp,v 1.18 2003-01-02 16:39:58 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -49,18 +49,18 @@ Icons::Icons()
  * Sets the icons to the default compiled in icons.
  */
 void Icons::setDefaultIcons() {
-  Icon_Status_Online.reset( new Gtk::ImageLoaderData(online_xpm) );
-  Icon_Status_Away.reset( new Gtk::ImageLoaderData(away_xpm) );
-  Icon_Status_NA.reset( new Gtk::ImageLoaderData(na_xpm) );
-  Icon_Status_Occupied.reset( new Gtk::ImageLoaderData(occ_xpm) );
-  Icon_Status_DND.reset( new Gtk::ImageLoaderData(dnd_xpm) );
-  Icon_Status_FFC.reset( new Gtk::ImageLoaderData(ffc_xpm) );
-  Icon_Status_Offline.reset( new Gtk::ImageLoaderData(offline_xpm) );
-  Icon_Status_Message.reset( new Gtk::ImageLoaderData(message_xpm) );
-  Icon_Status_URL.reset( new Gtk::ImageLoaderData(url_xpm) );
-  Icon_Status_SMS.reset( new Gtk::ImageLoaderData(sms_xpm) );
-  Icon_Status_SystemMessage.reset( new Gtk::ImageLoaderData(sysmsg_xpm) );
-  Icon_Status_Invisible.reset( new Gtk::ImageLoaderData(invisible_xpm) );
+  Icon_Status_Online = Gdk::Pixbuf::create_from_xpm_data(online_xpm);
+  Icon_Status_Away = Gdk::Pixbuf::create_from_xpm_data( (away_xpm) );
+  Icon_Status_NA = Gdk::Pixbuf::create_from_xpm_data( (na_xpm) );
+  Icon_Status_Occupied = Gdk::Pixbuf::create_from_xpm_data( (occ_xpm) );
+  Icon_Status_DND = Gdk::Pixbuf::create_from_xpm_data( (dnd_xpm) );
+  Icon_Status_FFC = Gdk::Pixbuf::create_from_xpm_data( (ffc_xpm) );
+  Icon_Status_Offline = Gdk::Pixbuf::create_from_xpm_data( (offline_xpm) );
+  Icon_Status_Message = Gdk::Pixbuf::create_from_xpm_data( (message_xpm) );
+  Icon_Status_URL = Gdk::Pixbuf::create_from_xpm_data( (url_xpm) );
+  Icon_Status_SMS = Gdk::Pixbuf::create_from_xpm_data( (sms_xpm) );
+  Icon_Status_SystemMessage = Gdk::Pixbuf::create_from_xpm_data( (sysmsg_xpm) );
+  Icon_Status_Invisible = Gdk::Pixbuf::create_from_xpm_data( (invisible_xpm) );
 }
 
 void Icons::settings_changed_cb(const string& key) {
@@ -77,70 +77,74 @@ bool Icons::setIcons(const string &dir) {
     return true;
   }
 
-  Icon_Status_Online.reset( new Gtk::ImageLoader( dir + "online.xpm" ) );
-  Icon_Status_Away.reset( new Gtk::ImageLoader( dir + "away.xpm" ) );
-  Icon_Status_NA.reset( new Gtk::ImageLoader( dir + "na.xpm" ) );
-  Icon_Status_Occupied.reset( new Gtk::ImageLoader( dir + "occ.xpm" ) );
-  Icon_Status_DND.reset( new Gtk::ImageLoader( dir + "dnd.xpm" ) );
-  Icon_Status_FFC.reset( new Gtk::ImageLoader( dir + "ffc.xpm" ) );
-  Icon_Status_Offline.reset( new Gtk::ImageLoader( dir + "offline.xpm" ) );
-  Icon_Status_Message.reset( new Gtk::ImageLoader( dir + "message.xpm" ) );
-  Icon_Status_URL.reset( new Gtk::ImageLoader( dir + "url.xpm" ) );
-  Icon_Status_SMS.reset( new Gtk::ImageLoader( dir + "sms.xpm" ) );
-  Icon_Status_SystemMessage.reset( new Gtk::ImageLoader( dir + "sysmsg.xpm" ) );
-  Icon_Status_Invisible.reset( new Gtk::ImageLoader( dir + "invisible.xpm" ) );
+  Icon_Status_Online = Gdk::Pixbuf::create_from_file(dir + "online.xpm");
+  Icon_Status_Away = Gdk::Pixbuf::create_from_file(dir + "away.xpm");
+  Icon_Status_NA = Gdk::Pixbuf::create_from_file(dir + "na.xpm");
+  Icon_Status_Occupied = Gdk::Pixbuf::create_from_file(dir + "occ.xpm");
+  Icon_Status_DND = Gdk::Pixbuf::create_from_file(dir + "dnd.xpm");
+  Icon_Status_FFC = Gdk::Pixbuf::create_from_file(dir + "ffc.xpm");
+  Icon_Status_Offline = Gdk::Pixbuf::create_from_file(dir + "offline.xpm");
+  Icon_Status_Message = Gdk::Pixbuf::create_from_file(dir + "message.xpm");
+  Icon_Status_URL = Gdk::Pixbuf::create_from_file(dir + "url.xpm");
+  Icon_Status_SMS = Gdk::Pixbuf::create_from_file(dir + "sms.xpm");
+  Icon_Status_SystemMessage = Gdk::Pixbuf::create_from_file(dir + "sysmsg.xpm");
+  Icon_Status_Invisible = Gdk::Pixbuf::create_from_file(dir + "invisible.xpm");
   icons_changed.emit();
   return true;
 }
 
-Gtk::ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
-  Gtk::ImageLoader *p;
+Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, bool inv)
+{
+  Glib::RefPtr<Gdk::Pixbuf> ret;
+  
   if (inv && s != ICQ2000::STATUS_OFFLINE) {
-    p = Icon_Status_Invisible.get();
+    ret = Icon_Status_Invisible;
   } else {
     switch(s) {
     case ICQ2000::STATUS_ONLINE:
-      p = Icon_Status_Online.get();
+      ret = Icon_Status_Online;
       break;
     case ICQ2000::STATUS_AWAY:
-      p = Icon_Status_Away.get();
+      ret = Icon_Status_Away;
       break;
     case ICQ2000::STATUS_NA:
-      p = Icon_Status_NA.get();
+      ret = Icon_Status_NA;
       break;
     case ICQ2000::STATUS_OCCUPIED:
-      p = Icon_Status_Occupied.get();
+      ret = Icon_Status_Occupied;
       break;
     case ICQ2000::STATUS_DND:
-      p = Icon_Status_DND.get();
+      ret = Icon_Status_DND;
       break;
     case ICQ2000::STATUS_FREEFORCHAT:
-      p = Icon_Status_FFC.get();
+      ret = Icon_Status_FFC;
       break;
     case ICQ2000::STATUS_OFFLINE:
-      p = Icon_Status_Offline.get();
+      ret = Icon_Status_Offline;
       break;
     default:
-      p = Icon_Status_Offline.get();
+      ret = Icon_Status_Offline;
       break;
     }
   }
   
-  return p;
+  return ret;
 }
 
-Gtk::ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
-  Gtk::ImageLoader *p;
+Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_event(ICQMessageEvent::ICQMessageType t)
+{
+  Glib::RefPtr<Gdk::Pixbuf> ret;
+  
   switch(t) {
   case ICQMessageEvent::Normal:
-    p = Icon_Status_Message.get();
+    ret = Icon_Status_Message;
     break;
   case ICQMessageEvent::URL:
-    p = Icon_Status_URL.get();
+    ret = Icon_Status_URL;
     break;
   case ICQMessageEvent::SMS:
   case ICQMessageEvent::SMS_Receipt:
-    p = Icon_Status_SMS.get();
+    ret = Icon_Status_SMS;
     break;
   case ICQMessageEvent::AuthReq:
   case ICQMessageEvent::AuthAck:
@@ -148,8 +152,8 @@ Gtk::ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
   case ICQMessageEvent::WebPager:
   case ICQMessageEvent::UserAdd:
   default:
-    p = Icon_Status_SystemMessage.get();
+    ret = Icon_Status_SystemMessage;
     break;
   }
-  return p;
+  return ret;
 }

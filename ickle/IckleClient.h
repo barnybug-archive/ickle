@@ -24,7 +24,7 @@
 #ifndef ICKLECLIENT_H
 #define ICKLECLIENT_H
 
-#include <sigc++/signal_system.h>
+#include <sigc++/signal.h>
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -43,15 +43,13 @@
 #include "MessageQueue.h"
 #include "EventSystem.h"
 
-#ifdef GNOME_ICKLE
-# include "IckleApplet.h"
-#endif
-
 #ifdef CONTROL_SOCKET
 # include "ControlHandler.h"
 #endif
 
-class IckleClient : public SigC::Object {
+class IckleClient : public sigslot::has_slots<>,
+		    public SigC::Object
+{
 #ifdef CONTROL_SOCKET
   friend class ControlHandler;
 #endif
@@ -64,9 +62,7 @@ class IckleClient : public SigC::Object {
   unsigned int m_retries;
   std::string auto_response;
 
-#ifdef GNOME_ICKLE
-  IckleApplet applet;
-#endif
+  bool m_loading;
 
 #ifdef CONTROL_SOCKET
   ControlHandler ctrl;
@@ -78,10 +74,8 @@ class IckleClient : public SigC::Object {
   std::map<unsigned int, std::string> m_settingsmap; 
   std::map<unsigned int, History *> m_histmap;
 
-  std::map<int, Gtk::Connection> m_sockets;
-  Gtk::Connection poll_server_cnt;
-
-  bool m_loading;
+  std::map<int, SigC::Connection> m_sockets;
+  SigC::Connection poll_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);
   void usageInstructions(const char* progname);
@@ -98,7 +92,7 @@ class IckleClient : public SigC::Object {
   void saveContact(ICQ2000::ContactRef c, const std::string& s, bool self);
 
   void event_system(const std::string& s, ICQ2000::ContactRef c, time_t t);
-  gint idle_connect_cb(ICQ2000::Status s, bool inv);
+  bool idle_connect_cb(ICQ2000::Status s, bool inv);
   MessageEvent* convert_libicq2000_event(ICQ2000::MessageEvent *ev);
 
   void SignalLog(ICQ2000::LogEvent::LogType type, const std::string& msg);
@@ -133,8 +127,6 @@ class IckleClient : public SigC::Object {
   void queue_added_cb(MessageEvent *ev);
 
   // -- Callbacks for GUI --
-  void user_popup_cb(unsigned int uin);
-  void userinfo_cb(unsigned int uin);
   void send_event_cb(ICQ2000::MessageEvent *ev);
   void fetch_cb(ICQ2000::ContactRef c);
   void exit_cb();
@@ -142,10 +134,10 @@ class IckleClient : public SigC::Object {
   void settings_changed_cb();
 
   // -- Callback for a socket ready --
-  void socket_select_cb(int source, GdkInputCondition cond);
+  bool socket_select_cb(Glib::IOCondition cond, int source);
 
   // -- Callback for timeout
-  int poll_server_cb();
+  bool poll_server_cb();
 };
 
 #endif

@@ -21,14 +21,14 @@
 #ifndef REMOVECONTACTDIALOG_H
 #define REMOVECONTACTDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/entry.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/checkbutton.h>
-#include <gtk--/frame.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/box.h>
+#include <gtkmm/button.h>
+#include <gtkmm/label.h>
+#include <gtkmm/entry.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/checkbutton.h>
+#include <gtkmm/frame.h>
 
 #include "MobileNoEntry.h"
 
@@ -39,17 +39,18 @@ namespace ICQ2000
   class ContactListEvent;
 }
 
-class RemoveContactDialog : public Gtk::Dialog {
+class RemoveContactDialog : public Gtk::Dialog,
+			    public sigslot::has_slots<>
+{
  private:
-  Gtk::Button m_ok, m_cancel;
   ICQ2000::ContactRef m_contact;
 
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
 
- public:
-  RemoveContactDialog(Gtk::Window * parent, const ICQ2000::ContactRef& c);
+  void on_response(int response_id);
 
-  void ok_cb();
+ public:
+  RemoveContactDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c);
 };
 
 #endif

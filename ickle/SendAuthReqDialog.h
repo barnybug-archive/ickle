@@ -21,22 +21,24 @@
 #ifndef SENDAUTHREQDIALOG_H
 #define SENDAUTHREQDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/text.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/textview.h>
 
 #include <libicq2000/Contact.h>
 
-class SendAuthReqDialog : public Gtk::Dialog {
+class SendAuthReqDialog : public Gtk::Dialog
+{
  private:
   ICQ2000::ContactRef m_contact;
   Gtk::Button m_ok, m_cancel;
-  Gtk::Text m_text;
+  Gtk::TextView m_textview;
 
+ protected:
+  virtual void on_response(int response_id);
+  
  public:
-  SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact);
-
-  void ok_cb();
+  SendAuthReqDialog(Gtk::Window& parent, const ICQ2000::ContactRef& contact);
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.8 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: WizardDialog.cpp,v 1.9 2003-01-02 16:40:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -26,23 +26,22 @@
 #include "Settings.h"
 #include "PromptDialog.h"
 
-#include <gtk--/main.h>
-#include <gtk--/frame.h>
-#include <gtk--/buttonbox.h>
+#include <gtkmm/main.h>
+#include <gtkmm/frame.h>
+#include <gtkmm/buttonbox.h>
+#include <gtkmm/stock.h>
 
 using std::string;
 using std::ostringstream;
 
-using SigC::slot;
-using SigC::bind;
 using ICQ2000::Status;
 
 WizardDialog::WizardDialog()
-  : Gtk::Dialog(),
+  : Gtk::Dialog("Ickle Wizard"),
     btn_next("Next >>"),
     btn_prev("<< Previous"),
-    btn_cancel("Cancel"),
-    win_regpopup(GTK_WINDOW_DIALOG),
+    btn_cancel(Gtk::Stock::CANCEL),
+    win_regpopup(Gtk::WINDOW_POPUP),
     newuin(0),
     retval(false)
 {
@@ -56,13 +55,14 @@ WizardDialog::WizardDialog()
                        "ICQ before to create a new account." );
   rb_existing_uin.add_label( "Existing account. Choose this if you already have an\n"
                              "existing ICQ account that you would like to use." );
-  rb_existing_uin.set_group( rb_newuin.group() );
+  Gtk::RadioButton::Group gp = rb_newuin.get_group();
+  rb_existing_uin.set_group( gp );
   rb_newuin.set_active(true);
 
   lbl = dynamic_cast<Gtk::Label *>( rb_newuin.get_child() );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   lbl = dynamic_cast<Gtk::Label *>( rb_existing_uin.get_child() );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
 
   vb = manage( new Gtk::VBox() );
   vb->set_spacing(5);
@@ -93,18 +93,18 @@ WizardDialog::WizardDialog()
 				"Note: If registration fails it can be because the password "
 				"you entered was too simple. Try to make up more complicated password "
 				"by mixing numbers and letters.") );
-  lbl->set_usize( 300, 0 );
-  lbl->set_justify(GTK_JUSTIFY_FILL);
+  //  lbl->set_default_size( 300, 0 );
+  lbl->set_justify(Gtk::JUSTIFY_FILL);
   lbl->set_line_wrap(true);
   page_new_pass.pack_start( *lbl, true, true, 10 );
 
   lbl = manage( new Gtk::Label( "Password:" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_new_pass.pack_start( *lbl );
   page_new_pass.pack_start( en_new_pass1 );
   
   lbl = manage( new Gtk::Label( "Re-enter password:" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_new_pass.pack_start( *lbl );
   page_new_pass.pack_start( en_new_pass2 );
 
@@ -116,21 +116,21 @@ WizardDialog::WizardDialog()
   lbl = manage( new Gtk::Label( "Please enter your existing UIN and your password below.\n"
                                 "You will need to enter the password twice to ensure it's\n"
                                 "correct.\n" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_existing_details.pack_start( *lbl, true, true, 10 );
 
   lbl = manage( new Gtk::Label( "Existing UIN:" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_existing_details.pack_start( *lbl );
   page_existing_details.pack_start( en_uin );
 
   lbl = manage( new Gtk::Label( "Password:" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_existing_details.pack_start( *lbl );
   page_existing_details.pack_start( en_existing_pass1 );
   
   lbl = manage( new Gtk::Label( "Re-enter password:" ) );
-  lbl->set_justify(GTK_JUSTIFY_LEFT);
+  lbl->set_justify(Gtk::JUSTIFY_LEFT);
   page_existing_details.pack_start( *lbl );
   page_existing_details.pack_start( en_existing_pass2 );
 
@@ -147,23 +147,21 @@ WizardDialog::WizardDialog()
                                 "\n"
                                 "Your UIN:"
                                 ) );
-  lbl->set_justify( GTK_JUSTIFY_LEFT );
+  lbl->set_justify( Gtk::JUSTIFY_LEFT );
   page_finished.pack_start( *lbl );
   en_newuin.set_editable(false);
   page_finished.pack_start(en_newuin, true, true, 10 );
   
   // ----- action area ---------------------------------------------------------
 
-  btn_cancel.clicked.connect( slot(this, &WizardDialog::cancel_cb) );
-  btn_next.clicked.connect( slot(this, &WizardDialog::next_cb) );
-  btn_prev.clicked.connect( slot(this, &WizardDialog::prev_cb) );
+  btn_cancel.signal_clicked().connect( SigC::slot(*this, &WizardDialog::cancel_cb) );
+  btn_next.signal_clicked().connect( SigC::slot(*this, &WizardDialog::next_cb) );
+  btn_prev.signal_clicked().connect( SigC::slot(*this, &WizardDialog::prev_cb) );
   btn_prev.set_sensitive(false);
-  Gtk::HBox *aa = get_action_area();
-  Gtk::HButtonBox *bb = manage( new Gtk::HButtonBox() );
+  Gtk::HButtonBox *bb = get_action_area();
   bb->add( btn_cancel);
   bb->add( btn_prev );
   bb->add( btn_next );
-  aa->add( *bb );
 
   curpage = &page_intro;        
   vb = get_vbox();      
@@ -171,21 +169,20 @@ WizardDialog::WizardDialog()
   
   // ----- dlg -----------------------------------------------------------------
 
-  icqclient.newuin.connect( slot(this, &WizardDialog::newuin_cb) );
-  set_title("Ickle Wizard");
-  set_policy(false,false,false);
-  set_modal(true);
+  icqclient.newuin.connect( this, &WizardDialog::newuin_cb );
+
   set_border_width(10);
   show_all();
 }
 
-bool WizardDialog::run() {
+bool WizardDialog::run()
+{
   Gtk::Main::run();
   return retval;
 }
 
-void WizardDialog::next_cb() {
-
+void WizardDialog::next_cb()
+{
   Gtk::VBox *vb = get_vbox();
   Gtk::Widget *prevpage = curpage;
   
@@ -194,14 +191,16 @@ void WizardDialog::next_cb() {
   else if( curpage == &page_existing_details ) { existing_details_next(); }
   else if( curpage == &page_finished ) { finished_next(); }
 
-  if( prevpage != curpage ) {
+  if( prevpage != curpage )
+  {
     vb->remove( *prevpage );
     vb->add( *curpage );
     show_all();
   }
 }
 
-void WizardDialog::prev_cb() {
+void WizardDialog::prev_cb()
+{
   Gtk::VBox *vb = get_vbox();
   Gtk::Widget *prevpage = curpage;
   
@@ -209,23 +208,26 @@ void WizardDialog::prev_cb() {
   if( curpage == &page_existing_details ) { existing_details_prev(); }
   else if( curpage == &page_finished ) { finished_prev(); }
 
-  if( prevpage != curpage ) {
+  if( prevpage != curpage )
+  {
     vb->remove( *prevpage );
     vb->add( *curpage );
     show_all();
   }
 }
 
-void WizardDialog::cancel_cb() {
-  PromptDialog pd( this, PromptDialog::PROMPT_CONFIRM,
+void WizardDialog::cancel_cb()
+{
+  PromptDialog pd( *this, Gtk::MESSAGE_QUESTION,
                    "Are you sure you want to exit the wizard?" );
-  if( pd.run() ) {
+  if( pd.run() == Gtk::RESPONSE_YES )
+  {
     Gtk::Main::quit();
-    destroy();
   }
 }
 
-void WizardDialog::intro_next() {
+void WizardDialog::intro_next()
+{
     btn_prev.set_sensitive( true );
     if( rb_existing_uin.get_active() )
       curpage = &page_existing_details;
@@ -233,18 +235,22 @@ void WizardDialog::intro_next() {
       curpage = &page_new_pass;
 }
 
-void WizardDialog::new_pass_next() {
-  if( !en_new_pass1.get_text_length() ) {
-    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
+void WizardDialog::new_pass_next()
+{
+  if( !en_new_pass1.get_text_length() )
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_INFO,
                      "You must supply a password before registering the account" );
     pd.run();
   }
-  else if( en_new_pass1.get_text() != en_new_pass2.get_text() ) {
-    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
+  else if( en_new_pass1.get_text() != en_new_pass2.get_text() )
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_INFO,
                      "The given passwords do not match, please correct this and try again" );
     pd.run();
   }
-  else {
+  else
+  {
     Gtk::Frame *fr = manage( new Gtk::Frame( "Process:" ) );
     win_lbl.set_text( "Registering new account..." );
     fr->add( win_lbl );
@@ -252,32 +258,36 @@ void WizardDialog::new_pass_next() {
     win_regpopup.add( *fr );
     win_regpopup.set_modal(true);
     win_regpopup.set_transient_for (*this);
-    win_regpopup.set_policy(false, false, false);
     win_regpopup.set_border_width(5);
-    win_regpopup.delete_event.connect( slot(this, &WizardDialog::popup_delete_cb) );
+    win_regpopup.signal_delete_event().connect( SigC::slot(*this, &WizardDialog::popup_delete_cb) );
     win_regpopup.show_all();
     icqclient.setPassword( en_new_pass1.get_text() );
     icqclient.RegisterUIN();
-    Gtk::Main::timeout.connect( slot(this, &WizardDialog::timeout_cb), 1000 * 30 );
+    Glib::signal_idle().connect( SigC::slot(*this, &WizardDialog::timeout_cb), 1000 * 30 );
+
     Gtk::Main::run();
     if( newuin )
       curpage = &page_finished;
   }
 }
 
-void WizardDialog::existing_details_next() {
-  if( !en_uin.get_text_length() ) {
-    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
+void WizardDialog::existing_details_next()
+{
+  if( !en_uin.get_text_length() )
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_INFO,
                      "You must supply an UIN before continuing!" );
     pd.run();
   }
-  else if( !en_existing_pass1.get_text_length() ) {
-    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
+  else if( !en_existing_pass1.get_text_length() )
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_INFO,
                      "You must supply a password before continuing!" );
     pd.run();
   }
-  else if( en_existing_pass1.get_text() != en_existing_pass2.get_text() ) {
-    PromptDialog pd( this, PromptDialog::PROMPT_INFO,
+  else if( en_existing_pass1.get_text() != en_existing_pass2.get_text() )
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_INFO,
                      "The given passwords do not match, please correct this and try again" );
     pd.run();
   }
@@ -286,7 +296,7 @@ void WizardDialog::existing_details_next() {
     if( !newuin ) {
       ostringstream os;
       os << "'" << en_uin.get_text() << "' is not a valid UIN, please correct this and try again";
-      PromptDialog pd( this, PromptDialog::PROMPT_INFO, os.str() );
+      PromptDialog pd( *this, Gtk::MESSAGE_INFO, os.str() );
       pd.run();
     }
     else {
@@ -296,7 +306,8 @@ void WizardDialog::existing_details_next() {
   }
 }
 
-void WizardDialog::finished_next() {
+void WizardDialog::finished_next()
+{
   icqclient.setUIN( newuin );
   g_settings.setValue("uin", newuin);
 
@@ -311,66 +322,77 @@ void WizardDialog::finished_next() {
 
   retval = true;
   Gtk::Main::quit();
-  destroy();
 }
 
-void WizardDialog::new_pass_prev() {
+void WizardDialog::new_pass_prev()
+{
   curpage = &page_intro;
   btn_prev.set_sensitive( false );
 }
 
-void WizardDialog::existing_details_prev() {
+void WizardDialog::existing_details_prev()
+{
   curpage = &page_intro;
   btn_prev.set_sensitive( false );
 }
 
-void WizardDialog::finished_prev() {
+void WizardDialog::finished_prev()
+{
   if( rb_existing_uin.get_active() )
     curpage = &page_existing_details;
   else
     curpage = &page_new_pass;
 }
 
-int WizardDialog::delete_event_impl(GdkEventAny *) {
-  PromptDialog pd( this, PromptDialog::PROMPT_CONFIRM,
+bool WizardDialog::on_delete_event(GdkEventAny *)
+{
+  PromptDialog pd( *this, Gtk::MESSAGE_QUESTION,
                    "Are you sure you want to exit the wizard?" );
-  if( pd.run() ) {
+  if( pd.run() == Gtk::RESPONSE_YES )
+  {
     Gtk::Main::quit();
-    return 0;
+    return false;
   }
   else
-    return 1;
+  {
+    return true;
+  }
 }
 
-gint WizardDialog::timeout_cb() {
-    PromptDialog pd(this, PromptDialog::PROMPT_QUESTION, "Registration attempt timed out. Would you like to retry?" );
-    if( pd.run() ) {
+bool WizardDialog::timeout_cb()
+{
+    PromptDialog pd( *this, Gtk::MESSAGE_QUESTION, "Registration attempt timed out. Would you like to retry?" );
+    if( pd.run() == Gtk::RESPONSE_YES )
+    {
       win_lbl.set_text( "Registering new account...[Retry]" );
       icqclient.RegisterUIN();
       return 1;
     }
-    else {
-      win_regpopup.destroy();
+    else
+    {
       Gtk::Main::quit();
       return 0;
     }
 }
 
-void WizardDialog::newuin_cb(ICQ2000::NewUINEvent *nue) {
-  if( nue->isSuccess() ) {
+void WizardDialog::newuin_cb(ICQ2000::NewUINEvent *nue)
+{
+  if( nue->isSuccess() )
+  {
     newuin = nue->getUIN();
     en_newuin.set_text( ICQ2000::Contact::UINtoString(newuin) );
-    win_regpopup.destroy();
     Gtk::Main::quit();
   }
-  else {
-    PromptDialog pd(this, PromptDialog::PROMPT_QUESTION, "Registration attempt failed. Would you like to retry?" );
-    if( pd.run() ) {
+  else
+  {
+    PromptDialog pd( *this, Gtk::MESSAGE_QUESTION, "Registration attempt failed. Would you like to retry?" );
+    if( pd.run() == Gtk::RESPONSE_YES )
+    {
       win_lbl.set_text( "Registering new account...[Retry]" );
       icqclient.RegisterUIN();
     }
-    else {
-      win_regpopup.destroy();
+    else
+    {
       Gtk::Main::quit();
     }
   }

@@ -21,10 +21,10 @@
 #ifndef REMOVEGROUPDIALOG_H
 #define REMOVEGROUPDIALOG_H
 
-#include <gtk--/dialog.h>
-#include <gtk--/button.h>
-#include <gtk--/radiobutton.h>
-#include <gtk--/combo.h>
+#include <gtkmm/dialog.h>
+#include <gtkmm/button.h>
+#include <gtkmm/radiobutton.h>
+#include <gtkmm/combo.h>
 
 #include <libicq2000/ContactTree.h>
 
@@ -33,7 +33,7 @@ namespace ICQ2000
   class ContactListEvent;
 }
 
-class GroupItem : public Gtk::ListItem 
+class GroupItem : public Gtk::ComboDropDownItem
 {
  private:
   const ICQ2000::ContactTree::Group *m_libicq2000_group;
@@ -44,19 +44,21 @@ class GroupItem : public Gtk::ListItem
   const ICQ2000::ContactTree::Group * get_group();
 };
 
-class RemoveGroupDialog : public Gtk::Dialog {
+class RemoveGroupDialog : public Gtk::Dialog,
+			  public sigslot::has_slots<>
+{
  private:
+  ICQ2000::ContactTree::Group *m_libicq2000_group;
   Gtk::Button m_ok, m_cancel;
   Gtk::RadioButton m_remove_all, m_move_all;
   Gtk::Combo m_group_list;
-  ICQ2000::ContactTree::Group *m_libicq2000_group;
+
+  void on_response(int response_id);
 
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
 
  public:
-  RemoveGroupDialog(Gtk::Window *parent, ICQ2000::ContactTree::Group *gp);
-
-  void ok_cb();
+  RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp);
 };
 
 #endif
