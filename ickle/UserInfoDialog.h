@@ -54,6 +54,7 @@ class UserInfoDialog : public Gtk::Dialog {
 
   Gtk::SpinButton birth_year_spin, birth_month_spin, birth_day_spin;
   Gtk::Combo country_combo, lang_combo1, lang_combo2, lang_combo3, sex_combo;
+  Gtk::Combo timezone_combo;
   Gtk::Text about_text;
   Gtk::Notebook notebook;
 

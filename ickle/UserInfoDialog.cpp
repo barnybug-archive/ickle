@@ -23,7 +23,7 @@
 #include "sstream_fix.h"
 
 #include <libicq2000/socket.h>
-#include <libicq2000/userinfoconstants.h>
+#include <libicq2000/userinfohelpers.h>
 
 #include <vector>
 
@@ -95,8 +95,13 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Timezone:", 0 ) );
   table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  timezone_entry.set_editable(false);
-  table->attach( timezone_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  if (m_self) {
+    timezone_combo.set_popdown_strings( Gtk::SArray(ICQ2000::UserInfoHelpers::getTimezoneAllStrings()) );
+    table->attach( timezone_combo, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  } else {
+    timezone_entry.set_editable(false);
+    table->attach( timezone_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  }
 
   label = manage( new Gtk::Label( "Name:", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
@@ -148,6 +153,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   label = manage( new Gtk::Label( "Country:", 0 ) );
   table->attach( *label, 2, 3, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   if (m_self) {
+    country_combo.set_popdown_strings( Gtk::SArray(ICQ2000::UserInfoHelpers::getCountryAllStrings()) );
     table->attach( country_combo, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
   } else {
     country_entry.set_editable(false);
@@ -187,12 +193,19 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
     Gtk::HBox *hbox = manage( new Gtk::HBox() );
     label = manage( new Gtk::Label( "Year: ", 0 ) );
     hbox->pack_start( *label );
+    Gtk::Adjustment *adj;
+    adj = manage( new Gtk::Adjustment( (gfloat)1900, (gfloat)0, (gfloat)10000) );
+    birth_year_spin.set_adjustment(adj);
     hbox->pack_start( birth_year_spin );
     label = manage( new Gtk::Label( "   Month: ", 0 ) );
     hbox->pack_start( *label );
+    adj = manage( new Gtk::Adjustment( (gfloat)1, (gfloat)1, (gfloat)12) );
+    birth_month_spin.set_adjustment(adj);
     hbox->pack_start( birth_month_spin );
     label = manage( new Gtk::Label( "   Day: ", 0 ) );
     hbox->pack_start( *label );
+    adj = manage( new Gtk::Adjustment( (gfloat)1, (gfloat)1, (gfloat)31) );
+    birth_day_spin.set_adjustment(adj);
     hbox->pack_start( birth_day_spin );
     table->attach( *hbox, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
   } else {
@@ -203,6 +216,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   label = manage( new Gtk::Label( "Language 1:", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   if (m_self) {
+    lang_combo1.set_popdown_strings( Gtk::SArray( ICQ2000::UserInfoHelpers::getLanguageAllStrings() ) );
     table->attach( lang_combo1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
   } else {
     lang_entry1.set_editable(false);
@@ -211,6 +225,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   label = manage( new Gtk::Label( "Language 2:", 0 ) );
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   if (m_self) {
+    lang_combo2.set_popdown_strings( Gtk::SArray( ICQ2000::UserInfoHelpers::getLanguageAllStrings() ) );
     table->attach( lang_combo2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
   } else {
     lang_entry2.set_editable(false);
@@ -219,6 +234,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   label = manage( new Gtk::Label( "Language 3:", 0 ) );
   table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   if (m_self) {
+    lang_combo3.set_popdown_strings( Gtk::SArray( ICQ2000::UserInfoHelpers::getLanguageAllStrings() ) );
     table->attach( lang_combo3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
   } else {
     lang_entry3.set_editable(false);
@@ -282,15 +298,18 @@ bool UserInfoDialog::update_contact()
       mhi.zip = zip_entry.get_text();
     }
     /* Have to do some work to get the country */
-    string country = country_combo.get_entry()->get_text();
-    if (mhi.getCountry() != country) {
+    unsigned short country = ICQ2000::UserInfoHelpers::getCountryStringtoID( country_combo.get_entry()->get_text() );
+    if (mhi.country != country) {
       ret = true;
-      for (int i = 0; i < Country_table_size; i++) {
-	if ( country == string(Country_table[i].name)) {
-	  mhi.country = Country_table[i].code;
-	}
-      }
+      mhi.country = country;
     }
+
+    signed char timezone = ICQ2000::UserInfoHelpers::getTimezoneStringtoID( timezone_combo.get_entry()->get_text() );
+    if (mhi.timezone != timezone) {
+      ret = true;
+      mhi.timezone = timezone;
+    }
+
     HomepageInfo &hpi = contact->getHomepageInfo();
     /* Get age from entry */
     unsigned char age = (unsigned char)atoi(age_entry.get_text().c_str());
@@ -299,15 +318,7 @@ bool UserInfoDialog::update_contact()
       hpi.age = age;
     }
     /* Get gender from combo */
-    unsigned char sex;
-    if (sex_combo.get_entry()->get_text() == "Male") {
-      sex = SEX_MALE;
-    } else if (sex_combo.get_entry()->get_text() == "Female") {
-      sex = SEX_FEMALE;
-    } else {
-      sex = SEX_UNSPECIFIED;
-    }
-
+    unsigned char sex = ICQ2000::UserInfoHelpers::getSexStringtoID( sex_combo.get_entry()->get_text() );
     if (hpi.sex != sex) {
       ret = true;
       hpi.sex = sex;
@@ -317,9 +328,9 @@ bool UserInfoDialog::update_contact()
       ret = true;
       hpi.homepage = homepage_entry.get_text();
     }
-    if (hpi.birth_year != (unsigned char)birth_year_spin.get_value_as_int()) {
+    if (hpi.birth_year != (unsigned short)birth_year_spin.get_value_as_int()) {
       ret = true;
-      hpi.birth_year = (unsigned char)birth_year_spin.get_value_as_int();
+      hpi.birth_year = (unsigned short)birth_year_spin.get_value_as_int();
     }
     if (hpi.birth_month != (unsigned char)birth_month_spin.get_value_as_int()) {
       ret = true;
@@ -329,30 +340,22 @@ bool UserInfoDialog::update_contact()
       ret = true;
       hpi.birth_day = (unsigned char)birth_day_spin.get_value_as_int();
     }
-    string lang1 = lang_combo1.get_entry()->get_text();
-    string lang2 = lang_combo2.get_entry()->get_text();
-    string lang3 = lang_combo3.get_entry()->get_text();
 
-    for (int i = 0; i < Language_table_size; i++) {
-      if (lang1 == string(Language_table[i])) {
-	if (hpi.lang1 != i) {
-	  ret = true;
-	  hpi.lang1 = (unsigned char)i;
-	}
-      }
-      if (lang2 == string(Language_table[i])) {
-	if (hpi.lang2 != i) {
-	  ret = true;
-	  hpi.lang2 = (unsigned char)i;
-	}
-      }
-      if (lang3 == string(Language_table[i])) {
-	if (hpi.lang3 != i) {
-	  ret = true;
-	  hpi.lang3 = (unsigned char)i;
-	}
-      }
-      
+    unsigned char lang;
+    lang = ICQ2000::UserInfoHelpers::getLanguageStringtoID( lang_combo1.get_entry()->get_text() );
+    if (hpi.lang1 != lang) {
+      ret = true;
+      hpi.lang1 = lang;
+    }
+    lang = ICQ2000::UserInfoHelpers::getLanguageStringtoID( lang_combo2.get_entry()->get_text() );
+    if (hpi.lang2 != lang) {
+      ret = true;
+      hpi.lang2 = lang;
+    }
+    lang = ICQ2000::UserInfoHelpers::getLanguageStringtoID( lang_combo3.get_entry()->get_text() );
+    if (hpi.lang3 != lang) {
+      ret = true;
+      hpi.lang3 = lang;
     }
 
     if ( contact->getAboutInfo() != about_text.get_chars() ) {
@@ -433,19 +436,9 @@ void UserInfoDialog::userinfochange_cb() {
 
   /* Set language */
   if (m_self) {
-    vector<string> languages1, languages2, languages3;
-    languages1.push_back( contact->getHomepageInfo().getLanguage(1) );
-    languages2.push_back( contact->getHomepageInfo().getLanguage(2) );
-    languages3.push_back( contact->getHomepageInfo().getLanguage(3) );
-
-    for (int i = 0; i < Language_table_size; i++) {
-      languages1.push_back( string(Language_table[i]) );
-      languages2.push_back( string(Language_table[i]) );
-      languages3.push_back( string(Language_table[i]) );
-    }
-    lang_combo1.set_popdown_strings(languages1);
-    lang_combo2.set_popdown_strings(languages2);
-    lang_combo3.set_popdown_strings(languages3);
+    lang_combo1.get_entry()->set_text( contact->getHomepageInfo().getLanguage(1) );
+    lang_combo2.get_entry()->set_text( contact->getHomepageInfo().getLanguage(2) );
+    lang_combo3.get_entry()->set_text( contact->getHomepageInfo().getLanguage(3) );
   } else {
     lang_entry1.set_text( contact->getHomepageInfo().getLanguage(1) );
     lang_entry2.set_text( contact->getHomepageInfo().getLanguage(2) );
@@ -467,26 +460,16 @@ void UserInfoDialog::userinfochange_cb() {
      be able to change country. If we're displaying info for another user we do not want to 
      edit country */
   if (m_self) {
-    vector<string> countries;
-    countries.push_back(contact->getMainHomeInfo().getCountry());
-    for (int i = 0; i < Country_table_size; i++) {
-      countries.push_back( string(Country_table[i].name) );
-    }
-    country_combo.set_popdown_strings(countries);
+    country_combo.get_entry()->set_text( contact->getMainHomeInfo().getCountry() );
   } else {
     country_entry.set_text(contact->getMainHomeInfo().getCountry());
   }
 
   signed char timezone = contact->getMainHomeInfo().timezone;
-  if (timezone == Timezone_unknown) {
-    timezone_entry.set_text("Unknown");
+  if (m_self) {
+    timezone_combo.get_entry()->set_text( ICQ2000::UserInfoHelpers::getTimezoneIDtoString(timezone) );
   } else {
-    ostringstream ostr;
-    ostr << "GMT " << (timezone > 0 ? "-" : "+")
-	 << abs(timezone/2)
-	 << ":"
-	 << (timezone % 2 == 0 ? "00" : "30");
-    timezone_entry.set_text(ostr.str());
+    timezone_entry.set_text( ICQ2000::UserInfoHelpers::getTimezoneIDtoString(timezone) );
   }
   
   // About box
@@ -536,15 +519,8 @@ void UserInfoDialog::userinfochange_cb() {
   homepage_entry.set_text( contact->getHomepageInfo().homepage );
 
   if (m_self) {
-    Gtk::Adjustment *adj;
-    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)0, (gfloat)10000) );
-    birth_year_spin.set_adjustment(adj);
     birth_year_spin.set_value( (gfloat)contact->getHomepageInfo().birth_year );
-    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)1, (gfloat)12) );
-    birth_month_spin.set_adjustment(adj);
     birth_month_spin.set_value( (gfloat)contact->getHomepageInfo().birth_month );
-    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)0, (gfloat)31) );
-    birth_day_spin.set_adjustment(adj);
     birth_day_spin.set_value( (gfloat)contact->getHomepageInfo().birth_day );
   } else {
     birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
