@@ -9,18 +9,25 @@ Rough order of when they will get done, most pressing first.
                             (% denotes support in libicq2000 is needed)
 
 * File transfer (%)
+	- available but still very flaky
 
-* Server-based contact lists (%)
+* Server-based lists (%)
+ * contact list
+ * visible/invisible list
+ * ignore list
+	- some work is already done
 
 * Contact list sending/receiving (%)
 
-* History Searching support
-
 * Foreground/background colour support for sending/receiving messages (%)
 
-* Grouping contacts (CTree widget)
-
 * Web presence enable/disable
+
+* "???? is typing" support
+
+* code in 1.0 release shape
+
+* Birthday reminder
 
 Things that are likely never to be included:
 
