@@ -166,11 +166,8 @@ Buffer& Buffer::operator>>(string& s) {
     out_pos += 2;
   } else {
     unsigned short sz;
-    sz = ((unsigned short)data[out_pos++] << 8)
-       + ((unsigned short)data[out_pos++]);
-    if (out_pos + sz > data.size()) sz = data.size() - out_pos;
-    copy(data.begin()+out_pos, data.begin()+out_pos+sz, back_inserter(s));
-    out_pos += sz;
+    (*this) >> sz;
+    Unpack(s, sz);
   }
   return (*this);
 }

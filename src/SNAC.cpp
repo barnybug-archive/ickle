@@ -723,11 +723,12 @@ namespace ICQ2000 {
     for (int a = 0; a < 7; a++)
       b >> waste_char;
 
-    unsigned int xmllen;
     b.setEndianness(Buffer::BIG);
-    b >> xmllen;
+    string tag;
+    b >> tag;
+
     string xmlstr;
-    b.Unpack(xmlstr, xmllen);
+    b >> xmlstr;
 
     string::iterator s = xmlstr.begin();
     auto_ptr<XmlNode> top(XmlNode::parse(s, xmlstr.end()));
@@ -745,6 +746,9 @@ namespace ICQ2000 {
     m_deliverable = false;
     if (deliverable != NULL) {
       if (deliverable->getValue() == "Yes") m_deliverable = true;
+      if (deliverable->getValue() == "SMTP")
+	throw ParseException("SMS messages for your provider must be sent via an SMTP (email) proxy, "
+			     "ickle doesn't support that yet, but may in the future.");
     }
 
     if (m_deliverable) {

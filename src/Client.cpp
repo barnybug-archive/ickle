@@ -226,17 +226,27 @@ namespace ICQ2000 {
     } else if (snac->getType() == SrvResponseSNAC::SMS_Error) {
       // mmm
     } else if (snac->getType() == SrvResponseSNAC::SMS_Response) {
-
+      
       /*
-       * todo - need to do request ids
+       * Need to do SNAC Request ID caching to be able to associate these back
+       * to the SMS and consequently the actual Mobile No
+      MessageEvent *e = NULL;
+      
       if (snac->deliverable()) {
-	SMSResponseEvent sev(snac->getSource(), snac->getNetwork());
-	messaged.emit(&sev);
+	e = new SMSResponseEvent(snac->getSource(), snac->getNetwork());
       } else {
-	SMSResponseEvent sev(snac->getSource(), snac->getErrorId(), snac->getErrorParam());
-	messaged.emit(&sev);
+	if (snac->getErrorParam() != "DUPLEX RESPONSE")
+	  e = new SMSResponseEvent(snac->getSource(), snac->getErrorId(), snac->getErrorParam());
+	// ignore DUPLEX RESPONSE since I always get that
       }
-      */
+
+      if (e != NULL) {
+	contact->addPendingMessage(e);
+	if (messaged.emit(e)) contact->erasePendingMessage(e);
+      }
+
+       *
+       */
 
     } else if (snac->getType() == SrvResponseSNAC::SimpleUserInfo) {
 
