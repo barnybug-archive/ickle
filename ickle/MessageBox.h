@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.11 2001-12-18 22:51:22 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.12 2001-12-24 13:58:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -65,6 +65,7 @@ class MessageBox : public Gtk::Window {
 
   Gtk::Table m_history_table;
   Gtk::Text m_history_text;
+  guchar m_nr_shown;
 
   Gtk::Notebook m_tab;
 
@@ -100,6 +101,7 @@ class MessageBox : public Gtk::Window {
   void display_message(History::Entry &he);
   void set_status( const string& text );
   void redraw_history();
+  guint update_scalelabel(guint i);
   void scaleadj_value_changed_cb();
   gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
 

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.33 2001-12-21 16:40:35 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.34 2001-12-24 13:58:38 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -73,13 +73,17 @@ MessageBox::MessageBox(Contact *c, History *h)
   m_history_table.attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
 
   // initial scale adjustment
-  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
   m_scaleadj.set_lower(0);
+
+  m_nr_shown = g_settings.getValueUnsignedChar("history_shownr");
   m_scaleadj.set_upper( m_history->size() );
+
   m_scaleadj.set_step_increment(1);
-  m_scaleadj.set_page_increment( 1 );
-  m_scaleadj.set_page_size( 0 );
-  m_scaleadj.set_value( m_scaleadj.get_upper() );
+  m_scaleadj.set_page_increment(m_nr_shown);
+  m_scaleadj.set_page_size(m_nr_shown);
+  gfloat upper =  m_scaleadj.get_upper() - m_nr_shown;
+  if (upper < 0) upper = 0;
+  m_scaleadj.set_value( upper );
   m_scaleadj.value_changed.connect( slot(this, &MessageBox::scaleadj_value_changed_cb) );
 
   // scale
@@ -345,6 +349,11 @@ void MessageBox::sms_count_update_cb() {
 
 void MessageBox::settings_changed_cb(const string &key) {
   if( key == "history_shownr" ) {
+    m_nr_shown = g_settings.getValueUnsignedChar("history_shownr");
+    m_scaleadj.set_upper( m_history->size() );
+
+    m_scaleadj.set_page_increment(m_nr_shown);
+    m_scaleadj.set_page_size(m_nr_shown);
     redraw_history();
   }
 }
@@ -391,7 +400,22 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
 }
 
 void MessageBox::new_entry_cb(History::Entry *ev) {
-  redraw_history();
+  gfloat old_upper = m_scaleadj.get_upper() - m_nr_shown;
+  if (old_upper < 0) old_upper = 0;
+
+  m_scaleadj.set_upper( m_history->size() );
+
+  // automatically scroll to end if they were viewing the last page
+  // otherwise they were probably looking through past history, so we
+  // don't want to disturb them
+  if (m_scaleadj.get_value() >= old_upper) {
+    gfloat upper = m_scaleadj.get_upper() - m_nr_shown;
+    if (upper < 0) upper = 0;
+    if (old_upper != upper) m_scaleadj.set_value( upper );
+    else redraw_history();
+  } else {
+    update_scalelabel(m_scaleadj.get_value());
+  }
 }
 
 void MessageBox::messageack_cb(MessageEvent *ev) {
@@ -542,13 +566,7 @@ void MessageBox::set_status( const string& text )
 
 void MessageBox::redraw_history()
 {
-  gfloat upper = m_history->size();
-
-  m_scaleadj.set_upper( upper );
-  if( upper != m_scaleadj.get_value() )
-    m_scaleadj.set_value( upper );
-  else
-    scaleadj_value_changed_cb();
+  scaleadj_value_changed_cb();
 }
 
 void MessageBox::scaleadj_value_changed_cb()
@@ -556,8 +574,6 @@ void MessageBox::scaleadj_value_changed_cb()
   History::Entry he;
   guint i, end;
   Gtk::Adjustment *adj;
-  ostringstream os;
-  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
 
   try {
     m_history->stream_lock();
@@ -569,23 +585,8 @@ void MessageBox::scaleadj_value_changed_cb()
 
   m_history_text.freeze();
   m_history_text.delete_text(0,-1);
-  end = (guint)m_scaleadj.get_value();
-  i = end - nr_shown;
-  if( i > end ) {
-    end += abs(i);
-    if( end > m_history->size() )
-      end = m_history->size();
-    i = 0;
-  }
-  if ( m_history->size() == 0) {
-    os << "No messages in history";
-  } else {
-    if (i+1 == end) os << "Message " << end;
-    else os << "Messages " << i + 1 << " to " << end;
-    os << " (" << m_history->size() << " total)";
-  }
-  m_scalelabel.set( os.str() );
-
+  i = (guint)m_scaleadj.get_value();
+  end = update_scalelabel(i);
   for( ; i < end; ++i ) {
     m_history->get_msg( i, he );
     display_message( he );
@@ -596,6 +597,24 @@ void MessageBox::scaleadj_value_changed_cb()
   
   adj = m_history_text.get_vadjustment();
   adj->set_value( adj->get_upper() );
+}
+
+guint MessageBox::update_scalelabel(guint i)
+{
+  ostringstream os;
+  guint end;
+  
+  end = i + m_nr_shown;
+  if (end > m_history->size()) end = m_history->size();
+  if ( m_history->size() == 0) {
+    os << "No messages in history";
+  } else {
+    if (i+1 == end) os << "Message " << end;
+    else os << "Messages " << i + 1 << " to " << end;
+    os << " (" << m_history->size() << " total)";
+  }
+  m_scalelabel.set( os.str() );
+  return end;
 }
 
 // provides mousewheel support for Gtk::Text controls
