@@ -191,12 +191,14 @@ namespace ICQ2000 {
   class StatusChangeEvent : public ContactListEvent {
    private:
     Status m_status;
+    Status m_old_status;
     
    public:
-    StatusChangeEvent(Contact* contact, Status status);
+    StatusChangeEvent(Contact* contact, Status status, Status old_status);
 
     EventType getType() const;
     Status getStatus() const;
+    Status getOldStatus() const;
   };
 
   // ---------------- MessageEvent(s) -------------------

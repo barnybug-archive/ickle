@@ -174,9 +174,10 @@ namespace ICQ2000 {
     }
 
     while(curr != m_contact_list.end()) {
-      if ( (*curr).getStatus() != STATUS_OFFLINE ) {
+      Status old_st = (*curr).getStatus();
+      if ( old_st != STATUS_OFFLINE ) {
 	(*curr).setStatus(STATUS_OFFLINE);
-	StatusChangeEvent ev(&(*curr), (*curr).getStatus());
+	StatusChangeEvent ev(&(*curr), (*curr).getStatus(), old_st);
 	contactlist.emit(&ev);
       }
       ++curr;
@@ -469,6 +470,7 @@ namespace ICQ2000 {
     const UserInfoBlock& userinfo = snac->getUserInfo();
     if (m_contact_list.exists(userinfo.getUIN())) {
       Contact& c = m_contact_list[userinfo.getUIN()];
+      Status old_st = c.getStatus();
       c.setStatus( MapICQStatusToStatus(userinfo.getStatus()) );
       c.setInvisible( MapICQStatusToInvisible(userinfo.getStatus()) );
       c.setExtIP( userinfo.getExtIP() );
@@ -476,7 +478,7 @@ namespace ICQ2000 {
       c.setExtPort( userinfo.getExtPort() );
       c.setLanPort( userinfo.getLanPort() );
       c.setTCPVersion( userinfo.getTCPVersion() );
-      StatusChangeEvent ev(&c, c.getStatus());
+      StatusChangeEvent ev(&c, c.getStatus(), old_st);
       contactlist.emit(&ev);
     } else {
       ostringstream ostr;
@@ -489,8 +491,9 @@ namespace ICQ2000 {
     const UserInfoBlock& userinfo = snac->getUserInfo();
     if (m_contact_list.exists(userinfo.getUIN())) {
       Contact& c = m_contact_list[userinfo.getUIN()];
+      Status old_st = c.getStatus();
       c.setStatus(STATUS_OFFLINE);
-      StatusChangeEvent ev(&c, c.getStatus());
+      StatusChangeEvent ev(&c, c.getStatus(), old_st);
       contactlist.emit(&ev);
     } else {
       ostringstream ostr;

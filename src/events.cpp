@@ -84,11 +84,12 @@ namespace ICQ2000 {
 
   // ----------------- StatusChange Event ----------------
 
-  StatusChangeEvent::StatusChangeEvent(Contact* contact, Status st)
-    : ContactListEvent(contact), m_status(st) { }
+  StatusChangeEvent::StatusChangeEvent(Contact* contact, Status st, Status old_st)
+    : ContactListEvent(contact), m_status(st), m_old_status(old_st) { }
   
   ContactListEvent::EventType StatusChangeEvent::getType() const { return StatusChange; }
   Status StatusChangeEvent::getStatus() const { return m_status; }
+  Status StatusChangeEvent::getOldStatus() const { return m_old_status; }
 
   // ----------------- UserAdded Event -------------------
 
