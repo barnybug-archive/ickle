@@ -198,6 +198,10 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
         m_send_button.clicked();
     }
   }
+
+  if (ev->state & GDK_MOD1_MASK && ev->keyval == GDK_c)
+    destroy.emit();
+
   return false;
 }
 
