@@ -20,6 +20,16 @@
 #include "CommandLineParser.h"
 #include "IckleControl.h"
 
+#include <iostream>
+
+using std::cout;
+using std::cerr;
+using std::string;
+using std::endl;
+
+using std::vector;
+
+
 // ============================================================================
 //  IckleControl
 // ============================================================================

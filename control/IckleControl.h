@@ -36,13 +36,13 @@ class IckleControl
 
   bool runCommands (class CommandLineParser &);
 
-  bool setTimeout (const string &);
+  bool setTimeout (const std::string &);
 
-  bool cmdStatus (const string &);
-  bool cmdInvisible (const string &);
-  void cmdAwayMessage (const string &);
-  bool cmdAddContact (const string &);
-  bool cmdSendMessage (const string &, const string &);
+  bool cmdStatus (const std::string &);
+  bool cmdInvisible (const std::string &);
+  void cmdAwayMessage (const std::string &);
+  bool cmdAddContact (const std::string &);
+  bool cmdSendMessage (const std::string &, const std::string &);
   void cmdQuit ();
 
   ControlSocketClient m_socket;

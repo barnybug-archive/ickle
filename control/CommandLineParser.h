@@ -23,7 +23,7 @@
 //  CommandLineParser
 // ============================================================================
 
-class CommandLineParser : public vector <class CommandLineOption>
+class CommandLineParser : public std::vector <class CommandLineOption>
 {
  public:
   CommandLineParser (int, char **);
@@ -37,16 +37,16 @@ class CommandLineParser : public vector <class CommandLineOption>
 class CommandLineOption
 {
  public:
-  CommandLineOption (const string & o, const vector<string> & a)
+  CommandLineOption (const std::string & o, const std::vector<std::string> & a)
     : m_opt (o), m_args (a) { }
 
-  bool isOption (const string &, const string &, int = 0);
-  string argument (int n = 0) const { return (m_args.size() > n) ? m_args[n] : ""; }
+  bool isOption (const std::string &, const std::string &, int = 0);
+  std::string argument (int n = 0) const { return (m_args.size() > n) ? m_args[n] : ""; }
   void invalid ();
 
  private:
-  string m_opt;
-  vector <string> m_args;
+  std::string m_opt;
+  std::vector <std::string> m_args;
 };
 
 
@@ -57,10 +57,10 @@ class CommandLineOption
 class CommandLineException
 {
  public:
-  CommandLineException (const string & w) : m_what (w) { }
-  string what () const { return m_what; }
+  CommandLineException (const std::string & w) : m_what (w) { }
+  std::string what () const { return m_what; }
  private:
-  string m_what;
+  std::string m_what;
 };
 
 #endif

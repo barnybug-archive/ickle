@@ -51,12 +51,12 @@ class ControlSocket : public ControlSocketBase
 
   ControlSocket & operator<< (unsigned int);
   ControlSocket & operator<< (bool);
-  ControlSocket & operator<< (const string &);
+  ControlSocket & operator<< (const std::string &);
   ControlSocket & operator<< (int v) { return operator<< ((unsigned int)v); }
 
   ControlSocket & operator>> (unsigned int &);
   ControlSocket & operator>> (bool &);
-  ControlSocket & operator>> (string &);
+  ControlSocket & operator>> (std::string &);
   ControlSocket & operator>> (int & v) { return operator>> ((unsigned int&)v); }
   ControlSocket & operator>> (CommandType & v) { return operator>> ((int&)v); }
   ControlSocket & operator>> (ICQ2000::Status & v) { return operator>> ((int&)v); }
@@ -78,7 +78,7 @@ class ControlSocket : public ControlSocketBase
 class ControlSocketServer : public ControlSocketBase
 {
  public:
-  bool init (const string &);
+  bool init (const std::string &);
   void quit ();
 
   int getConnection ();
@@ -96,7 +96,7 @@ class ControlSocketServer : public ControlSocketBase
 class ControlSocketClient : public ControlSocket
 {
  public:
-  bool init (const string &);
+  bool init (const std::string &);
   void quit ();
 };
 
