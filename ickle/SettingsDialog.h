@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.29 2002-02-20 02:17:13 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.30 2002-02-23 19:44:16 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -84,7 +84,7 @@ class SettingsDialog : public Gtk::Dialog {
   std::vector<std::string> away_response_msg_list;
   std::vector<std::string> away_response_label_list;
   unsigned int away_current_item_number;
-  Gtk::Connection away_response_label_edit_cnt;
+  bool away_response_label_edit_dead;
   
   string message_header_font, message_text_font;
 
@@ -112,10 +112,13 @@ class SettingsDialog : public Gtk::Dialog {
   void trans_ok_cb(Gtk::FileSelection *fs);
 
   void away_remove_button_cb();
+  void away_up_button_cb();
+  void away_down_button_cb();
   void away_response_list_select_row_cb(gint p0, gint p1, GdkEvent *ev);
   void away_response_select_row(unsigned int row);
   void away_response_label_edit();
-
+  void away_response_buttons_update();
+  
  public:
   SettingsDialog();
 

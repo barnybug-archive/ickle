@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.33 2002-02-20 02:17:13 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.34 2002-02-23 19:44:16 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,11 +39,15 @@
 #include <gtk--/fileselection.h>
 #include <gtk--/menuitem.h>
 #include <gtk--/listitem.h>
+#include <gtk--/arrow.h>
+
+#include <algorithm>
 
 using SigC::slot;
 using SigC::bind;
 using ICQ2000::Status;
 using std::ostringstream;
+using std::swap;
 
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
@@ -74,8 +78,6 @@ SettingsDialog::SettingsDialog()
     history_shownr_label("Number of messages to display per history-page", 0),
     finished_okay(false),
     away_remove_button("Remove"),
-    away_up_button("Up"),
-    away_down_button("Down"),
     away_response_label_entry(15),
     away_response_list(1)
 {
@@ -335,7 +337,7 @@ SettingsDialog::SettingsDialog()
   frame = manage( new Gtk::Frame("Away Status") );
   frame->set_border_width(5);
   frame->add(*vbox);
-
+  vbox->set_border_width(5);
   
   label = manage( new Gtk::Label( "Away Status" ) );
 
@@ -366,9 +368,7 @@ SettingsDialog::SettingsDialog()
     RowList::iterator ri = il.insert( il.end(), a );
   }
 
-  away_current_item_number = 0;
-
-  hbox = manage( new Gtk::HBox(true) );
+  hbox = manage( new Gtk::HBox(false) );
 
   hbox->pack_start( away_response_list );
 
@@ -376,28 +376,37 @@ SettingsDialog::SettingsDialog()
 
   vbox2 = manage( new Gtk::VBox() );
 
-  vbox2->pack_start( away_up_button );
+  away_up_button.add( * manage( new Gtk::Arrow(GTK_ARROW_UP, GTK_SHADOW_ETCHED_IN) ) );
+  away_up_button.clicked.connect( slot(this, &SettingsDialog::away_up_button_cb ) );
+  away_down_button.add( * manage( new Gtk::Arrow(GTK_ARROW_DOWN, GTK_SHADOW_ETCHED_IN) ) );
+  away_down_button.clicked.connect( slot(this, &SettingsDialog::away_down_button_cb ) );
+  
+  vbox2->pack_start( away_up_button, true );
 
-  vbox2->pack_start( away_remove_button );
+  vbox2->pack_start( away_remove_button, true );
   away_remove_button.clicked.connect( slot(this, &SettingsDialog::away_remove_button_cb ) );
 
-  vbox2->pack_start( away_down_button );
+  vbox2->pack_start( away_down_button, true );
+  vbox2->set_spacing(5);
 
-  hbox->pack_start( *vbox2, false );
+  hbox->pack_start( *vbox2, false, false, 5 );
 
   away_response_list.set_selection_mode(GTK_SELECTION_BROWSE);
   away_response_list.select_row.connect( slot( this, &SettingsDialog::away_response_list_select_row_cb ) );
+  away_current_item_number = away_response_msg_list.size();
   away_response_list.row(0).select();
 
   vbox2 = manage( new Gtk::VBox() );
 
-  away_response_label_edit_cnt
-    = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
+  away_response_label_edit_dead = false;
+  away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
+  away_response_label_entry.set_max_length(255);
 
   vbox2->pack_start( away_response_label_entry );
   vbox2->pack_start( away_response_msg );
 
-  hbox->pack_start(*vbox2);
+  hbox->pack_end(*vbox2);
+
   vbox->pack_start(*hbox);
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
@@ -610,17 +619,23 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
 
   /* Predefined away-messages */
-  /*
-  g_settings.setValue("no_autoresponses", (unsigned short)labels_list.size());
-  for (int i = 0; i < labels_list.size(); i++) {
+
+  // store current
+  if (away_current_item_number < away_response_msg_list.size()) {
+    // save old
+    away_response_msg_list[away_current_item_number] = away_response_msg.get_chars(0, -1);
+    away_response_label_list[away_current_item_number] = away_response_label_entry.get_text();
+  }
+
+  g_settings.setValue("no_autoresponses", (unsigned short)away_response_msg_list.size());
+  for (int i = 0; i < away_response_msg_list.size(); i++) {
     ostringstream fetch_str;
     fetch_str << "autoresponse_" << i + 1 << "_label";
-    g_settings.setValue(fetch_str.str(), labels_list[i]);
+    g_settings.setValue(fetch_str.str(), away_response_label_list[i]);
     ostringstream fetch_str2;
-    fetch_str << "autoresponse_" << i + 1 << "_text";
-    g_settings.setValue(fetch_str2.str(), msgs_list[i]);
+    fetch_str2 << "autoresponse_" << i + 1 << "_text";
+    g_settings.setValue(fetch_str2.str(), away_response_msg_list[i]);
   }
-  */
 
   // ------------ Logging tab ----------------------
   g_settings.setValue("log_info", log_info.get_active() );
@@ -780,24 +795,76 @@ string SettingsDialog::getIconsFilename() {
   return filename;
 }
 
+void SettingsDialog::away_up_button_cb()
+{
+  if (away_current_item_number > 0
+      && away_current_item_number < away_response_msg_list.size() ) {
+    // move selection
+    away_response_list.row(away_current_item_number-1).select();
+
+    // swap list items
+    swap(away_response_msg_list[away_current_item_number], away_response_msg_list[away_current_item_number+1]);
+    swap(away_response_label_list[away_current_item_number], away_response_label_list[away_current_item_number+1]);
+
+    // update clist
+    away_response_list.row( away_current_item_number+1 )[0].set_text( away_response_label_list[away_current_item_number+1] );
+    away_response_list.row( away_current_item_number )[0].set_text( away_response_label_list[away_current_item_number] );
+
+    // restore label, msg
+    away_response_select_row(away_current_item_number);
+  }
+}
+
+void SettingsDialog::away_down_button_cb()
+{
+  if (away_current_item_number < away_response_msg_list.size() - 1 ) {
+    // move selection
+    away_response_list.row(away_current_item_number+1).select();
+
+    // swap list items
+    swap(away_response_msg_list[away_current_item_number], away_response_msg_list[away_current_item_number-1]);
+    swap(away_response_label_list[away_current_item_number], away_response_label_list[away_current_item_number-1]);
+
+    // update clist
+    away_response_list.row( away_current_item_number-1 )[0].set_text( away_response_label_list[away_current_item_number-1] );
+    away_response_list.row( away_current_item_number )[0].set_text( away_response_label_list[away_current_item_number] );
+
+    // restore label, msg
+    away_response_select_row(away_current_item_number);
+  }
+}
+
 void SettingsDialog::away_remove_button_cb()
 {
   if (away_current_item_number < away_response_msg_list.size()) {
     away_response_msg_list.erase( away_response_msg_list.begin() + away_current_item_number );
     away_response_label_list.erase( away_response_label_list.begin() + away_current_item_number );
 
-    away_response_list.remove_row(away_current_item_number);
+    unsigned int n = away_current_item_number;
+    away_current_item_number = away_response_msg_list.size();
+    away_response_list.remove_row(n);
+    // remove_row fires off a select_cb which will screw stuff up unless
+    // away_current_item_number is 'tweaked'
+  }
+}
 
-    away_current_item_number = 0;
-    away_response_list.row(0).select();
-    away_response_select_row(0);
-
-
+void SettingsDialog::away_response_buttons_update()
+{
+  if (away_current_item_number >= away_response_msg_list.size()) {
+    away_remove_button.set_sensitive(false);
+    away_up_button.set_sensitive( false );
+    away_down_button.set_sensitive(false);
+  } else {
+    away_up_button.set_sensitive( away_current_item_number != 0 );
+    away_down_button.set_sensitive( away_current_item_number != away_response_msg_list.size() - 1 );
+    away_remove_button.set_sensitive(true);
   }
 }
 
 void SettingsDialog::away_response_label_edit()
 {
+  if (away_response_label_edit_dead) return;
+  
   if (away_current_item_number >= away_response_msg_list.size()) {
     // add as new
     away_response_label_list.push_back( away_response_label_entry.get_text() );
@@ -810,7 +877,10 @@ void SettingsDialog::away_response_label_edit()
     --ri;
     vector<string> a;
     a.push_back( away_response_label_entry.get_text() );
-    il.insert( ri, a );
+    ri = il.insert( ri, a );
+
+    // select it
+    (*ri).select();
   } else {
 
     // update label
@@ -825,34 +895,30 @@ void SettingsDialog::away_response_select_row(unsigned int row)
     // new selected
     away_response_msg.delete_text(0,-1);
 
-    away_response_label_edit_cnt.disconnect();
-
+    // connecting/disconnecting the callback doesn't seem to work correctly
+    away_response_label_edit_dead = true;
     away_response_label_entry.delete_text(0,-1);
+    away_response_label_edit_dead = false;
 
-    away_response_label_edit_cnt
-      = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
-
-    away_remove_button.set_sensitive(false);
+    away_response_label_entry.grab_focus();
+    
   } else {
     away_response_msg.freeze();
     away_response_msg.delete_text(0,-1);
     away_response_msg.insert( away_response_msg_list[row] );
     away_response_msg.thaw();    
 
-    away_response_label_edit_cnt.disconnect();
-
+    away_response_label_edit_dead = true;
     away_response_label_entry.set_text( away_response_label_list[row] );
-
-    away_response_label_edit_cnt
-      = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
-
-    away_remove_button.set_sensitive(true);
+    away_response_label_edit_dead = false;
   }
+
+  away_current_item_number = row;
+  away_response_buttons_update();
 }
 
 void SettingsDialog::away_response_list_select_row_cb(gint p0, gint p1, GdkEvent *ev)
 {
-  
   if (away_current_item_number < away_response_msg_list.size()) {
     // save old
     away_response_msg_list[away_current_item_number] = away_response_msg.get_chars(0, -1);
@@ -860,7 +926,6 @@ void SettingsDialog::away_response_list_select_row_cb(gint p0, gint p1, GdkEvent
   }
 
   away_response_select_row(p0);
-  away_current_item_number = p0;
 }
 
 gint SettingsDialog::delete_event_impl(GdkEventAny*)
