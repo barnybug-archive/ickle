@@ -132,7 +132,8 @@ foreach $filename (@users) {
 			}
 		    }
 
-		} else {
+		}
+		if (!$valid || eof(HISTORY)) {
 		    if (defined $entry) {
 			push @{ $history_map{ int($entry->{Time}) } }, $entry;
 		    }
