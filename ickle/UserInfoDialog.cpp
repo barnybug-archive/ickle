@@ -174,6 +174,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   }
 
   table->set_border_width(5);
+  table->set_row_spacings(5);
   label = manage( new Gtk::Label( "General" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
