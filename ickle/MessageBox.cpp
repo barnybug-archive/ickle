@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.74 2003-01-19 17:52:09 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.75 2003-01-22 21:48:45 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -944,7 +944,6 @@ void MessageBox::scaleadj_value_changed_cb()
 {
   History::Entry he;
   guint i, end;
-  Gtk::Adjustment *adj = m_history_scr_win.get_vadjustment();
 
   try
   {
@@ -961,15 +960,31 @@ void MessageBox::scaleadj_value_changed_cb()
 
   i = (guint)m_scaleadj.get_value();
   end = update_scalelabel(i);
+
+  Gtk::TextIter iter = buffer->begin();
+  m_history_text.scroll_to_iter( iter, 0.0, 0.0, 0.0 );
+
+  Glib::RefPtr<Gtk::TextBuffer::Mark> mark;
+
   for( ; i < end; ++i )
   {
     m_history->get_msg( i, he );
-    display_message( he );
+
+    if (i == end - 1 && end == m_scaleadj.get_upper())
+    {
+      // auto-scroll last message to top, if they're on the last page
+      Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark( buffer->end(), true );
+      display_message( he );
+      m_history_text.scroll_to_mark( mark, 0.0, 0.0, 0.0 );
+      buffer->delete_mark( mark );
+    }
+    else
+    {
+      display_message( he );
+    }
   }
 
   m_history->stream_release();
-  
-  adj->set_value( adj->get_upper() );
 }
 
 guint MessageBox::update_scalelabel(guint i)

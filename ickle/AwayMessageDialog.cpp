@@ -160,9 +160,8 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev)
     m_count = 0;
   }
 
-  Gtk::Adjustment *adj = m_away_scr_win.get_vadjustment();
-  gfloat bot = adj->get_upper();
-    
+  Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark( buffer->end(), true );
+  
   // new-line between messages if not the first
   if (buffer->size() > 0)
     buffer->insert_with_tag( buffer->end(), "\n", m_tag_normal );
@@ -182,5 +181,8 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev)
     buffer->insert_with_tag( buffer->end(), _("Couldn't fetch away message"), m_tag_normal);
   }
 
-  adj->set_value( bot );
+  m_away_textview.scroll_to_mark( mark, 0.0, 0.0, 0.0 );
+  // scroll so top of message at least is visible
+
+  buffer->delete_mark( mark );
 }
