@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.61 2003-02-02 20:03:47 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.62 2003-02-04 19:09:00 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -538,15 +538,25 @@ void ContactListView::update_list()
     ICQ2000::ContactTree::Group::const_iterator gcurr = curr->begin();
     while (gcurr != curr->end())
     {
+      Gtk::TreeModel::Row row = * m_group_map[curr->get_id()];
+      row[ m_columns.total ] = row[ m_columns.total ] + 1;
+
       if ( m_offline_contacts || (*gcurr)->getStatus() != ICQ2000::STATUS_OFFLINE
 	   || m_message_queue.get_contact_size( *gcurr ) > 0)
       {
 	/* add contact */
 	add_contact( *gcurr, *curr );
       }
+
+      if ((*gcurr)->getStatus() != ICQ2000::STATUS_OFFLINE)
+      {
+	row[ m_columns.total_online ] = row[ m_columns.total_online ] + 1;
+      }
       
       ++gcurr;
     }
+
+    update_group(*curr);
     
     ++curr;
   }
