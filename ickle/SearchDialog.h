@@ -71,6 +71,7 @@ class SearchDialog : public Gtk::Dialog {
   void add_cb();
   void reset_cb();
   void result_cb(ICQ2000::SearchResultEvent *ev);
+  void self_event_cb(ICQ2000::SelfEvent *ev);
 
   void select_row_cb(gint x, gint y, GdkEvent *ev);
   void unselect_row_cb(gint x, gint y, GdkEvent *ev);

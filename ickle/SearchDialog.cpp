@@ -288,6 +288,8 @@ SearchDialog::SearchDialog()
 
   // connect to Search Result signal on icqclient
   icqclient.search_result.connect( slot( this, &SearchDialog::result_cb ) );
+
+  icqclient.self_event.connect( slot( this, &SearchDialog::self_event_cb ) );
 }
 
 void SearchDialog::ok_cb()
@@ -406,6 +408,15 @@ void SearchDialog::result_cb(SearchResultEvent *ev)
     
   }
   
+}
+
+void SearchDialog::self_event_cb(SelfEvent *ev)
+{
+  if (ev->getType() == SelfEvent::MyStatusChange) {
+    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
+
+    m_search_button.set_sensitive( mev->getStatus() != ICQ2000::STATUS_OFFLINE );
+  }
 }
 
 void SearchDialog::stop_cb()
