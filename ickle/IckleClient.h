@@ -79,7 +79,6 @@ class IckleClient : public SigC::Object {
   void loadContactList();
 
   void event_system(const string& s, MessageEvent *e);
-  History history_filename(const string& s);
 
  public:
   IckleClient(int argc, char* argv[]);

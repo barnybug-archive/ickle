@@ -24,12 +24,13 @@
 #define HISTORY_H
 
 #include <string>
-
 #include <fstream>
 
+#include <Contact.h>
 #include "events.h"
 
 using ICQ2000::MessageEvent;
+using ICQ2000::Contact;
 
 using std::string;
 
@@ -39,18 +40,17 @@ using std::ostream;
 
 class History {
  private:
-  string m_filename;
+  string        m_filename;
+  Contact *     m_contact;
 
-  void quote_output(ostream& ostr, const string& text);
+  void          quote_output    (ostream& ostr, const string& text);
 
  public:
   History();
-  History(const string& filename);
+  History(Contact *c);
   
-  void setFilename(const string& filename);
-  string getFilename() const;
-
-  void log(MessageEvent *ev, bool received);
+  void          log             (MessageEvent *ev, bool received);
+  string        getFilename     () const;
 };
 
 #endif

@@ -144,12 +144,12 @@ void IckleClient::loadContactList() {
 	c.setAboutInfo( cs.getValueString("about") );
 	
 	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = history_filename( *dirit );
+	m_histmap[c.getUIN()] = History( &c );
 	icqclient.addContact(c);
       } else {
 	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
 	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = history_filename( *dirit );
+	m_histmap[c.getUIN()] = History( &c );
 	icqclient.addContact(c);
       }
     }
@@ -158,17 +158,6 @@ void IckleClient::loadContactList() {
 
   }
 
-}
-
-History IckleClient::history_filename(const string& s) {
-  ostringstream ostr;
-  if ( s.find( ".user", s.size() - 5 ) != -1) {
-    ostr << s.substr( 0, s.size() - 5 );
-  } else {
-    ostr << s;
-  }
-  ostr << ".history";
-  return History( ostr.str() );
 }
 
 void IckleClient::processCommandLine(int argc, char* argv[]) {
@@ -537,7 +526,7 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       }
       // ensure uniqueness
       m_fmap[c->getUIN()] = filename;
-      m_histmap[c->getUIN()] = history_filename( filename );
+      m_histmap[c->getUIN()] = History( c );
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {

@@ -18,7 +18,9 @@
  *
  */
 
+#include "main.h"
 #include "History.h"
+#include "sstream_fix.h"
 
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
@@ -28,9 +30,13 @@ using std::endl;
 
 History::History() { }
 
-History::History(const string& filename) : m_filename(filename) { }
+History::History(Contact *c) {
+  ostringstream fn;
 
-void History::setFilename(const string& filename) { m_filename = filename; }
+  m_contact = c;
+  fn << CONTACT_DIR << c->getUIN() << ".history";
+  m_filename = fn.str();
+}
 
 string History::getFilename() const { return m_filename; }
 
