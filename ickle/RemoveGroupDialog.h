@@ -33,17 +33,6 @@ namespace ICQ2000
   class ContactListEvent;
 }
 
-class GroupItem : public Gtk::ComboDropDownItem
-{
- private:
-  const ICQ2000::ContactTree::Group *m_libicq2000_group;
-  
- public:
-  GroupItem(const ICQ2000::ContactTree::Group *gp, gfloat x=0.0, gfloat y=0.5);
-
-  const ICQ2000::ContactTree::Group * get_group();
-};
-
 class RemoveGroupDialog : public Gtk::Dialog,
 			  public sigslot::has_slots<>
 {

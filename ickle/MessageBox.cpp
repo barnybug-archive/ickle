@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.75 2003-01-22 21:48:45 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.76 2003-01-26 16:15:47 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -963,8 +963,6 @@ void MessageBox::scaleadj_value_changed_cb()
 
   Gtk::TextIter iter = buffer->begin();
   m_history_text.scroll_to_iter( iter, 0.0, 0.0, 0.0 );
-
-  Glib::RefPtr<Gtk::TextBuffer::Mark> mark;
 
   for( ; i < end; ++i )
   {

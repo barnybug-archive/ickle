@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.57 2003-01-18 17:19:24 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.58 2003-01-26 16:15:47 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -38,6 +38,26 @@
 #include "SendAuthReqDialog.h"
 
 #include "pixmaps/info.xpm"
+
+/**
+ *  GroupItem - to keep track of groups in the move to group submenu
+ *  for the contact-list right-click.
+ */
+class GroupItem : public Gtk::MenuItem
+{
+ private:
+  const ICQ2000::ContactTree::Group& m_group;
+  
+ public:
+  GroupItem(const ICQ2000::ContactTree::Group& gp)
+    : Gtk::MenuItem(gp.get_label()), m_group(gp)
+  { }
+  
+  const ICQ2000::ContactTree::Group& get_group() const
+  {
+    return m_group;
+  }
+};
 
 ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
   : m_parent(parent),
@@ -119,6 +139,10 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     ml_c.push_back( ImageMenuElem( _("Add Group"),
 				   * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 				   SigC::slot( *this, &ContactListView::group_add_cb ) ) );
+    ml_c.push_back( ImageMenuElem( _("Move to Group"),
+				   * manage( new Gtk::Image(Gtk::Stock::GO_FORWARD, Gtk::ICON_SIZE_MENU) ) ) );
+    Gtk::MenuItem& mi = ml_c.back();
+    mi.set_submenu( m_rc_groups_list );
 
     // popup for right-click group
     MenuList& ml_g = m_rc_popup_group.items();
@@ -187,6 +211,15 @@ void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev)
     /* update group */
     ICQ2000::GroupChangeEvent *cev = static_cast<ICQ2000::GroupChangeEvent*>(ev);
     update_group(cev->get_group());
+  }
+  else if (ev->getType() == ICQ2000::ContactListEvent::UserRelocated)
+  {
+    /* relocate contact */
+    ICQ2000::UserRelocatedEvent * cev = static_cast<ICQ2000::UserRelocatedEvent*>(ev);
+    
+    /* ICQ2000 - semantics - event is triggered *after* relocation */
+    remove_contact(cev->getContact());
+    add_contact(cev->getContact(), cev->get_group());
   }
   
 }
@@ -289,6 +322,15 @@ void ContactListView::add_group(const ICQ2000::ContactTree::Group& gp)
   row[m_columns.is_contact] = false;
   row[m_columns.id] = gp.get_id();
   m_group_map[ gp.get_id() ] = iter;
+
+  /* add group to right-click menu for move contact to group */
+  using namespace Gtk::Menu_Helpers;
+
+  GroupItem * gi = manage( new GroupItem(gp) );
+  gi->signal_activate().connect( SigC::bind( SigC::slot( *this, &ContactListView::contact_move_to_group_cb ),
+					     & const_cast<ICQ2000::ContactTree::Group&>(gp) ) );
+  gi->show();
+  m_rc_groups_list.append( * gi );
 }
 
 void ContactListView::add_contact(const ICQ2000::ContactRef& c, const ICQ2000::ContactTree::Group& gp)
@@ -388,6 +430,8 @@ void ContactListView::update_list()
   m_group_map.clear();
   m_contact_map.clear();
   
+  m_rc_groups_list.items().clear();
+
   m_reftreestore->clear();
 
   ICQ2000::ContactTree& ct = icqclient.getContactTree();
@@ -707,4 +751,12 @@ bool ContactListView::contact_restore_colour_timeout_cb(ICQ2000::ContactRef c)
   }
 
   return false;
+}
+
+void ContactListView::contact_move_to_group_cb(ICQ2000::ContactTree::Group * gp)
+{
+  ICQ2000::ContactTree& ct = icqclient.getContactTree();
+  ICQ2000::ContactRef c = get_selected_contact();
+
+  ct.relocate_contact( c, ct.lookup_group_containing_contact(c), * gp );
 }

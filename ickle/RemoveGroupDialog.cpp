@@ -36,21 +36,6 @@ using std::list;
 using std::string;
 
 // ------------------------------------------------------------------------------
-//  GroupItem
-// ------------------------------------------------------------------------------
-
-GroupItem::GroupItem(const ICQ2000::ContactTree::Group *gp, gfloat x, gfloat y)
-  : Gtk::ComboDropDownItem( ), m_libicq2000_group(gp)
-{
-  add_label( gp->get_label(), false, 0.0, 0.5 );
-}
-
-const ICQ2000::ContactTree::Group * GroupItem::get_group()
-{
-  return m_libicq2000_group;
-}
-
-// ------------------------------------------------------------------------------
 //  RemoveGroupDialog
 // ------------------------------------------------------------------------------
 
@@ -87,9 +72,9 @@ RemoveGroupDialog::RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
   {
     if ( &(*curr) != gp )
     {
-      GroupItem *item = manage( new GroupItem( &(*curr) ) );
-      item->show_all();
-      item_list->children().push_back( *item );
+      //      GroupItem *item = manage( new GroupItem( &(*curr) ) );
+      //      item->show_all();
+      //      item_list->children().push_back( *item );
     }
     ++curr;
   }

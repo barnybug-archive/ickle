@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.33 2003-01-18 12:00:17 nordman Exp $
+/* $Id: ContactListView.h,v 1.34 2003-01-26 16:15:47 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -77,6 +77,7 @@ class ContactListView : public Gtk::TreeView,
   void contact_send_auth_req_cb();
   void contact_add_cb();
   void contact_remove_cb();
+  void contact_move_to_group_cb(ICQ2000::ContactTree::Group * gp);
   void group_rename_cb();
   void group_remove_cb();
   void group_add_cb();
@@ -140,6 +141,7 @@ class ContactListView : public Gtk::TreeView,
   bool m_check_away_click;
 
   Gtk::Menu m_rc_popup_contact, m_rc_popup_group, m_rc_popup_blank;
+  Gtk::Menu m_rc_groups_list;
   Gtk::ImageMenuItem * m_rc_popup_away;
   Gtk::MenuItem      * m_rc_popup_auth;
 
