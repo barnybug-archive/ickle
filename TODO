@@ -28,6 +28,8 @@ G = work required GUI side
 
 * (G/L) Even More User info (some of the extended info isn't handled)
 
+* (G/L) Setting/Retrieving owner's user info
+
 * (G) Better way of indicating messaged
 
 * (G/L) Web presence enable/disable
@@ -37,9 +39,10 @@ G = work required GUI side
 * (L) Implement all of the login procedure - Requesting rights
       information, advert servers, etc..
 
+Things that are likely to not be included for a while at least:
+
+* (G/L) File transfer (use FTP/HTTP!)
 
 Things that are likely never to be included:
 
-* File transfer (use FTP/HTTP!)
-
-* Chat (use IRC!)
+* (G/L) Chat (use IRC!)

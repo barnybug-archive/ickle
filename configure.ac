@@ -93,8 +93,9 @@ if test "x$want_gnome" = xyes; then
    $ECHO "Ickle will be built with the GNOME applet."
    $ECHO "After installing, run ickle by rightclicking the"
    $ECHO "panel and choosing Applets->Network->Ickle ICQ."
-   $ECHO "If you don't want the GNOME applet, re-run the configure"
-   $ECHO "script with the '--without-gnome' option"
+   $ECHO "If you would rather ickle is not built as an applet,"
+   $ECHO "for example if you don't use GNOME as a window manager,"
+   $ECHO "then re-run configure with the option --with-gnome=no"
 else
    $ECHO "Ickle will be built without the GNOME applet."
    $ECHO "After installing, run ickle by typing 'ickle' at the prompt."

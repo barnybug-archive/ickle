@@ -1,82 +1,123 @@
-                 ----------------------------------
-                 | ickle - A Gtk-- ICQ2000 Client |
-                 ----------------------------------
 
-http://ickle.sourceforge.net/
+,--------------------------------------------------------------------,
+|                                                                    |
+|                  ickle - A Gtk-- ICQ2000 Client                    |
+|                                                                    |
+`--------------------------------------------------------------------'
 
-Version: 0.1.1
---------------
+   Version 0.2.0                     http://ickle.sourceforge.net/
 
-This is the first release of ickle, so please be tolerant of bugs, and
-the lack of features. Given time ickle will grow bigger.
 
-At the moment it supports:
+
+
+
+ --------------------------------------------------------------------
+ - Contents                                                         -
+ --------------------------------------------------------------------
+
+1. Features
+
+2. Installation
+- 1. Prerequisites
+- 2. Compiling
+- 3. Installation
+
+3. Keyboard shortcuts
+
+4. Translation (of character sets)
+
+5. Icons
+
+6. Importing contacts
+
+7. More info for developers
+- 1. Contributing to ickle
+- 2. Anonymous CVS
+- 3. Alternative client developers (or using the libicq2000 library)
+
+8. Comments, bug fixes, etc..
+
+9. License
+
+
+
+
+ --------------------------------------------------------------------
+ - Features                                                         -
+ --------------------------------------------------------------------
+
+ickle supports:
 - Message sending/receiving
 - URL sending/receiving
 - SMS sending/receiving, including delivery reports
 - Status changes
-- Fetching basic user info off server
+- Fetching user info from server
+- Fetching away messages
+
+Features:
+- Autoconnect, autoreconnect and retries
+- GNOME applets
+
+See the TODO for information about planned features in progress.
 
 ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
 
 
-Prerequisites
--------------
+
+ --------------------------------------------------------------------
+ - Installation                                                     -
+ --------------------------------------------------------------------
+
+   ------------------------------------------------------------------
+   - Prerequisites                                                  -
+   ------------------------------------------------------------------
+
 You will need:
-- libstdc++
-- gtkmm version 1.2.0 or above (preferably 1.2.5 or above)
-- the sigc library
+- libstdc++ library
+- gtkmm version (1.2.5 or above)
 - gtk+ library
+- libsigc++ library
 
 The last two should be installed if you have gtkmm working and
 installed. Read more below for the prerequisites for the GNOME applet.
 
-Note for RPM distributions (Redhat, SuSE, etc..) - make sure you
-install the 'development' RPMs for all these libraries as
-well. Usually these are called library-devel.rpm or similar.
+Distribution   Packages required
+------------   -----------------
+Redhat 7.1     gtk+-1.2.9-4.i386.rpm, gtk+-devel-1.2.9-4.i386.rpm,
+               libstdc++-2.96-81.i386.rpm, libstdc++-devel-2.96-81.i386.rpm
+               There are no rpms provided by Redhat for gtk-- or sigc,
+               so you'll have to compile from sources, or get the rpms
+               supplied by Ximian. See links below.
 
-For RPM based distributions I'm trying to build up a list of the names
-of the rpms that are required, so send me info about what you needed
-for your distribution if it's not already here.
+Other          I'd appreciate any input from people on success/failures.
+Redhats
 
-Redhat 7.1 - gtk+-1.2.9-4.i386.rpm, gtk+-devel-1.2.9-4.i386.rpm,
-           libstdc++-2.96-81.i386.rpm, libstdc++-devel-2.96-81.i386.rpm
-           There are no rpms provided for gtk-- or sigc, so you'll
-           have to get the sources from http://gtkmm.sourceforge.net/
-	   and compile them yourself.
+SuSE 7.0       The rpms for gtkmm are very out of date on SuSE 7.0, you'll
+	       either have to compile gtk, gtk-- and sigc++ from sources
+               or try fudging it with newer rpms for 7.2 I'm afraid.
 
-Other Redhats - I'd appreciate any input from people on success/failures.
+SuSE 7.1       sigc++.rpm, gtk.rpm, gtk-devel.rpm, gtkmm.rpm,
+               gtkmm-devel.rpm
 
-SuSE 7.0 - the rpms for gtkmm are very out of date on SuSE 7.0, you'll
-	   either have to compile gtk, gtk-- and sigc++ from sources
-           or try fudging it with newer rpms for 7.2 I'm afraid.
+SuSE 7.2       libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm,
+               gtk-devel.rpm, gtkmm.rpm, gtkmm-devel.rpm, gpp.rpm,
+               gppshare.rpm, libgpp.rpm
 
-SuSE 7.1 - sigc++.rpm, gtk.rpm, gtk-devel.rpm, gtkmm.rpm,
-           gtkmm-devel.rpm
-	   For the libstdc++ libraries you'll need a newer rpm than
-           what libgpp.rpm provides I suggest using the libgpp.rpm
-           from SuSE 7.2, you'll also need the newer gppshare.rpm from
-           7.2 if you do this.
+For RPM distributions (Redhat, SuSE, etc..) - make sure you install
+the 'development' RPMs for all these libraries as well. Usually these
+are called library-devel.rpm or similar. I'm trying to build up a list
+of the names of the rpms that are required, so send me info about what
+you needed for your distribution if it's not already here.
 
-SuSE 7.2 - libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm, gtk-devel.rpm,
-           gtkmm.rpm, gtkmm-devel.rpm, gpp.rpm, gppshare.rpm, libgpp.rpm
-
-Debian based distributions (Debian, Progeny, etc..) - you will need
-these packages installed:
-libstdc++2.10 (stable is not recent enough)
-libstdc++2.10-dev
-libgtkmm1.2
-libgtkmm-dev
-libgtk1.2
-libgtk1.2-dev
-libsigc++0
-libsigc++-dev
+Debian         libstdc++2.10 and libstdc++2.10-dev
+(+ Progeny,    libgtkmm1.2 and libgtkmm-dev
+ etc..)        libsigc++0 and libsigc++-dev
 
 Sources for these libraries can be found at the following addresses:
-libstdc++: http://www.gnu.org/software/gcc/libstdc++/ (should have
-come with your version of gcc really)
-gtk: http://www.gtk.org/
-gtkmm: http://gtkmm.sourceforge.net/
+libstdc++: http://www.gnu.org/software/gcc/libstdc++/ 
+           (should have come with your version of gcc)
+gtk:       http://www.gtk.org/
+gtkmm:     http://gtkmm.sourceforge.net/
 libsigc++: http://libsigc.sourceforge.net/
 
 GNOME applet:
@@ -107,79 +148,122 @@ Sources for the GNOME libraries can be found at:
 
 http://www.gnome.org
 
-Compiling & Installation
-------------------------
+   ------------------------------------------------------------------
+   - Compiling                                                      -
+   ------------------------------------------------------------------
+
 Generic configure instructions can be found in INSTALL. These are the
 brief instructions for ickle:
 
 1. Type './configure'
 
-2. Type 'make' to compile the package.
+ If you have the gnome dependancies installed ickle will by default
+ compile the gnome applet. A prompt after configure will confirm
+ whether this is going to happen. The option --without-gnome will
+ always prevent the gnome applet from being compiled.
 
-3. Type 'make install' as root to install ickle.
+2. Type 'make' to compile the package
+
+   ------------------------------------------------------------------
+   - Installation                                                   -
+   ------------------------------------------------------------------
+
+1. Type 'make install' as root to install ickle.
 
 Easy as that.
 
-To run ickle you should be able to type simply 'ickle', assuming
-you have the directory into which you installed ickle in (usually
-/usr/local/bin) your path.
+To run ickle you should be able to type simply 'ickle', assuming you
+have the directory into which you installed ickle in your
+path. (usually /usr/local/bin)
 
-If you built it as a GNOME applet the executable will instead be
-name ickle_applet. You should then run ickle by rightclicking
-the panel and choosing Applets->Network->Ickle ICQ.
+If you built it as a GNOME applet the executable will instead be named
+'ickle_applet'. You should then run ickle by rightclicking the panel
+and choosing Applets->Network->Ickle ICQ.
 
 The configure script will tell you whether the GNOME applet will
 be built or not. If you don't want the GNOME applet to be built even
 though you have the required GNOME development packages installed run
 configure with the '--without-gnome' option.
 
-Shortcuts
----------
 
-Ctrl-Enter or Alt-S = Send Message from Message window
-Alt-C or ESC = Close Message window
 
-Translation (of character sets)
--------------------------------
+ --------------------------------------------------------------------
+ - Keyboard shortcuts                                               -
+ --------------------------------------------------------------------
+
+Key           Action
+---           ------
+Ctrl-Enter    Send Message from Message window
+or Alt-S
+
+Alt-C         Close Message window
+or ESC
+
+
+
+ --------------------------------------------------------------------
+ - Translation (of character sets)                                  -
+ --------------------------------------------------------------------
 
 I've now added support for translating between different character
 sets. This can be reached by going to Settings. For example, many
 Russian users will want to use the Russian character map file to
 translate between windows-cp1251 and KOI8-R.
 
-Icons
------
+
+
+ --------------------------------------------------------------------
+ - Icons                                                            -
+ --------------------------------------------------------------------
 
 The default icons distributed with ickle are some designed by
 me. They're not amazing but they do the job. I've also included some
-more familiar ones in the directory icons.icq. At the moment the icons
-are compiled into ickle, so if you want to use these alternate icons
-do (before compiling):
-mv icons icons.old
-mv icons.icq icons
-Then compile.
+more familiar ones. To change between icon sets, go to Settings and
+then choose from the list. You are welcome to design you own set (or
+improve on mine) and contribute them.
 
-Contacts
---------
-At the moment you have to add the contact numbers by hand. ickle will
-now fetch the basic user info off the server after you've added the user.
 
-I've written a simple perl script in scripts/licq2ickle.pl that you can
-run and will convert your licq contacts over to ickle. I might write
-something similar for windows if I get any requests for it.
 
-The ickle Library
------------------
-ickle is actually split into two parts, the ickle GUI and the
-libicq2000 library. If you are interested in developing your own
-client you can use just the libicq2000 on it's own. I have an example
-use of it like this as a simple command-line autoresponder in the
-examples/ directory. There's no proper documentation for the library
-yet, looking through the header files and source code is your best bet
-at the moment.
+ --------------------------------------------------------------------
+ - Importing contacts                                               -
+ --------------------------------------------------------------------
 
-CVS
----
+I've written a simple perl script in scripts/licq2ickle.pl that you
+can run and will convert your licq contacts over to ickle. There is
+also a similar script the micq. I might write something similar for
+windows if I get any requests for it.
+
+
+
+ --------------------------------------------------------------------
+ - More info for developers                                         -
+ --------------------------------------------------------------------
+
+   ------------------------------------------------------------------
+   - Contributing to ickle                                          -
+   ------------------------------------------------------------------
+
+In the spirit of opensource ickle is a community effort with
+contributions welcomely accepted. If it's just a small patch for a bug
+fix, or you are wishing to help out more big time in the development
+of ickle or libicq2000 please feel free to contribute. I can be
+reached on my email address <barnaby@beedesign.co.uk> or the
+development mailing list ickle-devel is available on sourceforge. See
+the ickle sourceforge homepage.
+
+For submitting patches, please:
+
+a) Make sure you are working on a recent checked out copy of the
+   anonymous CVS, often the problem has been fixed already.
+
+b) Follow code conventions in the layout of the code as it is at the
+   moment.
+
+c) Produce the diff by running 'cvs diff -uN > my-patch.diff'
+
+   ------------------------------------------------------------------
+   - Anonymous CVS                                                  -
+   ------------------------------------------------------------------
 
 If you want to get the bleeding edge latest version of ickle it is
 available on anonymous CVS, see the following url:
@@ -191,14 +275,36 @@ must run the autogen.sh file to generate configure. You need autoconf
 
 Beware though - the CVS is often unstable inbetween releases. Please
 subscribe to the ickle-devel mailing list on sourceforge to stay up to
-date on what is going on in CVS.
+date on what is going on in CVS. You will also probably want to
+subscribe to ickle-commits, so you can see what work is being done on
+the source. If you find a problem in CVS please check back in the
+archives for ickle-devel to check it hasn't already been
+acknowledged/solved.
 
-Comments, bug reports, etc..
-----------------------------
+   ------------------------------------------------------------------
+   - Alternative client developers                                  -
+   ------------------------------------------------------------------
+
+ickle is actually split into two parts, the ickle GUI and the
+libicq2000 library. If you are interested in developing your own
+client you can use just the libicq2000 on it's own. I have an example
+use of it like this as a simple command-line autoresponder in the
+examples/ directory. There's no proper documentation for the library
+yet, looking through the header files and source code is your best bet
+at the moment. I will at some point split off the library into a
+separate project and change the licensing to LGPL for that component.
+
+
+
+ --------------------------------------------------------------------
+ - Comments, bug reports, etc..                                     -
+ --------------------------------------------------------------------
+
 Please send all your comments, wanted features and bug reports to:
   <barnaby@beedesign.co.uk>
 
-Send me a message (ICQ# 12137587 Alias bee) if you like ickle.
+Feel free to send me a message (ICQ# 12137587 Alias bee) if you like
+ickle.
 
 For bug reports ensure you include these details:
 - Version of ickle
@@ -213,7 +319,14 @@ For bug reports ensure you include these details:
 
 Thanks.
 
-License
--------
+
+
+ --------------------------------------------------------------------
+ - License                                                          -
+ --------------------------------------------------------------------
+
 ickle is released under the GNU GPL license, see COPYING for copying
 conditions.
+
+
+Thank you, and goodnight.

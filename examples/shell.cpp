@@ -126,7 +126,7 @@ SimpleClient::SimpleClient(unsigned int uin, const string& pass)
 
 void SimpleClient::run() {
 
-  icqclient.Connect();
+  icqclient.setStatus(STATUS_ONLINE);
 
   while(1) {
     fd_set rfds, wfds, efds;
@@ -188,7 +188,8 @@ void SimpleClient::run() {
     } else icqclient.PingServer();
   }
 
-  icqclient.Disconnect();
+  // never reached
+  icqclient.setStatus(STATUS_OFFLINE);
 }
 
 void SimpleClient::socket_cb(SocketEvent *ev) {
@@ -265,8 +266,8 @@ bool SimpleClient::message_cb(MessageEvent *c) {
       pp.CloseInput();
       pp.Read( ret, 4097 );
       pp.Close();
-      NormalMessageEvent sv( c->getContact(), ret );
-      icqclient.SendEvent( &sv );
+      NormalMessageEvent *sv = new NormalMessageEvent( c->getContact(), ret );
+      icqclient.SendEvent( sv );
 
       cout << "ickle-shell: Autoresponded with " << ret << endl;
     }
@@ -285,8 +286,8 @@ bool SimpleClient::message_cb(MessageEvent *c) {
       pp.CloseInput();
       pp.Read( ret, 4097 );
       pp.Close();
-      SMSMessageEvent sv( c->getContact(), ret, true );
-      icqclient.SendEvent( &sv );
+      SMSMessageEvent *sv = new SMSMessageEvent( c->getContact(), ret, true );
+      icqclient.SendEvent( sv );
 
       cout << "ickle-shell: Autoresponded with " << ret << endl;
     }
