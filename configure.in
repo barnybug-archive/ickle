@@ -163,6 +163,9 @@ AC_HEADER_TIME
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([mktime stat mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
+# Check for backtrace debug functionality
+ICKLE_HAVE_BACKTRACE
+
 AC_OUTPUT([Makefile ickle/Makefile share/Makefile  po/Makefile.in m4/Makefile    intl/Makefile \
            control/Makefile ctrlsocket/Makefile \
            share/icons/Makefile share/icons/ickle/Makefile \
@@ -182,6 +185,11 @@ if test "x$USE_NLS" = xyes; then
    $ECHO "gettext support:                    enabled"
 else
    $ECHO "gettext support:                    disabled"
+fi
+if test "x$ac_cv_have_backtrace" = xyes; then
+   $ECHO "backtrace debug support:            enabled"
+else
+   $ECHO "backtrace debug support:            disabled"
 fi
 $ECHO
 $ECHO "Now type make (or gmake) to build ickle, and then make install to"

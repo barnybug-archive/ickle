@@ -34,6 +34,8 @@
 
 #include <libicq2000/Client.h>
 
+#include "sighandler.h"
+
 using std::string;
 using std::cout;
 using std::endl;
@@ -62,6 +64,9 @@ int main(int argc, char* argv[])
     bind_textdomain_codeset(PACKAGE, "UTF-8");
     textdomain(PACKAGE);
 #endif
+
+    /* handle segfaults */
+    sighandler_init();
 
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();

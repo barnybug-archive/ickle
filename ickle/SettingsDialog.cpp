@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.72 2003-04-10 22:39:55 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.73 2003-04-12 12:04:56 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -115,7 +115,7 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
   top_hbox->pack_start( * frame,      Gtk::PACK_EXPAND_WIDGET );
 
   top_vbox->pack_start( * top_hbox );
-
+  
   // ==================================================
   //  Login
   // ==================================================
