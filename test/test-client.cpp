@@ -113,6 +113,9 @@ void TestClient::disconnected_cb(DisconnectedEvent *c) {
     case DisconnectedEvent::FAILED_BADPASSWORD:
       cout << "Bad Password";
       break;
+    case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
+      cout << "Username and Password did not match";
+      break;
     case DisconnectedEvent::FAILED_UNKNOWN:
       cout << "Unknown";
       break;

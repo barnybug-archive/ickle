@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(ickle, 0.1, barnaby@beedesign.co.uk)
-AM_INIT_AUTOMAKE(ickle,0.1)
+AC_INIT(ickle, 0.1.0, barnaby@beedesign.co.uk)
+AM_INIT_AUTOMAKE(ickle,0.1.0)
 
 AC_CONFIG_SRCDIR([src/Client.cpp])
 AM_CONFIG_HEADER(config.h)
@@ -18,20 +18,9 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h unistd.h])
 
 # Checks for libraries.
-AM_PATH_SIGC(1.0.3, [],
- [AM_PATH_SIGC(1.0.0,
-  [AC_MSG_WARN(You have libsigc++ libraries version < 1.0.3, these
-have not been tested, but it will probably work)]
-  [AC_MSG_ERROR(You need to have the libsigc++ libraries installed)])
- ])
+AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR(You need to have the libsigc++ libraries installed)])
 
-AM_PATH_GTKMM(1.2.5, [],
- [AM_PATH_GTKMM(1.2.0,
-  [AC_MSG_WARN(You have libsigc++ libraries version < 1.2.5, these
-have not been tested)]
-  [AC_MSG_ERROR(You need to have the gtkmm libraries installed of at
-least version 1.2.0, preferrably 1.2.5 and above)])
-])
+AM_PATH_GTKMM(1.2.0, [], [AC_MSG_ERROR(You need to have the gtkmm libraries installed of at least version 1.2.0 preferably 1.2.5 and above)])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST

@@ -167,9 +167,9 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   if (c->getReason() == DisconnectedEvent::REQUESTED) {
-    cout << "test-client: Disconnected as requested" << endl;
+    cout << "ickle: Disconnected as requested" << endl;
   } else {
-    cout << "test-client: Problem connecting: ";
+    cout << "ickle: Problem connecting: ";
     switch(c->getReason()) {
     case DisconnectedEvent::FAILED_LOWLEVEL:
       cout << "Socket problems";
@@ -182,6 +182,9 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
       break;
     case DisconnectedEvent::FAILED_BADPASSWORD:
       cout << "Bad Password";
+      break;
+    case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
+      cout << "Username and Password did not match";
       break;
     case DisconnectedEvent::FAILED_UNKNOWN:
       cout << "Unknown";

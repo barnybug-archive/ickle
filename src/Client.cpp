@@ -658,6 +658,9 @@ namespace ICQ2000 {
 	  case 0x03:
 	    st = DisconnectedEvent::FAILED_BADPASSWORD;
 	    break;
+	  case 0x05:
+	    st = DisconnectedEvent::FAILED_MISMATCH_PASSWD;
+	    break;
 	  case 0x18:
 	    st = DisconnectedEvent::FAILED_TURBOING;
 	    break;
