@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.70 2003-04-07 07:21:45 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.71 2003-04-10 08:28:12 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -115,16 +115,19 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
   top_hbox->pack_start( * frame,      Gtk::PACK_EXPAND_WIDGET );
 
   top_vbox->pack_start( * top_hbox );
-		    
+
   // ==================================================
   //  Login
   // ==================================================
 
   init_pages();
   load_pages();
-  
+
   // only after special changes the client has to be restarted
   m_client_restart=false;
+
+  //same for the contact list
+  m_icons_changed=false;
 
   // finally show all!
 
@@ -154,6 +157,10 @@ void SettingsDialog::on_apply_clicked()
       activate_changes();
       m_client_restart=false;
     }
+    if (m_icons_changed)
+    {
+      g_icons.setIcons(m_icons_dir);
+    }
   }
 }
 
@@ -166,6 +173,10 @@ void SettingsDialog::on_ok_clicked()
     {
       activate_changes();
       m_client_restart=false;
+    }
+    if (m_icons_changed)
+    {
+      g_icons.setIcons(m_icons_dir);
     }
     response(Gtk::RESPONSE_OK);
   }
@@ -286,9 +297,9 @@ void SettingsDialog::init_login_page()
   m_auto_reconnect.set_label(_("Auto reconnect"));
   m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::toggle_reconnect ) );
-  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));  
+  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
   table->attach( m_auto_reconnect, 0, 2, 0, 1, Gtk::FILL, Gtk::FILL );
-  
+
   table->attach( * manage( new Gtk::Label( _("Reconnect retries"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
   m_reconnect_retries.set_range(1, 10);
@@ -302,7 +313,7 @@ void SettingsDialog::init_login_page()
   table->set_border_width(10);
 
   reconnect->add( * table );
-  
+
 
 
   vbox->pack_start( *login );
@@ -328,7 +339,7 @@ void SettingsDialog::init_look_message_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * frame = manage( new SectionFrame( _("Messages") ) );
-  
+
   Gtk::Table * table = manage (new Gtk::Table( 2, 4 ) );
   m_message_autoclose.set_label(_("Auto close after sending a message"));
   table->attach( m_message_autoclose,
@@ -464,19 +475,19 @@ void SettingsDialog::init_look_icons_page()
     {
       Gtk::Label * label = manage (new Gtk::Label (iconsets[i]) );
       Gtk::HBox * hbox = new Gtk::HBox();
-      g_icons.setIcons(ICONS_DIR + iconsets[i] + "/");
       for (int n = ICQ2000::STATUS_ONLINE; n <= ICQ2000::STATUS_OFFLINE; n++)
       {
-        Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( (ICQ2000::Status) n, false );
+        Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( (ICQ2000::Status) n, ICONS_DIR + iconsets[i] + "/", false );
 	Gtk::Image * img = manage( new Gtk::Image( p ) );
 	hbox->pack_start(*img);
       }
-      Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE, true );
+      Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE, ICONS_DIR + iconsets[i] + "/", 		true );
       Gtk::Image * img = manage( new Gtk::Image( p ) );
       hbox->pack_start(*img);
       menu_list.push_back( ImageMenuElem( label->get_text(), * hbox,
       		SigC::bind<std::string>( SigC::slot(*this, &SettingsDialog::choose_icons_dir), label->get_text()) ) );
     }
+    menu->set_active(5); //TODO choose the current icon set
     icons_om->set_menu( *menu );
   }
   table->attach( * icons_om, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -1067,6 +1078,7 @@ void SettingsDialog::client_changed()
   m_client_restart=true;
 }
 
+
 void SettingsDialog::lnf_charset_validate_cb()
 {
   m_lnf_charset_valid.set_sensitive( Utils::is_valid_encoding(m_lnf_charset.get_text() ) );
@@ -1113,7 +1125,9 @@ void SettingsDialog::choose_autoconnect (unsigned int s)
 
 void SettingsDialog::choose_icons_dir (const std::string dir)
 {
-  //todo
+  m_icons_dir = ICONS_DIR + dir + "/";
+  m_icons_changed=true;
+  changed_cb();
 }
 
 //ensures that SMTP setings can only be set if SMTP is activated

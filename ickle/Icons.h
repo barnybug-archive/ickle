@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.15 2003-04-07 07:21:45 cborni Exp $
+/* $Id: Icons.h,v 1.16 2003-04-10 08:28:12 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -55,6 +55,7 @@ class Icons {
   std::vector<std::string> get_icon_sets();
   bool setIcons(const std::string& dir);
   Glib::RefPtr<Gdk::Pixbuf> get_icon_for_status(ICQ2000::Status s,bool inv);
+  Glib::RefPtr<Gdk::Pixbuf> get_icon_for_status(ICQ2000::Status s, const std::string& dir, bool inv);
   Glib::RefPtr<Gdk::Pixbuf> get_icon_for_event(ICQMessageEvent::ICQMessageType t);
 
   void settings_changed_cb(const std::string& key);

@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.66 2003-04-07 07:21:40 cborni Exp $
+/* $Id: ContactListView.cpp,v 1.67 2003-04-10 08:28:11 cborni Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -203,9 +203,13 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     ml_b.push_back( ImageMenuElem( _("Add Group"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::group_add_cb ) ) );
+
+
+    //react on changed icons
+    g_icons.icons_changed.connect( SigC::slot( *this, &ContactListView::update_list ) );
     // anything else?
   }
-  
+
 
 }
 
@@ -832,17 +836,6 @@ void ContactListView::set_show_offline_contacts(bool b)
 }
 
 
-void ContactListView::set_check_away_click(bool b)
-{
-  m_check_away_click = b;
-  update_list();
-}
-
-void ContactListView::set_single_click(bool b)
-{
-  m_single_click = b;
-  update_list();
-}
 
 SigC::Signal1<void, unsigned int>& ContactListView::signal_messagebox_popup()
 {

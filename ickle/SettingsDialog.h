@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.54 2003-04-07 07:21:46 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.55 2003-04-10 08:28:13 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -53,6 +53,7 @@ class SettingsDialog : public Gtk::Dialog
   const ModelColumns m_columns;
   Gtk::Tooltips m_tooltip;
   bool m_client_restart;
+  bool m_icons_changed;
 
   // the Tree store
   Glib::RefPtr<Gtk::TreeStore> m_reftreestore;

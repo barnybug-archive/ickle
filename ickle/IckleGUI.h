@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.51 2003-04-07 07:21:44 cborni Exp $
+/* $Id: IckleGUI.h,v 1.52 2003-04-10 08:28:12 cborni Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -107,7 +107,6 @@ class IckleGUI : public Gtk::Window,
 
   void set_ickle_title();
   void change_client();
-  void change_contact_list();
 
  protected:
   // handle wm calls

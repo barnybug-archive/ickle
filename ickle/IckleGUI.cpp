@@ -211,12 +211,6 @@ void IckleGUI::change_client()
   signal_restart_client.emit();
 }
 
-void IckleGUI::change_contact_list()
-{
-  m_contact_list->set_check_away_click(g_settings.getValueBool("mouse_check_away_click") );
-  m_contact_list->set_single_click(g_settings.getValueBool("mouse_single_click") );
-}
-
 
 void IckleGUI::icons_changed_cb()
 {
@@ -227,7 +221,7 @@ void IckleGUI::queue_added_cb(MessageEvent *ev)
 {
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-    
+
   ContactRef c = icq->getICQContact();
 
   if (m_message_boxes.count(c->getUIN()) == 0)
@@ -728,8 +722,7 @@ void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
 {
   SettingsDialog dialog(w, away);
   dialog.change_client.connect(SigC::slot(*this, &IckleGUI::change_client) );
-  dialog.change_contact_list.connect(SigC::slot(*this, &IckleGUI::change_contact_list) );
-
+  
   if (dialog.run() == Gtk::RESPONSE_OK)
   {
     m_signal_save_settings.emit();
@@ -797,7 +790,7 @@ void IckleGUI::spell_check_setup()
 	++i;
       }
     }
-      
+
   }
   */
 }
@@ -838,8 +831,6 @@ void IckleGUI::post_settings_loaded()
   bool offline_co = g_settings.getValueBool("show_offline_contacts");
   m_offline_co_mi->set_active( offline_co );
   m_contact_list->set_show_offline_contacts( offline_co );
-  m_contact_list->set_check_away_click(g_settings.getValueBool("mouse_check_away_click") );
-  m_contact_list->set_single_click(g_settings.getValueBool("mouse_single_click") );
 }
 
 void IckleGUI::messagebox_popup_cb(unsigned int uin)

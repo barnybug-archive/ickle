@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.20 2003-04-07 07:21:45 cborni Exp $
+/* $Id: Icons.cpp,v 1.21 2003-04-10 08:28:12 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -127,14 +127,48 @@ Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, bool inv)
       break;
     }
   }
-  
+
   return ret;
 }
+
+
+Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, const std::string& dir, bool inv)
+{
+  Glib::RefPtr<Gdk::Pixbuf> ret;
+
+  if (inv && s != ICQ2000::STATUS_OFFLINE)
+  {
+    return Gdk::Pixbuf::create_from_file(dir + "invisible.xpm");
+  }
+  else
+  {
+    switch(s)
+    {
+      case ICQ2000::STATUS_ONLINE:
+        return Gdk::Pixbuf::create_from_file(dir + "online.xpm");
+      case ICQ2000::STATUS_AWAY:
+        return Gdk::Pixbuf::create_from_file(dir + "away.xpm");
+      case ICQ2000::STATUS_NA:
+        return Gdk::Pixbuf::create_from_file(dir + "na.xpm");
+      case ICQ2000::STATUS_OCCUPIED:
+        return Gdk::Pixbuf::create_from_file(dir + "occ.xpm");
+      case ICQ2000::STATUS_DND:
+        return Gdk::Pixbuf::create_from_file(dir + "dnd.xpm");
+      case ICQ2000::STATUS_FREEFORCHAT:
+        return Gdk::Pixbuf::create_from_file(dir + "ffc.xpm");
+      case ICQ2000::STATUS_OFFLINE:
+        return Gdk::Pixbuf::create_from_file(dir + "offline.xpm");
+      default:
+        return Gdk::Pixbuf::create_from_file(dir + "offline.xpm");
+    }
+  }
+ }
+
 
 Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_event(ICQMessageEvent::ICQMessageType t)
 {
   Glib::RefPtr<Gdk::Pixbuf> ret;
-  
+
   switch(t) {
   case ICQMessageEvent::Normal:
     ret = Icon_Status_Message;

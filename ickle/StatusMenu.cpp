@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.9 2003-01-19 17:52:11 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.10 2003-04-10 08:28:13 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -108,7 +108,7 @@ StatusMenu::StatusMenu()
 
 void StatusMenu::icons_changed_cb()
 {
-  // TODO build_list();
+  build_list();
 }
 
 void StatusMenu::settings_changed_cb(const string& s)
@@ -120,7 +120,7 @@ void StatusMenu::settings_changed_cb(const string& s)
 void StatusMenu::build_list()
 {
   using namespace Gtk::Menu_Helpers;
-  
+
   // menu header item
   remove();
   add_status(m_current_status, m_current_invisible);
