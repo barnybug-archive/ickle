@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.71 2003-01-18 12:00:18 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.72 2003-01-18 15:56:25 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -36,6 +36,8 @@
 #include <gtkmm/stock.h>
 
 #include <libicq2000/Client.h>
+
+#include "pixmaps/info.xpm"
 
 #include "ickle.h"
 #include "ucompose.h"
@@ -94,13 +96,17 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
     ml.push_back( ImageMenuElem( _("Add Contact"),
 				* manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 				SigC::slot(*this, &IckleGUI::add_contact_cb)) );
-    ml.push_back( MenuElem( _("My User Info"), SigC::slot(*this, &IckleGUI::my_user_info_cb)) );
+    ml.push_back( ImageMenuElem( _("My User Info"),
+				 * manage( new Gtk::Image( Gdk::Pixbuf::create_from_xpm_data( info_xpm ) ) ),
+				 SigC::slot(*this, &IckleGUI::my_user_info_cb)) );
     ml.push_back( ImageMenuElem( _("Search for Contacts"),
 				* manage( new Gtk::Image(Gtk::Stock::FIND, Gtk::ICON_SIZE_MENU) ),
 				SigC::slot(*this, &IckleGUI::search_contact_cb)) );
     mi_search_for_contacts = &ml.back();
     mi_search_for_contacts->set_sensitive(false);
-    ml.push_back( MenuElem( _("Set Auto Response"), SigC::bind<bool>(SigC::slot(*this, &IckleGUI::set_auto_response_dialog), false)) );
+    ml.push_back( ImageMenuElem( _("Set Auto Response"),
+				 * manage( new Gtk::Image( g_icons.get_icon_for_status( ICQ2000::STATUS_AWAY, false ) ) ),
+				 SigC::bind<bool>(SigC::slot(*this, &IckleGUI::set_auto_response_dialog), false)) );
     
     m_offline_co_mi = manage( new Gtk::CheckMenuItem( _("Show offline contacts") ) );
     m_offline_co_mi->signal_toggled().connect( SigC::slot(*this, &IckleGUI::toggle_offline_co_cb) );
