@@ -343,7 +343,7 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
       
       set_status("Sent message successfully");
     } else {
-      set_status("Sending message timed out");
+      set_status("Sending message failed");
     }
   } else {
     if (ev->isDirect()) {
@@ -401,12 +401,6 @@ void MessageBox::display_message(MessageEvent *ev, bool sent, const string& nick
     ostr << "[sms] ";
     m_history_text.insert( bold_font, nickc, white, ostr.str(), -1);
     m_history_text.insert( normal_font, black, white, smsmsg->getMessage(), -1);
-      
-  } else if (ev->getType() == MessageEvent::SMS_Response) {
-    SMSResponseEvent *rsp = static_cast<SMSResponseEvent*>(ev);
-    if (rsp->deliverable()) {
-    } else {
-    }
       
   } else if (ev->getType() == MessageEvent::SMS_Receipt) {
     SMSReceiptEvent *rcpt = static_cast<SMSReceiptEvent*>(ev);

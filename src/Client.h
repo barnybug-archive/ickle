@@ -96,7 +96,7 @@ namespace ICQ2000 {
     Status m_status;
     bool m_invisible;
     
-    Translator m_translator; 
+    Translator m_translator;
 
     ContactList m_contact_list;
 
@@ -191,7 +191,7 @@ namespace ICQ2000 {
     Contact* lookupICQ(unsigned int uin);
     Contact* lookupMobile(const string& m);
 
-    Contact& getCacheUserInfoContact(unsigned int reqid);
+    Contact* getUserInfoCacheContact(unsigned int reqid);
 
     /* Maps the Status enum code to the real uint16
      * value ICQ sends and vice versa
@@ -204,6 +204,7 @@ namespace ICQ2000 {
     void dccache_expired_cb(DirectClient *dc);
     void dc_connected_cb(DirectClient *dc);
     void dc_log_cb(LogEvent *ev);
+    void dc_socket_cb(SocketEvent *ev);
     void dc_messaged_cb(MessageEvent *ev);
     void dc_messageack_cb(MessageEvent *ev);
 

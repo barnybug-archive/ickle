@@ -292,15 +292,6 @@ bool SimpleClient::message_cb(MessageEvent *c) {
       cout << "ickle-shell: Autoresponded with " << ret << endl;
     }
 
-  } else if (c->getType() == MessageEvent::SMS_Response) {
-
-    SMSResponseEvent *rsp = static_cast<SMSResponseEvent*>(c);
-    if (rsp->deliverable()) {
-      cout << "ickle-shell: SMS delivered successfully" << endl;
-    } else {
-      cout << "ickle-shell: SMS delivery failed: " << rsp->getErrorParam() << endl;
-    }
-
   } else if (c->getType() == MessageEvent::SMS_Receipt) {
 
     SMSReceiptEvent *rcpt = static_cast<SMSReceiptEvent*>(c);

@@ -326,14 +326,11 @@ namespace ICQ2000 {
       m_type = SMS;
       break;
     case 0x0002:
-      m_type = SMS_Receipt_Success;
-      break;
     case 0x0003:
-      m_type = SMS_Receipt_Failure;
+      m_type = SMS_Receipt;
       break;
     default:
-      // todo
-      m_type = SMS;
+      throw ParseException("Unknown Type for SMS ICQ Subtype");
     }
 
     /*
@@ -402,7 +399,7 @@ namespace ICQ2000 {
 
       // ----------------------------------
 
-    } else if (m_type == SMS_Receipt_Success) {
+    } else if (m_type == SMS_Receipt) {
 
       // -- SMS Delivery Receipt Success --
       if (top->getTag() != "sms_delivery_receipt") throw ParseException("No <sms_delivery_receipt> tag found in xml data");
@@ -428,10 +425,10 @@ namespace ICQ2000 {
       XmlLeaf *delivery_time = sms_rcpt->getLeaf("delivery_time");
       if (delivery_time != NULL) m_delivery_time = delivery_time->getValue();
 
+      // could do with parsing errors for Failure
+
       // ---------------------------------
 
-    } else if (m_type == SMS_Receipt_Failure) {
-      // todo
     }
       
   }

@@ -44,8 +44,22 @@ namespace ICQ2000 {
       Cache<int, DirectClient*>::expireItem(l);
     }
 
-    Signal1<void,DirectClient*> expired;
+    void removeContact(Contact *c) {
+      literator curr = m_list.begin();
+      literator next;
+      while ( curr != m_list.end() ) {
+	DirectClient *dc = (*curr).getValue();
+	next = curr;
+	++next;
+	if ( dc->getContact() == c ) {
+	  dc->setContact(NULL); // invalidate contact so the DC doesn't attempt to redeliver
+	  removeItem(curr);
+	}
+	curr = next;
+      }
+    }
 
+    Signal1<void,DirectClient*> expired;
   };
   
 }

@@ -123,6 +123,12 @@ namespace ICQ2000 {
       }
     }
 
+    void removeAll() {
+      while (!m_list.empty()) {
+	removeItem(m_list.begin());
+      }
+    }
+
     Value& insert(const Key &k, const Value &v) {
       CacheItem<Key,Value> t(k,v,m_timeout);
       return (*insert(t)).getValue();
@@ -132,10 +138,13 @@ namespace ICQ2000 {
       time_t exp_time = t.getExpiryTime();
 
       literator l = m_list.end();
+      literator p;
       while (l != m_list.begin()) {
-	literator p = l--;
-	if ( (*p).getExpiryTime() < exp_time ) break;
-	l = p;
+	--l;
+	if ( (*l).getExpiryTime() < exp_time ) {
+	  ++l;
+	  break;
+	}
       }
       return m_list.insert(l, t);
     }
@@ -215,7 +224,10 @@ namespace ICQ2000 {
 
   template <typename Key, typename Value>
   Cache<Key,Value>::~Cache() {
-    
+    while ( !m_list.empty() ) {
+      removeItem( m_list.begin() );
+      m_list.pop_front();
+    }
   }
  
 }

@@ -102,6 +102,9 @@ namespace ICQ2000 {
 
     void Init();
 
+    void SignalAddSocket(int fd, AddSocketHandleEvent::Mode m);
+    void SignalRemoveSocket(int fd);
+
    public:
     DirectClient(TCPSocket *sock, ContactList *cl, unsigned int uin, unsigned int ext_ip, unsigned short server_port, Translator* translator);
     DirectClient::DirectClient(Contact *c, unsigned int uin, unsigned int ext_ip, unsigned short server_port, Translator *translator);
@@ -117,6 +120,7 @@ namespace ICQ2000 {
     Signal1<void,LogEvent*> logger;
     Signal1<void,MessageEvent*> messaged;
     Signal1<void,MessageEvent*> messageack;
+    Signal1<void,SocketEvent*> socket;
     Signal0<void> connected;
 
     unsigned int getUIN() const;
@@ -125,6 +129,7 @@ namespace ICQ2000 {
     int getfd() const;
 
     void setContact(Contact* c);
+    Contact* getContact() const;
     void SendEvent(MessageEvent* ev);
   };
 

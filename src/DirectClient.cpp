@@ -47,7 +47,7 @@ namespace ICQ2000 {
     : m_socket(sock), m_state(WAITING_FOR_INIT),
       m_local_uin(uin), m_local_ext_ip(ext_ip),
       m_local_server_port(server_port),m_translator(translator), 
-      m_recv(translator), m_contact_list(cl), m_incoming(true)
+      m_recv(translator), m_contact_list(cl), m_incoming(true), m_contact(NULL)
   {
     Init();
   }
@@ -61,18 +61,30 @@ namespace ICQ2000 {
       m_recv(translator), m_incoming(false), m_contact(c)
   {
     Init();
+    m_socket = new TCPSocket();
     m_remote_uin = c->getUIN();
   }
 
   DirectClient::~DirectClient() {
     m_msgcache.expireAll();
-
+    
     while (!m_msgqueue.empty()) {
       expired_cb( m_msgqueue.front() );
       m_msgqueue.pop_front();
     }
 
+    if ( m_socket->getSocketHandle() > -1) SignalRemoveSocket( m_socket->getSocketHandle() );
     delete m_socket;
+  }
+
+  void DirectClient::SignalAddSocket(int fd, SocketEvent::Mode m) {
+    AddSocketHandleEvent ev( fd, m );
+    socket.emit(&ev);
+  }
+
+  void DirectClient::SignalRemoveSocket(int fd) {
+    RemoveSocketHandleEvent ev(fd);
+    socket.emit(&ev);
   }
 
   void DirectClient::Init() {
@@ -82,10 +94,10 @@ namespace ICQ2000 {
   }
 
   void DirectClient::Connect() {
-    m_socket = new TCPSocket();
     m_socket->setRemoteIP( m_contact->getLanIP() );
     m_socket->setRemotePort( m_contact->getLanPort() );
     m_socket->Connect();
+    SignalAddSocket( m_socket->getSocketHandle(), SocketEvent::READ );
 
     m_remote_tcp_version = m_contact->getTCPVersion();
     if (m_remote_tcp_version >= 7) m_eff_tcp_version = 7;
@@ -99,10 +111,15 @@ namespace ICQ2000 {
   }
 
   void DirectClient::expired_cb(MessageEvent *ev) {
-    ev->setFinished(false);
-    ev->setDelivered(false);
-    ev->setDirect(true);
-    messageack.emit(ev);
+    if ( m_contact != NULL ) {
+      ev->setFinished(false);
+      ev->setDelivered(false);
+      ev->setDirect(true);
+      messageack.emit(ev);
+    } else {
+      // discard
+      delete ev;
+    }
   }
 
   void DirectClient::Recv() {
@@ -713,6 +730,10 @@ namespace ICQ2000 {
   unsigned short DirectClient::getPort() const { return m_socket->getRemotePort(); }
 
   int DirectClient::getfd() const { return m_socket->getSocketHandle(); }
+
+  void DirectClient::setContact(Contact *c) { m_contact = c; }
+
+  Contact* DirectClient::getContact() const { return m_contact; }
 
   DirectClientException::DirectClientException() { }
   DirectClientException::DirectClientException(const string& text) : m_errortext(text) { }

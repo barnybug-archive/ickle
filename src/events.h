@@ -215,7 +215,6 @@ namespace ICQ2000 {
       Normal,
       URL,
       SMS,
-      SMS_Response,
       SMS_Receipt,
       AuthReq,
       AuthAck,
@@ -293,25 +292,6 @@ namespace ICQ2000 {
     string getSender() const;
     string getSenders_network() const;
     bool getRcpt() const;
-  };
-
-  class SMSResponseEvent : public MessageEvent {
-   private:
-    string m_source, m_error_param, m_network;
-    int m_error_id;
-    bool m_deliverable;
-    
-   public:
-    SMSResponseEvent(Contact* c, const string& source, int error_id, const string& error_param);
-    SMSResponseEvent(Contact* c, const string& source, const string& network);
-
-    MessageType getType() const;
-    string getSource() const;
-    bool deliverable() const;
-    string getNetwork() const;
-    int getErrorId() const;
-    string getErrorParam() const;
-
   };
 
   class SMSReceiptEvent : public MessageEvent {

@@ -137,6 +137,8 @@ namespace ICQ2000 {
   }
 
   void Client::DisconnectBOS() {
+    m_state = NOT_CONNECTED;
+
     SignalRemoveSocket( m_serverSocket.getSocketHandle() );
     m_serverSocket.Disconnect();
     if (m_listenServer.isStarted()) {
@@ -144,22 +146,15 @@ namespace ICQ2000 {
       m_listenServer.Disconnect();
       DisconnectDirectConns();
     }
-
-    m_state = NOT_CONNECTED;
   }
 
   void Client::DisconnectDirectConns() {
-    while ( !m_dccache.empty() ) {
-      int fd = m_dccache.front();
-      m_dccache.remove( m_dccache.front() );
-      SignalRemoveSocket( fd );
-    }
+    m_dccache.removeAll();
     m_uinmap.clear();
   }
 
   void Client::DisconnectDirectConn(int fd) {
     if (m_dccache.exists(fd)) {
-      SignalRemoveSocket(fd);
       DirectClient *dc = m_dccache[fd];
       unsigned int uin = dc->getUIN();
       if ( m_uinmap.count(uin) > 0 && m_uinmap[uin] == dc) m_uinmap.erase(uin);
@@ -175,7 +170,6 @@ namespace ICQ2000 {
   }
 
   void Client::SignalDisconnect(DisconnectedEvent::Reason r) {
-    m_state = NOT_CONNECTED;
     DisconnectedEvent ev(r);
     disconnected.emit(&ev);
 
@@ -245,7 +239,7 @@ namespace ICQ2000 {
 				sst->getSenders_network(),
 				sst->getTime());
 
-      } else if (sst->getSMSType() == SMSICQSubType::SMS_Receipt_Success) {
+      } else if (sst->getSMSType() == SMSICQSubType::SMS_Receipt) {
 	contact = lookupMobile(sst->getDestination());
 	e = new SMSReceiptEvent(contact,
 				sst->getMessage(),
@@ -253,7 +247,8 @@ namespace ICQ2000 {
 				sst->getSubmissionTime(),
 				sst->getDeliveryTime(),
 				sst->delivered());
-      }                          
+      }
+
     } else if (st->getType() == MSG_Type_AuthReq) {
       AuthReqICQSubType *ust = static_cast<AuthReqICQSubType*>(st);
       
@@ -347,8 +342,9 @@ namespace ICQ2000 {
 
   void Client::dc_messageack_cb(MessageEvent *ev) {
     messageack.emit(ev);
+
     if (!ev->isFinished()) {
-      // attempt to deliver direct instead
+      // attempt to deliver via server instead
       SendViaServer(ev);
     }
   }
@@ -407,30 +403,38 @@ namespace ICQ2000 {
       // mmm
     } else if (snac->getType() == SrvResponseSNAC::SMS_Response) {
       
-      /*
-       * Need to do SNAC Request ID caching to be able to associate these back
-       * to the SMS and consequently the actual Mobile No
-      MessageEvent *e = NULL;
-      
-      if (snac->deliverable()) {
-	e = new SMSResponseEvent(snac->getSource(), snac->getNetwork());
-      } else {
-	if (snac->getErrorParam() != "DUPLEX RESPONSE")
-	  e = new SMSResponseEvent(snac->getSource(), snac->getErrorId(), snac->getErrorParam());
-	// ignore DUPLEX RESPONSE since I always get that
-      }
+      unsigned int reqid = snac->RequestID();
+      if ( m_reqidcache.exists( reqid ) ) {
+	RequestIDCacheValue *v = m_reqidcache[ reqid ];
+	
+	if ( v->getType() == RequestIDCacheValue::SMSMessage ) {
+	  SMSEventCacheValue *uv = static_cast<SMSEventCacheValue*>(v);
+	  SMSMessageEvent *ev = uv->getEvent();
 
-      if (e != NULL) {
-	contact->addPendingMessage(e);
-        if (messaged.emit(e)) {
-        contact->erasePendingMessage(e);
-        SignalMessageQueueChanged(contact);
-        }
+	  if (snac->deliverable()) {
+	    ev->setFinished(true);
+	    ev->setDelivered(true);
+	    ev->setDirect(false);
+	    messageack.emit(ev);
+	    m_reqidcache.remove( reqid );
+	  } else {
+	    if (snac->getErrorParam() != "DUPLEX RESPONSE") {
+	      // ignore DUPLEX RESPONSE since I always get that
+	      ev->setFinished(true);
+	      ev->setDelivered(false);
+	      ev->setDirect(false);
+	      messageack.emit(ev);
+	      m_reqidcache.remove( reqid );
+	    }
+	  }
+	
+	} else {
+	  throw ParseException("Request ID cached value is not for an SMS Message");
 	}
-
-       *
-       */
-
+      } else {
+	throw ParseException("Received an SMS response for unknown request id");
+      }
+      
     } else if (snac->getType() == SrvResponseSNAC::SimpleUserInfo) {
       // update Contact
       if ( m_contact_list.exists( snac->getUIN() ) ) {
@@ -446,9 +450,9 @@ namespace ICQ2000 {
     } else if (snac->getType() == SrvResponseSNAC::RMainHomeInfo) {
 
       try {
-	Contact& c = getCacheUserInfoContact( snac->RequestID() );
-	c.setMainHomeInfo( snac->getMainHomeInfo() );
-	UserInfoChangeEvent ev(&c);
+	Contact* c = getUserInfoCacheContact( snac->RequestID() );
+	c->setMainHomeInfo( snac->getMainHomeInfo() );
+	UserInfoChangeEvent ev(c);
 	contactlist.emit(&ev);
       } catch(ParseException e) {
 	SignalLog(LogEvent::WARN, e.what());
@@ -457,9 +461,9 @@ namespace ICQ2000 {
     } else if (snac->getType() == SrvResponseSNAC::RHomepageInfo) {
 
       try {
-	Contact& c = getCacheUserInfoContact( snac->RequestID() );
-	c.setHomepageInfo( snac->getHomepageInfo() );
-	UserInfoChangeEvent ev(&c);
+	Contact* c = getUserInfoCacheContact( snac->RequestID() );
+	c->setHomepageInfo( snac->getHomepageInfo() );
+	UserInfoChangeEvent ev(c);
 	contactlist.emit(&ev);
       } catch(ParseException e) {
 	SignalLog(LogEvent::WARN, e.what());
@@ -468,9 +472,9 @@ namespace ICQ2000 {
     } else if (snac->getType() == SrvResponseSNAC::RAboutInfo) {
 
       try {
-	Contact& c = getCacheUserInfoContact( snac->RequestID() );
-	c.setAboutInfo( snac->getAboutInfo() );
-	UserInfoChangeEvent ev(&c);
+	Contact* c = getUserInfoCacheContact( snac->RequestID() );
+	c->setAboutInfo( snac->getAboutInfo() );
+	UserInfoChangeEvent ev(c);
 	contactlist.emit(&ev);
       } catch(ParseException e) {
 	SignalLog(LogEvent::WARN, e.what());
@@ -479,21 +483,14 @@ namespace ICQ2000 {
     }
   }
   
-  Contact& Client::getCacheUserInfoContact(unsigned int reqid) {
+  Contact* Client::getUserInfoCacheContact(unsigned int reqid) {
 
     if ( m_reqidcache.exists( reqid ) ) {
       RequestIDCacheValue *v = m_reqidcache[ reqid ];
 
-      if ( v->getType() == RequestIDCacheValue::UserInfo ) {
-	UserInfoCacheValue *uv = static_cast<UserInfoCacheValue*>(v);
+      if ( v->getType() == RequestIDCacheValue::UserInfo ) return v->getContact();
+      else throw ParseException("Request ID cached value is not for a User Info request");
 
-
-	if ( m_contact_list.exists( uv->getUIN() ) ) return m_contact_list[ uv->getUIN() ];
-	else throw ParseException("User Info request response for user not on contact list");
-
-      } else {
-	throw ParseException("Request ID cached value is not for a User Info request");
-      }
     } else {
       throw ParseException("Received a UserInfo response for unknown request id");
     }
@@ -535,8 +532,6 @@ namespace ICQ2000 {
 
   void Client::dccache_expired_cb(DirectClient *dc) {
     SignalLog(LogEvent::WARN, "Direct connection timeout reached");
-    int fd = dc->getfd();
-    SignalRemoveSocket(fd);
     unsigned int uin = dc->getUIN();
     if ( m_uinmap.count(uin) > 0 && m_uinmap[uin] == dc) m_uinmap.erase(uin);
   }
@@ -550,6 +545,10 @@ namespace ICQ2000 {
 
   void Client::dc_log_cb(LogEvent *ev) {
     logger.emit(ev);
+  }
+
+  void Client::dc_socket_cb(SocketEvent *ev) {
+    socket.emit(ev);
   }
 
   void Client::SignalUserOnline(BuddyOnlineSNAC *snac) {
@@ -566,6 +565,10 @@ namespace ICQ2000 {
       c.setTCPVersion( userinfo.getTCPVersion() );
       StatusChangeEvent ev(&c, c.getStatus(), old_st);
       contactlist.emit(&ev);
+
+      ostringstream ostr;
+      ostr << "Received Buddy Online for " << c.getAlias() << " (" << c.getUIN() << ") from server";
+      SignalLog(LogEvent::INFO, ostr.str() );
     } else {
       ostringstream ostr;
       ostr << "Received Status change for user not on contact list: " << userinfo.getUIN();
@@ -581,6 +584,10 @@ namespace ICQ2000 {
       c.setStatus(STATUS_OFFLINE);
       StatusChangeEvent ev(&c, c.getStatus(), old_st);
       contactlist.emit(&ev);
+
+      ostringstream ostr;
+      ostr << "Received Buddy Offline for " << c.getAlias() << " (" << c.getUIN() << ") from server";
+      SignalLog(LogEvent::INFO, ostr.str() );
     } else {
       ostringstream ostr;
       ostr << "Received Status change for user not on contact list: " << userinfo.getUIN();
@@ -1021,12 +1028,11 @@ namespace ICQ2000 {
     case SNAC_FAM_BUD:
       switch(snac->Subtype()) {
       case SNAC_BUD_Online:
-	SignalLog(LogEvent::INFO, "Received Buddy Online from server");
 	SignalUserOnline(static_cast<BuddyOnlineSNAC*>(snac));
 	break;
       case SNAC_BUD_Offline:
-	SignalLog(LogEvent::INFO, "Received Buddy Offline from server");
 	SignalUserOffline(static_cast<BuddyOfflineSNAC*>(snac));
+	break;
       }
       break;
 
@@ -1150,8 +1156,8 @@ namespace ICQ2000 {
 	} else {
 	  st = DisconnectedEvent::REQUESTED;
 	}
-	DisconnectAuthorizer();
 	SignalDisconnect(st); // signal client (error)
+	DisconnectAuthorizer();
       }
 
     } else {
@@ -1175,8 +1181,8 @@ namespace ICQ2000 {
 	  SignalLog(LogEvent::WARN, "Unknown packet received on channel 4, disconnecting");
 	  st = DisconnectedEvent::FAILED_UNKNOWN;
 	}
-	DisconnectBOS();
 	SignalDisconnect(st); // signal client (error)
+	DisconnectBOS();
     }
 
   }
@@ -1199,7 +1205,6 @@ namespace ICQ2000 {
     // take the opportunity to clearout caches
     m_reqidcache.clearoutPoll();
     m_cookiecache.clearoutPoll();
-    m_cookiecache.clearoutPoll();
     m_dccache.clearoutPoll();
   }
 
@@ -1216,6 +1221,7 @@ namespace ICQ2000 {
       dc->messaged.connect( slot(this, &Client::dc_messaged_cb) );
       dc->messageack.connect( slot(this, &Client::dc_messageack_cb) );
       dc->connected.connect( SigC::bind<DirectClient*>( slot(this, &Client::dc_connected_cb), dc ) );
+      dc->socket.connect( slot(this, &Client::dc_socket_cb) );
       SignalAddSocket( sock->getSocketHandle(), SocketEvent::READ );
 
     } else {
@@ -1273,6 +1279,15 @@ namespace ICQ2000 {
   void Client::SendViaServer(MessageEvent *ev) {
     Contact *c = ev->getContact();
 
+    if (m_status == STATUS_OFFLINE) {
+      ev->setFinished(true);
+      ev->setDelivered(false);
+      ev->setDirect(false);
+      messageack.emit(ev);
+      delete ev;
+      return;
+    }
+
     if (ev->getType() == MessageEvent::Normal
 	|| ev->getType() == MessageEvent::URL) {
 
@@ -1304,6 +1319,7 @@ namespace ICQ2000 {
       } else { 
 	ev->setFinished(true);
 	ev->setDelivered(true);
+	ev->setDirect(false);
 	messageack.emit(ev);
 	
 	delete ev;
@@ -1388,14 +1404,16 @@ namespace ICQ2000 {
       SMSMessageEvent *sv = static_cast<SMSMessageEvent*>(ev);
       SrvSendSNAC ssnac(sv->getMessage(), c->getMobileNo(), m_uin, "", sv->getRcpt());
 
+      unsigned int reqid = NextRequestID();
+      m_reqidcache.insert( reqid, new SMSEventCacheValue( sv ) );
+      ssnac.setRequestID( reqid );
+
       Buffer b(&m_translator);
       unsigned int d;
       d = FLAPHeader(b,0x02);
       b << ssnac;
       FLAPFooter(b,d);
       Send(b);
-
-      delete ev;
     }
 
   }
@@ -1416,6 +1434,7 @@ namespace ICQ2000 {
       dc->messaged.connect( slot(this, &Client::dc_messaged_cb) );
       dc->messageack.connect( slot(this, &Client::dc_messageack_cb) );
       dc->connected.connect( SigC::bind<DirectClient*>( slot(this, &Client::dc_connected_cb), dc ) );
+      dc->socket.connect( slot(this, &Client::dc_socket_cb) );
 
       try {
 	dc->Connect();
@@ -1434,7 +1453,7 @@ namespace ICQ2000 {
 
       m_dccache[ dc->getfd() ] = dc;
       m_uinmap[c->getUIN()] = dc;
-      SignalAddSocket( dc->getfd(), SocketEvent::READ );
+
     } else {
       dc = m_uinmap[c->getUIN()];
     }
@@ -1455,7 +1474,6 @@ namespace ICQ2000 {
 	|| ev->getType() == MessageEvent::URL
 	|| ev->getType() == MessageEvent::AwayMessage) {
       if (!SendDirect(ev)) SendViaServer(ev);
-      //      SendViaServer(ev);
     } else {
       SendViaServer(ev);
     }
@@ -1523,7 +1541,8 @@ namespace ICQ2000 {
 
   void Client::removeContact(const unsigned int uin) {
     if (m_contact_list.exists(uin)) {
-      SignalUserRemoved(&(m_contact_list[uin]));
+      Contact &c = m_contact_list[uin];
+      SignalUserRemoved(&c);
       if (m_contact_list[uin].isICQContact() && m_state == BOS_LOGGED_IN) {
 	Buffer b(&m_translator);
 	unsigned int d;
@@ -1534,6 +1553,16 @@ namespace ICQ2000 {
 	
 	Send(b);
       }
+
+      // remove all direct connections for that contact
+      m_dccache.removeContact(&c);
+      
+      // remove all pending messages for that contact
+      m_cookiecache.removeContact(&c);
+
+      // remove all pending request ids for that contact
+      m_reqidcache.removeContact(&c);
+
       m_contact_list.remove(uin);
     }
   }
@@ -1592,7 +1621,7 @@ namespace ICQ2000 {
 
     d = FLAPHeader(b,0x02);
     unsigned int reqid = NextRequestID();
-    m_reqidcache.insert( reqid, new UserInfoCacheValue( c->getUIN() ) );
+    m_reqidcache.insert( reqid, new UserInfoCacheValue(c) );
     SrvRequestDetailUserInfo ssnac( m_uin, c->getUIN() );
     ssnac.setRequestID( reqid );
     b << ssnac;
@@ -1604,15 +1633,14 @@ namespace ICQ2000 {
   void Client::Disconnect(DisconnectedEvent::Reason r) {
     if (m_state == NOT_CONNECTED) return;
 
-    DisconnectInt();
+    SignalLog(LogEvent::INFO, "Client disconnecting");
+
     SignalDisconnect(r);
-    // signal we have disconnected - as requested
+    DisconnectInt();
   }
 
   void Client::DisconnectInt() {
     if (m_state == NOT_CONNECTED) return;
-
-    SignalLog(LogEvent::INFO, "Client disconnecting");
 
     if (m_state == AUTH_AWAITING_CONN_ACK || m_state == AUTH_AWAITING_AUTH_REPLY|| 
         m_state == UIN_AWAITING_CONN_ACK || m_state == UIN_AWAITING_UIN_REPLY) {

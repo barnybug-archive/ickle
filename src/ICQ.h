@@ -179,8 +179,7 @@ namespace ICQ2000 {
    public:
     enum Type {
       SMS,
-      SMS_Receipt_Success,
-      SMS_Receipt_Failure
+      SMS_Receipt
     };
 
    private:

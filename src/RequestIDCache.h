@@ -28,21 +28,37 @@ namespace ICQ2000 {
   class RequestIDCacheValue {
    public:
     enum Type {
-      UserInfo
+      UserInfo,
+      SMSMessage
     };
 
+    virtual Contact* getContact() const = 0;
     virtual Type getType() const = 0;
   };
 
   class UserInfoCacheValue : public RequestIDCacheValue {
    private:
-    unsigned int m_uin;
+    Contact *m_contact;
 
    public:
-    UserInfoCacheValue(unsigned int uin) : m_uin(uin) { }
-    unsigned int getUIN() const { return m_uin; }
+    UserInfoCacheValue(Contact *c) : m_contact(c) { }
+    unsigned int getUIN() const { return m_contact->getUIN(); }
+    Contact* getContact() const { return m_contact; }
 
     Type getType() const { return UserInfo; }
+  };
+
+  class SMSEventCacheValue : public RequestIDCacheValue {
+   private:
+    SMSMessageEvent *m_ev;
+
+   public:
+    SMSEventCacheValue( SMSMessageEvent *ev ) : m_ev(ev) { }
+    ~SMSEventCacheValue() { delete m_ev; }
+    SMSMessageEvent* getEvent() const { return m_ev; }
+    Contact* getContact() const { return m_ev->getContact(); }
+
+    Type getType() const { return SMSMessage; }
   };
 
   class RequestIDCache : public Cache<unsigned int, RequestIDCacheValue*> {
@@ -53,6 +69,16 @@ namespace ICQ2000 {
       delete ((*l).getValue());
       Cache<unsigned int, RequestIDCacheValue*>::removeItem(l);
     }
+
+    void removeContact(Contact *c) {
+      literator curr = m_list.begin();
+      while ( curr != m_list.end() ) {
+	RequestIDCacheValue *cv = (*curr).getValue();
+	if ( cv->getContact() == c ) removeItem(curr);
+	++curr;
+      }
+    }
+
   };
   
 }

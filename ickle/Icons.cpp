@@ -131,7 +131,6 @@ ImageLoader* Icons::IconForEvent(MessageEvent::MessageType t) {
     p = Icon_Status_URL;
     break;
   case MessageEvent::SMS:
-  case MessageEvent::SMS_Response:
   case MessageEvent::SMS_Receipt:
   default:
     p = Icon_Status_SMS;

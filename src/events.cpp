@@ -211,23 +211,6 @@ namespace ICQ2000 {
   string SMSMessageEvent::getSenders_network() const { return m_senders_network; }
   bool SMSMessageEvent::getRcpt() const { return m_rcpt; }
 
-  // ---------------- SMS Response -----------------------
-
-  SMSResponseEvent::SMSResponseEvent(Contact *c, const string& source, int error_id, const string& error_param)
-    : MessageEvent(c), m_source(source), m_deliverable(false),
-      m_error_id(error_id), m_error_param(error_param) { }
-  
-  SMSResponseEvent::SMSResponseEvent(Contact *c, const string& source, const string& network)
-    : MessageEvent(c), m_source(source), m_deliverable(true),
-      m_network(network) { }
-  
-  MessageEvent::MessageType SMSResponseEvent::getType() const { return MessageEvent::SMS_Response; }
-  string SMSResponseEvent::getSource() const { return m_source; }
-  string SMSResponseEvent::getNetwork() const { return m_network; }
-  int SMSResponseEvent::getErrorId() const { return m_error_id; }
-  string SMSResponseEvent::getErrorParam() const { return m_error_param; }
-  bool SMSResponseEvent::deliverable() const { return m_deliverable; }
-
   // ---------------- SMS Receipt ------------------------
 
   SMSReceiptEvent::SMSReceiptEvent(Contact *c, const string& msg, const string& message_id,
