@@ -260,9 +260,9 @@ bool UserInfoDialog::update_contact()
     ret = true;
     mhi.fax = fax_entry.get_text();
   }
-  if (mhi.cellular != cellular_entry.get_text()) {
+  if (mhi.getMobileNo() != cellular_entry.get_text()) {
     ret = true;
-    mhi.cellular = cellular_entry.get_text();
+    mhi.setMobileNo(cellular_entry.get_text());
   }
   return ret;
 }
