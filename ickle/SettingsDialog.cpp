@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.51 2002-05-21 20:52:22 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.52 2002-06-08 11:58:36 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -637,7 +637,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   
   m_tooltips.set_tip( network_use_portrange, "If you are behind a firewall and still wish to be able to "
 		      "receive direct connections then you may get ickle to only use a certain port range "
-		      "for it's listening server. You can then configure your firewall to let through connections "
+		      "for its listening server. You can then configure your firewall to let through connections "
 		      "to this restricted range. A sensible range is 9000-9010.");
 
   hbox = manage( new Gtk::HBox() );

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.106 2002-05-21 20:52:21 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.107 2002-06-08 11:58:36 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -75,10 +75,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 {
   // process command line parameters
   processCommandLine(argc,argv);
-
-  // make sure ickle isn't already running with the current configuration directory
-  check_pid_file();
-
+  
 #ifdef GNOME_ICKLE
   // initialize GNOME applet
   applet.init(argc, argv, gui);
@@ -86,6 +83,10 @@ IckleClient::IckleClient(int argc, char* argv[])
   applet.exit.connect(slot(this,&IckleClient::exit_cb));
 #endif
 
+}
+
+void IckleClient::init()
+{
 #ifdef CONTROL_SOCKET
   // initialize control socket
   ctrl.init();
@@ -153,10 +154,6 @@ IckleClient::~IckleClient() {
   // free History objects
   for( map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
     delete itr->second;
-
-  // remove the ickle.pid file
-  if (!PID_FILENAME.empty()) unlink(PID_FILENAME.c_str());
-
 }
 
 void IckleClient::loadContactList() {
@@ -449,6 +446,9 @@ gint IckleClient::close_cb(GdkEventAny*) {
 }
 
 void IckleClient::quit() {
+  // remove the ickle.pid file
+  if (!PID_FILENAME.empty()) unlink(PID_FILENAME.c_str());
+
 #ifdef CONTROL_SOCKET
   ctrl.quit();
 #endif
@@ -1125,12 +1125,12 @@ void IckleClient::loadSelfContact()
   }
 }
 
-void IckleClient::check_pid_file(){
-
+bool IckleClient::check_pid_file()
+{
   fstream pidfile;
   pid_t pid;
 
-  if (!mkdir_BASE_DIR()) return;
+  if (!mkdir_BASE_DIR()) return true;
 
   pidfile.open(PID_FILENAME.c_str(), std::ios::in);
 
@@ -1140,7 +1140,7 @@ void IckleClient::check_pid_file(){
       cerr << "ickle left behind a stale lockfile (" << PID_FILENAME << ")" << endl;
     } else {
       gui.already_running_prompt( PID_FILENAME, pid );
-      quit();
+      return false;
     }
   }
 
@@ -1155,4 +1155,5 @@ void IckleClient::check_pid_file(){
     pidfile.close();
   }
 
+  return true;
 }

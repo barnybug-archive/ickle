@@ -109,13 +109,14 @@ class IckleClient : public SigC::Object {
 
   std::string get_unique_historyname() throw (std::runtime_error);
   
-  void check_pid_file();
   bool mkdir_BASE_DIR();
 
  public:
   IckleClient(int argc, char* argv[]);
   ~IckleClient();
   
+  void init();
+  bool check_pid_file();
   void quit();
 
   // -- Callbacks for libICQ2000 --

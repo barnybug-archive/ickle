@@ -56,6 +56,8 @@ int main(int argc, char* argv[]) {
     g_icons.setDefaultIcons();
     
     IckleClient client(argc,argv);
+    if (!client.check_pid_file()) return -1;
+    client.init();    // finish initialising
 
 #ifdef GNOME_ICKLE
     applet_widget_gtk_main();
