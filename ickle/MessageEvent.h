@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.h,v 1.2 2002-03-31 20:35:43 barnabygray Exp $
+/* $Id: MessageEvent.h,v 1.3 2002-04-13 21:21:49 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -53,7 +53,8 @@ class MessageEvent {
   };
 
   MessageEvent(time_t t);
-  
+  virtual ~MessageEvent() { }
+
   virtual ServiceType getServiceType() const = 0;
   time_t getTime() const;
   void setTime(time_t t);
@@ -86,6 +87,7 @@ class ICQMessageEvent : public MessageEvent {
     
  public:
   ICQMessageEvent(time_t t, const ICQ2000::ContactRef& c);
+  virtual ~ICQMessageEvent() { }
 
   virtual ICQMessageType getICQMessageType() const = 0;
   
