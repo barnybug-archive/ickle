@@ -11,4 +11,5 @@ dist_translations_DATA = \
  DANISH   HP_MCS           NEXT          RUSSIAN_ALT     UNITED_KINGDOM_COM \
  DEC_MCS  IRV              NORWEGIAN_1   RUSSIAN_WIN                        \
  DG_MCS   ITALIAN          NORWEGIAN_2   SPANISH                            \
- DUTCH    JIS              POLISH        SWEDISH
+ DUTCH    JIS              POLISH        SWEDISH     UKRAINIAN_WIN
+
