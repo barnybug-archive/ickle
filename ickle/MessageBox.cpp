@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.37 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.38 2002-01-19 15:20:38 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -40,8 +40,9 @@ using std::ostringstream;
 using std::endl;
 using std::exception;
 
-MessageBox::MessageBox(Contact *c, History *h)
-  : m_contact(c),
+MessageBox::MessageBox(Contact *self, Contact *c, History *h)
+  : m_self_contact(self),
+    m_contact(c),
     m_history(h),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
@@ -476,7 +477,7 @@ void MessageBox::display_message(History::Entry &e)
   
   if( e.dir == History::Entry::SENT ) {
     nickc = Gdk_Color("blue");
-    nick = "You";
+    nick = m_self_contact->getAlias();
   }
   else {
     nickc = Gdk_Color("red");

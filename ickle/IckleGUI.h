@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.26 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.27 2002-01-19 15:20:38 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -102,6 +102,7 @@ class IckleGUI : public Gtk::Window {
   void add_mobile_user_cb();
   void search_user_cb();
   void about_cb();
+  void my_user_info_cb();
 
   // -- disconnected callbacks --
   void invalid_login_prompt();
@@ -119,8 +120,10 @@ class IckleGUI : public Gtk::Window {
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
   void userinfo_toggle_cb(bool b, Contact *c);
-  void status_changed_cb(MyStatusChangeEvent *ev);
+  void self_event_cb(SelfEvent *ev);
   void exit_cb();
+  void userinfo_fetch_cb(Contact *c);
+  void my_userinfo_fetch_cb();
   void settings_changed_cb(const string& k);
 
   void spell_check_setup();
@@ -131,7 +134,6 @@ class IckleGUI : public Gtk::Window {
   SigC::Signal1<void,MessageEvent*> send_event;
   SigC::Signal1<void,unsigned int> add_user;
   SigC::Signal2<void,string,string> add_mobile_user;
-  SigC::Signal1<void,Contact*> fetch;
   SigC::Signal1<void,unsigned int> user_popup;
   SigC::Signal0<void> exit;
 

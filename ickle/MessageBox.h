@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.14 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.15 2002-01-19 15:20:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -52,7 +52,7 @@ using std::string;
 
 class MessageBox : public Gtk::Window {
  private:
-  Contact *m_contact;
+  Contact *m_self_contact, *m_contact;
 
   History *m_history;
   SigC::Connection m_histconn;
@@ -108,7 +108,7 @@ class MessageBox : public Gtk::Window {
   gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
 
  public:
-  MessageBox(Contact *c, History *h);
+  MessageBox(Contact *self, Contact *c, History *h);
   ~MessageBox();
 
   void popup();

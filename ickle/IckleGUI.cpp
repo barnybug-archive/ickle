@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.31 2002-01-18 00:43:50 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.32 2002-01-19 15:20:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -48,7 +48,7 @@ IckleGUI::IckleGUI()
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
-  icqclient.statuschanged.connect(slot(this,&IckleGUI::status_changed_cb));
+  icqclient.self_event.connect(slot(this,&IckleGUI::self_event_cb));
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
@@ -68,6 +68,7 @@ IckleGUI::IckleGUI()
     MenuList& ml = m_ickle_menu.items();
     ml.push_back( MenuElem("Add Contact", slot(this, &IckleGUI::add_user_cb)) );
     ml.push_back( MenuElem("Add Mobile Contact", slot(this, &IckleGUI::add_mobile_user_cb)) );
+    ml.push_back( MenuElem("My User Info", slot(this, &IckleGUI::my_user_info_cb)) );
     ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
     ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
     ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
@@ -169,7 +170,6 @@ void IckleGUI::contactlist_cb(ContactListEvent *ev) {
     } else if (et == ContactListEvent::UserRemoved) {
       d->destroy();
     }
-      
   }
 
 }
@@ -180,7 +180,8 @@ ContactListView* IckleGUI::getContactListView() {
 
 void IckleGUI::messagebox_popup(Contact *c, History *h) {
   if (m_message_boxes.count(c->getUIN()) == 0) {
-    MessageBox *m = new MessageBox(c, h);
+    Contact *self = icqclient.getSelfContact();
+    MessageBox *m = new MessageBox(self, c, h);
     manage(m);
     /*
      * gtkmm doesn't delete it on destroy event unless it's managed
@@ -266,19 +267,31 @@ void IckleGUI::status_menu_invisible_changed_cb(bool inv)
   icqclient.setStatus(m_status_wanted, m_invisible_wanted);
 }
 
-void IckleGUI::status_changed_cb(MyStatusChangeEvent *ev) {
-  Status st = ev->getStatus();
-  bool inv = ev->getInvisible();
+void IckleGUI::self_event_cb(SelfEvent *ev) {
+  Contact *c = ev->getSelfContact();
 
-  m_status_menu.status_changed_cb( st, inv );
-  m_status = st;
-  m_invisible = inv;
+  if (ev->getType() == SelfEvent::MyStatusChange) {
+    MyStatusChangeEvent *mev = static_cast<MyStatusChangeEvent*>(ev);
 
-  map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-  while (i != m_message_boxes.end()) {
-    if (st == STATUS_OFFLINE) (*i).second->offline();
-    else (*i).second->online();
-    ++i;
+    Status st = mev->getStatus();
+    bool inv = mev->getInvisible();
+
+    m_status_menu.status_changed_cb( st, inv );
+    m_status = st;
+    m_invisible = inv;
+    
+    map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+    while (i != m_message_boxes.end()) {
+      if (st == STATUS_OFFLINE) (*i).second->offline();
+      else (*i).second->online();
+      ++i;
+    }
+    
+  } else if (ev->getType() == SelfEvent::MyUserInfoChange) {
+    if (m_userinfo_dialogs.count(c->getUIN()) != 0) {
+      UserInfoDialog *d = m_userinfo_dialogs[c->getUIN()];
+      d->userinfochange_cb();
+    }
   }
 }
 
@@ -312,6 +325,35 @@ void IckleGUI::search_user_cb()
 {
   SearchDialog *sd = new SearchDialog();
   manage( sd );
+}
+
+void IckleGUI::my_user_info_cb()
+{
+  Contact *self = icqclient.getSelfContact();
+  unsigned int uin = self->getUIN();
+  
+  if ( m_userinfo_dialogs.count(uin) == 0 ) {
+    UserInfoDialog *d = new UserInfoDialog(self, true);
+    manage(d);
+    d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), self));
+    d->fetch.connect( slot( this, &IckleGUI::my_userinfo_fetch_cb ) );
+    m_userinfo_dialogs[ uin ] = d;
+    if (m_message_boxes.count(uin) != 0) {
+      m_message_boxes[uin]->userinfo_dialog_cb(true);
+    }
+  } else {
+    m_userinfo_dialogs[ uin ]->raise();
+  }
+}
+
+void IckleGUI::userinfo_fetch_cb(Contact *c)
+{
+  icqclient.fetchDetailContactInfo(c);
+}
+
+void IckleGUI::my_userinfo_fetch_cb()
+{
+  icqclient.fetchSelfDetailContactInfo();
 }
 
 void IckleGUI::about_cb()
@@ -380,7 +422,7 @@ void IckleGUI::userinfo_popup(Contact *c) {
     UserInfoDialog *d = new UserInfoDialog(c);
     manage(d);
     d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), c));
-    d->fetch.connect( bind( fetch.slot(), c) );
+    d->fetch.connect( bind( slot(this, &IckleGUI::userinfo_fetch_cb), c) );
     m_userinfo_dialogs[ uin ] = d;
     if (m_message_boxes.count(uin) != 0) {
       m_message_boxes[uin]->userinfo_dialog_cb(true);

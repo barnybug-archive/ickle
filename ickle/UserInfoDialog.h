@@ -55,9 +55,10 @@ class UserInfoDialog : public Gtk::Dialog {
 
   Contact *contact;
   bool changed;
+  bool m_self;
 
  public:
-  UserInfoDialog(Contact *c);
+  UserInfoDialog(Contact *c, bool self = false);
   ~UserInfoDialog();
 
   void okay_cb();

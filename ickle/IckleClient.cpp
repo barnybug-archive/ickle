@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.61 2002-01-18 00:43:50 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.62 2002-01-19 15:20:38 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -87,7 +87,6 @@ IckleClient::IckleClient(int argc, char* argv[])
 
   // set up GUI callbacks
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
-  gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
   gui.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->userinfo.connect( slot( this, &IckleClient::userinfo_cb ) );
@@ -803,6 +802,3 @@ void IckleClient::settings_changed_cb() {
   saveSettings();
 }
 
-void IckleClient::fetch_cb(Contact* c) {
-  icqclient.fetchDetailContactInfo(c);
-}

@@ -27,19 +27,24 @@
 using std::ostringstream;
 using SigC::slot;
 
-UserInfoDialog::UserInfoDialog(Contact *c)
-       : Gtk::Dialog(),
-	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
-	 contact(c), changed(false)
+UserInfoDialog::UserInfoDialog(Contact *c, bool self)
+  : Gtk::Dialog(), m_self(self),
+    okay("OK"), cancel("Cancel"), fetchb("Fetch"),
+    contact(c), changed(false)
 {
   ostringstream ostr;
-  ostr << "User Info - " << c->getAlias() << " (";
-  if (c->isICQContact()) {
-    ostr << c->getUIN();
+  if (m_self) {
+    ostr << "My User Info";
   } else {
-    ostr << c->getMobileNo();
+    ostr << "User Info - " << c->getAlias() << " (";
+    if (c->isICQContact()) {
+      ostr << c->getUIN();
+    } else {
+      ostr << c->getMobileNo();
+    }
+    ostr << ")";
   }
-  ostr << ")";
+  
   set_title(ostr.str());
 
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
