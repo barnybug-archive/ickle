@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.51 2003-01-11 20:11:10 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.52 2003-01-11 20:23:53 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -82,6 +82,7 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     pColumn->pack_start( *pPixbufRenderer, false );
     pColumn->pack_start( *pTextRenderer );
     
+    pColumn->add_attribute( pPixbufRenderer->property_pixbuf(), m_columns.icon );
     pColumn->add_attribute( pTextRenderer->property_text(), m_columns.nick );
     pColumn->add_attribute( pPixbufRenderer->property_visible(), m_columns.is_contact );
     append_column( *pColumn );
