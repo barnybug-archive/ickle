@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.11 2002-01-02 21:41:27 nordman Exp $
+/* $Id: History.cpp,v 1.12 2002-01-20 23:35:04 oizoken Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -74,7 +74,7 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
 
   Contact *c = ev->getContact();
 
-  of.open( m_filename.c_str(), std::ios::out | std::ios::ate );
+  of.open( m_filename.c_str(), std::ios::out | std::ios::app );
   if (!of.is_open())
     throw runtime_error( string("History::log: Could not open historyfile for writing: ") + m_filename );
 
