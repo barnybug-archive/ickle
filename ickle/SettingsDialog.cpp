@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.44 2002-04-07 15:03:37 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.45 2002-04-10 13:27:21 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -79,8 +79,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
-    spell_check("Spell check messages (you need ispell/aspell installed)", 0),
-    spell_check_aspell("Use aspell instead of ispell", 0),
+    spell_check_no("None", 0),
+    spell_check_ispell("Use ispell", 0),
+    spell_check_aspell("Use aspell", 0),
     spell_check_lang(100),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
@@ -91,6 +92,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     away_response_list(1)
 {
   Gtk::VBox *vbox;
+  Gtk::VBox *vbox2;
 
   set_title("ickle Settings");
   set_transient_for (*parent);
@@ -191,55 +193,49 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   ftable->attach( *frame, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Icons") );
-  hbox = manage( new Gtk::HBox() );
-  hbox->set_border_width(5);
+  vbox = manage( new Gtk::VBox() );
+  vbox->set_border_width(5);
 
-  icons_list.set_selection_mode(GTK_SELECTION_BROWSE);
-  {
-    string current = g_settings.getValueString("icons_dir");
+  icons_combo.set_value_in_list(true, false);
 
-    using namespace Gtk::List_Helpers;
-    using Gtk::ListItem;
+  string current = g_settings.getValueString("icons_dir");
+  list<string> icon_names;
+  
+  // Default icons (compiled in ones)
+  icon_names.push_back( "Default" );
+  icons_combo.get_entry()->set_text( "Default " );
+    
+  // Icons in share/ickle/icons directory
+  Dir dir;
+  dir.setDirectoriesOnly(true);
+  dir.list( ICONS_DIR + "*" );
+  Dir::iterator iter = dir.begin();
 
-    ItemList& il = icons_list.items();
-    il.push_back( * manage( new ListItem("Default") ) );
-    Dir dir;
-    dir.setDirectoriesOnly(true);
-    dir.list( ICONS_DIR + "*" );
-    Dir::iterator iter = dir.begin();
-    int n = 1;
-    while (iter != dir.end()) {
-      string name, filename = *iter;
-      string::size_type pos = filename.rfind('/');
-      if ( pos == string::npos) name = filename;
-      else name = string(filename,pos+1);
+  while (iter != dir.end()) {
+    string name, filename = *iter;
+    string::size_type pos = filename.rfind('/');
+    if ( pos == string::npos) name = filename;
+    else name = string(filename,pos+1);
 
-      il.push_back( * manage( new ListItem( name ) ) );
-      if (current == filename+"/") icons_list.select_item(n);
-      ++iter;
-      ++n;
-    }
-    if (icons_list.selection().size() == 0) icons_list.select_item(0);
+    icon_names.push_back(name);
+    if (current == filename+"/") icons_combo.get_entry()->set_text(name);
+    ++iter;
   }
 
-  icons_list.selection_changed.connect( slot( this, &SettingsDialog::icons_cb ) );
+  icons_combo.set_popdown_strings(icon_names);
+  icons_combo.get_entry()->set_editable(false);
+  icons_combo.get_entry()->changed.connect( slot( this, &SettingsDialog::icons_cb ) );
 
-  Gtk::ScrolledWindow *scrolled_window = manage(new Gtk::ScrolledWindow());
-  scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  scrolled_window->add_with_viewport(icons_list);
-  hbox->pack_start(*scrolled_window, true, true);
+  vbox->pack_start(icons_combo, true, true);
 
-  vbox = manage( new Gtk::VBox() );
-  vbox->pack_start(window_icons_check, false, false);
   window_icons_check.set_active(g_settings.getValueBool("window_status_icons"));
   m_tooltips.set_tip (window_icons_check, "Uncheck this if you don't want a user's status to be shown in "
                                           "the corresponding window's icon.\n"
                                           "This feature won't work correctly with some broken window managers. "
                                           "If you disable it, ickle must be restarted for the change to take effect.");
 
-  hbox->pack_end(*vbox);
-  hbox->set_spacing(5);
-  frame->add(*hbox);
+  vbox->pack_start(window_icons_check);
+  frame->add(*vbox);
 
   ftable->attach( *frame, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
@@ -251,9 +247,10 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   table = manage( new Gtk::Table( 2, 9, false ) );
   
-  label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive\n"
+  label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive "
                                   "an event. Leave them blank if you don't want anything to happen.", 0 ) );
-  label->set_justify(GTK_JUSTIFY_LEFT);
+  label->set_justify(GTK_JUSTIFY_FILL);
+  label->set_line_wrap(true);
   table->attach( *label, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
 		 GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
@@ -317,7 +314,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 7, false ) );
+  vbox2 = manage( new Gtk::VBox() );
+
+  table = manage( new Gtk::Table( 2, 4, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
   message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
@@ -348,28 +347,56 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   table->attach( *hbox, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
 
-  spell_check.set_active( g_settings.getValueBool("spell_check") );
-  table->attach( spell_check, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
-  spell_check_aspell.set_active( g_settings.getValueBool("spell_check_aspell") );
-  table->attach( spell_check_aspell, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
-  
-  label = manage( new Gtk::Label( "Language (e.g. english, german or french)\nLeave blank for default", 0, 0 ) );
-  label->set_justify(GTK_JUSTIFY_LEFT);
-  table->attach( *label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, 0);
-  spell_check_lang.set_text(g_settings.getValueString("spell_check_lang"));
-  table->attach( spell_check_lang, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
-  
-
   table->set_row_spacings(5);
   table->set_col_spacings(5);
   table->set_border_width(5);
 
   frame = manage( new Gtk::Frame("Message Box") );
-  frame->set_border_width(5);
   frame->add(*table);
+  vbox2->pack_start( *frame );
+
+  vbox = manage( new Gtk::VBox() );
+  vbox->set_border_width(5);
+  vbox->set_spacing(5);
+
+  hbox = manage( new Gtk::HBox() );
+
+  spell_check_ispell.set_group( spell_check_no.group() );
+  spell_check_aspell.set_group( spell_check_no.group() );
+  
+  if ( g_settings.getValueBool("spell_check") ) {
+    if ( g_settings.getValueBool("spell_check_aspell") )
+      spell_check_aspell.set_active(true);
+    else
+      spell_check_ispell.set_active(true);
+  }
+  else
+    spell_check_no.set_active( true );
+  
+  hbox->pack_start(spell_check_no);
+  hbox->pack_start(spell_check_ispell);
+  hbox->pack_start(spell_check_aspell);
+  
+  vbox->pack_start( *hbox );
+  
+  hbox = manage( new Gtk::HBox() );
+  label = manage( new Gtk::Label( "Language (e.g. english, german or french)\nLeave blank for default", 0, 0 ) );
+  label->set_justify(GTK_JUSTIFY_LEFT);
+  hbox->pack_start(*label);
+  spell_check_lang.set_text(g_settings.getValueString("spell_check_lang"));
+  hbox->pack_start(spell_check_lang);
+  
+  vbox->pack_start( *hbox );
+
+  frame = manage( new Gtk::Frame("Spell checking") );
+  frame->add(*vbox);
+  vbox2->pack_start( *frame );
+
+  vbox2->set_border_width(5);
+  vbox2->set_spacing(5);
 
   label = manage( new Gtk::Label( "Message Box" ) );
-  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *vbox2, *label )  );
 
   // ---------------------------------------------------------
 
@@ -446,8 +473,6 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   hbox = manage( new Gtk::HBox(false) );
 
   hbox->pack_start( away_response_list );
-
-  Gtk::VBox *vbox2;
 
   vbox2 = manage( new Gtk::VBox() );
 
@@ -731,7 +756,8 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("history_shownr", (unsigned char)history_shownr_spinner->get_value_as_int() );
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );
-  g_settings.setValue("spell_check", spell_check.get_active() );
+
+  g_settings.setValue("spell_check", !spell_check_no.get_active() );
   g_settings.setValue("spell_check_aspell", spell_check_aspell.get_active() );
   g_settings.setValue("spell_check_lang", spell_check_lang.get_text());
   
@@ -940,12 +966,7 @@ void SettingsDialog::icons_cb() {
 }
  
 string SettingsDialog::getIconsFilename() {
-  Gtk::List::SelectionList &slist = icons_list.selection();
-  if (slist.empty()) return "";
-
-  Gtk::List::SelectionList::iterator iter = slist.begin();
-  
-  string filename = dynamic_cast<Gtk::Label*>((*iter)->get_child())->get();
+  string filename = icons_combo.get_entry()->get_text();
   if (filename != "Default") filename = ICONS_DIR + filename + "/";
   return filename;
 }

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.37 2002-04-07 15:03:37 bugcreator Exp $
+/* $Id: SettingsDialog.h,v 1.38 2002-04-10 13:27:21 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -36,6 +36,7 @@
 #include <gtk--/optionmenu.h>
 #include <gtk--/menu.h>
 #include <gtk--/clist.h>
+#include <gtk--/combo.h>
 #include <string>
 #include <vector>
 
@@ -61,7 +62,7 @@ class SettingsDialog : public Gtk::Dialog {
 
   Gtk::Button okay, cancel, trans_b, subs_b;
   Gtk::Label trans_l;
-  Gtk::List icons_list;
+  Gtk::Combo icons_combo;
   Gtk::CheckButton window_icons_check;
   Gtk::Entry uin_entry, password_entry;
   Gtk::Entry event_user_online_entry, event_message_entry, event_url_entry, event_sms_entry, event_system_entry;
@@ -76,7 +77,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Label network_smtp_host_label, network_smtp_port_label;
   Gtk::CheckButton network_in_dc, network_out_dc;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
-  Gtk::CheckButton spell_check, spell_check_aspell;
+  Gtk::RadioButton spell_check_no, spell_check_ispell, spell_check_aspell;
   Gtk::Entry spell_check_lang;
   Gtk::CheckButton mouse_single_click, mouse_check_away_click;
   Gtk::CheckButton status_cl_inv;
