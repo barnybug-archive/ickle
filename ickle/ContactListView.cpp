@@ -1,5 +1,5 @@
-/*
- * ContactListView
+/* $Id: ContactListView.cpp,v 1.22 2001-12-16 15:56:07 nordman Exp $
+ * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,6 +20,7 @@
 
 #include "ContactListView.h"
 
+#include <gdk/gdkkeysyms.h>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -132,23 +133,27 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
     row_iter = rows().begin();
   }
 
-  start_iter = row_iter;
-  ++row_iter;
-  if (row_iter == rows().end()) row_iter = rows().begin();
-
-  while (row_iter != start_iter) {
-    Row &row = *row_iter;
-    if (key == ((RowData *) row.get_data() )->alias[0]) {
-      row.select();
-      break;
-    }
+  if( ev->keyval == GDK_Return || ev->keyval== GDK_KP_Enter || ev->keyval== GDK_space ) {
+    user_popup.emit( ((RowData *) row_iter->get_data() )->uin );
+  }
+  else {
+    start_iter = row_iter;
     ++row_iter;
     if (row_iter == rows().end()) row_iter = rows().begin();
+
+    while (row_iter != start_iter) {
+      Row &row = *row_iter;
+      if (key == ((RowData *) row.get_data() )->alias[0]) {
+        row.select();
+        break;
+      }
+      ++row_iter;
+      if (row_iter == rows().end()) row_iter = rows().begin();
+    }
+
+    if (!row_is_visible((*row_iter).get_row_num()))
+      moveto( (*row_iter).get_row_num(), 0 );
   }
-
-  if (!row_is_visible((*row_iter).get_row_num()))
-    moveto( (*row_iter).get_row_num(), 0 );
-
   return Gtk::CList::key_press_event_impl(ev);
 }
 
