@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.121 2003-01-19 17:52:07 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.122 2003-01-26 17:14:33 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -1034,11 +1034,11 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
     {
       if (curr->get_id() != cev->get_group().get_id())
       {
+	++j;
+	
 	std::string fetch_str  = Utils::format_string( "group_%d_label", j );
 	std::string fetch_str2 = Utils::format_string( "group_%d_id",    j );
 
-	++j;
-	
 	g_settings.setValue(fetch_str,  (*curr).get_label());
 	g_settings.setValue(fetch_str2, (*curr).get_id());
       }
