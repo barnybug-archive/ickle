@@ -32,7 +32,7 @@ string CONTACT_DIR;
 string DATA_DIR;
 
 int main(int argc, char* argv[]) {
-  Gtk::Main gtkmain(argc,argv);
+  Gtk::Main gtkmain(argc,argv,true);
 
   IckleClient client(argc,argv);
 
