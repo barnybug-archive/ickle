@@ -52,7 +52,7 @@ class UserInfoDialog : public Gtk::Dialog {
     zip_entry, country_entry, age_entry, sex_entry, homepage_entry, birthday_entry,
     lang_entry1, lang_entry2, lang_entry3;
 
-  Gtk::SpinButton birth_year_spin, birth_month_spin, birth_day_spin;
+  Gtk::SpinButton birth_year_spin, birth_month_spin, birth_day_spin, age_spin;
   Gtk::Combo country_combo, lang_combo1, lang_combo2, lang_combo3, sex_combo;
   Gtk::Combo timezone_combo;
   Gtk::Text about_text;
@@ -74,6 +74,8 @@ class UserInfoDialog : public Gtk::Dialog {
 
   // -- library callbacks --
   void userinfochange_cb();
+
+  void spin_changed_cb(Gtk::SpinButton* spin);
 
   void raise() const;
 

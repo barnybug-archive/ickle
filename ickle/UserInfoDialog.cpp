@@ -169,9 +169,18 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Age:", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
-  age_entry.set_editable(false);
-  table->attach( age_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
-
+  if (m_self) {
+    Gtk::Adjustment *adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)0, (gfloat)200) );
+    age_spin.set_adjustment(adj);
+    age_spin.set_usize(90,0);
+    table->attach( age_spin, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+    age_spin.changed.connect( bind( slot( this, &UserInfoDialog::spin_changed_cb ), &age_spin ) );
+    age_spin.changed.emit();
+  } else {
+    age_entry.set_editable(false);
+    table->attach( age_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
+  
   label = manage( new Gtk::Label( "Gender:", 0 ) );
   table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   if (m_self) {
@@ -311,12 +320,14 @@ bool UserInfoDialog::update_contact()
     }
 
     HomepageInfo &hpi = contact->getHomepageInfo();
-    /* Get age from entry */
-    unsigned char age = (unsigned char)atoi(age_entry.get_text().c_str());
+
+    /* Get age from spin */
+    unsigned char age = (unsigned char)age_spin.get_value_as_int();
     if (hpi.age != age) {
       ret = true;
       hpi.age = age;
     }
+
     /* Get gender from combo */
     unsigned char sex = ICQ2000::UserInfoHelpers::getSexStringtoID( sex_combo.get_entry()->get_text() );
     if (hpi.sex != sex) {
@@ -477,12 +488,16 @@ void UserInfoDialog::userinfochange_cb() {
   about_text.insert( contact->getAboutInfo() );
 
   // More info dialog
-  if (contact->getHomepageInfo().age == 0) {
-    age_entry.set_text( "Unspecified" );
+  if (m_self) {
+    age_spin.set_value( contact->getHomepageInfo().age );
   } else {
-    ostringstream ostr; //seekp doesn't work ;-/ clear() too. 
-    ostr << (unsigned int)contact->getHomepageInfo().age;
-    age_entry.set_text( ostr.str() );
+    if (contact->getHomepageInfo().age == 0) {
+      age_entry.set_text( "Unspecified" );
+    } else {
+      ostringstream ostr;
+      ostr << (unsigned int)contact->getHomepageInfo().age;
+      age_entry.set_text( ostr.str() );
+    }
   }
 
   if (m_self) {
@@ -525,4 +540,12 @@ void UserInfoDialog::userinfochange_cb() {
   } else {
     birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
   }
+}
+
+void UserInfoDialog::spin_changed_cb(Gtk::SpinButton *spin)
+{
+  if (spin->get_text() == "0") {
+    spin->set_text("Unspecified");
+  }
+  spin->set_position(0);
 }
