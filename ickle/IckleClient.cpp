@@ -1,5 +1,5 @@
-/*
- * IckleClient.cpp
+/* $Id: IckleClient.cpp,v 1.45 2001-12-19 13:40:41 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -181,6 +181,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   while ( ( i = getopt( argc, argv, "hb:" ) ) > 0) {
 
     switch(i) {
+    case '?':
     case 'h': // help
       usageInstructions(argv[0]);
       exit(0);

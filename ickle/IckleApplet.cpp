@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.14 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: IckleApplet.cpp,v 1.15 2001-12-19 13:40:41 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -280,7 +280,12 @@ IckleApplet::IckleApplet()
 void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 {
   Gtk::ImageLoader *il;
-
+  struct poptOption popts[] = {
+    {NULL,'h', POPT_ARG_NONE, NULL, 0, NULL, NULL},
+    {NULL,'b', POPT_ARG_STRING, NULL, 0, NULL, NULL},
+    NULL,
+  };
+    
   m_gui = &g;
 
   // setup callbacks
@@ -291,9 +296,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   g_icons.icons_changed.connect( slot(this, &IckleApplet::icons_changed_cb) );
 
   // create applet
-
-  // FIXME: applet_widget_init will not recognize ickle's commandline options
-  applet_widget_init("ickle_applet", NULL, argc, argv, NULL,0,NULL);
+  applet_widget_init("ickle_applet", NULL, argc, argv, popts, 0, NULL);
   m_applet = applet_widget_new("ickle_applet");
   if(!m_applet)
     g_error("Can't create applet!\n");
