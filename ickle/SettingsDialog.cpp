@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.66 2003-03-11 21:30:01 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.67 2003-03-12 15:23:19 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -272,7 +272,8 @@ void SettingsDialog::init_login_page()
   table = manage( new Gtk::Table( 2, 2 ) );
   m_auto_reconnect.set_label(_("Auto reconnect"));
   m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
+  m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::toggle_reconnect ) );
+  m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));  
   table->attach( m_auto_reconnect, 0, 2, 0, 1, Gtk::FILL, Gtk::FILL );
   
   table->attach( * manage( new Gtk::Label( _("Reconnect retries"), 0.0, 0.5 ) ),
@@ -487,26 +488,8 @@ void SettingsDialog::init_away_message_page()
 void SettingsDialog::init_advanced_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
-  add_page( _("Advanced"), vbox, true );
-
-  // sub-pages
-  init_advanced_security_page();
-  init_advanced_server_page();
-  init_advanced_smtp_page();
-  init_advanced_logging_page();
-}
-
-void SettingsDialog::init_advanced_security_page()
-{
-  Gtk::VBox * vbox = new Gtk::VBox();
-  add_page( _("Security"), vbox, false );
-}
-
-void SettingsDialog::init_advanced_server_page()
-{
-  Gtk::VBox * vbox = new Gtk::VBox();
-
-  SectionFrame * frame = manage( new SectionFrame( _("Server") ) );
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Network") ) );
   
   Gtk::Table * table = manage( new Gtk::Table( 2, 2 ) );
 
@@ -532,11 +515,58 @@ void SettingsDialog::init_advanced_server_page()
   frame->add( * table );
 
   vbox->pack_start( *frame );
-  add_page( _("Server"), vbox, false );
+  
+  add_page( _("Advanced"), vbox, true );
+
+  // sub-pages
+  init_advanced_security_page();
+  init_advanced_smtp_page();
+  init_advanced_logging_page();
 }
+
+void SettingsDialog::init_advanced_security_page()
+{
+  Gtk::VBox * vbox = new Gtk::VBox();
+  add_page( _("Security"), vbox, false );
+}
+
 void SettingsDialog::init_advanced_smtp_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * frame = manage( new SectionFrame( _("SMTP") ) );
+  
+  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
+
+  table->attach( * manage( new Gtk::Label( _("SMTP server"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  m_network_smtp_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_network_smtp_host,_("Specifies the SMTP Server"));
+  m_network_smtp_host.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_network_smtp_host, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+    
+  table->attach( * manage( new Gtk::Label( _("Server port"), 0.0, 0.5 ) ),
+		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+  m_network_smtp_port.set_range(0, 0xffff);
+  m_network_smtp_port.set_digits(0); 
+  m_network_smtp_port.set_increments(1, 10);
+  m_network_smtp_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_network_smtp_port,_("Specifies the port of the login server. Default is 5190"));
+  m_network_smtp_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_network_smtp_port, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  
+  m_network_smtp.set_label(_("Use SMTP server"));
+  m_network_smtp.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_smtp.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::toggle_smtp ) );
+  table->attach( m_network_smtp, 0, 2, 2, 3, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+  
+  vbox->pack_start( *frame );
+
   add_page( _("SMTP"), vbox, false );
 }
 void SettingsDialog::init_advanced_logging_page()
@@ -560,8 +590,9 @@ void SettingsDialog::load_login_page()
   m_login_uin.set_value((double)g_settings.getValueUnsignedInt("uin") );
   m_login_pass.set_text( g_settings.getValueString("password") );
   m_auto_connect=ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect") );
-  m_auto_reconnect.set_active(g_settings.getValueBool("auto_reconnect") );
+  m_auto_reconnect.set_active(g_settings.getValueBool("autoreconnect") );
   m_reconnect_retries.set_value((double)g_settings.getValueUnsignedInt("reconnect_retries") );
+  toggle_reconnect();
 
 }
 
@@ -613,8 +644,10 @@ void SettingsDialog::load_away_message_page()
 
 void SettingsDialog::load_advanced_page()
 {
+  m_network_login_host.set_text( g_settings.getValueString("network_login_host") );
+  m_network_login_port.set_value((double) g_settings.getValueUnsignedInt("network_login_port") );
+
   load_advanced_security_page();
-  load_advanced_server_page();
   load_advanced_smtp_page();
   load_advanced_logging_page();
 }
@@ -623,15 +656,14 @@ void SettingsDialog::load_advanced_security_page()
 {
 }
 
-void SettingsDialog::load_advanced_server_page()
-{
-  m_network_login_host.set_text( g_settings.getValueString("network_login_host") );
-  m_network_login_port.set_value((double) g_settings.getValueUnsignedInt("network_login_port") );
-}
 
 
 void SettingsDialog::load_advanced_smtp_page()
 {
+  m_network_smtp_host.set_text( g_settings.getValueString("network_smtp_host") );
+  m_network_smtp_port.set_value((double) g_settings.getValueUnsignedInt("network_smtp_port") );
+  m_network_smtp.set_active(g_settings.getValueBool("network_smtp") );
+  toggle_smtp();
 }
 
 void SettingsDialog::load_advanced_logging_page()
@@ -714,8 +746,9 @@ void SettingsDialog::save_away_message_page()
 //Saves the settings of the look page
 void SettingsDialog::save_advanced_page()
 {
+  g_settings.setValue( "network_login_host", m_network_login_host.get_text() );
+  g_settings.setValue( "network_login_port", (unsigned int) m_network_login_port.get_value() );
   save_advanced_security_page();
-  save_advanced_server_page();
   save_advanced_smtp_page();
   save_advanced_logging_page();
 }
@@ -724,16 +757,11 @@ void SettingsDialog::save_advanced_security_page()
 {
 }
 
-void SettingsDialog::save_advanced_server_page()
-{
-g_settings.setValue( "network_login_host", m_network_login_host.get_text() );
-g_settings.setValue( "network_login_port", (unsigned int) m_network_login_port.get_value() );
-
-}
-
-
 void SettingsDialog::save_advanced_smtp_page()
 {
+  g_settings.setValue( "network_smtp_host", m_network_smtp_host.get_text() );
+  g_settings.setValue( "network_smtp_port", (unsigned int) m_network_smtp_port.get_value() );
+  g_settings.setValue( "network_smtp", m_network_smtp.get_active() );
 }
 
 void SettingsDialog::save_advanced_logging_page()
@@ -791,4 +819,32 @@ void SettingsDialog::choose_autoconnect (unsigned int s)
 {
   m_auto_connect=ICQ2000::Status(s);
   changed_cb();
+}
+
+//ensures that SMTP setings can only be set if SMTP is activated
+void SettingsDialog::toggle_smtp()
+{
+  if (m_network_smtp.get_active())
+  {
+    m_network_smtp_host.set_sensitive(true);
+    m_network_smtp_port.set_sensitive(true);
+  }
+  else
+  {
+    m_network_smtp_host.set_sensitive(false);
+    m_network_smtp_port.set_sensitive(false);
+  }
+}
+
+//ensures that reconnect retries can only be set if reconnection is activated
+void SettingsDialog::toggle_reconnect()
+{
+  if (m_auto_reconnect.get_active())
+  {
+    m_reconnect_retries.set_sensitive(true);
+  }
+  else
+  {
+     m_reconnect_retries.set_sensitive(false);
+  }
 }

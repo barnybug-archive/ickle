@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.50 2003-03-11 21:30:03 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.51 2003-03-12 15:23:20 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -94,6 +94,10 @@ class SettingsDialog : public Gtk::Dialog
   // Advanced Page
   Gtk::Entry m_network_login_host;
   Gtk::SpinButton m_network_login_port;
+  
+  Gtk::CheckButton m_network_smtp;
+  Gtk::Entry m_network_smtp_host;
+  Gtk::SpinButton m_network_smtp_port;
 
   // page init functions
   void init_pages();
@@ -108,7 +112,6 @@ class SettingsDialog : public Gtk::Dialog
   void init_away_message_page();
   void init_advanced_page();
   void init_advanced_security_page();
-  void init_advanced_server_page();
   void init_advanced_smtp_page();
   void init_advanced_logging_page();
 
@@ -125,7 +128,6 @@ class SettingsDialog : public Gtk::Dialog
   void load_away_message_page();
   void load_advanced_page();
   void load_advanced_security_page();
-  void load_advanced_server_page();
   void load_advanced_smtp_page();
   void load_advanced_logging_page();
 
@@ -142,7 +144,6 @@ class SettingsDialog : public Gtk::Dialog
   void save_away_message_page();
   void save_advanced_page();
   void save_advanced_security_page();
-  void save_advanced_server_page();
   void save_advanced_smtp_page();
   void save_advanced_logging_page();
 
@@ -155,6 +156,8 @@ class SettingsDialog : public Gtk::Dialog
   // various callbacks
   void page_tree_select_cb();
   void changed_cb();
+  void toggle_smtp();
+  void toggle_reconnect();
   void client_changed();
 
   void on_apply_clicked();
