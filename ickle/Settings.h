@@ -1,4 +1,4 @@
-/* $Id: Settings.h,v 1.15 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: Settings.h,v 1.16 2002-11-02 19:57:56 barnabygray Exp $
  * 
  * Handle loading/parsing/saving of settings to
  * a configuration file
@@ -60,6 +60,8 @@ class Settings : public SigC::Object {
   void defaultValueString       (const std::string& k, const std::string& dflt);
 
   bool exists(const std::string& k);
+
+  void removeValue(const std::string& k);
 
   virtual void defaultSettings();
 

@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.14 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: Settings.cpp,v 1.15 2002-11-02 19:57:56 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -312,4 +312,10 @@ bool Settings::exists(const string& k) {
 
 void Settings::defaultSettings() {
   // virtual
+}
+
+void Settings::removeValue(const string& k)
+{
+  if (exists(k))
+    m_map.erase(k);
 }

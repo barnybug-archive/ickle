@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.114 2002-11-02 18:03:28 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.115 2002-11-02 19:57:56 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -958,7 +958,8 @@ bool IckleClient::mkdir_BASE_DIR()
   return true;
 }
 
-void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
+void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
+{
   if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
     ICQ2000::UserAddedEvent *cev = static_cast<ICQ2000::UserAddedEvent*>(ev);
     ContactRef c = cev->getContact();
@@ -1015,17 +1016,67 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
     m_histmap.erase(c->getUIN());
     m_settingsmap.erase(c->getUIN());
 
-  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRelocated) {
+  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRelocated)
+  {
     ICQ2000::UserRelocatedEvent *cev = static_cast<ICQ2000::UserRelocatedEvent*>(ev);
     ContactRef c = cev->getContact();
     saveContact( c, m_settingsmap[c->getUIN()], false );
-  } else if (!m_loading && (ev->getType() == ICQ2000::ContactListEvent::GroupAdded
-	     || ev->getType() == ICQ2000::ContactListEvent::GroupRemoved
-	     || ev->getType() == ICQ2000::ContactListEvent::GroupChange)) {
+  }
+  else if (!m_loading && (ev->getType() == ICQ2000::ContactListEvent::GroupAdded
+	     || ev->getType() == ICQ2000::ContactListEvent::GroupChange))
+  {
     // update g_settings and save them
     update_group_settings();
     //saveSettings();
   }
+  else if (ev->getType() == ICQ2000::ContactListEvent::GroupRemoved)
+  {
+    ICQ2000::GroupRemovedEvent *cev = static_cast<ICQ2000::GroupRemovedEvent*>(ev);
+    ICQ2000::ContactTree& ct = icqclient.getContactTree();
+
+    // clear first
+    unsigned int num = g_settings.getValueUnsignedInt("no_groups");
+    for (unsigned int i = 1; i <= num; ++i)
+    {
+      ostringstream fetch_str, fetch_str2;
+      string label;
+      unsigned short id;
+    
+      fetch_str << "group_" << i << "_label";
+      fetch_str2 << "group_" << i << "_id";
+
+      g_settings.removeValue( fetch_str.str() );
+      g_settings.removeValue( fetch_str2.str() );
+    }
+    
+    /* group won't have been removed yet */
+
+    unsigned int j = 0;
+    ICQ2000::ContactTree::iterator curr = ct.begin();
+    while (curr != ct.end())
+    {
+      if (curr->get_id() != cev->get_group().get_id())
+      {
+	ostringstream fetch_str, fetch_str2;
+	string label;
+	unsigned short id;
+	
+	++j;
+	
+	fetch_str << "group_" << j << "_label";
+	g_settings.setValue(fetch_str.str(), (*curr).get_label());
+	
+	fetch_str2 << "group_" << j << "_id";
+	g_settings.setValue(fetch_str2.str(), (*curr).get_id());
+      }
+      ++curr;
+    }
+
+    g_settings.setValue("no_groups", j );
+
+    saveSettings();
+  }
+    
 }
 
 void IckleClient::update_group_settings()
@@ -1104,11 +1155,11 @@ void IckleClient::saveContact(ContactRef c, const string& s, bool self)
   if (!self) {
     // save history mapping
     user.setValue( "history_file", m_histmap[c->getUIN()]->getFilename() );
+
+    ICQ2000::ContactTree& ct = icqclient.getContactTree();
+    user.setValue( "group_id", ct.lookup_group_containing_contact( c ).get_id() );
   }
 
-  ICQ2000::ContactTree& ct = icqclient.getContactTree();
-  user.setValue( "group_id", ct.lookup_group_containing_contact( c ).get_id() );
-  
   try {
     user.save(s);
   } catch(runtime_error& e) {
