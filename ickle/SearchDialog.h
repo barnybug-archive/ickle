@@ -45,9 +45,9 @@ class SearchDialog : public Gtk::Dialog {
   Gtk::Entry m_email_entry, m_city_entry, m_state_entry;
   Gtk::Entry m_company_name_entry, m_department_entry, m_position_entry;
   Gtk::CheckButton m_only_online_check;
-  Gtk::SpinButton m_min_age_spin, m_max_age_spin;
-  Gtk::OptionMenu m_sex_menu;
+  Gtk::OptionMenu m_sex_menu, m_agerange_menu;
   ICQ2000::Sex m_sex_selected;
+  ICQ2000::AgeRange m_agerange_selected;
   Gtk::Combo m_language_combo, m_country_combo;
 
   // -- uin search --
@@ -79,8 +79,7 @@ class SearchDialog : public Gtk::Dialog {
   void set_status(const string& s);
 
   void set_sex(ICQ2000::Sex s);
-
-  void spin_changed_cb(Gtk::SpinButton* spin);
+  void set_agerange(ICQ2000::AgeRange age);
 
  public:
   SearchDialog();

@@ -50,14 +50,15 @@ SearchDialog::SearchDialog()
   : Gtk::Dialog(), m_clist(7), m_ev(NULL),
     m_ok_button("OK"), m_search_button("Search"), m_stop_button("Stop"),
     m_add_button("Add to List"), m_reset_button("Reset form"), m_sex_selected(SEX_UNSPECIFIED),
-    m_only_online_check("Only Online Users", 0)
+    m_agerange_selected(range_NoRange), m_only_online_check("Only Online Users", 0)
 {
   Gtk::Label *label;
   Gtk::Table *table;
   Gtk::Button *button;
   Gtk::Frame *frame;
   Gtk::ScrolledWindow *scrolled_window;
-
+  Gtk::Menu *m;
+  
   set_title("Search for contacts");
   set_modal(false);
   m_notebook.set_tab_pos(GTK_POS_TOP);
@@ -90,7 +91,7 @@ SearchDialog::SearchDialog()
 
   frame = manage( new Gtk::Frame("Details") );
   
-  table = manage( new Gtk::Table( 4, 5, false ) );
+  table = manage( new Gtk::Table( 4, 4, false ) );
   
   label = manage( new Gtk::Label( "Alias", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
@@ -109,7 +110,7 @@ SearchDialog::SearchDialog()
   table->attach( m_email_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
   
   label = manage( new Gtk::Label( "Sex", 0 ) );
-  Gtk::Menu *m = manage( new Gtk::Menu() );
+  m = manage( new Gtk::Menu() );
   {
     using namespace Gtk::Menu_Helpers;
     MenuList& ml = m->items();
@@ -118,34 +119,25 @@ SearchDialog::SearchDialog()
     ml.push_back( MenuElem( "Male", bind( slot( this, &SearchDialog::set_sex ), SEX_MALE ) ) );
   }
   m_sex_menu.set_menu(*m);
-  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
-  table->attach( m_sex_menu, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
-
-  label = manage( new Gtk::Label( "Minimum Age", 0 ) );
-  m_min_age_spin.set_digits(0);
-  Gtk::Adjustment *adj = m_min_age_spin.get_adjustment();
-  adj->set_lower(0);
-  adj->set_upper(99);
-  adj->set_step_increment(1);
-  adj->set_value(0);
   table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
-  table->attach( m_min_age_spin, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
+  table->attach( m_sex_menu, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
-  m_min_age_spin.changed.connect( bind( slot( this, &SearchDialog::spin_changed_cb ), &m_min_age_spin ) );
-  m_min_age_spin.changed.emit();
-
-  label = manage( new Gtk::Label( "Maximum Age", 0 ) );
-  m_max_age_spin.set_digits(0);
-  adj = m_max_age_spin.get_adjustment();
-  adj->set_lower(0);
-  adj->set_upper(99);
-  adj->set_step_increment(1);
-  adj->set_value(0);
+  label = manage( new Gtk::Label( "Age Range", 0 ) );
+  m = manage( new Gtk::Menu() );
+  {
+    using namespace Gtk::Menu_Helpers;
+    MenuList& ml = m->items();
+    ml.push_back( MenuElem( AgeRange_text[0], bind( slot( this, &SearchDialog::set_agerange ), range_NoRange ) ) );
+    ml.push_back( MenuElem( AgeRange_text[1], bind( slot( this, &SearchDialog::set_agerange ), range_18_22 ) ) );
+    ml.push_back( MenuElem( AgeRange_text[2], bind( slot( this, &SearchDialog::set_agerange ), range_23_29 ) ) );
+    ml.push_back( MenuElem( AgeRange_text[3], bind( slot( this, &SearchDialog::set_agerange ), range_30_39 ) ) );
+    ml.push_back( MenuElem( AgeRange_text[4], bind( slot( this, &SearchDialog::set_agerange ), range_40_49 ) ) );
+    ml.push_back( MenuElem( AgeRange_text[5], bind( slot( this, &SearchDialog::set_agerange ), range_50_59 ) ) );
+    ml.push_back( MenuElem( AgeRange_text[6], bind( slot( this, &SearchDialog::set_agerange ), range_60_above ) ) );
+  }
+  m_agerange_menu.set_menu(*m);
   table->attach( *label, 2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
-  table->attach( m_max_age_spin, 3, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
-
-  m_max_age_spin.changed.connect( bind( slot( this, &SearchDialog::spin_changed_cb ), &m_max_age_spin ) );
-  m_max_age_spin.changed.emit();
+  table->attach( m_agerange_menu, 3, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
   label = manage( new Gtk::Label( "Language", 0) );
 
@@ -157,9 +149,9 @@ SearchDialog::SearchDialog()
   table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
   table->attach( m_language_combo, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
-  table->attach( m_only_online_check, 2, 3, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  table->attach( m_only_online_check, 2, 3, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
   m_reset_button.clicked.connect( slot( this, &SearchDialog::reset_cb ) );
-  table->attach( m_reset_button, 3, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  table->attach( m_reset_button, 3, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   table->set_spacings(3);
   table->set_col_spacing(1, 10);
@@ -320,8 +312,7 @@ void SearchDialog::search_cb()
        m_firstname_entry.get_text(),
        m_lastname_entry.get_text(),
        m_email_entry.get_text(),
-       m_min_age_spin.get_value_as_int(),
-       m_max_age_spin.get_value_as_int(),
+       m_agerange_selected,
        m_sex_selected,
        language,
        m_city_entry.get_text(),
@@ -466,8 +457,8 @@ void SearchDialog::reset_cb()
   m_department_entry.delete_text(0, -1);
   m_position_entry.delete_text(0, -1);
   m_only_online_check.set_active(false);
-  m_min_age_spin.set_value(0);
-  m_max_age_spin.set_value(0);
+  m_agerange_menu.set_history(0);
+  m_agerange_selected = range_NoRange;
   m_sex_menu.set_history(0);
   m_sex_selected = SEX_UNSPECIFIED;
 }
@@ -484,11 +475,7 @@ void SearchDialog::set_sex( Sex s )
   m_sex_selected = s;
 }
 
-void SearchDialog::spin_changed_cb(Gtk::SpinButton *spin)
+void SearchDialog::set_agerange( AgeRange r )
 {
-  // hehe, I quite like this sneaky trick, bwaahahaha
-  if (spin->get_text() == "0") {
-    spin->set_text("Unspecified");
-  }
-  spin->set_position(0);
+  m_agerange_selected = r;
 }
