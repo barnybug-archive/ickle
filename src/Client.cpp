@@ -534,7 +534,10 @@ namespace ICQ2000 {
 
   void Client::dccache_expired_cb(DirectClient *dc) {
     SignalLog(LogEvent::WARN, "Direct connection timeout reached");
-    SignalRemoveSocket( dc->getfd() );
+    int fd = dc->getfd();
+    SignalRemoveSocket(fd);
+    unsigned int uin = dc->getUIN();
+    if ( m_uinmap.count(uin) > 0 && m_uinmap[uin] == dc) m_uinmap.erase(uin);
   }
 
   void Client::dc_connected_cb(DirectClient *dc) {
