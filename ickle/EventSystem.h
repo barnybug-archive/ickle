@@ -1,4 +1,4 @@
-/* $Id: EventSystem.h,v 1.2 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: EventSystem.h,v 1.3 2002-04-04 17:59:35 bugcreator Exp $
  *
  * EventSystem
  *
@@ -36,6 +36,8 @@ class EventSystem : public SigC::Object
 {
  private:
   void event_system(const std::string& s, const ICQ2000::ContactRef& c, time_t t);
+
+  double m_last_event_time;
   
  public:
   EventSystem();

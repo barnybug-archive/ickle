@@ -48,6 +48,7 @@ EventSubstituter::EventSubstituter(ContactRef c) {
   got_special = 0;
   event_time = time(NULL);
   escape_shell = false;
+  repeated = false;
 }
 
 static const char safe_chars[]
@@ -161,6 +162,9 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 	//      case 'm':
 	//        ostringstream::operator<<(co->numberPendingMessages());
 	//	break;
+      case 'r':
+        sanecat(repeated ? "true" : "false");
+        break;
       case '%':
         ostringstream::operator<<('%');
 	break;

@@ -1,4 +1,4 @@
-/* $Id: EventSystem.cpp,v 1.3 2002-04-02 21:26:44 bugcreator Exp $
+/* $Id: EventSystem.cpp,v 1.4 2002-04-04 17:59:35 bugcreator Exp $
  *
  * EventSystem
  *
@@ -23,6 +23,8 @@
 #include "EventSystem.h"
 
 #include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #include "main.h"
 #include "Settings.h"
@@ -37,6 +39,7 @@ using ICQ2000::ContactRef;
 // ============================================================================
 
 EventSystem::EventSystem()
+  : m_last_event_time (0.0)
 { }
 
 void EventSystem::queue_added_cb(MessageEvent *ev)
@@ -82,12 +85,25 @@ void EventSystem::status_change_cb(ICQ2000::StatusChangeEvent *ev)
   }
 }
 
-void EventSystem::event_system(const string& s, const ContactRef& c, time_t t) {
+void EventSystem::event_system(const string& s, const ContactRef& c, time_t t)
+{
   if (!g_settings.getValueString(s).empty()) {
-    EventSubstituter evs(c);
-    evs.set_event_time(t);
-    evs.set_escape_shell(true);
-    evs << g_settings.getValueString(s) << " &";
-    system(evs.str().c_str());
+    timeval tv;
+    gettimeofday (&tv, NULL);
+    double current_time = double(tv.tv_sec) + (double(tv.tv_usec) * 1e-6);
+
+    unsigned int threshold = g_settings.getValueUnsignedInt("event_repetition_threshold");
+    bool repeated = (threshold != 0 && current_time < m_last_event_time + double(threshold)/1000);
+        
+    if ((!repeated) || g_settings.getValueBool("event_execute_all")) {
+      EventSubstituter evs(c);
+      evs.set_event_time(t);
+      evs.set_escape_shell(true);
+      evs.set_repeated(repeated);
+      evs << g_settings.getValueString(s) << " &";
+      system(evs.str().c_str());
+
+      m_last_event_time = current_time;
+    }
   }
 }

@@ -39,6 +39,7 @@ class EventSubstituter : public std::ostringstream {
   ICQ2000::ContactRef co;
   time_t event_time;
   bool escape_shell;
+  bool repeated;
 
   void sanecat(const std::string& s);
   void execute();
@@ -48,6 +49,7 @@ class EventSubstituter : public std::ostringstream {
   
   void set_event_time(time_t t) { event_time = t; }
   void set_escape_shell(bool e) { escape_shell = e; }
+  void set_repeated(bool r) { repeated = r; }
 
   EventSubstituter& operator<<(char c);
   EventSubstituter& operator<<(unsigned char c) { return (*this) << (char)c; }
