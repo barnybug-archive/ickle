@@ -66,11 +66,18 @@ int Settings::getValueInt(const string& k) {
   return ret;
 }
 
-unsigned int Settings::getValueUnsignedInt(const string& k) {
-  istringstream istr(m_map[k]);
-  unsigned int ret = 0;
-  istr >> ret;
-  return ret;
+unsigned int Settings::getValueUnsignedInt(const string& k, unsigned int dflt,
+					 unsigned int lower, unsigned int upper) {
+  unsigned int v;
+  if ( exists(k) ) {
+    istringstream istr(m_map[k]);
+    istr >> v;
+    if (v < lower) v = lower;
+    if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  return v;
 }
 
 void Settings::setValue(const string& k, const string& v) {

@@ -55,7 +55,8 @@ class Settings {
   
   string getValueString(const string& k);
   int getValueInt(const string& k);
-  unsigned int getValueUnsignedInt(const string& k);
+  unsigned int getValueUnsignedInt(const string& k, unsigned int dflt = 0,
+				 unsigned int lower = 0, unsigned int upper = 0xffffffff);
 
   void setValue(const string& k, const string& v);
   void setValue(const string& k, int v);

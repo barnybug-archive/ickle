@@ -32,7 +32,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   processCommandLine(argc,argv);
 
   // let us know when the gui is destroyed
-  gui.destroy.connect(slot(this,&IckleClient::quit));
+  gui.close.connect(slot(this,&IckleClient::quit));
   
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
@@ -152,10 +152,26 @@ void IckleClient::loadSettings() {
     icqclient.setUIN(settings.getValueUnsignedInt("uin"));
     icqclient.setPassword(settings.getValueString("password"));
   }
+
+  int width, height, x, y;
+  width = settings.getValueUnsignedInt("geometry_width", 130, 30, 1000);
+  height = settings.getValueUnsignedInt("geometry_height", 300, 30, 2000);
+  x = settings.getValueUnsignedInt("geometry_x", 50);
+  y = settings.getValueUnsignedInt("geometry_y", 50);
+  gui.set_default_size( width, height );
+  gui.set_uposition( x, y );
   
 }
 
 void IckleClient::saveSettings() {
+  int width, height, x, y;
+  gui.get_window().get_origin(x, y);
+  gui.get_window().get_size(width, height);
+  settings.setValue( "geometry_x", x );
+  settings.setValue( "geometry_y", y );
+  settings.setValue( "geometry_width", width );
+  settings.setValue( "geometry_height", height );
+
   if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
     cout << "mkdir " << BASE_DIR << " failed: " << strerror(errno) << endl;
     return;
@@ -168,6 +184,8 @@ void IckleClient::saveSettings() {
 }
 
 void IckleClient::quit() {
+  saveSettings();
+
   icqclient.Disconnect();
   Gtk::Main::quit();   
 }

@@ -114,6 +114,7 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
 
   // signals
+  Signal0<void> close;
   Signal1<void,Status> status_changed;
   Signal1<void,MessageEvent*> send_event;
   Signal1<void,unsigned int> add_user;

@@ -36,7 +36,6 @@ IckleGUI::IckleGUI()
 
   set_title("ickle");
   set_border_width(5);
-  set_usize(130,300);
 
   m_contact_scroll.set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   m_contact_scroll.add(m_contact_list);
@@ -59,7 +58,7 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
     ml.push_back( MenuElem("Add Mobile User", slot(this, &IckleGUI::add_mobile_user_cb)) );
     ml.push_back( MenuElem("Settings", settings.slot()) );
-    ml.push_back( MenuElem("Exit", destroy.slot()) );
+    ml.push_back( MenuElem("Exit", close.slot()) );
     
     MenuList& mbl = m_ickle_menubar.items();
     mbl.push_front(MenuElem("Offline",m_status_menu));
@@ -165,7 +164,8 @@ void IckleGUI::setStatus(Status st) {
 }
 
 int IckleGUI::delete_event_impl(GdkEventAny*) {
-  return false;
+  close.emit();
+  return true;
 }
 
 void IckleGUI::status_change_cb(Status st) {
