@@ -638,7 +638,7 @@ void UserInfoDialog::update_from_userinfo()
     }
     else
     {
-      age_entry.set_text( String::ucompose( _("%1 years"), m_contact->getHomepageInfo().age ) );
+      age_entry.set_text( String::ucompose( _("%1 years"), (unsigned short int) m_contact->getHomepageInfo().age ) );
     }
   }
 
