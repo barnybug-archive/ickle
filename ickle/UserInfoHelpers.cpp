@@ -26,6 +26,7 @@
 #include "sstream_fix.h"
 
 #include <iostream>
+#include <glibmm.h>
 
 using std::vector;
 using std::string;
@@ -464,6 +465,12 @@ T keyFromValue(map<T, const char*> &m, const string &s, T def) {
   return def;
 }
 
+struct SortStringI18N {
+	bool  operator () (string a, string b) {
+		return Glib::ustring(a) < Glib::ustring(b);
+	}
+};
+
 template <typename T>
 vector<string> vectorOfValues(map<T, const char*> &m) {
   vector<string> vec;
@@ -472,7 +479,7 @@ vector<string> vectorOfValues(map<T, const char*> &m) {
   }
   //The first choice is mostly something special..
   if ( (vec.begin() != vec.end() ) && (++(vec.begin()) !=vec.end() ) )
-    std::sort(++(vec.begin()),vec.end() );
+    std::sort(++(vec.begin()),vec.end(), SortStringI18N() );
   return vec;
 }
 
