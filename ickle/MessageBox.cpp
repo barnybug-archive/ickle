@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.57 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.58 2002-04-21 23:12:20 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -742,9 +742,9 @@ void MessageBox::send_clicked_cb() {
     ICQ2000::NormalMessageEvent *nv = new ICQ2000::NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
     if (m_send_urgent.get_active()) nv->setUrgent(true);
     if (m_send_tocontactlist.get_active()) nv->setToContactList(true);
+    m_last_ev = nv;
     send_event.emit( nv );
     m_message_text.delete_text(0,-1);
-    m_last_ev = nv;
   }
   else if (m_message_type == ICQ2000::MessageEvent::URL) {
     if (isBlank(m_url_entry.get_text())) {
@@ -756,10 +756,10 @@ void MessageBox::send_clicked_cb() {
     ICQ2000::URLMessageEvent *uv = new ICQ2000::URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
     if (m_send_urgent.get_active()) uv->setUrgent(true);
     if (m_send_tocontactlist.get_active()) uv->setToContactList(true);
+    m_last_ev = uv;
     send_event.emit( uv );
     m_url_entry.delete_text(0,-1);
     m_url_text.delete_text(0,-1);
-    m_last_ev = uv;
   }
   else if (m_message_type == ICQ2000::MessageEvent::SMS) {
     if (isBlank(m_sms_text.get_chars(0,-1))) {
@@ -769,9 +769,9 @@ void MessageBox::send_clicked_cb() {
 
     set_status("Sending SMS...");
     ICQ2000::SMSMessageEvent *sv = new ICQ2000::SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
+    m_last_ev = sv;
     send_event.emit( sv );
     m_sms_text.delete_text(0,-1);
-    m_last_ev = sv;
   }
 
 }
