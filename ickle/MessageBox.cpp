@@ -359,10 +359,10 @@ void MessageBox::send_clicked_cb() {
 
   if (m_display_times) {
     time_t now = time(NULL);
-    ostr << format_time(now);
+    ostr << format_time(now) << " ";
   }
 
-  ostr << " You ";
+  ostr << "You ";
 
   if (m_message_type == MessageEvent::Normal) {
     NormalMessageEvent nv( m_contact, m_message_text.get_chars(0,-1) );
@@ -380,6 +380,8 @@ void MessageBox::send_clicked_cb() {
     m_history_text.insert( normal_font, black, white, m_url_entry.get_text(), -1);
     m_history_text.insert( normal_font, black, white, "\n", -1);
     m_history_text.insert( normal_font, black, white, m_url_text.get_chars(0,-1), -1);
+    m_url_entry.delete_text(0,-1);
+    m_url_text.delete_text(0,-1);
     
   } else if (m_message_type == MessageEvent::SMS) {
     SMSMessageEvent sv( m_contact, m_sms_text.get_chars(0,-1), true );

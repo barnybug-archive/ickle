@@ -130,6 +130,8 @@ void IckleGUI::user_popup(Contact *c) {
     if (m_status == STATUS_OFFLINE) m->offline();
     else m->online();
 
+    m->setDisplayTimes(d);
+
     // signal all waiting messages
     while (c->numberPendingMessages() > 0) {
       MessageEvent *ev = c->getPendingMessage();
