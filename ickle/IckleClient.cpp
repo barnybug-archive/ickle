@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.67 2002-01-25 11:35:42 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.68 2002-01-26 14:24:24 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -614,12 +614,13 @@ void IckleClient::socket_cb(SocketEvent *ev) {
 }
 
 bool IckleClient::message_cb(MessageEvent *ev) {
-  if (ev->getType() == MessageEvent::Normal) {
-    event_system("event_message", ev);
-  } else if (ev->getType() == MessageEvent::URL) {
-    event_system("event_url", ev);
-  } else if (ev->getType() == MessageEvent::SMS) {
-    event_system("event_sms", ev);
+  Contact * c = ev->getContact();
+  time_t t = ev->getTime();
+
+  switch (ev->getType()) {
+    case MessageEvent::Normal: event_system("event_message", c, t); break;
+    case MessageEvent::URL:    event_system("event_url", c, t); break;
+    case MessageEvent::SMS:    event_system("event_sms", c, t); break;
   }
   m_histmap[ev->getContact()->getUIN()]->log(ev, true);
 
@@ -633,10 +634,10 @@ void IckleClient::want_auto_resp_cb(AwayMessageEvent *ev) {
   ev->setMessage(evs.str());
 }
 
-void IckleClient::event_system(const string& s, MessageEvent *ev) {
+void IckleClient::event_system(const string& s, Contact * c, time_t t) {
   if (!g_settings.getValueString(s).empty()) {
-    EventSubstituter evs(ev->getContact());
-    evs.set_event_time(ev->getTime());
+    EventSubstituter evs(c);
+    evs.set_event_time(t);
     evs.set_escape_shell(true);
     evs << g_settings.getValueString(s) << " &";
     system(evs.str().c_str());
@@ -692,7 +693,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     
     saveContact( c, m_settingsmap[c->getUIN()] );
     
-  } else if (ev->getType() == ContactListEvent::UserRemoved) {
+  }
+  else if (ev->getType() == ContactListEvent::UserRemoved) {
     // delete .user file for this contact
     unlink( m_settingsmap[c->getUIN()].c_str() );
 
@@ -703,6 +705,14 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
 
     m_histmap.erase(c->getUIN());
     m_settingsmap.erase(c->getUIN());
+
+  }
+  else if (ev->getType() == ContactListEvent::StatusChange) {
+    StatusChangeEvent * cev = static_cast<StatusChangeEvent *>(ev);
+
+    if (cev->getStatus() == STATUS_ONLINE && cev->getOldStatus() != STATUS_ONLINE) {
+      event_system("event_user_online", cev->getContact(), cev->getTime());
+    }
   }
 }
 

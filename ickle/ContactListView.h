@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.16 2002-01-07 21:13:52 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.17 2002-01-26 14:24:24 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -50,6 +50,13 @@ class ContactListView : public Gtk::CList {
     string alias;
   };
 
+  enum SortOrder {
+    SORT_MESSAGES_STATUS,
+    SORT_STATUS_MESSAGES,
+    SORT_ALIAS
+  };
+  SortOrder m_sort;
+
   Gtk::Menu rc_popup;
 
   void UpdateRow(const Contact& c);
@@ -63,6 +70,7 @@ class ContactListView : public Gtk::CList {
 
  protected:
   virtual gint key_press_event_impl(GdkEventKey* ev);
+  virtual void click_column_impl(gint);
 
  private:
   bool m_single_click, m_check_away_click;

@@ -89,7 +89,7 @@ class IckleClient : public SigC::Object {
   void loadContact(const string& s, bool self);
   void saveContact(Contact *c, const string& s);
 
-  void event_system(const string& s, MessageEvent *e);
+  void event_system(const string& s, Contact * c, time_t t);
   gint idle_connect_cb(Status s);
 
   void SignalLog(LogEvent::LogType type, const string& msg);

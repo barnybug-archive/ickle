@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.27 2002-01-25 14:04:02 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.28 2002-01-26 14:24:24 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -41,12 +41,17 @@ using std::ostringstream;
 
 ContactListView::ContactListView()
   : CList(2), m_single_click(false),
-    m_check_away_click(false) {
-  set_column_title(0, "S");
-  set_column_min_width(0, 15);
-  set_column_title(1, "Alias");
+    m_check_away_click(false),
+    m_sort(SORT_MESSAGES_STATUS)
+{
+  column(0).set_title("S");
+  column(0).set_width(15);
+  column(0).set_justification(GTK_JUSTIFY_CENTER);
+  column(0).set_resizable(false);
+  column(1).set_title("Alias");
+  column(1).set_resizable(false);
   column_titles_show();
-  
+
   // callbacks
   icqclient.contactlist.connect(slot(this,&ContactListView::contactlist_cb));
   g_icons.icons_changed.connect(slot(this,&ContactListView::icons_changed_cb));
@@ -58,6 +63,7 @@ ContactListView::ContactListView()
   set_sort_column(0);
   set_auto_sort(false);
   set_compare_func(&ContactListView::sort_func);
+  set_user_data (this);
 
   button_press_event.connect(slot(this,&ContactListView::button_press_cb));
 
@@ -90,36 +96,35 @@ void ContactListView::setCheckAwayClick(bool b)
   m_check_away_click = b;
 }
 
-gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 ) {
-  const GtkCListRow *row1 = (const GtkCListRow *) ptr1;
-  const GtkCListRow *row2 = (const GtkCListRow *) ptr2;
+void ContactListView::click_column_impl(gint c)
+{
+  if (c == 0) {
+    if (m_sort == SORT_MESSAGES_STATUS) m_sort = SORT_STATUS_MESSAGES;
+                                   else m_sort = SORT_MESSAGES_STATUS;
+  }
+  else if (c == 1) {
+    m_sort = SORT_ALIAS;
+  }
+  sort();
+}
 
-  // get data
-  RowData *d1 = (RowData*)row1->data;
-  RowData *d2 = (RowData*)row2->data;
+gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 )
+{
+  RowData *d1 = (RowData*)((const GtkCListRow*)ptr1)->data;
+  RowData *d2 = (RowData*)((const GtkCListRow*)ptr2)->data;
 
-  Status s1 = d1->status;
-  Status s2 = d2->status;
-  unsigned int m1 = d1->msgs;
-  unsigned int m2 = d2->msgs;
-  int aComp = d1->alias.compare(d2->alias);
+  int s = (d1->status < d2->status) ? -1 : (d1->status > d2->status) ? 1 : 0;
+  int m = (d1->msgs > d2->msgs) ? -1 : (d1->msgs < d2->msgs) ? 1 : 0;
+  int a = d1->alias.compare(d2->alias);
 
-  /* contacts are sorted by number of messages,
-   * then by status, then by alias - this is just my
-   * preference, maybe at some date make it more
-   * customisable
-   */
-  
-  return ((m1 > m2)
-	  ? -1
-	  : (m2 > m1)
-	  ? 1
-	  : (s1 < s2)
-	  ? -1
-	  : (s1 > s2)
-	  ? 1
-	  : aComp
-	  );
+  ContactListView * clist_obj = ((ContactListView*)gtk_object_get_user_data((GtkObject*)clist));
+
+  switch (clist_obj->m_sort) {
+    case SORT_MESSAGES_STATUS: return m ? m : s ? s : a;
+    case SORT_STATUS_MESSAGES: return s ? s : m ? m : a;
+    case SORT_ALIAS: return a ? a : m ? m : s;
+  }
+  return 0;
 }
 
 void ContactListView::clear() {

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.25 2002-01-18 00:43:50 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.26 2002-01-26 14:24:24 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -55,7 +55,8 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Button okay, cancel, trans_b, subs_b;
   Gtk::Label trans_l;
   Gtk::List icons_list;
-  Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
+  Gtk::Entry uin_entry, password_entry;
+  Gtk::Entry event_user_online_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Entry network_host;
   Gtk::Notebook notebook;
   Gtk::CheckButton away_autoposition, reconnect_checkbox, network_override_port;

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.29 2002-01-18 00:43:50 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.30 2002-01-26 14:24:24 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -209,20 +209,25 @@ SettingsDialog::SettingsDialog()
   subs_b.clicked.connect(slot(this,&SettingsDialog::subs_cb));
   table->attach( subs_b, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK );
 
-  label = manage( new Gtk::Label( "Message Event", 0 ) );
+  label = manage( new Gtk::Label( "User Online Event", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  event_user_online_entry.set_text( g_settings.getValueString("event_user_online") );
+  table->attach( event_user_online_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  label = manage( new Gtk::Label( "Message Event", 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
   event_message_entry.set_text( g_settings.getValueString("event_message") );
-  table->attach( event_message_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_message_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "URL Event", 0 ) );
-  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0);
   event_url_entry.set_text( g_settings.getValueString("event_url") );
-  table->attach( event_url_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_url_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "SMS Event", 0 ) );
-  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0);
   event_sms_entry.set_text( g_settings.getValueString("event_sms") );
-  table->attach( event_sms_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( event_sms_entry, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Events" ) );
   table->set_row_spacings(10);
@@ -508,6 +513,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("icons_dir", getIconsFilename());
 
   // ------------ Events tab -----------------------
+  g_settings.setValue("event_user_online", event_user_online_entry.get_text());
   g_settings.setValue("event_message", event_message_entry.get_text());
   g_settings.setValue("event_url", event_url_entry.get_text());
   g_settings.setValue("event_sms", event_sms_entry.get_text());
