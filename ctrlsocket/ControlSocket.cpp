@@ -166,7 +166,7 @@ void ControlSocketServer::closeConnection (int sd)
 //  ControlSocketClient
 // ============================================================================
 
-bool ControlSocketClient::init (const string & socket_path)
+bool ControlSocketClient::init (const string & socket_path, bool quiet)
 {
   sockaddr_un saddr;
 
@@ -174,11 +174,11 @@ bool ControlSocketClient::init (const string & socket_path)
   snprintf (saddr.sun_path, 108, "%s/ctrlsocket", socket_path.c_str());
 
   if ((m_sd = socket (AF_UNIX, SOCK_STREAM, 0)) == -1) {
-    cerr << "Failed to open socket" << endl;
+    if (!quiet) cerr << "Failed to open socket" << endl;
     return false;
   }
   if (connect (m_sd, (sockaddr *) &saddr, sizeof (saddr)) == -1) {
-    cerr << "Couldn't connect to socket `" << saddr.sun_path << "'" << endl;
+    if (!quiet) cerr << "Couldn't connect to socket `" << saddr.sun_path << "'" << endl;
     close (m_sd);
     return false;
   }

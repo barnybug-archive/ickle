@@ -53,13 +53,15 @@ class ControlSocket : public ControlSocketBase
   ControlSocket & operator<< (bool);
   ControlSocket & operator<< (const std::string &);
   ControlSocket & operator<< (int v) { return operator<< ((unsigned int)v); }
+  ControlSocket & operator<< (const CommandType & v) { return operator<< ((unsigned int&)v); }
+  ControlSocket & operator<< (const ICQ2000::Status & v) { return operator<< ((unsigned int&)v); }
 
   ControlSocket & operator>> (unsigned int &);
   ControlSocket & operator>> (bool &);
   ControlSocket & operator>> (std::string &);
   ControlSocket & operator>> (int & v) { return operator>> ((unsigned int&)v); }
-  ControlSocket & operator>> (CommandType & v) { return operator>> ((int&)v); }
-  ControlSocket & operator>> (ICQ2000::Status & v) { return operator>> ((int&)v); }
+  ControlSocket & operator>> (CommandType & v) { return operator>> ((unsigned int&)v); }
+  ControlSocket & operator>> (ICQ2000::Status & v) { return operator>> ((unsigned int&)v); }
 
   enum ReadStatus {
     WAITING,
@@ -78,11 +80,11 @@ class ControlSocket : public ControlSocketBase
 class ControlSocketServer : public ControlSocketBase
 {
  public:
-  bool init (const std::string &);
+  bool init (const std::string & socket_path);
   void quit ();
 
   int getConnection ();
-  void closeConnection (int);
+  void closeConnection (int sd);
 
  private:
   sockaddr_un m_saddr;
@@ -96,7 +98,7 @@ class ControlSocketServer : public ControlSocketBase
 class ControlSocketClient : public ControlSocket
 {
  public:
-  bool init (const std::string &);
+  bool init (const std::string & socket_path, bool quiet = false);
   void quit ();
 };
 

@@ -51,7 +51,7 @@ int IckleControl::main (int argc, char ** argv)
     }
 
     // first handle options which don't require ickle to be running...
-    for (CommandLineParser::iterator o = p.begin(); o < p.end(); ++o) {
+    for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
       if (o->isOption ("help", "h")) {
         printUsage ();
         return 0;
@@ -76,9 +76,9 @@ int IckleControl::main (int argc, char ** argv)
       }
     }
 
-    for (CommandLineParser::iterator o = p.begin(); o < p.end(); ++o) {
-      if (p.begin()->isOption ("running", "r")) {
-        if (m_socket.init (config_dir)) {
+    for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
+      if (o->isOption ("running", "r")) {
+        if (m_socket.init (config_dir, true)) {
           m_socket.quit ();
           return 0;
         } else {
@@ -106,7 +106,7 @@ int IckleControl::main (int argc, char ** argv)
 
 bool IckleControl::runCommands (CommandLineParser & p)
 {
-  for (CommandLineParser::iterator o = p.begin(); o < p.end(); ++o) {
+  for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
     if      (o->isOption ("timeout",    "t", -1)) { setTimeout (o->argument()); }
     else if (o->isOption ("status",     "s", -1)) { if (!cmdStatus (o->argument())) return false; }
     else if (o->isOption ("invisible",  "i", -1)) { if (!cmdInvisible (o->argument())) return false; }
@@ -114,11 +114,6 @@ bool IckleControl::runCommands (CommandLineParser & p)
     else if (o->isOption ("addcontact", "c",  1)) { if (!cmdAddContact (o->argument())) return false; }
     else if (o->isOption ("send",       "m",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1))) return false; }
     else if (o->isOption ("quit",       "q",  0)) { cmdQuit (); }
-
-    else if (o->isOption ("version", "v", -1) || o->isOption ("help", "h", -1) ||
-             o->isOption ("running", "r", -1) || o->isOption ("configdir", "b", -1)) {
-      // ignore
-    }
     else {
       o->invalid ();
     }
@@ -145,7 +140,7 @@ void IckleControl::printUsage ()
         << "  -i, --invisible [BOOL]    Set/get invisibility" << endl
         << "  -a, --away [\"MESSAGE\"]    Set/get away message" << endl
         << "  -c, --addcontact UIN      Add a new contact" << endl
-        << "  -m, --send UIN MESSAGE    Send MESSAGE to user UIN" << endl
+        << "  -m, --send UIN \"MESSAGE\"  Send MESSAGE to user UIN" << endl
         << "  -q, --quit                Terminate ickle" << endl
         << "  -h, --help                Display this help and exit" << endl
         << "  -v, --version             Display ickle version and exit" << endl
