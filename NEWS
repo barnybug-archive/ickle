@@ -2,7 +2,7 @@
 
 Another minor bugfix release, fixing problems that have surfaced in
 compiling with gnome support, and compiling with the gcc 3.xx series
-of compilers.
+of compilers. Lots of namespace tidying up and tidying for gcc 3.1.
 
 26th April 2002
 
