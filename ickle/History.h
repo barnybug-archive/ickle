@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.8 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: History.h,v 1.9 2002-01-02 21:41:27 nordman Exp $
  *
  * Logging and loading of history.
  *
@@ -80,8 +80,7 @@ class History : public SigC::Object {
     bool delivered; // for SMS receipts
   };
 
-  History();
-  History(unsigned int uin);
+  History(const string &historyfile);
   ~History();
 
   void                  log             (MessageEvent *ev, bool received) throw (std::runtime_error);
@@ -90,7 +89,7 @@ class History : public SigC::Object {
 
   void                  stream_lock     () throw (std::runtime_error);
   void                  stream_release  () throw (std::runtime_error);
-  string                getFilename     () const { return m_filename; }
+  string                getFilename     () const;
   guint                 size            ();
 
   SigC::Signal1<void,Entry *> new_entry;

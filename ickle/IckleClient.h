@@ -65,7 +65,8 @@ class IckleClient : public SigC::Object {
   IckleApplet applet;
 #endif
 
-  std::map<unsigned int, string> m_fmap;
+  // setting and history files for each contact, indexed through UINs
+  std::map<unsigned int, string> m_settingsmap; 
   std::map<unsigned int, History *> m_histmap;
 
   std::map<int, Connection> m_sockets;
@@ -85,6 +86,8 @@ class IckleClient : public SigC::Object {
   void SignalLog(LogEvent::LogType type, const string& msg);
 
   void logger_file_cb(const string& msg);
+
+  string get_unique_historyname() throw (runtime_error);
 
  public:
   IckleClient(int argc, char* argv[]);

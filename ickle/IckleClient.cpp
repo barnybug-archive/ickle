@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.51 2001-12-28 20:23:15 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.52 2002-01-02 21:41:27 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,7 @@
 # include <getopt.h>
 #endif
 
+#include <stdexcept>
 #include <fstream>
 #include "sstream_fix.h"
 
@@ -47,6 +48,7 @@ using std::ofstream;
 using std::cout;
 using std::endl;
 using std::map;
+using std::runtime_error;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
@@ -122,10 +124,16 @@ void IckleClient::loadContactList() {
     if (cs.load(*dirit)) {
       cs.defaultValueUnsignedInt("uin", 0);
       unsigned int uin = cs.getValueUnsignedInt("uin");
-      if (uin != 0) {
+      if (uin != 0) { // ICQ user
 	Contact c(uin);
-	
-	cs.defaultValueUnsignedChar("age", 0, 0, 150);
+
+	// only needed for backward compatibility
+        // (history_file settingsentry only exists for v >= 0.3)
+        ostringstream historyfile;
+        historyfile << uin << ".history";
+        cs.defaultValueString("history_file", historyfile.str() );
+
+        cs.defaultValueUnsignedChar("age", 0, 0, 150);
 	cs.defaultValueUnsignedChar("sex", 0, 0, 2);
 	cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
 	cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
@@ -164,17 +172,20 @@ void IckleClient::loadContactList() {
 	// About Info
 	c.setAboutInfo( cs.getValueString("about") );
 	
-	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = new History( c.getUIN() );
+	m_settingsmap[c.getUIN()] = *dirit;
+	m_histmap[c.getUIN()] = new History( cs.getValueString("history_file") );
 	icqclient.addContact(c);
-      } else {
+      }
+      else { // mobile-only user
 	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
-	m_fmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = new History( c.getUIN() );
+	m_settingsmap[c.getUIN()] = *dirit;
+        string s = cs.getValueString("history_file");
+        if ( !s.size() ) // v < 0.3 settings file, use a newly created history file from now on
+          s = get_unique_historyname();
+        m_histmap[c.getUIN()] = new History( s );
 	icqclient.addContact(c);
       }
     }
-
     ++dirit;
 
   }
@@ -340,6 +351,13 @@ void IckleClient::saveSettings() {
     SignalLog(LogEvent::ERROR, ostr.str());
   }
 
+  // save contact-specific settings
+  for( map<unsigned int, string>::iterator itr = m_settingsmap.begin(); itr != m_settingsmap.end(); ++itr ) {
+    Settings st;
+    st.load( itr->second );
+    st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
+    st.save( itr->second );
+  }
 }
 
 void IckleClient::exit_cb() {
@@ -509,6 +527,18 @@ void IckleClient::logger_cb(LogEvent *c) {
 
 }
 
+string IckleClient::get_unique_historyname() throw (runtime_error)
+{
+  char tmpl[255];
+  int fd;
+  
+  snprintf( tmpl, sizeof(tmpl), "%smobilehistory.XXXXXX", CONTACT_DIR.c_str() );
+  if( (fd = mkstemp( tmpl ) ) == -1 )
+    throw( runtime_error("Could not generate temporary filename for history") );
+  close(fd);
+  return string ( tmpl + CONTACT_DIR.size() );
+}
+
 void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
   /*
   ostringstream ostr;
@@ -644,7 +674,7 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       ev->getType() == ContactListEvent::UserInfoChange) {
 
     if (ev->getType() == ContactListEvent::UserAdded) {
-      if (m_fmap.count(c->getUIN()) > 0) return;
+      if (m_settingsmap.count(c->getUIN()) > 0) return;
       ostringstream ostr;
 
       ostr << CONTACT_DIR << c->getUIN() << ".user";
@@ -653,15 +683,22 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       struct stat fs;
       string filename;
       filename = ostr.str();
+
+      // ensure uniqueness
       while ( stat( filename.c_str(), &fs ) == 0 ) {
 	ostringstream ostr;
 	n++;
 	ostr << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
 	filename = ostr.str();
       }
-      // ensure uniqueness
-      m_fmap[c->getUIN()] = filename;
-      m_histmap[c->getUIN()] = new History( c->getUIN() );
+      m_settingsmap[c->getUIN()] = filename;
+      if( c->isICQContact() ) {
+        ostringstream os;
+        os << c->getUIN() << ".history";
+        m_histmap[c->getUIN()] = new History( os.str() );
+      }
+      else
+        m_histmap[c->getUIN()] = new History( get_unique_historyname() );
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
@@ -679,7 +716,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     
     Settings user;
     user.setValue( "alias", c->getAlias() );
-    if (c->isICQContact()) user.setValue( "uin", c->getUIN() );
+    if (c->isICQContact())
+      user.setValue( "uin", c->getUIN() );
     user.setValue( "mobile_no", c->getMobileNo() );
     user.setValue( "firstname", c->getFirstName() );
     user.setValue( "lastname", c->getLastName() );
@@ -711,11 +749,11 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     // About Info
     user.setValue( "about", c->getAboutInfo() );
 
-    user.save(m_fmap[c->getUIN()]);
+    user.save(m_settingsmap[c->getUIN()]);
 
   } else if (ev->getType() == ContactListEvent::UserRemoved) {
     // delete
-    unlink( m_fmap[c->getUIN()].c_str() );
+    unlink( m_settingsmap[c->getUIN()].c_str() );
   }
 }
 

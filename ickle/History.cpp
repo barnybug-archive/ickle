@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.10 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: History.cpp,v 1.11 2002-01-02 21:41:27 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -44,16 +44,13 @@ using std::ostringstream;
 using std::istringstream;
 using std::cerr;
 
-History::History() { }
-
-History::History(unsigned int uin) {
-  ostringstream fn;
-
-  fn << CONTACT_DIR << uin << ".history";
-  m_filename = fn.str();
+/**
+  Note the historyfile should be given relative to the current CONTACT_DIR.
+*/
+History::History(const string &historyfile) {
+  m_filename = CONTACT_DIR + historyfile;
   m_builtindex = false;
   m_size = 0;
-  m_uin =  uin;
   m_streamlock = false;
 
   touch();
@@ -76,8 +73,6 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
   ofstream of;
 
   Contact *c = ev->getContact();
-  if (c->getUIN() != m_uin)
-    return;
 
   of.open( m_filename.c_str(), std::ios::out | std::ios::ate );
   if (!of.is_open())
@@ -317,4 +312,12 @@ guint History::size()
     build_index();
 
   return m_size;
+}
+
+/**
+  Returns the name of the current historyfile relative to the current CONTACT_DIR.
+*/
+string History::getFilename() const
+{
+  return m_filename.substr( CONTACT_DIR.size() );
 }
