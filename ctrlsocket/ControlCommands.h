@@ -29,4 +29,10 @@ enum CommandType
   CMD_QUIT
 };
 
+enum CommandMessageType
+{
+ MESSAGE_Normal,
+ MESSAGE_SMS
+};
+
 #endif

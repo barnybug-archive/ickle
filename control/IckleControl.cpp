@@ -112,7 +112,8 @@ bool IckleControl::runCommands (CommandLineParser & p)
     else if (o->isOption ("invisible",  "i", -1)) { if (!cmdInvisible (o->argument())) return false; }
     else if (o->isOption ("away",       "a", -1)) { cmdAwayMessage (o->argument()); }
     else if (o->isOption ("addcontact", "c",  1)) { if (!cmdAddContact (o->argument())) return false; }
-    else if (o->isOption ("send",       "m",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1))) return false; }
+    else if (o->isOption ("send",       "m",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_Normal)) return false; }
+    else if (o->isOption ("sms",        "o",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_SMS)) return false; }
     else if (o->isOption ("quit",       "q",  0)) { cmdQuit (); }
     else if (o->isOption ("configdir",  "b",  1)) { /* nop here */ }
     else {
@@ -142,6 +143,7 @@ void IckleControl::printUsage ()
         << "  -a, --away [\"MESSAGE\"]    Set/get away message" << endl
         << "  -c, --addcontact UIN      Add a new contact" << endl
         << "  -m, --send UIN \"MESSAGE\"  Send MESSAGE to user UIN" << endl
+	<< "  -o, --sms UIN \"MESSAGE\"   Send SMS to user UIN" << endl
         << "  -q, --quit                Terminate ickle" << endl
         << "  -h, --help                Display this help and exit" << endl
         << "  -v, --version             Display ickle version and exit" << endl
@@ -293,8 +295,7 @@ bool IckleControl::cmdAddContact (const string & param)
 }
 
 // --- send message ---
-
-bool IckleControl::cmdSendMessage (const string & param1, const string & param2)
+bool IckleControl::cmdSendMessage (const string & param1, const string & param2, CommandMessageType type)
 {
   unsigned int uin;
   char * end;
@@ -303,7 +304,7 @@ bool IckleControl::cmdSendMessage (const string & param1, const string & param2)
     cerr << "Invalid UIN `" << param1 << "'" << endl;
     return false;
   }
-  m_socket << CMD_SEND_MESSAGE << uin << param2 << m_timeout*1000;
+  m_socket << CMD_SEND_MESSAGE << uin << type << param2 << m_timeout*1000;
 
   if (m_timeout > 0) {
     int r;

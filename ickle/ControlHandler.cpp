@@ -208,13 +208,14 @@ void ControlHandler::cmdAddContact (ControlSocket & s)
 }
 
 // --- send message ---
-
 void ControlHandler::cmdSendMessage (ControlSocket & s)
 {
   unsigned int uin;
   string msg;
   int timeout;
-  s >> uin >> msg >> timeout;
+  CommandMessageType type;
+  ICQ2000::MessageEvent *ev;
+  s >> uin >> type >> msg >> timeout;
 
   if (!icqclient.isConnected ()) {
     endTimeout (s.sd(), false, "not connected");
@@ -226,9 +227,16 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
     endTimeout (s.sd(), false, ostr.str());
     return;
   }
-
-  ICQ2000::MessageEvent *ev = new ICQ2000::NormalMessageEvent (icqclient.getContact(uin), msg);
-
+  
+switch (type) {
+  case MESSAGE_SMS:	
+    ev = new ICQ2000::SMSMessageEvent (icqclient.getContact(uin), msg, true);
+    break;
+  case MESSAGE_Normal:
+    ev = new ICQ2000::NormalMessageEvent (icqclient.getContact(uin), msg);
+    break;
+  }
+  
   if (timeout != 0) {
     addTimeout ( s.sd(),
                  Gtk::Main::timeout.connect (bind (slot (this, &ControlHandler::timeout_cb), s.sd()), timeout),
@@ -244,6 +252,7 @@ void ControlHandler::messageack_cb (ICQ2000::MessageEvent *ack, int sd, ICQ2000:
     endTimeout (sd, true, "");
   }
 }
+
 
 // --- quit ---
 

@@ -60,6 +60,7 @@ class ControlSocket : public ControlSocketBase
   ControlSocket & operator>> (bool &);
   ControlSocket & operator>> (std::string &);
   ControlSocket & operator>> (int & v) { return operator>> ((unsigned int&)v); }
+  ControlSocket & operator>> (CommandMessageType & v) { return operator>> ((unsigned int&)v); }
   ControlSocket & operator>> (CommandType & v) { return operator>> ((unsigned int&)v); }
   ControlSocket & operator>> (ICQ2000::Status & v) { return operator>> ((unsigned int&)v); }
 

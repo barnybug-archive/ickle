@@ -42,7 +42,7 @@ class IckleControl
   bool cmdInvisible (const std::string &);
   void cmdAwayMessage (const std::string &);
   bool cmdAddContact (const std::string &);
-  bool cmdSendMessage (const std::string &, const std::string &);
+  bool cmdSendMessage (const std::string &, const std::string &, CommandMessageType);
   void cmdQuit ();
 
   ControlSocketClient m_socket;
