@@ -464,14 +464,18 @@ void UserInfoDialog::userinfochange_cb() {
   }
   
   ostringstream ostr;
-  ostr << IPtoString( contact->getLanIP() )
-       << ":"
-       << contact->getLanPort()
-       << " / "
-       << IPtoString( contact->getExtIP() )
-       << ":"
-       << contact->getExtPort();
-
+  if (contact->getLanIP() == 0 && contact->getExtIP() == 0) {
+    cout << "Unknown";
+  } else {
+    ostr << IPtoString( contact->getLanIP() )
+	 << ":"
+	 << contact->getLanPort()
+	 << " / "
+	 << IPtoString( contact->getExtIP() )
+	 << ":"
+	 << contact->getExtPort();
+  }
+  
   ip_entry.set_text( ostr.str() );
 
   /* Set the right country in the combo, if we displaying info about ourselves we want to 
