@@ -1,0 +1,21 @@
+Below is list of contributors to the ickle project, as a word of
+thanks from the main developers.
+
+Dominik 'Aeneas' Schnitzer - debian pkg stuff
+
+David Hill - fixes
+
+Alexandr Kukushkin - User info translation patch
+
+ord - micq2ickle.pl conversion script
+
+Tobias Hoffman - invisible status info patch
+
+Michael Smith - fix for non-printable characters in terminals
+
+John Steele Scott - Patch for % substitutions ported from licq in
+  event received commands.
+
+Tobias Hoffman - socket IP order bug, Alt-S send shortcut
+
+
