@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.15 2002-01-20 20:31:40 nordman Exp $
+/* $Id: IckleApplet.h,v 1.16 2002-02-01 20:30:56 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -29,6 +29,7 @@
 #include <gtk--/frame.h>
 #include <gtk--/pixmap.h>
 #include <applet-widget.h>
+
 #include <list>
 
 #include "IckleGUI.h"
@@ -51,11 +52,11 @@ class IckleApplet : public SigC::Object {
     int nr_msgs;
   };
 
-  list<msg_entry> m_pending;            /* list of pending msg's */
+  std::list<msg_entry> m_pending;       /* list of pending msg's */
 
   gint          m_nr_msgs;              /* nr of messages pending, != m_pending.size() */
   gint          m_nr_users;             /* nr of users on contactlist */
-  gint          m_nr_online_users;      /* nr of online users on contactlist */
+  std::list<unsigned int> m_online_users; /* online users on contactlist */
 
   // C-callback to member function converters
   static void   applet_click_converter          (GtkWidget *sender, GdkEventButton *ev, gpointer data);

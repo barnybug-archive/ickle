@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.23 2002-01-20 20:31:40 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.24 2002-02-01 20:30:57 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -156,15 +156,16 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
     if( !sc )
       g_error( "Can't cast to StatusChangeEvent *" );
     if( sc->getOldStatus() == STATUS_OFFLINE )
-      ++m_nr_online_users;
+      m_online_users.push_back( c->getUIN() );
     else if (sc->getStatus() == STATUS_OFFLINE )
-      --m_nr_online_users;
+      m_online_users.remove( c->getUIN() );
   }
   else if( ev->getType() == ContactListEvent::UserAdded ) {
     ++m_nr_users;
   }
   else if( ev->getType() == ContactListEvent::UserRemoved ) {
     --m_nr_users;
+    m_online_users.remove( c->getUIN() );
   }
   else if( ev->getType() == ContactListEvent::MessageQueueChanged ) {
     
@@ -225,7 +226,7 @@ void IckleApplet::update_applet_tooltip()
   ostringstream ostr;
 
   ostr << icqclient.getUIN() << " " << Status_text[icqclient.getStatus()] << endl;
-  ostr << m_nr_online_users << " of " << m_nr_users << " users connected" << endl;
+  ostr << m_online_users.size() << " of " << m_nr_users << " users connected" << endl;
   if( m_nr_msgs ) {
     ostr << m_nr_msgs << ((m_nr_msgs > 1) ? " events" : " event")  << " pending:" << endl;
     for( list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr ) {
@@ -243,7 +244,7 @@ void IckleApplet::update_applet_number()
   if( m_nr_msgs )
     ostr << m_nr_msgs;
   else
-    ostr << m_nr_online_users;
+    ostr << m_online_users.size();
   m_nr.set_text( ostr.str() );
 }
 
@@ -293,7 +294,6 @@ IckleApplet::IckleApplet()
 
   m_nr_msgs = 0;
   m_nr_users = 0;
-  m_nr_online_users = 0;
 }
 
 
