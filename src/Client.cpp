@@ -1002,15 +1002,25 @@ namespace ICQ2000 {
     if (ev->getType() == MessageEvent::Normal) {
       NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
       NormalICQSubType nist(nv->getMessage(), c->getUIN());
-      MsgSendSNAC msnac(&nist, true);
-      msnac.setSeqNum( c->nextSeqNum() );
+
+      MsgSendSNAC msnac(&nist);
+      if (c->acceptAdvancedMsgs()) {
+	msnac.setAdvanced(true);
+	msnac.setSeqNum( c->nextSeqNum() );
+      }
       b << msnac;
+
     } else if (ev->getType() == MessageEvent::URL) {
       URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
       URLICQSubType uist(uv->getMessage(), uv->getURL(), m_uin, c->getUIN());
-      MsgSendSNAC msnac(&uist, true);
-      msnac.setSeqNum( c->nextSeqNum() );
+
+      MsgSendSNAC msnac(&uist);
+      if (c->acceptAdvancedMsgs()) {
+	msnac.setAdvanced(true);
+	msnac.setSeqNum( c->nextSeqNum() );
+      }
       b << msnac;
+
     } else if (ev->getType() == MessageEvent::SMS) {
       SMSMessageEvent *sv = static_cast<SMSMessageEvent*>(ev);
       SrvSendSNAC ssnac(sv->getMessage(), c->getMobileNo(), m_uin, "", sv->getRcpt());

@@ -14,12 +14,13 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_RANLIB
+AC_PROG_AWK
 
 AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
+AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h arpa/inet.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
 # doesn't matter if getopt is missing it's a gnu thing
 AC_CHECK_HEADERS([getopt.h],,)
 
@@ -81,7 +82,7 @@ AC_FUNC_STRFTIME
 AC_FUNC_FORK
 AC_FUNC_SETVBUF_REVERSED
 AC_HEADER_SYS_WAIT
-AC_CHECK_FUNCS([dup2 mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
+AC_CHECK_FUNCS([dup2 mkdir inet_aton select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
 AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile])
 AC_OUTPUT

@@ -75,6 +75,7 @@ namespace ICQ2000 {
     unsigned short getExtPort() const;
     unsigned short getLanPort() const;
     unsigned char getTCPVersion() const;
+    bool acceptAdvancedMsgs() const;
 
     void setMobileNo(const string& mn);
     void setAlias(const string& al);

@@ -60,9 +60,10 @@ namespace ICQ2000 {
     void OutputBody(Buffer& b) const;
 
    public:
-    MsgSendSNAC(ICQSubType *icqsubtype, bool ad);
+    MsgSendSNAC(ICQSubType *icqsubtype, bool ad = false);
 
     void setSeqNum(unsigned short sn);
+    void setAdvanced(bool ad);
 
     unsigned short Subtype() const { return SNAC_MSG_Send; }
   };

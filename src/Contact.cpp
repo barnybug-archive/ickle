@@ -66,6 +66,10 @@ namespace ICQ2000 {
 
   unsigned char Contact::getTCPVersion() const { return m_tcp_version; }
 
+  bool Contact::acceptAdvancedMsgs() const {
+    return (m_tcp_version >= 7);
+  }
+
   bool Contact::isInvisible() const { return m_invisible; }
 
   void Contact::setMobileNo(const string& mn) {

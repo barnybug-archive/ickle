@@ -146,6 +146,9 @@ unsigned int TCPSocket::getLocalIP() const {
 
 unsigned long TCPSocket::gethostname(const char *hostname) {
 
+  struct in_addr ina;
+  if (inet_aton(hostname, &ina)) return ina.s_addr;
+
   // try and resolve hostname
   struct hostent *hostEnt;
   if ((hostEnt = gethostbyname(hostname)) == NULL || hostEnt->h_addrtype != AF_INET) {

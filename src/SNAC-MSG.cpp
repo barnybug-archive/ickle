@@ -42,6 +42,10 @@ namespace ICQ2000 {
     m_seqnum = seqnum;
   }
 
+  void MsgSendSNAC::setAdvanced(bool ad) {
+    m_advanced = ad;
+  }
+
   void MsgSendSNAC::OutputBody(Buffer& b) const {
 
     /*
