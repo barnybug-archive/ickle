@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.61 2003-02-09 17:02:29 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.62 2003-02-09 17:48:56 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -279,7 +279,7 @@ void SettingsDialog::init_look_charset_page()
 
   vbox2->pack_start( * table, Gtk::PACK_SHRINK );
 
-  Gtk::Label * label = new Gtk::Label();
+  Gtk::Label * label = manage( new Gtk::Label() );
 
   label->set_markup( _("This setting determines the global default character set used when sending and receiving "
 		       "to the <i>ICQ</i> network. You can set per-contact encodings by choosing the relevant option "
