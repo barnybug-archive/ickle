@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.11 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.12 2002-03-01 21:53:03 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -91,7 +91,7 @@ bool Icons::setIcons(const string &dir) {
 
 ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
   ImageLoader *p;
-  if (inv) {
+  if (inv && s != ICQ2000::STATUS_OFFLINE) {
     p = Icon_Status_Invisible.get();
   } else {
     switch(s) {

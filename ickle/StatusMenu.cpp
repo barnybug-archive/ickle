@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.2 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.3 2002-03-01 21:53:03 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -47,7 +47,11 @@ StatusMenuItem::StatusMenuItem(const string& label, Status st, bool inv)
 
 void StatusMenuItem::add_status(Status st, bool inv)
 {
-  add_status(Status_text[st], st, inv);
+  if (inv && g_settings.getValueBool("status_classic_invisibility")) {
+    add_status("Invisible", st, inv);
+  } else {
+    add_status(Status_text[st], st, inv);
+  }
 }
 
 void StatusMenuItem::add_status(const string& lbl, Status st, bool inv)
@@ -119,10 +123,11 @@ void StatusMenu::build_list()
   sl.push_back(* menu_status_widget( STATUS_DND, cl_inv ) );
   sl.push_back(* menu_status_widget( STATUS_OCCUPIED, cl_inv ) );
   sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT, cl_inv ) );
-  sl.push_back(* menu_status_widget( STATUS_OFFLINE, cl_inv ) );
   if (cl_inv) {
     sl.push_back(* menu_status_nice_inv_widget() );
+    sl.push_back(* menu_status_widget( STATUS_OFFLINE, cl_inv ) );
   } else {
+    sl.push_back(* menu_status_widget( STATUS_OFFLINE, cl_inv ) );
     sl.push_back( SeparatorElem() );
     sl.push_back(* menu_status_inv_widget() );
   }
