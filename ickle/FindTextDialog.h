@@ -32,23 +32,23 @@
 class FindTextDialog : public Gtk::Dialog
 {
  private:
- Gtk::Entry m_search_text;
- Gtk::Tooltips m_tooltip;
- Gtk::CheckButton m_case_sensitive;
- enum
- {
- RESPONSE_FIND=1
- };
+  Gtk::Entry m_search_text;
+  Gtk::Tooltips m_tooltip;
+  Gtk::CheckButton m_case_sensitive;
+  enum
+  {
+    RESPONSE_FIND=1
+  };
 
  protected:
   virtual void on_response(int response_id);
 
  public:
   FindTextDialog(Gtk::Window& parent, const Glib::ustring title, const Glib::ustring question,
-  const Glib::ustring oldsearch);
+		 const Glib::ustring oldsearch);
   ~FindTextDialog();
-  SigC::Signal2<void,Glib::ustring,bool> signal_textsubmit;
 
+  SigC::Signal2<void,Glib::ustring,bool> signal_textsubmit;
 };
 
 #endif

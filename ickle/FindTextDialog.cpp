@@ -39,13 +39,15 @@ FindTextDialog::FindTextDialog(Gtk::Window& parent, const Glib::ustring title,
 {
   Gtk::VBox *vbox=get_vbox();
 
-  m_case_sensitive.set_label(_("case sensitve"));
+  m_case_sensitive.set_label(_("Case sensitive"));
   m_case_sensitive.set_active(false);
 
   vbox->pack_start(m_case_sensitive);
 
   m_tooltip.set_tip (m_search_text,_("What text are you looking for?"));
   m_search_text.set_text(oldsearch);
+  m_search_text.set_activates_default(true);
+
   vbox->pack_start(m_search_text);
 
   add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
