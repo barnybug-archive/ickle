@@ -141,7 +141,7 @@ do
     echo "$ac_cs_version"; exit 0 ;;
   --he | --h)
     # Conflict between --help and --header
-    { { echo "$as_me:9701: error: ambiguous option: $1
+    { { echo "$as_me:9753: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: ambiguous option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -160,7 +160,7 @@ Try \`$0 --help' for more information." >&2;}
     ac_need_defaults=false;;
 
   # This is an error.
-  -*) { { echo "$as_me:9720: error: unrecognized option: $1
+  -*) { { echo "$as_me:9772: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&5
 echo "$as_me: error: unrecognized option: $1
 Try \`$0 --help' for more information." >&2;}
@@ -202,7 +202,7 @@ do
   "ickle/Makefile" ) CONFIG_FILES="$CONFIG_FILES ickle/Makefile" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
-  *) { { echo "$as_me:9768: error: invalid argument: $ac_config_target" >&5
+  *) { { echo "$as_me:9820: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
   esac
@@ -436,7 +436,7 @@ done; }
   esac
 
   if test x"$ac_file" != x-; then
-    { echo "$as_me:10010: creating $ac_file" >&5
+    { echo "$as_me:10062: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
     rm -f "$ac_file"
   fi
@@ -454,7 +454,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:10028: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:10080: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -467,7 +467,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:10041: error: cannot find input file: $f" >&5
+           { { echo "$as_me:10093: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -529,7 +529,7 @@ for ac_file in : $CONFIG_HEADERS; do test "x$ac_file" = x: && continue
   * )   ac_file_in=$ac_file.in ;;
   esac
 
-  test x"$ac_file" != x- && { echo "$as_me:10102: creating $ac_file" >&5
+  test x"$ac_file" != x- && { echo "$as_me:10154: creating $ac_file" >&5
 echo "$as_me: creating $ac_file" >&6;}
 
   # First look for the input files in the build tree, otherwise in the
@@ -540,7 +540,7 @@ echo "$as_me: creating $ac_file" >&6;}
       -) echo $tmp/stdin ;;
       [\\/$]*)
          # Absolute (can't be DOS-style, as IFS=:)
-         test -f "$f" || { { echo "$as_me:10113: error: cannot find input file: $f" >&5
+         test -f "$f" || { { echo "$as_me:10165: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          echo $f;;
@@ -553,7 +553,7 @@ echo "$as_me: error: cannot find input file: $f" >&2;}
            echo $srcdir/$f
          else
            # /dev/null tree
-           { { echo "$as_me:10126: error: cannot find input file: $f" >&5
+           { { echo "$as_me:10178: error: cannot find input file: $f" >&5
 echo "$as_me: error: cannot find input file: $f" >&2;}
    { (exit 1); exit 1; }; }
          fi;;
@@ -583,6 +583,17 @@ ${ac_dA}HAVE_STRING_H${ac_dB}HAVE_STRING_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_SYS_SOCKET_H${ac_dB}HAVE_SYS_SOCKET_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_SYS_TIME_H${ac_dB}HAVE_SYS_TIME_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_UNISTD_H${ac_dB}HAVE_UNISTD_H${ac_dC}1${ac_dD}
+${ac_dA}HAVE_VECTOR${ac_dB}HAVE_VECTOR${ac_dC}1${ac_dD}
+${ac_dA}HAVE_IOSTREAM${ac_dB}HAVE_IOSTREAM${ac_dC}1${ac_dD}
+${ac_dA}HAVE_FSTREAM${ac_dB}HAVE_FSTREAM${ac_dC}1${ac_dD}
+${ac_dA}HAVE_STRING${ac_dB}HAVE_STRING${ac_dC}1${ac_dD}
+${ac_dA}HAVE_ALGORITHM${ac_dB}HAVE_ALGORITHM${ac_dC}1${ac_dD}
+${ac_dA}HAVE_LIST${ac_dB}HAVE_LIST${ac_dC}1${ac_dD}
+${ac_dA}HAVE_HASH_MAP${ac_dB}HAVE_HASH_MAP${ac_dC}1${ac_dD}
+${ac_dA}HAVE_MEMORY${ac_dB}HAVE_MEMORY${ac_dC}1${ac_dD}
+${ac_dA}HAVE_ITERATOR${ac_dB}HAVE_ITERATOR${ac_dC}1${ac_dD}
+${ac_dA}HAVE_EXCEPTION${ac_dB}HAVE_EXCEPTION${ac_dC}1${ac_dD}
+${ac_dA}HAVE_UTILITY${ac_dB}HAVE_UTILITY${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_SYS_TYPES_H${ac_dB}HAVE_SYS_TYPES_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_SYS_STAT_H${ac_dB}HAVE_SYS_STAT_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_STDLIB_H${ac_dB}HAVE_STDLIB_H${ac_dC}1${ac_dD}
@@ -597,6 +608,15 @@ ${ac_dA}HAVE_SYS_TIME_H${ac_dB}HAVE_SYS_TIME_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_UNISTD_H${ac_dB}HAVE_UNISTD_H${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_ALARM${ac_dB}HAVE_ALARM${ac_dC}1${ac_dD}
 ${ac_dA}LSTAT_FOLLOWS_SLASHED_SYMLINK${ac_dB}LSTAT_FOLLOWS_SLASHED_SYMLINK${ac_dC}1${ac_dD}
+CEOF
+  sed -f $tmp/defines.sed $tmp/in >$tmp/out
+  rm -f $tmp/in
+  mv $tmp/out $tmp/in
+
+  cat >$tmp/defines.sed <<CEOF
+/^[ 	]*#[ 	]*define/!b
+t clr
+: clr
 ${ac_dA}HAVE_STRFTIME${ac_dB}HAVE_STRFTIME${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_GETHOSTBYNAME${ac_dB}HAVE_GETHOSTBYNAME${ac_dC}1${ac_dD}
 ${ac_dA}HAVE_GETHOSTNAME${ac_dB}HAVE_GETHOSTNAME${ac_dC}1${ac_dD}
@@ -629,6 +649,17 @@ ${ac_uA}HAVE_STRING_H${ac_uB}HAVE_STRING_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_SYS_SOCKET_H${ac_uB}HAVE_SYS_SOCKET_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_SYS_TIME_H${ac_uB}HAVE_SYS_TIME_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_UNISTD_H${ac_uB}HAVE_UNISTD_H${ac_uC}1${ac_uD}
+${ac_uA}HAVE_VECTOR${ac_uB}HAVE_VECTOR${ac_uC}1${ac_uD}
+${ac_uA}HAVE_IOSTREAM${ac_uB}HAVE_IOSTREAM${ac_uC}1${ac_uD}
+${ac_uA}HAVE_FSTREAM${ac_uB}HAVE_FSTREAM${ac_uC}1${ac_uD}
+${ac_uA}HAVE_STRING${ac_uB}HAVE_STRING${ac_uC}1${ac_uD}
+${ac_uA}HAVE_ALGORITHM${ac_uB}HAVE_ALGORITHM${ac_uC}1${ac_uD}
+${ac_uA}HAVE_LIST${ac_uB}HAVE_LIST${ac_uC}1${ac_uD}
+${ac_uA}HAVE_HASH_MAP${ac_uB}HAVE_HASH_MAP${ac_uC}1${ac_uD}
+${ac_uA}HAVE_MEMORY${ac_uB}HAVE_MEMORY${ac_uC}1${ac_uD}
+${ac_uA}HAVE_ITERATOR${ac_uB}HAVE_ITERATOR${ac_uC}1${ac_uD}
+${ac_uA}HAVE_EXCEPTION${ac_uB}HAVE_EXCEPTION${ac_uC}1${ac_uD}
+${ac_uA}HAVE_UTILITY${ac_uB}HAVE_UTILITY${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_SYS_TYPES_H${ac_uB}HAVE_SYS_TYPES_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_SYS_STAT_H${ac_uB}HAVE_SYS_STAT_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_STDLIB_H${ac_uB}HAVE_STDLIB_H${ac_uC}1${ac_uD}
@@ -643,6 +674,15 @@ ${ac_uA}HAVE_SYS_TIME_H${ac_uB}HAVE_SYS_TIME_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_UNISTD_H${ac_uB}HAVE_UNISTD_H${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_ALARM${ac_uB}HAVE_ALARM${ac_uC}1${ac_uD}
 ${ac_uA}LSTAT_FOLLOWS_SLASHED_SYMLINK${ac_uB}LSTAT_FOLLOWS_SLASHED_SYMLINK${ac_uC}1${ac_uD}
+CEOF
+  sed -f $tmp/undefs.sed $tmp/in >$tmp/out
+  rm -f $tmp/in
+  mv $tmp/out $tmp/in
+
+  cat >$tmp/undefs.sed <<CEOF
+/^[ 	]*#[ 	]*undef/!b
+t clr
+: clr
 ${ac_uA}HAVE_STRFTIME${ac_uB}HAVE_STRFTIME${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_GETHOSTBYNAME${ac_uB}HAVE_GETHOSTBYNAME${ac_uC}1${ac_uD}
 ${ac_uA}HAVE_GETHOSTNAME${ac_uB}HAVE_GETHOSTNAME${ac_uC}1${ac_uD}
@@ -668,7 +708,7 @@ CEOF
   rm -f $tmp/in
   if test x"$ac_file" != x-; then
     if cmp -s $ac_file $tmp/config.h 2>/dev/null; then
-      { echo "$as_me:10243: $ac_file is unchanged" >&5
+      { echo "$as_me:10295: $ac_file is unchanged" >&5
 echo "$as_me: $ac_file is unchanged" >&6;}
     else
       ac_dir=`$as_expr X"$ac_file" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \

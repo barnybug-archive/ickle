@@ -338,138 +338,182 @@ configure: failed program was:
 #line 7766 "configure"
 #include "confdefs.h"
 #include <ac_nonexistent.h>
-configure:7815: checking for vector.h
-configure:7825: g++ -E  conftest.cc
-configure:7831: $? = 0
-configure:7850: result: yes
-configure:7907: checking for sigc-config
-configure:7924: found /usr/bin/sigc-config
-configure:7936: result: /usr/bin/sigc-config
-configure:7945: checking for libsigc++ - version >= 1.0.0
-configure:7980: result: 1.0.3
-configure:7999: checking if libsigc++ sane
-configure:8043: g++ -o conftest -g -O2 -I/usr/lib/sigc++/include   conftest.cc  -lsigc -lpthread >&5
-configure:8046: $? = 0
-configure:8048: ./conftest
-configure:8051: $? = 0
-configure:8054: result: yes
-configure:8130: checking for gtkmm-config
-configure:8147: found /usr/bin/gtkmm-config
-configure:8159: result: /usr/bin/gtkmm-config
-configure:8168: checking for GTK-- - version >= 1.2.0
-configure:8279: g++ -o conftest -g -O2 -I/usr/lib/gtkmm/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include   conftest.cc  -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgtkmm -lgdkmm -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lsigc -lpthread >&5
-configure:8282: $? = 0
-configure:8284: ./conftest
-configure:8287: $? = 0
-configure:8303: result: yes
-configure:8388: checking for gcc option to accept ANSI C
-configure:8445: gcc  -c -g -O2  conftest.c >&5
-configure:8448: $? = 0
-configure:8451: test -s conftest.o
-configure:8454: $? = 0
-configure:8471: result: none needed
-configure:8479: checking for an ANSI C-conforming const
-configure:8543: gcc -c -g -O2  conftest.c >&5
-configure:8546: $? = 0
-configure:8549: test -s conftest.o
-configure:8552: $? = 0
-configure:8562: result: yes
-configure:8578: checking for sys/types.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for sys/stat.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for stdlib.h
-configure:8609: result: yes
-configure:8578: checking for string.h
-configure:8609: result: yes
-configure:8578: checking for memory.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for strings.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for inttypes.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for stdint.h
-configure:8590: gcc -c -g -O2  conftest.c >&5
-configure:8593: $? = 0
-configure:8596: test -s conftest.o
-configure:8599: $? = 0
-configure:8609: result: yes
-configure:8578: checking for unistd.h
-configure:8609: result: yes
-configure:8619: checking for size_t
-configure:8640: gcc -c -g -O2  conftest.c >&5
-configure:8643: $? = 0
-configure:8646: test -s conftest.o
-configure:8649: $? = 0
-configure:8659: result: yes
-configure:8671: checking whether struct tm is in sys/time.h or time.h
-configure:8691: gcc -c -g -O2  conftest.c >&5
-configure:8694: $? = 0
-configure:8697: test -s conftest.o
-configure:8700: $? = 0
-configure:8710: result: time.h
-configure:8720: checking for inline
-configure:8737: gcc -c -g -O2  conftest.c >&5
-configure:8740: $? = 0
-configure:8743: test -s conftest.o
+configure:7818: checking for vector
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for iostream
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for fstream
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for string
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for algorithm
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for list
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for hash_map
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for memory
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for iterator
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for exception
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7818: checking for utility
+configure:7828: g++ -E  conftest.cc
+configure:7834: $? = 0
+configure:7853: result: yes
+configure:7867: checking for sstream
+configure:7877: g++ -E  conftest.cc
+configure:7883: $? = 0
+configure:7902: result: yes
+configure:7959: checking for sigc-config
+configure:7976: found /usr/bin/sigc-config
+configure:7988: result: /usr/bin/sigc-config
+configure:7997: checking for libsigc++ - version >= 1.0.0
+configure:8032: result: 1.0.3
+configure:8051: checking if libsigc++ sane
+configure:8095: g++ -o conftest -g -O2 -I/usr/lib/sigc++/include   conftest.cc  -lsigc -lpthread >&5
+configure:8098: $? = 0
+configure:8100: ./conftest
+configure:8103: $? = 0
+configure:8106: result: yes
+configure:8182: checking for gtkmm-config
+configure:8199: found /usr/bin/gtkmm-config
+configure:8211: result: /usr/bin/gtkmm-config
+configure:8220: checking for GTK-- - version >= 1.2.0
+configure:8331: g++ -o conftest -g -O2 -I/usr/lib/gtkmm/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -I/usr/lib/sigc++/include   conftest.cc  -rdynamic -L/usr/lib -L/usr/X11R6/lib -lgtkmm -lgdkmm -lgtk -lgdk -lgmodule -lglib -ldl -lXi -lXext -lX11 -lm -lsigc -lpthread >&5
+configure:8334: $? = 0
+configure:8336: ./conftest
+configure:8339: $? = 0
+configure:8355: result: yes
+configure:8440: checking for gcc option to accept ANSI C
+configure:8497: gcc  -c -g -O2  conftest.c >&5
+configure:8500: $? = 0
+configure:8503: test -s conftest.o
+configure:8506: $? = 0
+configure:8523: result: none needed
+configure:8531: checking for an ANSI C-conforming const
+configure:8595: gcc -c -g -O2  conftest.c >&5
+configure:8598: $? = 0
+configure:8601: test -s conftest.o
+configure:8604: $? = 0
+configure:8614: result: yes
+configure:8630: checking for sys/types.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for sys/stat.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for stdlib.h
+configure:8661: result: yes
+configure:8630: checking for string.h
+configure:8661: result: yes
+configure:8630: checking for memory.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for strings.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for inttypes.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for stdint.h
+configure:8642: gcc -c -g -O2  conftest.c >&5
+configure:8645: $? = 0
+configure:8648: test -s conftest.o
+configure:8651: $? = 0
+configure:8661: result: yes
+configure:8630: checking for unistd.h
+configure:8661: result: yes
+configure:8671: checking for size_t
+configure:8692: gcc -c -g -O2  conftest.c >&5
+configure:8695: $? = 0
+configure:8698: test -s conftest.o
+configure:8701: $? = 0
+configure:8711: result: yes
+configure:8723: checking whether struct tm is in sys/time.h or time.h
+configure:8743: gcc -c -g -O2  conftest.c >&5
 configure:8746: $? = 0
-configure:8757: result: inline
-configure:8772: checking whether time.h and sys/time.h may both be included
-configure:8794: gcc -c -g -O2  conftest.c >&5
-configure:8797: $? = 0
-configure:8800: test -s conftest.o
-configure:8803: $? = 0
-configure:8813: result: yes
-configure:8828: checking for sys/time.h
-configure:8863: result: yes
-configure:8828: checking for unistd.h
-configure:8863: result: yes
-configure:8876: checking for alarm
-configure:8913: gcc -o conftest -g -O2   conftest.c  >&5
-configure:8916: $? = 0
-configure:8919: test -s conftest
-configure:8922: $? = 0
-configure:8932: result: yes
-configure:8942: checking for working mktime
-configure:9100: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9103: $? = 0
-configure:9105: ./conftest
-configure:9108: $? = 0
-configure:9120: result: yes
-configure:9126: checking whether lstat dereferences a symlink specified with a trailing slash
-configure:9154: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9157: $? = 0
-configure:9159: ./conftest
-configure:9162: $? = 0
-configure:9181: result: yes
-configure:9194: checking whether stat accepts an empty string
-configure:9216: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9219: $? = 0
-configure:9221: ./conftest
-configure:9224: $? = 1
+configure:8749: test -s conftest.o
+configure:8752: $? = 0
+configure:8762: result: time.h
+configure:8772: checking for inline
+configure:8789: gcc -c -g -O2  conftest.c >&5
+configure:8792: $? = 0
+configure:8795: test -s conftest.o
+configure:8798: $? = 0
+configure:8809: result: inline
+configure:8824: checking whether time.h and sys/time.h may both be included
+configure:8846: gcc -c -g -O2  conftest.c >&5
+configure:8849: $? = 0
+configure:8852: test -s conftest.o
+configure:8855: $? = 0
+configure:8865: result: yes
+configure:8880: checking for sys/time.h
+configure:8915: result: yes
+configure:8880: checking for unistd.h
+configure:8915: result: yes
+configure:8928: checking for alarm
+configure:8965: gcc -o conftest -g -O2   conftest.c  >&5
+configure:8968: $? = 0
+configure:8971: test -s conftest
+configure:8974: $? = 0
+configure:8984: result: yes
+configure:8994: checking for working mktime
+configure:9152: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9155: $? = 0
+configure:9157: ./conftest
+configure:9160: $? = 0
+configure:9172: result: yes
+configure:9178: checking whether lstat dereferences a symlink specified with a trailing slash
+configure:9206: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9209: $? = 0
+configure:9211: ./conftest
+configure:9214: $? = 0
+configure:9233: result: yes
+configure:9246: checking whether stat accepts an empty string
+configure:9268: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9271: $? = 0
+configure:9273: ./conftest
+configure:9276: $? = 1
 configure: program exited with status 1
 configure: failed program was:
-#line 9203 "configure"
+#line 9255 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 #if HAVE_SYS_TYPES_H
@@ -513,50 +557,50 @@ struct stat sbuf;
   ;
   return 0;
 }
-configure:9236: result: no
-configure:9250: checking for strftime
-configure:9287: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9290: $? = 0
-configure:9293: test -s conftest
-configure:9296: $? = 0
-configure:9306: result: yes
-configure:9378: checking for gethostbyname
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9378: checking for gethostname
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9378: checking for mkdir
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9378: checking for select
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9378: checking for socket
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9378: checking for strerror
-configure:9415: gcc -o conftest -g -O2   conftest.c  >&5
-configure:9418: $? = 0
-configure:9421: test -s conftest
-configure:9424: $? = 0
-configure:9434: result: yes
-configure:9525: creating ./config.status
+configure:9288: result: no
+configure:9302: checking for strftime
+configure:9339: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9342: $? = 0
+configure:9345: test -s conftest
+configure:9348: $? = 0
+configure:9358: result: yes
+configure:9430: checking for gethostbyname
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9430: checking for gethostname
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9430: checking for mkdir
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9430: checking for select
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9430: checking for socket
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9430: checking for strerror
+configure:9467: gcc -o conftest -g -O2   conftest.c  >&5
+configure:9470: $? = 0
+configure:9473: test -s conftest
+configure:9476: $? = 0
+configure:9486: result: yes
+configure:9577: creating ./config.status
 
 ## ----------------------- ##
 ## Running config.status.  ##
@@ -570,11 +614,12 @@ This file was extended by config.status (ickle 0.1.0) 2.52, executed with
   > ./config.status 
 on purple
 
-config.status:10010: creating Makefile
-config.status:10010: creating src/Makefile
-config.status:10010: creating test/Makefile
-config.status:10010: creating ickle/Makefile
-config.status:10102: creating config.h
+config.status:10062: creating Makefile
+config.status:10062: creating src/Makefile
+config.status:10062: creating test/Makefile
+config.status:10062: creating ickle/Makefile
+config.status:10154: creating config.h
+config.status:10295: config.h is unchanged
 
 ## ----------------- ##
 ## Cache variables.  ##
@@ -619,16 +664,26 @@ ac_cv_func_stat_empty_string_bug=no
 ac_cv_func_strerror=yes
 ac_cv_func_strftime=yes
 ac_cv_func_working_mktime=yes
+ac_cv_header_algorithm=yes
 ac_cv_header_dlfcn_h=yes
 ac_cv_header_errno_h=yes
+ac_cv_header_exception=yes
 ac_cv_header_fcntl_h=yes
+ac_cv_header_fstream=yes
+ac_cv_header_hash_map=yes
 ac_cv_header_inttypes_h=yes
+ac_cv_header_iostream=yes
+ac_cv_header_iterator=yes
+ac_cv_header_list=yes
+ac_cv_header_memory=yes
 ac_cv_header_memory_h=yes
 ac_cv_header_netdb_h=yes
 ac_cv_header_netinet_in_h=yes
+ac_cv_header_sstream=yes
 ac_cv_header_stdc=yes
 ac_cv_header_stdint_h=yes
 ac_cv_header_stdlib_h=yes
+ac_cv_header_string=yes
 ac_cv_header_string_h=yes
 ac_cv_header_strings_h=yes
 ac_cv_header_sys_socket_h=yes
@@ -637,7 +692,8 @@ ac_cv_header_sys_time_h=yes
 ac_cv_header_sys_types_h=yes
 ac_cv_header_time=yes
 ac_cv_header_unistd_h=yes
-ac_cv_header_vector_h=yes
+ac_cv_header_utility=yes
+ac_cv_header_vector=yes
 ac_cv_host=i686-pc-linux-gnu
 ac_cv_host_alias=i686-pc-linux-gnu
 ac_cv_objext=o
@@ -696,6 +752,17 @@ lt_cv_sys_path_separator=:
 #define HAVE_SYS_SOCKET_H 1
 #define HAVE_SYS_TIME_H 1
 #define HAVE_UNISTD_H 1
+#define HAVE_VECTOR 1
+#define HAVE_IOSTREAM 1
+#define HAVE_FSTREAM 1
+#define HAVE_STRING 1
+#define HAVE_ALGORITHM 1
+#define HAVE_LIST 1
+#define HAVE_HASH_MAP 1
+#define HAVE_MEMORY 1
+#define HAVE_ITERATOR 1
+#define HAVE_EXCEPTION 1
+#define HAVE_UTILITY 1
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_SYS_STAT_H 1
 #define HAVE_STDLIB_H 1
@@ -720,45 +787,3 @@ lt_cv_sys_path_separator=:
 
 
 configure: exit 0
-
-## ----------------------- ##
-## Running config.status.  ##
-## ----------------------- ##
-
-This file was extended by config.status (ickle 0.1.0) 2.52, executed with
-  CONFIG_FILES    = src/Makefile
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  > ./config.status 
-on purple
-
-config.status:10010: creating src/Makefile
-
-## ----------------------- ##
-## Running config.status.  ##
-## ----------------------- ##
-
-This file was extended by config.status (ickle 0.1.0) 2.52, executed with
-  CONFIG_FILES    = test/Makefile
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  > ./config.status 
-on purple
-
-config.status:10010: creating test/Makefile
-
-## ----------------------- ##
-## Running config.status.  ##
-## ----------------------- ##
-
-This file was extended by config.status (ickle 0.1.0) 2.52, executed with
-  CONFIG_FILES    = ickle/Makefile
-  CONFIG_HEADERS  = 
-  CONFIG_LINKS    = 
-  CONFIG_COMMANDS = 
-  > ./config.status 
-on purple
-
-config.status:10010: creating ickle/Makefile

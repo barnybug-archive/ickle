@@ -34,6 +34,32 @@ Note for RPM distributions (Redhat, SuSE, etc..) - make sure you
 install the 'development' RPMs for all these libraries as
 well. Usually these are called library-devel.rpm or similar.
 
+For RPM based distributions I'm trying to build up a list of the names
+of the rpms that are required, so send me info about what you needed
+for your distribution if it's not already here.
+
+Redhat 7.1 - gtk+-1.2.9-4.i386.rpm, gtk+-devel-1.2.9-4.i386.rpm,
+           libstdc++-2.96-81.i386.rpm, libstdc++-devel-2.96-81.i386.rpm
+           There are no rpms provided for gtk-- or sigc, so you'll
+           have to get the sources from http://gtkmm.sourceforge.net/
+	   and compile them yourself.
+
+Other Redhats - I'd appreciate any input from people on success/failures.
+
+SuSE 7.0 - the rpms for gtkmm are very out of date on SuSE 7.0, you'll
+	   either have to compile gtk, gtk-- and sigc++ from sources
+           or try fudging it with newer rpms for 7.2 I'm afraid.
+
+SuSE 7.1 - sigc++.rpm, gtk.rpm, gtk-devel.rpm, gtkmm.rpm,
+           gtkmm-devel.rpm
+	   For the libstdc++ libraries you'll need a newer rpm than
+           what libgpp.rpm provides I suggest using the libgpp.rpm
+           from SuSE 7.2, you'll also need the newer gpp.rpm and
+	   gppshare.rpm from 7.2 if you do this.
+
+SuSE 7.2 - libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm, gtk-devel.rpm,
+           gtkmm.rpm, gtkmm-devel.rpm, gpp.rpm, gppshare.rpm, libgpp.rpm
+
 Debian based distributions (Debian, Progeny, etc..) - you will need
 these packages installed:
 libstdc++2.10
