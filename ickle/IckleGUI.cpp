@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.67 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.68 2003-01-04 19:42:45 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,14 +35,13 @@
 
 #include <libicq2000/Client.h>
 
+#include "ickle.h"
+#include "ucompose.h"
 #include "main.h"
-
-#include "sstream_fix.h"
 
 // TODO #include "gtkspell.h"
 
 using std::string;
-using std::ostringstream;
 using std::endl;
 
 using ICQ2000::ContactRef;
@@ -90,27 +89,27 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
     using namespace Gtk::Menu_Helpers;
 
     MenuList& ml = m_ickle_menu.items();
-    ml.push_back( ImageMenuElem("Add Contact",
+    ml.push_back( ImageMenuElem( _("Add Contact"),
 				* manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 				SigC::slot(*this, &IckleGUI::add_contact_cb)) );
-    ml.push_back( MenuElem("My User Info", SigC::slot(*this, &IckleGUI::my_user_info_cb)) );
-    ml.push_back( ImageMenuElem("Search for Contacts",
+    ml.push_back( MenuElem( _("My User Info"), SigC::slot(*this, &IckleGUI::my_user_info_cb)) );
+    ml.push_back( ImageMenuElem( _("Search for Contacts"),
 				* manage( new Gtk::Image(Gtk::Stock::FIND, Gtk::ICON_SIZE_MENU) ),
 				SigC::slot(*this, &IckleGUI::search_contact_cb)) );
     mi_search_for_contacts = &ml.back();
     mi_search_for_contacts->set_sensitive(false);
-    ml.push_back( MenuElem("Set Auto Response", SigC::bind<bool>(SigC::slot(*this, &IckleGUI::set_auto_response_dialog), false)) );
+    ml.push_back( MenuElem( _("Set Auto Response"), SigC::bind<bool>(SigC::slot(*this, &IckleGUI::set_auto_response_dialog), false)) );
     
-    m_offline_co_mi = manage( new Gtk::CheckMenuItem("Show offline contacts") );
+    m_offline_co_mi = manage( new Gtk::CheckMenuItem( _("Show offline contacts") ) );
     m_offline_co_mi->signal_toggled().connect( SigC::slot(*this, &IckleGUI::toggle_offline_co_cb) );
     m_ickle_menu.append(*m_offline_co_mi);
 
-    m_log_window_mi = manage( new Gtk::CheckMenuItem("Log Window") );
+    m_log_window_mi = manage( new Gtk::CheckMenuItem( _("Log Window") ) );
     m_log_window_mi->signal_toggled().connect( SigC::slot(*this, &IckleGUI::log_window_cb) );
     m_ickle_menu.append(*m_log_window_mi);
 
     ml.push_back( StockMenuElem( Gtk::Stock::PREFERENCES, SigC::slot(*this, &IckleGUI::settings_cb) ) );
-    ml.push_back( ImageMenuElem("About",
+    ml.push_back( ImageMenuElem( _("About"),
 				* manage( new Gtk::Image(Gtk::Stock::DIALOG_INFO, Gtk::ICON_SIZE_MENU) ),
 				SigC::slot(*this, &IckleGUI::about_cb)) );
     ml.push_back( StockMenuElem( Gtk::Stock::QUIT, SigC::slot(*this, &IckleGUI::exit_cb) ) );
@@ -123,7 +122,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
     m_status_menu.status_changed_status_inv.connect( SigC::slot( *this, &IckleGUI::status_menu_status_inv_changed_cb ) );
     
     mbl.front().set_right_justified(true);
-    mbl.push_front(MenuElem("ickle",m_ickle_menu));
+    mbl.push_front(MenuElem( _("ickle"), m_ickle_menu));
   }
   
   m_top_vbox.pack_end(m_ickle_menubar, Gtk::PACK_SHRINK);
@@ -163,16 +162,17 @@ void IckleGUI::set_ickle_title()
 {
   if (m_exiting) return;
 
-  ostringstream ostr;
-  ostr << "ickle";
-
-  ContactRef c = icqclient.getSelfContact();
-  if (c->getUIN() != 0) {
-    ostr << " - " << c->getNameAlias();
+  ICQ2000::ContactRef c = icqclient.getSelfContact();
+  if (c->getUIN() == 0)
+  {
+    set_title( _("ickle") );
   }
-
-  if (m_message_queue.get_size() > 0) ostr << "*";
-  set_title(ostr.str());
+  else
+  {
+    set_title( String::ucompose( _("ickle - %1%2"),
+				 c->getNameAlias(),
+				 ( m_message_queue.get_size() > 0 ? "*" : "" ) ) );
+  }
 
   if (g_settings.getValueBool("window_status_icons"))
   {
@@ -180,7 +180,6 @@ void IckleGUI::set_ickle_title()
     
     if (m_message_queue.get_size() > 0)
     {
-      ostr << "*";
       MessageEvent *ev = m_message_queue.get_first_message();
       if (ev->getServiceType() == MessageEvent::ICQ) {
         ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
@@ -321,10 +320,10 @@ void IckleGUI::remove_from_queue_delayed(MessageEvent *ev)
 
 void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent *ev)
 {
-  ostringstream ostr;
-  ostr << c->getNameAlias() << " has added you to their contact list." << endl;
+  Glib::ustring str = String::ucompose( _("%1 has added you to their contact list."),
+				 c->getNameAlias() );
 
-  new PromptDialog( *this, Gtk::MESSAGE_INFO, ostr.str(), false );
+  new PromptDialog( *this, Gtk::MESSAGE_INFO, str, false );
   remove_from_queue_delayed(ev);
 }
 
@@ -336,15 +335,20 @@ void IckleGUI::popup_auth_req(const ContactRef& c, AuthReqICQMessageEvent *ev)
 
 void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
 {
-  ostringstream ostr;
-  ostr << c->getNameAlias() << " has " << (ev->isGranted() ? "granted" : "refused")
-       << " your request for authorisation." << endl;
-  if (!ev->isGranted() && !ev->getMessage().empty()) {
-    ostr << "Their refusal message was:" << endl << endl
-	 << ev->getMessage() << endl;
+  Glib::ustring str;
+  if (ev->isGranted())
+    str = String::ucompose( _("%1 has granted your request for authorisation."), c->getNameAlias() );
+  else
+    str = String::ucompose( _("%1 has refused your request for authorisation."), c->getNameAlias() );
+
+  str += "\n";
+  
+  if (!ev->isGranted() && !ev->getMessage().empty())
+  {
+    str += String::ucompose( _("Their refusal message was:\n\n%1\n"), ev->getMessage() );
   }
 
-  new PromptDialog( *this, Gtk::MESSAGE_INFO, ostr.str(), false );
+  new PromptDialog( *this, Gtk::MESSAGE_INFO, str, false );
   remove_from_queue_delayed(ev);
 }
 
@@ -579,65 +583,69 @@ void IckleGUI::log_window_hidden_cb()
 void IckleGUI::invalid_login_prompt()
 {
   PromptDialog pd(*this, Gtk::MESSAGE_WARNING,
-		  "You have not entered a valid UIN and Password. "
-		  "Go to Settings and correct the details.");
+		  _("You have not entered a valid UIN and Password. "
+		    "Go to Settings and correct the details.") );
   pd.run();
 }
 
 void IckleGUI::turboing_prompt()
 {
   PromptDialog pd(*this, Gtk::MESSAGE_WARNING,
-		  "The server says you have been turboing. "
-		  "This means you've been connecting and disconnecting to the server too "
-		  "quickly and so it has blocked you temporarily. Don't be alarmed, just "
-		  "wait for at least 5 minutes before reattempting. If you still get this "
-		  "message then wait a bit longer - maybe up to an hour.");
+		  _("The server says you have been turboing. "
+		    "This means you've been connecting and disconnecting to the server too "
+		    "quickly and so it has blocked you temporarily. Don't be alarmed, just "
+		    "wait for at least 5 minutes before reattempting. If you still get this "
+		    "message then wait a bit longer - maybe up to an hour.") );
   pd.run();
 }
 
 void IckleGUI::duallogin_prompt()
 {
   PromptDialog pd(*this, Gtk::MESSAGE_WARNING,
-                  "The server recieved multiple simultaneous login for this account.\n"
-                  "Do you have multiple clients running with the same account?" );
+                  _("The server recieved multiple simultaneous login for this account.\n"
+		    "Do you have multiple clients running with the same account?") );
   pd.run();
 }
 
 void IckleGUI::already_running_prompt(const std::string& pid_file, unsigned int pid)
 {
-  ostringstream ostr;
-  ostr << "ickle appears to be already running (process id " << pid << "). " << endl
-       << "Either kill this process (if it is actually ickle), or remove the lockfile:" << endl << pid_file;
-  PromptDialog pd(*this, Gtk::MESSAGE_WARNING, ostr.str() );
+  PromptDialog pd(*this, Gtk::MESSAGE_WARNING,
+		  String::ucompose( _("ickle appears to be already running (process id %1).\n"
+				      "Either kill this process (if it is actually ickle), or remove the lockfile:\n%2"), pid, pid_file) );
   pd.run();
 }
 
 void IckleGUI::disconnect_lowlevel_prompt(int retries)
 {
-  ostringstream os;
-  os << "There occured a networking error while communicating with the server, and as a "
-    "result you were disconnected.";
+  Glib::ustring str;
+
+  str = _("There occured a networking error while communicating with the server, and as a "
+	  "result you were disconnected.");
   if( retries )
   {
-    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success. "
-       << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
+    str += String::ucompose( _(" Ickle tried to reconnect %1 times, unfortunately with little success.\n"
+			       "You will have to manually attempt to reconnect, preferably after waiting a short while."), retries );
+    // TODO plural form
   }
   
-  PromptDialog pd( *this, Gtk::MESSAGE_WARNING, os.str() );
+  PromptDialog pd( *this, Gtk::MESSAGE_WARNING, str );
   pd.run();
 }
 
 void IckleGUI::disconnect_unknown_prompt(int retries)
 {
-  ostringstream os;
-  os << "There occured an unknown error while communicating with the server, and as a "
-    "result you were disconnected.";
-  if( retries ) {
-    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success. "
-       << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
+  Glib::ustring str;
+  
+  str = _("There occured an unknown error while communicating with the server, and as a "
+	  "result you were disconnected.");
+  if( retries )
+  {
+    str += String::ucompose( _(" Ickle tried to reconnect %1 times, unfortunately with little success.\n"
+			       "You will have to manually attempt to reconnect, preferably after waiting a short while."),
+			     retries );
   }
   
-  PromptDialog pd( *this, Gtk::MESSAGE_WARNING, os.str() );
+  PromptDialog pd( *this, Gtk::MESSAGE_WARNING, str );
   pd.run();
 }
 

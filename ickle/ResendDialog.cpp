@@ -27,15 +27,13 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/stock.h>
 
-#include "sstream_fix.h"
 #include "main.h"
 #include <libicq2000/Client.h>
 
-using std::ostringstream;
+#include "ickle.h"
+#include "ucompose.h"
 
 using std::string;
-using std::ostringstream;
-using std::endl;
 
 enum
 {
@@ -44,28 +42,27 @@ enum
 };
 
 ResendDialog::ResendDialog(Gtk::Window& parent, ICQ2000::ICQMessageEvent *ev)
-  : Gtk::Dialog("Resend message", parent)
+  : Gtk::Dialog( _("Resend message"), parent)
 {
   set_position(Gtk::WIN_POS_MOUSE);
 
   // take a copy of the event, for resending
   m_event = ev->copy();
 
-  add_button("Send as urgent", Response_Resend_Urgent);
-  add_button("Send to contact list", Response_Resend_ToContactList);
+  add_button( _("Send as urgent"), Response_Resend_Urgent);
+  add_button( _("Send to contact list"), Response_Resend_ToContactList);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
-  ostringstream ostr;
-  ostr << "Your message to " << ev->getContact()->getNameAlias()
-       << " wasn't received as the user is "
-       << (ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
-	   ? "Occupied" : "in Do not Disturb")
-       << "." << endl << endl
-       << "Their away message is:" << endl
-       << ev->getAwayMessage() << endl << endl
-       << "You should resend the message as 'Urgent' or 'to Contact List'" << endl;
-  
-  Gtk::Label *label = manage( new Gtk::Label( ostr.str(), 0 ) );
+  Gtk::Label *label;
+  label = manage( new Gtk::Label( String::ucompose( _("Your message to %1 wasn't received as the user is %2.\n\n"
+						      "Their away message is:\n"
+						      "%2\n\n"
+						      "You should resend the message as 'Urgent' or 'to Contact List'\n"),
+						    ev->getContact()->getNameAlias(),
+						    (ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
+						     ? _("Occupied") : _("in Do not Disturb")),
+						    ev->getAwayMessage() ),
+				  0.0, 0.5 ) );
   label->set_justify(Gtk::JUSTIFY_FILL);
   label->set_line_wrap(true);
   Gtk::VBox *vbox = get_vbox();

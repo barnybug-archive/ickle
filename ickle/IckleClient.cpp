@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.117 2003-01-02 21:30:33 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.118 2003-01-04 19:42:45 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -36,7 +36,6 @@
 #include <stdexcept>
 #include <fstream>
 #include <signal.h>
-#include "sstream_fix.h"
 
 #include "ickle.h"
 #include "ucompose.h"
@@ -52,7 +51,6 @@
 #include <time.h>
 
 using std::string;
-using std::ostringstream;
 using std::istringstream;
 using std::fstream;
 using std::ofstream;
@@ -61,10 +59,6 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::runtime_error;
-
-/* using SigC::slot;
- * best not - now we have a mix of sigslot and SigC signal libraries
- */
 
 using ICQ2000::ContactRef;
 
@@ -226,10 +220,9 @@ void IckleClient::loadSettings()
   }
   catch (runtime_error& e)
   {
-    ostringstream ostr;
-    ostr << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
-	 << "This is probably the first time you've run ickle.";
-    SignalLog(ICQ2000::LogEvent::WARN, ostr.str());
+    SignalLog(ICQ2000::LogEvent::WARN,
+	      String::ucompose( _("Couldn't open %1ickle.conf, using default settings\n"
+				  "This is probably the first time you've run ickle.\n"), BASE_DIR ));
   }
 
   /*
@@ -299,7 +292,7 @@ void IckleClient::loadSettings()
 
   g_settings.defaultValueBool("status_classic_invisibility", false);
 
-  g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
+  g_settings.defaultValueString("last_away_response", _("User is currently not available\nYou can leave him/her a message") );
   g_settings.defaultValueBool("set_away_response_dialog", true);
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
@@ -311,8 +304,8 @@ void IckleClient::loadSettings()
   g_settings.defaultValueBool("initial_userinfo_done", false );
 
   g_settings.defaultValueUnsignedInt("no_autoresponses", 1, 1, 100);
-  g_settings.defaultValueString("autoresponse_1_label", "Away");
-  g_settings.defaultValueString("autoresponse_1_text", "Hello %a, I'm away at the moment.");
+  g_settings.defaultValueString("autoresponse_1_label", _("Away"));
+  g_settings.defaultValueString("autoresponse_1_text", _("Hello %a, I'm away at the moment.") );
 
   g_settings.defaultValueBool("show_offline_contacts", true);
   
@@ -392,16 +385,13 @@ void IckleClient::loadSettings()
 
   // Load in Groups
   unsigned int no_groups = g_settings.getValueUnsignedInt("no_groups");
-  for (unsigned int i = 1; i <= no_groups; i++) {
-    ostringstream fetch_str, fetch_str2;
-    string label;
-    unsigned short id;
+  for (unsigned int i = 1; i <= no_groups; i++)
+  {
+    std::string fetch_str  = Utils::format_string( "group_%d_label", i );
+    std::string fetch_str2 = Utils::format_string( "group_%d_id", i );
     
-    fetch_str << "group_" << i << "_label";
-    label = g_settings.getValueString(fetch_str.str());
-    
-    fetch_str2 << "group_" << i << "_id";
-    id = g_settings.getValueUnsignedShort(fetch_str2.str());
+    std::string label = g_settings.getValueString(fetch_str);
+    unsigned short id = g_settings.getValueUnsignedShort(fetch_str2);
     
     icqclient.getContactTree().add_group( label, id );
   }
@@ -427,21 +417,23 @@ void IckleClient::saveSettings()
   // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
   mode_t old_umask = umask(0077);
 
-  try {
+  try
+  {
     g_settings.save(ickle_conf);
-  } catch(runtime_error& e) {
-    ostringstream ostr;
-    ostr << "Couldn't save " << BASE_DIR << "ickle.conf";
-    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+  }
+  catch(runtime_error& e)
+  {
+    SignalLog(ICQ2000::LogEvent::ERROR, String::ucompose( _("Couldn't save %1ickle.conf"), BASE_DIR ));
   }
 
   umask(old_umask);
 
   // ensure permissions on ickle.conf are secure
-  if ( chmod( ickle_conf.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
-    ostringstream ostr;
-    ostr << "The permissions on " << ickle_conf << " couldn't be set to 0600. Your ICQ password is vulnerable!";
-    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+  if ( chmod( ickle_conf.c_str(), S_IRUSR | S_IWUSR ) == -1 )
+  {
+    SignalLog(ICQ2000::LogEvent::ERROR,
+	      String::ucompose( _("The permissions on %1 couldn't be set to 0600. Your ICQ password is vulnerable!"),
+				ickle_conf ) );
   }
 
   // save self-contact
@@ -495,36 +487,37 @@ void IckleClient::connected_cb(ICQ2000::ConnectedEvent *)
 
 void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
   if (c->getReason() == ICQ2000::DisconnectedEvent::REQUESTED) {
-    SignalLog(ICQ2000::LogEvent::INFO, "Disconnected as requested");
+    SignalLog(ICQ2000::LogEvent::INFO, _("Disconnected as requested") );
   } else {
-    ostringstream ostr;
-    ostr << "Problem connecting: ";
+    string reason;
     switch(c->getReason()) {
     case ICQ2000::DisconnectedEvent::FAILED_LOWLEVEL:
-      ostr << "Socket problems";
+      reason = _("Socket problems");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_BADUSERNAME:
-      ostr << "Bad Username";
+      reason = _("Bad Username");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_TURBOING:
-      ostr << "Turboing";
+      reason = _("Turboing");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_BADPASSWORD:
-      ostr << "Bad Password";
+      reason = _("Bad Password");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_MISMATCH_PASSWD:
-      ostr << "Username and Password did not match";
+      reason = _("Username and Password did not match");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_UNKNOWN:
-      ostr << "Unknown";
+      reason = _("Unknown");
       break;
     case ICQ2000::DisconnectedEvent::FAILED_DUALLOGIN:
-      ostr << "Dual login, disconnected";
+      reason = _("Dual login, disconnected");
       break;
     default:
+      reason = _("Unknown");
       break;
     }
-    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str() );
+    SignalLog(ICQ2000::LogEvent::ERROR,
+	      String::ucompose( _("Problem connecting: %1"), reason ) );
   }
 
   // disconnect PingServer callback
@@ -588,7 +581,8 @@ void IckleClient::logger_file_cb(const string& msg)
   // ensure permissions on log file are secure
   if ( chmod( log_file.c_str(), S_IRUSR | S_IWUSR ) == -1 )
   {
-    cout << "The permissions on " << log_file << " couldn't be set to 0600. Your ICQ password may be logged in this file, so it could be vulnerable!" << endl;
+    cout << String::ucompose( _("The permissions on %1 couldn't be set to 0600. Your ICQ password may be logged in this file, so it could be vulnerable!"),
+			      log_file ) << endl;
   }
 }
 
@@ -601,12 +595,11 @@ void IckleClient::logger_cb(ICQ2000::LogEvent *c)
   time_t t = time(NULL);
   struct tm *tm = localtime(&t);
   char time_str[256];
-  strftime(time_str, 255, "[%H:%M:%S] ", tm);
+  strftime(time_str, 255, "[%H:%M:%S]", tm);
 
-  if ( log_to_console && log_to_file ) {
-    ostringstream ostr;
-    ostr << time_str << c->getMessage() << endl;
-    logger_file_cb( ostr.str() );
+  if ( log_to_console && log_to_file )
+  {
+    logger_file_cb( String::ucompose( "%1 %2\n", time_str, c->getMessage() ) );
   }
 
   switch(c->getType()) {
@@ -627,14 +620,13 @@ void IckleClient::logger_cb(ICQ2000::LogEvent *c)
     break;
   }
 
-  if ( !log_to_console && log_to_file ) {
-    ostringstream ostr;
-    ostr << time_str << c->getMessage() << endl;
-    logger_file_cb(ostr.str());
+  if ( !log_to_console && log_to_file )
+  {
+    logger_file_cb( String::ucompose( "%1 %2\n", time_str, c->getMessage() ) );
   }
 
   if (log_to_console) {
-    cout << time_str;
+    cout << time_str << " ";
     switch(c->getType()) {
     case ICQ2000::LogEvent::INFO:
       cout << "[34m (i)  ";
@@ -667,7 +659,7 @@ string IckleClient::get_unique_historyname() throw (runtime_error)
   
   snprintf( tmpl, sizeof(tmpl), "%smobilehistory.XXXXXX", CONTACT_DIR.c_str() );
   if( (fd = mkstemp( tmpl ) ) == -1 )
-    throw( runtime_error("Could not generate temporary filename for history") );
+    throw( runtime_error( _("Could not generate temporary filename for history") ) );
   close(fd);
   return string ( tmpl + CONTACT_DIR.size() );
 }
@@ -698,10 +690,10 @@ void IckleClient::messageack_cb(ICQ2000::MessageEvent *ev)
       && ev->getType() != ICQ2000::MessageEvent::AwayMessage)
   {
     unsigned int uin = ev->getContact()->getUIN();
-    if (m_histmap.count(uin) == 0) {
-      ostringstream ostr;
-      ostr << "No history object for contact: " << uin;
-      SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+    if (m_histmap.count(uin) == 0)
+    {
+      SignalLog(ICQ2000::LogEvent::ERROR,
+		String::ucompose( _("No history object for contact: %1"), uin ) );
     } else {
       History *h = m_histmap[ev->getContact()->getUIN()];
       try {
@@ -724,7 +716,7 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
-      SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor already connected");
+      SignalLog(ICQ2000::LogEvent::ERROR, _("Problem: file descriptor already connected") );
       m_sockets[fd].disconnect();
       m_sockets.erase(fd);
     }
@@ -739,7 +731,7 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
     int fd = cev->getSocketHandle();
 
     if (m_sockets.count(fd) == 0) {
-      SignalLog(ICQ2000::LogEvent::ERROR, "Problem: file descriptor not connected");
+      SignalLog(ICQ2000::LogEvent::ERROR, _("Problem: file descriptor not connected") );
     } else {
       m_sockets[fd].disconnect();
       m_sockets.erase(fd);
@@ -781,13 +773,13 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
     ICQ2000::ContactTree::Group *gp = NULL;
     ICQ2000::ContactTree::iterator curr = ct.begin();
     while (curr != ct.end()) {
-      if ((*curr).get_label() == "New") {
+      if ((*curr).get_label() == _("New") ) {
 	gp = &(*curr);
 	break;
       }
       ++curr;
     }
-    if (gp == NULL) gp = &(ct.add_group("New"));
+    if (gp == NULL) gp = &(ct.add_group( _("New") ));
     
     gp->add(ev->getContact());
     icqclient.fetchDetailContactInfo(ev->getContact());
@@ -796,17 +788,17 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   // convert to a client event type and add to queue
   MessageEvent *ickle_ev = convert_libicq2000_event(ev);
   if (ickle_ev == NULL) {
-    SignalLog(ICQ2000::LogEvent::INFO, "Unhandled libicq2000 event");
+    SignalLog(ICQ2000::LogEvent::INFO, _("Unhandled libicq2000 event") );
     return;
   }
   
   m_message_queue.add_to_queue(ickle_ev);
 
   unsigned int uin = ev->getContact()->getUIN();
-  if (m_histmap.count(uin) == 0) {
-    ostringstream ostr;
-    ostr << "No history object for contact: " << uin;
-    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+  if (m_histmap.count(uin) == 0)
+  {
+      SignalLog(ICQ2000::LogEvent::ERROR,
+		String::ucompose( _("No history object for contact: %1"), uin ) );
   } else {
     History *h = m_histmap[ev->getContact()->getUIN()];
     try {
@@ -904,8 +896,9 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   return ret;
 }
 
-void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev) {
-  ContactRef c = ev->getContact();
+void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev)
+{
+  ICQ2000::ContactRef c = ev->getContact();
   EventSubstituter evs(m_message_queue, c);
   evs << gui.getAutoResponse();
   ev->setAwayMessage(evs.str());
@@ -913,13 +906,37 @@ void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev) {
 
 bool IckleClient::mkdir_BASE_DIR()
 {
-  if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-    ostringstream ostr;
-    ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
-    SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+  if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST )
+  {
+    SignalLog(ICQ2000::LogEvent::ERROR,
+	      String::ucompose( _("mkdir %1 failed: %2"),
+				BASE_DIR,
+				strerror(errno) ) );
     return false;
   }
   return true;
+}
+
+std::string IckleClient::get_unique_contact_user_filename(ICQ2000::ContactRef& c)
+{
+  std::string filename = Utils::format_string( "%s%d.user", CONTACT_DIR.c_str(), c->getUIN() );
+
+  // ensure uniqueness
+  int n = 0;
+  struct stat fs;
+  
+  while ( stat( filename.c_str(), &fs ) == 0 )
+  {
+    n++;
+    filename = Utils::format_string("%s%d-%d.user", CONTACT_DIR.c_str(), c->getUIN(), n);
+  }
+
+  return filename;
+}
+
+std::string IckleClient::get_contact_history_filename(ICQ2000::ContactRef& c)
+{
+  return Utils::format_string( "%d.history", c->getUIN() );
 }
 
 void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
@@ -928,38 +945,30 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
     ICQ2000::UserAddedEvent *cev = static_cast<ICQ2000::UserAddedEvent*>(ev);
     ContactRef c = cev->getContact();
   
-    if (m_settingsmap.count(c->getUIN()) > 0) return;
-    ostringstream ostr;
+    if (m_settingsmap.count(c->getUIN()) > 0)
+      return;
 
-    ostr << CONTACT_DIR << c->getUIN() << ".user";
+    string filename = get_unique_contact_user_filename(c);
 
-    int n = 0;
-    struct stat fs;
-    string filename;
-    filename = ostr.str();
-
-    // ensure uniqueness
-    while ( stat( filename.c_str(), &fs ) == 0 ) {
-      ostringstream ostr;
-      n++;
-      ostr << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
-      filename = ostr.str();
-    }
     m_settingsmap[c->getUIN()] = filename;
-    if( c->isICQContact() ) {
-      ostringstream os;
-      os << c->getUIN() << ".history";
-      m_histmap[c->getUIN()] = new History( os.str() );
+
+    if( c->isICQContact() )
+    {
+      m_histmap[c->getUIN()] = new History( get_contact_history_filename(c) );
     }
     else
+    {
       m_histmap[c->getUIN()] = new History( get_unique_historyname() );
+    }
 
     if ( !mkdir_BASE_DIR() ) return;
 
-    if ( mkdir( CONTACT_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-      ostringstream ostr;
-      ostr << "mkdir " << CONTACT_DIR << " failed: " << strerror(errno);
-      SignalLog(ICQ2000::LogEvent::ERROR, ostr.str());
+    if ( mkdir( CONTACT_DIR.c_str(), 0700 ) == -1 && errno != EEXIST )
+    {
+      SignalLog(ICQ2000::LogEvent::ERROR,
+		String::ucompose( _("mkdir %1 failed: %2"),
+				  CONTACT_DIR,
+				  strerror(errno) ) );
       return;
     }
     
@@ -1002,14 +1011,11 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
     unsigned int num = g_settings.getValueUnsignedInt("no_groups");
     for (unsigned int i = 1; i <= num; ++i)
     {
-      ostringstream fetch_str, fetch_str2;
-      string label;
-    
-      fetch_str << "group_" << i << "_label";
-      fetch_str2 << "group_" << i << "_id";
-
-      g_settings.removeValue( fetch_str.str() );
-      g_settings.removeValue( fetch_str2.str() );
+      std::string fetch_str  = Utils::format_string( "group_%d_label", i );
+      std::string fetch_str2 = Utils::format_string( "group_%d_id", i );
+      
+      g_settings.removeValue( fetch_str );
+      g_settings.removeValue( fetch_str2 );
     }
     
     /* group won't have been removed yet */
@@ -1020,16 +1026,13 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev)
     {
       if (curr->get_id() != cev->get_group().get_id())
       {
-	ostringstream fetch_str, fetch_str2;
-	string label;
-	
+	std::string fetch_str  = Utils::format_string( "group_%d_label", j );
+	std::string fetch_str2 = Utils::format_string( "group_%d_id",    j );
+
 	++j;
 	
-	fetch_str << "group_" << j << "_label";
-	g_settings.setValue(fetch_str.str(), (*curr).get_label());
-	
-	fetch_str2 << "group_" << j << "_id";
-	g_settings.setValue(fetch_str2.str(), (*curr).get_id());
+	g_settings.setValue(fetch_str,  (*curr).get_label());
+	g_settings.setValue(fetch_str2, (*curr).get_id());
       }
       ++curr;
     }
@@ -1049,15 +1052,13 @@ void IckleClient::update_group_settings()
   unsigned int i = 1;
 
   ICQ2000::ContactTree::iterator curr = ct.begin();
-  while (curr != ct.end()) {
-    ostringstream fetch_str, fetch_str2;
-    string label;
-    
-    fetch_str << "group_" << i << "_label";
-    g_settings.setValue(fetch_str.str(), (*curr).get_label());
-    
-    fetch_str2 << "group_" << i << "_id";
-    g_settings.setValue(fetch_str2.str(), (*curr).get_id());
+  while (curr != ct.end())
+  {
+    std::string fetch_str  = Utils::format_string( "group_%d_label", i );
+    std::string fetch_str2 = Utils::format_string( "group_%d_id", i );
+
+    g_settings.setValue(fetch_str,  (*curr).get_label());
+    g_settings.setValue(fetch_str2, (*curr).get_id());
     
     ++i;
     ++curr;
@@ -1153,16 +1154,14 @@ void IckleClient::loadContact(const string& s, bool self)
 
   // only needed for backward compatibility
   // (history_file settingsentry only exists for v >= 0.2.2)
-  if (c->isICQContact()) {
-
+  if (c->isICQContact())
+  {
     /* for 'real' contacts, we name the history file fixed to something
        sensible (user might want to grep it, etc..) */
-    ostringstream historyfile;
-    historyfile << uin << ".history";
-    cs.defaultValueString("history_file", historyfile.str() );
-
-  } else {
-
+    cs.defaultValueString("history_file", get_contact_history_filename(c) );
+  }
+  else
+  {
     /* only make up the default when it actually is defaulting
        - as the get_unique_historyname uses mkstemp so will create the file
        no matter what */
@@ -1231,13 +1230,14 @@ void IckleClient::loadContact(const string& s, bool self)
       // add into 'New' group, create group if necessarily
       ICQ2000::ContactTree::iterator curr = ct.begin();
       while (curr != ct.end()) {
-	if ((*curr).get_label() == "New") {
+	if ((*curr).get_label() == _("New") )
+	{
 	  gp = &(*curr);
 	  break;
 	}
 	++curr;
       }
-      if (gp == NULL) gp = &(ct.add_group("New"));
+      if (gp == NULL) gp = &(ct.add_group( _("New") ));
     }
     
     gp->add(c);
@@ -1246,9 +1246,12 @@ void IckleClient::loadContact(const string& s, bool self)
 
 void IckleClient::loadSelfContact()
 {
-  try {
+  try
+  {
     loadContact( BASE_DIR + "self.user", true );
-  } catch(runtime_error& e) {
+  }
+  catch(runtime_error& e)
+  {
     // ignore
   }
 }
@@ -1262,11 +1265,16 @@ bool IckleClient::check_pid_file()
 
   pidfile.open(PID_FILENAME.c_str(), std::ios::in);
 
-  if (pidfile.is_open()) {
+  if (pidfile.is_open())
+  {
     pidfile >> pid;
-    if (getpid() == pid || (kill(pid, 0) == -1 && errno == ESRCH)) {
-      cerr << "ickle left behind a stale lockfile (" << PID_FILENAME << ")" << endl;
-    } else {
+    if (getpid() == pid || (kill(pid, 0) == -1 && errno == ESRCH))
+    {
+      cerr << Utils::console(String::ucompose( _("ickle left behind a stale lockfile (%1)"), PID_FILENAME ) )
+	   << endl;
+    }
+    else
+    {
       gui.already_running_prompt( PID_FILENAME, pid );
       return false;
     }
@@ -1275,9 +1283,13 @@ bool IckleClient::check_pid_file()
   pidfile.close();
   pidfile.open(PID_FILENAME.c_str(), std::ios::out);
 
-  if (!pidfile.is_open()) {
-    cerr << "Could not create pid_file (" << PID_FILENAME << ")" << endl;
-  } else {
+  if (!pidfile.is_open())
+  {
+    cerr << Utils::console(String::ucompose( _("Could not create pid_file (%1)"), PID_FILENAME ) )
+	 << endl;
+  }
+  else
+  {
     pid = getpid();
     pidfile << pid;
     pidfile.close();

@@ -27,18 +27,20 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/stock.h>
 
+#include "ickle.h"
+
 AddContactDialog::AddContactDialog(Gtk::Window& parent)
-  : Gtk::Dialog("Add Contact", parent),
-    m_icq_contact("An ICQ contact (has a uin)", 0),
-    m_mobile_contact("A Mobile contact (cellular)", 0),
-    m_uin_label("User Number (UIN)", 0),
-    m_alert_check("Alert Contact", 0),
-    m_mode_frame("Type of contact"),
-    m_icq_frame("ICQ Contacts"),
-    m_mobile_frame("Mobile Contacts"),
-    m_group_frame("Group"),
-    m_alias_label("Alias", 0),
-    m_mobileno_label("Mobile Number", 0, 1)
+  : Gtk::Dialog( _("Add Contact"), parent),
+    m_icq_contact( _("An ICQ contact (has a uin)"), 0),
+    m_mobile_contact( _("A Mobile contact (cellular)"), 0),
+    m_uin_label( _("User Number (UIN)"), 0),
+    m_alert_check( _("Alert Contact"), 0),
+    m_mode_frame( _("Type of contact") ),
+    m_icq_frame( _("ICQ Contacts") ),
+    m_mobile_frame( _("Mobile Contacts") ),
+    m_group_frame( _("Group") ),
+    m_alias_label( _("Alias"), 0),
+    m_mobileno_label( _("Mobile Number"), 0, 1)
 {
   set_position(Gtk::WIN_POS_CENTER);
 

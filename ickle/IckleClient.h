@@ -100,6 +100,8 @@ class IckleClient : public sigslot::has_slots<>,
   void logger_file_cb(const std::string& msg);
 
   std::string get_unique_historyname() throw (std::runtime_error);
+  std::string get_unique_contact_user_filename(ICQ2000::ContactRef& c);
+  std::string get_contact_history_filename(ICQ2000::ContactRef& c);
   void update_group_settings();
   
   bool mkdir_BASE_DIR();

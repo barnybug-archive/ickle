@@ -20,6 +20,12 @@
 
 #include "utils.h"
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+
+#include "ickle.h"
+
 namespace Utils
 {
   /* 
@@ -51,6 +57,11 @@ namespace Utils
     }
   }
 
+  std::string console(const Glib::ustring& utf8_string)
+  {
+    return locale_from_utf8_with_fallback(utf8_string);
+  }
+
   /*
    * locale_to_utf8 that doesn't risk throwing any exceptions
    */
@@ -64,6 +75,67 @@ namespace Utils
     {
       return "";
     }
+  }
+
+  std::string format_string(const char * fmt, ...)
+  {
+    /* code partly borrowed from Linux printf manpage */
+
+    /* Guess we need no more than 100 bytes. */
+    int n, size = 100;
+    std::string ret;
+    char * p = new char[size];
+    va_list ap;
+
+    while (p)
+    {
+      /* Try to print in the allocated space. */
+      va_start(ap, fmt);
+      n = vsnprintf(p, size, fmt, ap);
+      va_end(ap);
+      
+      /* If that worked, return the string. */
+      if (n > -1 && n < size)
+      {
+	ret = p;
+	break;
+      }
+      
+      /* Else try again with more space. */
+      if (n > -1)    /* glibc 2.1 */
+	size = n+1; /* precisely what is needed */
+      else           /* glibc 2.0 */
+	size *= 2;  /* twice the old size */
+      
+      /* realloc - can't in C++ :-( */
+      delete [] p;
+      p = new char [size];
+    }
+
+    if (p != NULL)
+      delete [] p;
+
+    return ret;
+  }
+
+
+  std::string format_time(time_t t)
+  {
+    time_t now = time(NULL);
+    struct tm now_tm = * (localtime(&now));
+    struct tm tm = * (localtime(&t));
+
+    char time_str[256];
+    if (now - t > 86400 || now_tm.tm_mday != tm.tm_mday)
+    {
+      strftime(time_str, 255, "%d %b %Y %H:%M:%S", &tm);
+    }
+    else
+    {
+      strftime(time_str, 255, "%H:%M:%S", &tm);
+    }
+
+    return std::string(time_str);
   }
 
 }

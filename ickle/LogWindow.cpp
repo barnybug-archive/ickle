@@ -25,26 +25,24 @@
 #include <gtkmm/table.h>
 #include <gtkmm/stock.h>
 
-#include <time.h>
-
-#include "sstream_fix.h"
-
 #include "main.h"
 #include "Settings.h"
+
+#include "ickle.h"
+#include "utils.h"
 
 #include <libicq2000/Client.h>
 
 using std::string;
-using std::ostringstream;
 using std::endl;
 
 LogWindow::LogWindow()
   : m_close_button(Gtk::Stock::CLOSE), m_count(0),
-    m_log_info("Info", 0), m_log_warn("Warn", 0), m_log_error("Error", 0),
-    m_log_packet("Packet", 0), m_log_directpacket("Direct Packet", 0)
+    m_log_info( _("Info"), 0), m_log_warn( _("Warn"), 0), m_log_error( _("Error"), 0),
+    m_log_packet( _("Packet"), 0), m_log_directpacket( _("Direct Packet"), 0)
 {
 
-  set_title("Log Window");
+  set_title( _("Log Window") );
   set_default_size(400,400);
 
   m_log_text.set_wrap_mode(Gtk::WRAP_WORD);
@@ -170,20 +168,12 @@ void LogWindow::logger_cb(ICQ2000::LogEvent *ev)
   if (buffer->size() > 0)
     buffer->insert_with_tag( buffer->end(), "\n", m_tag_normal );
 
-  ostringstream ostr;
-  ostr << "[" << format_time( ev->getTime() ) << "] ";
-  buffer->insert_with_tag( buffer->end(), ostr.str(), m_tag_normal );
+  buffer->insert_with_tag( buffer->end(), "[",           m_tag_normal );
+  buffer->insert_with_tag( buffer->end(), Utils::format_time(ev->getTime()), m_tag_normal );
+  buffer->insert_with_tag( buffer->end(), "]",           m_tag_normal );
   buffer->insert_with_tag( buffer->end(), ev->getMessage(), tag_log );
 
   adj->set_value(bot);
-}
-
-string LogWindow::format_time(time_t t)
-{
-  struct tm *tm = localtime(&t);
-  char time_str[256];
-  strftime(time_str, 255, "%H:%M:%S", tm);
-  return string(time_str);
 }
 
 void LogWindow::checkbutton_info_cb()

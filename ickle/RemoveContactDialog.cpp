@@ -27,12 +27,11 @@
 #include <gtkmm/label.h>
 #include <gtkmm/stock.h>
 
-#include "sstream_fix.h"
-
-using std::ostringstream;
+#include "ickle.h"
+#include "ucompose.h"
 
 RemoveContactDialog::RemoveContactDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c)
-  : Gtk::Dialog("Remove Contact", parent),
+  : Gtk::Dialog( _("Remove Contact"), parent),
     m_contact(c)
 {
   set_position(Gtk::WIN_POS_CENTER);
@@ -48,11 +47,7 @@ RemoveContactDialog::RemoveContactDialog(Gtk::Window& parent, const ICQ2000::Con
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
 
-  ostringstream ostr;
-  ostr << "Are you sure you want to remove " << c->getAlias();
-  if (c->isICQContact()) ostr << " (" << c->getUIN() << ")";
-  ostr << "?";
-  label = manage( new Gtk::Label( ostr.str() ) );
+  label = manage( new Gtk::Label( String::ucompose( _("Are you sure you want to remove %1?"), c->getAlias() ) ) );
   vbox->pack_start( *label );
 
   set_border_width(10);

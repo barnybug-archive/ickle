@@ -28,21 +28,23 @@
 #include <libicq2000/Client.h>
 #include "main.h"
 
+#include "ickle.h"
+
 SendAuthReqDialog::SendAuthReqDialog(Gtk::Window& parent, const ICQ2000::ContactRef& contact)
-  : Gtk::Dialog("Send Authorisation Request", parent),
+  : Gtk::Dialog( _("Send Authorisation Request"), parent),
     m_contact(contact)
 {
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
 
   Gtk::VBox *vbox2 = manage(new Gtk::VBox());
-  vbox2->pack_start( *manage(new Gtk::Label("Enter your authorisation request message:", 0)) );
+  vbox2->pack_start( *manage(new Gtk::Label( _("Enter your authorisation request message:"), 0)) );
   m_textview.set_editable(true);
   vbox2->pack_start( m_textview, true, true, 10 );
 
-  Gtk::Label *label = manage( new Gtk::Label("Note: Authorisation is not strictly speaking required "
-					     "within the ICQ protocol (there are is no security/privacy behind it). "
-					     "It is generally polite to ask for Authorisation though, if it is required. "));
+  Gtk::Label *label = manage( new Gtk::Label( _("Note: Authorisation is not strictly speaking required "
+						"within the ICQ protocol (there are is no security/privacy behind it). "
+						"It is generally polite to ask for Authorisation though, if it is required. ") ));
   label->set_justify(Gtk::JUSTIFY_FILL);
   label->set_line_wrap(true);
   vbox2->pack_start( *label );

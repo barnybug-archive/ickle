@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.16 2003-01-02 16:40:00 barnabygray Exp $
+/* $Id: Settings.cpp,v 1.17 2003-01-04 19:42:46 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,9 @@
 #include <fstream>
 #include "sstream_fix.h"
 
+#include "ickle.h"
+#include "ucompose.h"
+
 using std::string;
 using std::ostringstream;
 using std::istringstream;
@@ -50,10 +53,8 @@ void Settings::load(const string& filename)
   ifstream inf(filename.c_str());
   if (!inf)
   {
-    ostringstream ostr;
-    ostr << "Settings::load: Could not open file for reading: "
-	 << filename;
-    throw runtime_error( ostr.str() );
+    throw runtime_error( String::ucompose( _("Settings::load: Could not open file for reading: %1"),
+					   filename ) );
   }
 
   string enc;
@@ -97,10 +98,8 @@ void Settings::save(const string& filename)
   ofstream of( tempfilename.c_str(), std::ios::out | std::ios::trunc );
   if (!of)
   {
-    ostringstream ostr;
-    ostr << "Settings::save: Could not open temporary settings file to save to: "
-	 << tempfilename;
-    throw runtime_error( ostr.str() );
+    throw runtime_error( String::ucompose( _("Settings::save: Could not open temporary settings file to save to: %1"),
+					   tempfilename ) );
   }
   
   if (m_utf8)
@@ -128,10 +127,8 @@ void Settings::save(const string& filename)
     {
       of.close();
       unlink( tempfilename.c_str() );
-      ostringstream ostr;
-      ostr << "Settings::save: Failed writing to temporary file: "
-	   << tempfilename;
-      throw runtime_error( ostr.str() );
+      throw runtime_error( String::ucompose( _("Settings::save: Failed writing to temporary file: %1"),
+					     tempfilename ) );
     }
     ++curr;
   }
@@ -140,10 +137,8 @@ void Settings::save(const string& filename)
   // swap over temporary file to real file
   if ( rename( tempfilename.c_str(), filename.c_str() ) == -1 )
   {
-    ostringstream ostr;
-    ostr << "Settings::save: Failed renaming temporary file to replace old file: "
-	 << filename;
-    throw runtime_error( ostr.str() );
+    throw runtime_error( String::ucompose( _("Settings::save: Failed renaming temporary file to replace old file: %1"),
+					     filename ) );
   }
   
 }

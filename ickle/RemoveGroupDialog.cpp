@@ -28,6 +28,8 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/stock.h>
 
+#include "ickle.h"
+
 #include <list>
 
 using std::list;
@@ -53,8 +55,8 @@ const ICQ2000::ContactTree::Group * GroupItem::get_group()
 // ------------------------------------------------------------------------------
 
 RemoveGroupDialog::RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp)
-  : Gtk::Dialog("Remove Group", parent), m_libicq2000_group(gp),
-    m_remove_all("Remove all contacts"), m_move_all("Move all contacts to:")
+  : Gtk::Dialog( _("Remove Group"), parent), m_libicq2000_group(gp),
+    m_remove_all( _("Remove all contacts") ), m_move_all( _("Move all contacts to:") )
 {
   set_position(Gtk::WIN_POS_CENTER);
 
@@ -68,7 +70,7 @@ RemoveGroupDialog::RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
 
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
-  label = manage( new Gtk::Label("What would you like to do with the contacts in that group?") );
+  label = manage( new Gtk::Label( _("What would you like to do with the contacts in that group?") ) );
   vbox->pack_start( *label );
   vbox->pack_start( m_remove_all );
 

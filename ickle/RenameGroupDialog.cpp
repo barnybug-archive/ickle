@@ -29,14 +29,16 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/stock.h>
 
+#include "ickle.h"
+
 RenameGroupDialog::RenameGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp)
-  : Gtk::Dialog("Rename Group", parent), m_libicq2000_group( gp )
+  : Gtk::Dialog( _("Rename Group"), parent), m_libicq2000_group( gp )
 {
   set_position(Gtk::WIN_POS_CENTER);
 
   Gtk::Label *label;
 
-  add_button("Rename",           Gtk::RESPONSE_OK);
+  add_button( _("Rename"),           Gtk::RESPONSE_OK);
   add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 
   // libicq2000 callbacks
@@ -47,14 +49,14 @@ RenameGroupDialog::RenameGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
   Gtk::Table *table = manage( new Gtk::Table(2, 2) );
   table->set_spacings(5);
 
-  label = manage( new Gtk::Label("Old group label", 0.0, 0.5 ) );
+  label = manage( new Gtk::Label( _("Old group label"), 0.0, 0.5 ) );
   table->attach( *label, 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
   m_old_group_label.set_text( gp->get_label() );
   m_old_group_label.set_sensitive(false);
   m_old_group_label.set_editable(false);
   table->attach( m_old_group_label, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
-  label = manage( new Gtk::Label("New group label", 0.0, 0.5 ) );
+  label = manage( new Gtk::Label( _("New group label"), 0.0, 0.5 ) );
   table->attach( *label, 0, 1, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
   table->attach( m_group_label, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 

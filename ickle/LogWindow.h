@@ -44,8 +44,6 @@ class LogWindow : public Gtk::Window,
   Glib::RefPtr<Gtk::TextTag> m_tag_log_info, m_tag_log_warn, m_tag_log_error,
                                      m_tag_log_packet, m_tag_log_directpacket, m_tag_normal;
 
-  std::string format_time(time_t t);
-
   void checkbutton_info_cb();
   void checkbutton_warn_cb();
   void checkbutton_error_cb();

@@ -20,8 +20,10 @@
 
 #include "UserInfoDialog.h"
 
-#include "sstream_fix.h"
 #include "main.h"
+
+#include "ickle.h"
+#include "ucompose.h"
 
 #include <gtkmm/buttonbox.h>
 
@@ -32,7 +34,6 @@
 #include <vector>
 
 using std::string;
-using std::ostringstream;
 using std::vector;
 
 using namespace ICQ2000;
@@ -40,26 +41,29 @@ using namespace ICQ2000;
 UserInfoDialog::UserInfoDialog(Gtk::Window& parent, const ContactRef& c, bool self)
   : Gtk::Dialog(), m_self(self)
 {
-  //  set_transient_for(parent);
+  set_transient_for(parent);
 
-  ostringstream ostr;
   if (m_self)
   {
-    ostr << "My User Info";
+    set_title( _("My User Info") );
   }
   else
   {
-    ostr << "User Info - " << c->getAlias() << " (";
-    if (c->isICQContact()) {
-      ostr << c->getUIN();
-    } else {
-      ostr << c->getMobileNo();
+    if (c->isICQContact())
+    {
+      set_title( String::ucompose( _("User Info - %1 (%2)"),
+				   c->getAlias(),
+				   c->getUIN() ) );
     }
-    ostr << ")";
+    else
+    {
+      set_title( String::ucompose( _("User Info - %1 (%2)"),
+				   c->getAlias(),
+				   c->getMobileNo() ) );
+    }
   }
-  
-  //  set_title(ostr.str());
 
+  // TODO!
 }
 
 UserInfoDialog::~UserInfoDialog()

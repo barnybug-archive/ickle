@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.7 2003-01-02 16:40:01 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.8 2003-01-04 19:42:46 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,8 @@
 #include "Settings.h"
 #include "main.h"
 
+#include "ickle.h"
+
 using namespace ICQ2000;
 
 using std::string;
@@ -51,7 +53,7 @@ void StatusMenuItem::add_status(Status st, bool inv)
 {
   if (g_settings.getValueBool("status_classic_invisibility") &&
       inv && st != STATUS_OFFLINE) {
-    add_status("Invisible", st, inv);
+    add_status( _("Invisible"), st, inv);
   } else {
     add_status(Status_text[st], st, inv);
   }
@@ -80,7 +82,7 @@ InvisibleStatusMenuItem::InvisibleStatusMenuItem()
   Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(STATUS_ONLINE, true);
 
   Gtk::Image* img = manage( new Gtk::Image( p ) );
-  Gtk::Label* label = manage( new Gtk::Label( "Invisible", 1.0) );
+  Gtk::Label* label = manage( new Gtk::Label( _("Invisible"), 1.0) );
   Gtk::HBox* box = manage( new Gtk::HBox( false, 5 ) );
 
   box->pack_start(*label, Gtk::PACK_EXPAND_WIDGET);
@@ -156,7 +158,7 @@ Gtk::MenuItem* StatusMenu::menu_status_widget( Status s, bool set_inv )
   
 Gtk::MenuItem* StatusMenu::menu_status_nice_inv_widget()
 {
-  StatusMenuItem *mi = manage( new StatusMenuItem( "Invisible", STATUS_ONLINE, true ) );
+  StatusMenuItem *mi = manage( new StatusMenuItem( _("Invisible"), STATUS_ONLINE, true ) );
   mi->signal_activate().connect( SigC::bind(SigC::bind(SigC::slot(*this,&StatusMenu::menu_activate_inv_cb), true), STATUS_ONLINE) );
   return mi;
 }
@@ -200,7 +202,7 @@ void StatusMenu::connecting()
 {
   remove();
 
-  Gtk::Label* label = manage( new Gtk::Label("Connecting...") );
+  Gtk::Label* label = manage( new Gtk::Label( _("Connecting...") ) );
   Gtk::HBox* box = manage( new Gtk::HBox(false, 5) );
 
   box->pack_start(*label);

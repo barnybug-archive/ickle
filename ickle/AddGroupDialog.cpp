@@ -29,8 +29,10 @@
 #include <gtkmm/buttonbox.h>
 #include <gtkmm/stock.h>
 
+#include "ickle.h"
+
 AddGroupDialog::AddGroupDialog(Gtk::Window& parent)
-  : Gtk::Dialog("Add Group", parent)
+  : Gtk::Dialog( _("Add Group"), parent)
 {
   set_position(Gtk::WIN_POS_CENTER);
 
@@ -43,7 +45,7 @@ AddGroupDialog::AddGroupDialog(Gtk::Window& parent)
   vbox->set_spacing(10);
   Gtk::HBox *hbox2 = manage( new Gtk::HBox() );
   hbox2->set_spacing(5);
-  label = manage( new Gtk::Label("Group label") );
+  label = manage( new Gtk::Label( _("Group label") ) );
   hbox2->pack_start( *label );
   hbox2->pack_start( m_group_label );
   vbox->pack_start( *hbox2 );

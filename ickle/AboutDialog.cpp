@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.10 2003-01-02 16:39:40 barnabygray Exp $
+/* $Id: AboutDialog.cpp,v 1.11 2003-01-04 19:42:45 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -27,13 +27,13 @@
 
 #include <libicq2000/version.h>
 
-#include "sstream_fix.h"
+#include "ickle.h"
+#include "ucompose.h"
 
-using std::ostringstream;
 using std::endl;
 
 AboutDialog::AboutDialog(Gtk::Window& parent)
-  : Gtk::Dialog("About ickle", parent, true)
+  : Gtk::Dialog( _("About ickle"), parent, true)
 {
   set_position( Gtk::WIN_POS_CENTER );
   add_button( Gtk::Stock::OK, Gtk::RESPONSE_OK );
@@ -57,28 +57,29 @@ AboutDialog::AboutDialog(Gtk::Window& parent)
   Gtk::TextBuffer::iterator iter = buffer->end();
   iter = buffer->insert_with_tag(iter, "About ickle\n", hd);
 
-  ostringstream ostr1;
-  ostr1 << "Version: " << ICKLE_VERSION << endl;
-  iter = buffer->insert_with_tag(iter, ostr1.str(), p );
-
-  ostringstream ostr2;
-  ostr2 << "Compiled on: " << __DATE__ << endl;
-  iter = buffer->insert_with_tag(iter, ostr2.str(), p );
-
-  ostringstream ostr3;
-  ostr3 << "libicq2000 Version: " << libicq2000_version << endl;
-  iter = buffer->insert_with_tag(iter, ostr3.str(), p );
-
-  iter = buffer->insert_with_tag(iter, "\nDevelopers\n", hd );
-  iter = buffer->insert_with_tag(iter, "* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n", p );
-  iter = buffer->insert_with_tag(iter, "* Nils Nordman <nino@nforced.com> ICQ: 778602\n", p );
-  iter = buffer->insert_with_tag(iter, "* Dominic Sacr\xC3\xA9 <bugcreator@gmx.de> ICQ: 102496033\n", p );
-  iter = buffer->insert_with_tag(iter, "* Alex Antropoff <alex@tirastel.md>\n\n", p );
-  iter = buffer->insert_with_tag(iter, "Further contributions by many other developers are listed in the THANKS file.\n", p );
-  iter = buffer->insert_with_tag(iter, "\nFurther information\n", hd );
   iter = buffer->insert_with_tag(iter,
-				 "If you'd like to comment on ickle, contribute to the project or file a bug "
-				 "report please see the README for more information.\n", p );
+				 String::ucompose( _("Version: %1\n"), ICKLE_VERSION ),
+				 p );
+
+  
+  iter = buffer->insert_with_tag(iter,
+				 String::ucompose( _("Compiled on: %1\n"), __DATE__ ),
+				 p );
+
+  iter = buffer->insert_with_tag(iter,
+				 String::ucompose( _("libicq2000 version: %1\n"), libicq2000_version ),
+				 p );
+
+  iter = buffer->insert_with_tag(iter, _("\nDevelopers\n"), hd );
+  iter = buffer->insert_with_tag(iter, _("* Barnaby Gray <barnaby@beedesign.co.uk> ICQ: 12137587\n"), p );
+  iter = buffer->insert_with_tag(iter, _("* Nils Nordman <nino@nforced.com> ICQ: 778602\n"), p );
+  iter = buffer->insert_with_tag(iter, _("* Dominic Sacr\xC3\xA9 <bugcreator@gmx.de> ICQ: 102496033\n"), p );
+  iter = buffer->insert_with_tag(iter, _("* Alex Antropoff <alex@tirastel.md>\n\n"), p );
+  iter = buffer->insert_with_tag(iter, _("Further contributions by many other developers are listed in the THANKS file.\n"), p );
+  iter = buffer->insert_with_tag(iter, _("\nFurther information\n"), hd );
+  iter = buffer->insert_with_tag(iter,
+				 _("If you'd like to comment on ickle, contribute to the project or file a bug "
+				   "report please see the README for more information.\n"), p );
 
   // scrollbars
   Gtk::ScrolledWindow *scr_win = manage( new Gtk::ScrolledWindow() );

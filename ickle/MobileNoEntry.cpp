@@ -20,6 +20,7 @@
 
 #include "MobileNoEntry.h"
 
+#include "ickle.h"
 #include "sstream_fix.h"
 
 #include <gtkmm/label.h>
@@ -32,11 +33,11 @@ MobileNoEntry::MobileNoEntry()
 {
   Gtk::Label *label;
 
-  label = manage( new Gtk::Label( "Country" ) );
+  label = manage( new Gtk::Label( _("Country") ) );
   attach( *label, 1, 2, 0, 1, Gtk::SHRINK, Gtk::FILL );
-  label = manage( new Gtk::Label( "Area Code" ) );
+  label = manage( new Gtk::Label( _("Area Code") ) );
   attach( *label, 2, 3, 0, 1, Gtk::SHRINK, Gtk::FILL );
-  label = manage( new Gtk::Label( "Number" ) );
+  label = manage( new Gtk::Label( _("Number") ) );
   attach( *label, 3, 4, 0, 1, Gtk::SHRINK, Gtk::FILL );
 
   label = manage( new Gtk::Label( "+" ) );
@@ -58,12 +59,14 @@ MobileNoEntry::MobileNoEntry()
   attach( m_number, 3, 4, 1, 2, Gtk::SHRINK, Gtk::FILL );
 }
 
-string MobileNoEntry::get_text() const {
+Glib::ustring MobileNoEntry::get_text() const
+{
+  /* locale support - tenious */
   ostringstream ostr;
   ostr << m_country.get_text()
        << m_areacode.get_text()
        << m_number.get_text();
-  return ostr.str();
+  return Glib::locale_to_utf8(ostr.str());
 }
 
 SigC::Signal0<void>& MobileNoEntry::signal_changed()

@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.21 2003-01-02 16:39:54 barnabygray Exp $
+/* $Id: History.cpp,v 1.22 2003-01-04 19:42:45 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -21,8 +21,10 @@
 
 #include "main.h"
 #include "History.h"
-#include "sstream_fix.h"
 #include "utils.h"
+
+#include "ickle.h"
+#include "ucompose.h"
 
 #include <libicq2000/Contact.h>
 
@@ -45,7 +47,6 @@ using std::string;
 using std::endl;
 using std::out_of_range;
 using std::runtime_error;
-using std::ostringstream;
 using std::istringstream;
 using std::cerr;
 using std::ifstream;
@@ -72,7 +73,7 @@ History::~History()
 {
   if( m_streamlock )
   {
-    cerr << "Warning: History::~History: stream was not released properly" << endl;
+    cerr << Utils::console( Glib::ustring( _("Warning: History::~History: stream was not released properly") ) ) << endl;
     m_if.close();
   }
 }
@@ -102,7 +103,7 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
 
   of.open( m_filename.c_str(), std::ios::out | std::ios::app );
   if (!of.is_open())
-    throw runtime_error( string("History::log: Could not open historyfile for writing: ") + m_filename );
+    throw runtime_error( String::ucompose( _("History::log: Could not open historyfile for writing: %1"), m_filename ) );
 
   // add to index
   of.seekp( 0, std::ios::end );
@@ -259,7 +260,7 @@ void History::build_index()
   if( !m_if.is_open() )
   {
     // this does not warrant an exception
-    cerr << "Could not open historyfile for reading: " << m_filename << endl;
+    cerr << Utils::console( String::ucompose( _("Could not open historyfile for reading: %1"), m_filename ) ) << endl;
     return;
   }
 
@@ -310,16 +311,14 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range, runtime_error)
 
   if( index >= m_size )
   {
-    ostringstream os;
-    os << "History::get_msg illegal index: " << index;
-    throw out_of_range( os.str() );
+    throw out_of_range( String::ucompose( _("History::get_msg illegal index: %1"), index ) );
   }
   
   if( !m_streamlock )
     m_if.open( m_filename.c_str() );
 
   if( !m_if.is_open() )
-    throw runtime_error( string("History::get_msg: Could not open historyfile for reading: ") + m_filename );
+    throw runtime_error( String::ucompose( _("History::get_msg: Could not open historyfile for reading: %1"), m_filename ) );
 
   m_if.seekg( m_index[ index ] );
 
@@ -357,6 +356,7 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range, runtime_error)
     }
     else if( s.find( "Time: " ) != string::npos )
     {
+      // TODO urrghh... istringstream! i18n!
       istringstream iss( s.substr( string( "Time: ").size() ) );
       iss >> e.timestamp;
     }
@@ -417,15 +417,15 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range, runtime_error)
 void History::stream_lock() throw(runtime_error)
 {
   if( m_streamlock )
-    throw( runtime_error( "History::stream_lock: stream is already locked!" ) );
+    throw( runtime_error( _("History::stream_lock: stream is already locked!") ) );
   
   struct stat fs;
   if ( stat( m_filename.c_str(), &fs ) == -1 && errno == ENOENT ) touch();
 
   m_if.open( m_filename.c_str() );
   if( !m_if.is_open() )
-    throw runtime_error( string("History::stream_lock: Could not open historyfile for reading: " )
-                         + m_filename );
+    throw runtime_error( String::ucompose( _("History::stream_lock: Could not open historyfile for reading: %1" ),
+					   m_filename ) );
   m_streamlock = true;
   m_if.clear();
 }
@@ -433,7 +433,7 @@ void History::stream_lock() throw(runtime_error)
 void History::stream_release() throw(runtime_error)
 {
   if( !m_if.is_open() )
-    throw( runtime_error( "History::stream_release: stream is not locked!" ) );
+    throw( runtime_error( _("History::stream_release: stream is not locked!") ) );
 
   m_if.close();
   m_streamlock = false;

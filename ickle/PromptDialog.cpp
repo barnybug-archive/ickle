@@ -26,6 +26,8 @@
 #include <gtkmm/main.h>
 #include <gtkmm/buttonbox.h>
 
+#include "ickle.h"
+
 using std::string;
 
 PromptDialog::PromptDialog(Gtk::Window& parent, Gtk::MessageType t, const Glib::ustring& msg, bool modal)
@@ -40,16 +42,16 @@ PromptDialog::PromptDialog(Gtk::Window& parent, Gtk::MessageType t, const Glib::
   switch(t)
   {
   case Gtk::MESSAGE_INFO:
-    set_title("ickle information");
+    set_title( _("ickle information") );
     break;
   case Gtk::MESSAGE_WARNING:
-    set_title("ickle warning");
+    set_title( _("ickle warning") );
     break;
   case Gtk::MESSAGE_QUESTION:
-    set_title("ickle question");
+    set_title( _("ickle question") );
     break;
   case Gtk::MESSAGE_ERROR:
-    set_title("ickle error");
+    set_title( _("ickle error") );
     break;
   }
 

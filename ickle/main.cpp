@@ -25,6 +25,8 @@
 
 #include "ickle.h"
 #include "ucompose.h"
+#include "utils.h"
+
 #include "main.h"
 #include "IckleClient.h"
 
@@ -71,11 +73,11 @@ int main(int argc, char* argv[])
   }
   catch( std::exception &e )
   {
-    cout << String::ucompose(_("Exiting abnormally: %1"), e.what()) << endl;
+    cout << Utils::console( String::ucompose( _("Exiting abnormally: %1"), e.what() ) ) << endl;
   }
   catch( ... )
   {
-    cout << Glib::ustring(_("Exiting abnormally")) << endl;
+    cout << Utils::console( Glib::ustring( _("Exiting abnormally") ) ) << endl;
   }
   return 1;
 }

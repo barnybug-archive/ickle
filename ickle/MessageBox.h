@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.25 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.26 2003-01-04 19:42:46 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -110,7 +110,6 @@ class MessageBox : public Gtk::Window,
 
   void send_button_update();
   void set_contact_title();
-  std::string format_time(time_t t);
   void display_message(History::Entry &he);
   void set_status( const std::string& text );
   void redraw_history();
@@ -171,6 +170,7 @@ class MessageBox : public Gtk::Window,
   SigC::Signal1<void,bool>& signal_userinfo_dialog();
 
   virtual void on_size_allocate(GtkAllocation*);
+  virtual bool on_delete_event(GdkEventAny *ev);
 
   void pane_position_changed_cb(GtkAllocation*);
   void send_clicked_cb();

@@ -36,6 +36,7 @@
 #define STRING_UCOMPOSE_H
 
 #include <glibmm/ustring.h>
+#include <glibmm/convert.h>
 
 #include <sstream>
 #include <string>

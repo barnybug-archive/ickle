@@ -44,8 +44,6 @@ class AwayMessageDialog : public Gtk::Window,
   Glib::RefPtr<Gtk::TextTag> m_tag_header, m_tag_normal;
   unsigned int m_count;
 
-  std::string format_time(time_t t);
-
  public:
   AwayMessageDialog(Gtk::Window& main_window);
   ~AwayMessageDialog();

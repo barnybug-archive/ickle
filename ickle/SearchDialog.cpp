@@ -20,10 +20,12 @@
 
 #include "SearchDialog.h"
 
+#include "ickle.h"
+
 SearchDialog::SearchDialog(Gtk::Window * parent)
   : Gtk::Dialog()
 {
-  set_title("Search for contacts");
+  set_title( _("Search for contacts") );
   set_transient_for (*parent);
   set_modal(false);
 }

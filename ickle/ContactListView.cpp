@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.48 2003-01-02 16:39:53 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.49 2003-01-04 19:42:45 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -23,6 +23,8 @@
 #include <gtkmm/stock.h>
 
 #include <libicq2000/Client.h>
+
+#include "ickle.h"
 
 #include "Settings.h"
 #include "Icons.h"
@@ -75,7 +77,7 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     
     Gtk::CellRendererPixbuf* pPixbufRenderer = Gtk::manage( new Gtk::CellRendererPixbuf() );
     Gtk::CellRendererText* pTextRenderer = Gtk::manage( new Gtk::CellRendererText() );
-    pColumn = Gtk::manage( new Gtk::TreeView::Column("Nick") );
+    pColumn = Gtk::manage( new Gtk::TreeView::Column( _("Nick") ) );
 
     pColumn->pack_start( *pPixbufRenderer, false );
     pColumn->pack_start( *pTextRenderer );
@@ -93,44 +95,44 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
 
     // popup for right-click contact
     MenuList& ml_c = m_rc_popup_contact.items();
-    ml_c.push_back( MenuElem( "Check away message", SigC::slot( *this, &ContactListView::contact_fetch_away_msg_cb ) ) );
+    ml_c.push_back( MenuElem( _("Check away message"), SigC::slot( *this, &ContactListView::contact_fetch_away_msg_cb ) ) );
     m_rc_popup_away = &(ml_c.back());
-    ml_c.push_back( ImageMenuElem( "User Info",
+    ml_c.push_back( ImageMenuElem( _("User Info"),
 				   * manage( new Gtk::Image( Gdk::Pixbuf::create_from_xpm_data( info_xpm ) ) ),
 				   SigC::slot( *this, &ContactListView::contact_userinfo_cb ) ) );
-    ml_c.push_back( MenuElem( "Send Auth Request",  SigC::slot( *this, &ContactListView::contact_send_auth_req_cb ) ) );
+    ml_c.push_back( MenuElem( _("Send Auth Request"),  SigC::slot( *this, &ContactListView::contact_send_auth_req_cb ) ) );
     m_rc_popup_auth = &(ml_c.back());
-    ml_c.push_back( ImageMenuElem( "Remove Contact",
+    ml_c.push_back( ImageMenuElem( _("Remove Contact"),
 				   * manage( new Gtk::Image(Gtk::Stock::REMOVE, Gtk::ICON_SIZE_MENU) ),
 				   SigC::slot( *this, &ContactListView::contact_remove_cb ) ) );
     ml_c.push_back( SeparatorElem() );
-    ml_c.push_back( ImageMenuElem( "Add Contact",
+    ml_c.push_back( ImageMenuElem( _("Add Contact"),
 				   * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 				   SigC::slot( *this, &ContactListView::contact_add_cb ) ) );
-    ml_c.push_back( ImageMenuElem( "Add Group",
+    ml_c.push_back( ImageMenuElem( _("Add Group"),
 				   * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 				   SigC::slot( *this, &ContactListView::group_add_cb ) ) );
 
     // popup for right-click group
     MenuList& ml_g = m_rc_popup_group.items();
-    ml_g.push_back( MenuElem( "Rename Group",       SigC::slot( *this, &ContactListView::group_rename_cb ) ) );
-    ml_g.push_back( ImageMenuElem( "Remove Group",
+    ml_g.push_back( MenuElem( _("Rename Group"),       SigC::slot( *this, &ContactListView::group_rename_cb ) ) );
+    ml_g.push_back( ImageMenuElem( _("Remove Group"),
 			      * manage( new Gtk::Image(Gtk::Stock::REMOVE, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::group_remove_cb ) ) );
     ml_g.push_back( SeparatorElem() );
-    ml_g.push_back( ImageMenuElem( "Add Contact",
+    ml_g.push_back( ImageMenuElem( _("Add Contact"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::contact_add_cb ) ) );
-    ml_g.push_back( ImageMenuElem( "Add Group",
+    ml_g.push_back( ImageMenuElem( _("Add Group"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::group_add_cb ) ) );
 
     // popup for right-click over blank area
     MenuList& ml_b = m_rc_popup_blank.items();
-    ml_b.push_back( ImageMenuElem( "Add Contact",
+    ml_b.push_back( ImageMenuElem( _("Add Contact"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::contact_add_cb ) ) );
-    ml_b.push_back( ImageMenuElem( "Add Group",
+    ml_b.push_back( ImageMenuElem( _("Add Group"),
 			      * manage( new Gtk::Image(Gtk::Stock::ADD, Gtk::ICON_SIZE_MENU) ),
 			      SigC::slot( *this, &ContactListView::group_add_cb ) ) );
     // anything else?

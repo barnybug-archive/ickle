@@ -34,7 +34,7 @@ class MobileNoEntry : public Gtk::Table {
  public:
   MobileNoEntry();
 
-  std::string get_text() const;
+  Glib::ustring get_text() const;
 
   SigC::Signal0<void>& signal_changed();
 };

@@ -26,15 +26,14 @@
 
 #include <libicq2000/Client.h>
 #include "main.h"
-#include "sstream_fix.h"
 
-using std::ostringstream;
-using std::endl;
+#include "ickle.h"
+#include "ucompose.h"
 
 AuthRespDialog::AuthRespDialog(Gtk::Window& parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev)
-  : Gtk::Dialog("Authorisation Response", parent), m_contact(contact),
-    m_grant("Grant", 0), m_refuse("Refuse", 0),
-    m_label("Enter your refusal message:", 0)
+  : Gtk::Dialog( _("Authorisation Response"), parent), m_contact(contact),
+    m_grant( _("Grant"), 0), m_refuse( _("Refuse"), 0),
+    m_label( _("Enter your refusal message:"), 0)
 {
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing (10);
@@ -42,16 +41,20 @@ AuthRespDialog::AuthRespDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c
   Gtk::VBox *vbox2 = manage( new Gtk::VBox() );
   vbox2->set_spacing(5);
   
-  ostringstream ostr;
-  ostr << contact->getNameAlias() << " is requesting authorisation." << endl
-       << "You should grant or refuse the request." << endl;
-       
-  if (!ev->getMessage().empty()) {
-    ostr << "Their request message is: " << endl << endl
-         << ev->getMessage() << endl;
+  Glib::ustring str;
+  
+  str = String::ucompose( _("%1 is requesting authorisation.\n"
+			    "You should grant or refuse the request.\n"),
+			  contact->getNameAlias() );
+
+  if (!ev->getMessage().empty())
+  {
+    str += String::ucompose( _("Their request message is:\n\n"
+			       "%1"),
+			     ev->getMessage() );
   }
   
-  Gtk::Label *label = manage( new Gtk::Label( ostr.str(), 0 ) );
+  Gtk::Label *label = manage( new Gtk::Label( str, 0 ) );
   label->set_justify(Gtk::JUSTIFY_FILL);
   label->set_line_wrap(true);
   vbox2->pack_start( *label );
@@ -75,8 +78,8 @@ AuthRespDialog::AuthRespDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c
 
   vbox->pack_start(*vbox2);
 
-  add_button("Send Response", Gtk::RESPONSE_OK);
-  add_button("Ignore", Gtk::RESPONSE_CANCEL);
+  add_button( _("Send Response"), Gtk::RESPONSE_OK);
+  add_button( _("Ignore"), Gtk::RESPONSE_CANCEL);
   
   set_default_size(250,100);
   set_border_width(10);

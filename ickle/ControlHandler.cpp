@@ -19,8 +19,6 @@
 
 #ifdef CONTROL_SOCKET
 
-#include "sstream_fix.h"
-
 #include <gtkmm/main.h>
 
 #include <libicq2000/Client.h>
@@ -28,9 +26,12 @@
 #include "IckleClient.h"
 #include "ControlHandler.h"
 
+#include "ickle.h"
+#include "ucompose.h"
+#include "utils.h"
+
 using std::make_pair;
 using std::string;
-using std::ostringstream;
 using std::cerr;
 using std::endl;
 
@@ -41,7 +42,7 @@ using std::endl;
 void ControlHandler::init ()
 {
   if (!m_socket.init (BASE_DIR)) {
-    cerr << "Disabling control socket" << endl;
+    cerr << Utils::console( Glib::ustring( _("Disabling control socket") ) ) << endl;
     return;
   }
 
@@ -135,7 +136,7 @@ void ControlHandler::endTimeout (int sd, bool success, const string & info)
 
 bool ControlHandler::timeout_cb (int sd)
 {
-  endTimeout (sd, false, "timeout reached");
+  endTimeout (sd, false, _("timeout reached") );
   return false;
 }
 
@@ -235,13 +236,12 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
   s >> uin >> type >> msg >> timeout;
 
   if (!icqclient.isConnected ()) {
-    endTimeout (s.sd(), false, "not connected");
+    endTimeout (s.sd(), false, _("not connected") );
     return;
   }
-  if (icqclient.getContact(uin).get() == NULL) {
-    ostringstream ostr;
-    ostr << "UIN " << uin << " is not on your contact list"; // this could be changed now
-    endTimeout (s.sd(), false, ostr.str());
+  if (icqclient.getContact(uin).get() == NULL)
+  {
+    endTimeout (s.sd(), false, String::ucompose( _("UIN %1 is not on your contact list"), uin ) );
     return;
   }
   

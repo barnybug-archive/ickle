@@ -26,21 +26,21 @@
 
 #include <time.h>
 
-#include "sstream_fix.h"
-
 #include <libicq2000/Client.h>
 #include "main.h"
 #include "Settings.h"
 
+#include "ickle.h"
+#include "utils.h"
+
 using std::string;
-using std::ostringstream;
 using std::endl;
 
 AwayMessageDialog::AwayMessageDialog(Gtk::Window& main_window)
   : m_main_window(main_window), m_count(0)
 {
 
-  set_title("Away Messages");
+  set_title( _("Away Messages") );
   set_default_size(200,400);
 
   m_away_textview.set_wrap_mode(Gtk::WRAP_WORD);
@@ -167,11 +167,11 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev)
   if (buffer->size() > 0)
     buffer->insert_with_tag( buffer->end(), "\n", m_tag_normal );
 
-  ostringstream ostr;
-  ostr << format_time( ev->getTime() ) << " "
-       << c->getAlias() << endl;
-
-  buffer->insert_with_tag( buffer->end(), ostr.str(), m_tag_header);
+  // avoid using an ostringstream - otherwise it'd all have to go to locale and back
+  buffer->insert_with_tag( buffer->end(), Utils::format_time( ev->getTime() ), m_tag_header);
+  buffer->insert_with_tag( buffer->end(), " ",                                 m_tag_header);
+  buffer->insert_with_tag( buffer->end(), c->getAlias(),                       m_tag_header);
+  buffer->insert_with_tag( buffer->end(), "\n",                                m_tag_header);
 
   if (ev->isDelivered())
   {
@@ -179,17 +179,8 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev)
   }
   else
   {
-    buffer->insert_with_tag( buffer->end(), "Couldn't fetch away message", m_tag_normal);
+    buffer->insert_with_tag( buffer->end(), _("Couldn't fetch away message"), m_tag_normal);
   }
 
   adj->set_value( bot );
 }
-
-string AwayMessageDialog::format_time(time_t t)
-{
-  struct tm *tm = localtime(&t);
-  char time_str[256];
-  strftime(time_str, 255, "%H:%M:%S", tm);
-  return string(time_str);
-}
-

@@ -28,14 +28,16 @@
 
 #include "main.h"
 #include "Settings.h"
-#include "sstream_fix.h"
 #include "SettingsDialog.h"
+#include "utils.h"
+
+#include "ickle.h"
+#include "ucompose.h"
 
 using std::string;
-using std::ostringstream;
 
 SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window& parent, const string& prev_msg, bool timeout)
-  : Gtk::Dialog("Set Auto Response", parent)
+  : Gtk::Dialog( _("Set Auto Response"), parent)
 {
   set_position(Gtk::WIN_POS_MOUSE);
   set_default_size(350,150);
@@ -60,9 +62,9 @@ SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window& parent, const string& 
   // add buttons
   Gtk::Button *button;
   m_ok = button = add_button( Gtk::Stock::OK, Gtk::RESPONSE_OK );
-  m_tooltip.set_tip(*button, "Shortcuts: Ctrl+Enter or Alt-O");
+  m_tooltip.set_tip(*button, _("Shortcuts: Ctrl+Enter or Alt-O") );
   button = add_button( Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL );
-  m_tooltip.set_tip(*button, "Shortcuts: Esc or Alt-C");
+  m_tooltip.set_tip(*button, _("Shortcuts: Esc or Alt-C") );
   
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
@@ -98,10 +100,8 @@ bool SetAutoResponseDialog::auto_timeout()
   }
   else
   {
-    std::ostringstream ostr;
-    ostr << "Set Auto Response"
-	 << " (" << m_timeout << ")";
-    set_title(ostr.str());
+    set_title( String::ucompose( _("Set Auto Response (%1)"),
+				 m_timeout ) );
     return true;
   }
 }
@@ -111,7 +111,7 @@ void SetAutoResponseDialog::cancel_timeout()
   if (m_timeout)
   {
     timeout_connection.disconnect();
-    set_title("Set Auto Response");
+    set_title( _("Set Auto Response") );
   }
 }
 
@@ -164,12 +164,12 @@ void SetAutoResponseDialog::on_response(int response_id)
 void SetAutoResponseDialog::activate_menu_item_cb(int msg_index)
 {
   cancel_timeout();
-  ostringstream fetch_str;
-  fetch_str << "autoresponse_" << msg_index << "_text";
+  
+  std::string key = Utils::format_string( "autoresponse_%d_text", msg_index );
 
   Glib::RefPtr<Gtk::TextBuffer> buffer = m_msg_textview.get_buffer();
   buffer->erase( buffer->begin(), buffer->end() );
-  buffer->insert( buffer->end(), g_settings.getValueString(fetch_str.str()) );  
+  buffer->insert( buffer->end(), g_settings.getValueString(key) );
 }
 
 void SetAutoResponseDialog::edit_messages_cb()
@@ -191,16 +191,16 @@ void SetAutoResponseDialog::build_optionmenu()
   int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
   for (int i = 1; i <= n_autoresponses; i++)
   {
-    ostringstream fetch_str;
-    fetch_str << "autoresponse_" << i << "_label";
-    menu_list.push_back( MenuElem( g_settings.getValueString(fetch_str.str()),
+    std::string key = Utils::format_string( "autoresponse_%d_text", i );
+
+    menu_list.push_back( MenuElem( g_settings.getValueString(key),
 				   SigC::bind<int>( SigC::slot(*this,
 							       &SetAutoResponseDialog::activate_menu_item_cb),
 						    i) ) );
   }
 
   menu_list.push_back( SeparatorElem() );
-  menu_list.push_back( MenuElem("Edit...", SigC::slot(*this, &SetAutoResponseDialog::edit_messages_cb)) );
+  menu_list.push_back( MenuElem( _("Edit..."), SigC::slot(*this, &SetAutoResponseDialog::edit_messages_cb)) );
 }
 
 bool SetAutoResponseDialog::option_button_pressed(GdkEventButton *)

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.56 2003-01-02 16:40:00 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.57 2003-01-04 19:42:46 barnabygray Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -20,8 +20,10 @@
 
 #include "SettingsDialog.h"
 
+#include "ickle.h"
+
 SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
-  : Gtk::Dialog("ickle Settings", parent)
+  : Gtk::Dialog( _("ickle Settings"), parent)
 {
   set_modal(true);
 }
