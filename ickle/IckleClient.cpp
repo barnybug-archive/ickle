@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.63 2002-01-19 16:08:14 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.64 2002-01-20 21:42:42 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -321,10 +321,12 @@ void IckleClient::saveSettings() {
 
   // save contact-specific settings
   for( map<unsigned int, string>::iterator itr = m_settingsmap.begin(); itr != m_settingsmap.end(); ++itr ) {
-    Settings st;
-    st.load( itr->second );
-    st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
-    st.save( itr->second );
+    if( itr->first != icqclient.getUIN() ) {
+      Settings st;
+      st.load( itr->second );
+      st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
+      st.save( itr->second );
+    }
   }
 }
 
@@ -355,7 +357,7 @@ void IckleClient::quit() {
 void IckleClient::connected_cb(ConnectedEvent *c) {
   /* the library needs to be polled regularly
    * to ensure timeouts are respected and the server is pinged every minute
-   * I suggest a graularity of 5 seconds is sensible
+   * A 5 second interval is sensible for this
    */
   poll_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::poll_server_cb ), 5000 );
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
