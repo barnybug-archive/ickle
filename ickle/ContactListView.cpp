@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.34 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.35 2002-03-31 17:00:16 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -28,7 +28,9 @@
 #include "sstream_fix.h"
 
 #include <libicq2000/Client.h>
+
 #include "PromptDialog.h"
+#include "SendAuthReqDialog.h"
 
 #include "main.h"
 #include "Settings.h"
@@ -82,6 +84,7 @@ ContactListView::ContactListView(MessageQueue& mq)
      MenuList& ml = rc_popup.items();
      ml.push_back( MenuElem( "Check away message", slot( this, &ContactListView::fetch_away_msg_cb ) ) );
      ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::userinfo_cb ) ) );
+     ml.push_back( MenuElem( "Send Auth Request", slot( this, &ContactListView::send_auth_req_cb ) ) );
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
 }
@@ -236,6 +239,14 @@ void ContactListView::fetch_away_msg_cb() {
       && c->getStatus() != ICQ2000::STATUS_ONLINE
       && c->getStatus() != ICQ2000::STATUS_OFFLINE)
     icqclient.SendEvent( new ICQ2000::AwayMessageEvent(c) );
+}
+
+void ContactListView::send_auth_req_cb() {
+  ContactRef c = icqclient.getContact( current_selection_uin() );
+  if (c.get() != NULL && c->isICQContact()) {
+    SendAuthReqDialog *ev = new SendAuthReqDialog(c);
+    manage( ev );
+  }
 }
 
 unsigned int ContactListView::current_selection_uin() {

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.82 2002-03-30 23:09:29 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.83 2002-03-31 17:00:16 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -625,14 +625,17 @@ int IckleClient::poll_server_cb() {
 void IckleClient::user_popup_cb(unsigned int uin) {
   ContactRef c = icqclient.getContact(uin);
   if (c.get() != NULL) {
-    gui.popup_messagebox(c, m_histmap[c->getUIN()]);
+    if (m_message_queue.get_contact_size(c) == 0)
+      gui.popup_messagebox(c, m_histmap[c->getUIN()]);
+    else
+      gui.popup_next_event(c, m_histmap[c->getUIN()]);
   }
 }
 
 void IckleClient::userinfo_cb(unsigned int uin) {
   ContactRef c = icqclient.getContact(uin);
   if (c.get() != NULL) {
-    gui.userinfo_popup(c);
+    gui.popup_userinfo(c);
   }
 }
 

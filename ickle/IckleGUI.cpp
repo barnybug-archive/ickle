@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.44 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.45 2002-03-31 17:00:16 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -25,6 +25,7 @@
 #include "AboutDialog.h"
 #include "PromptDialog.h"
 #include "Icons.h"
+#include "AuthRespDialog.h"
 
 #include <libicq2000/Client.h>
 
@@ -161,15 +162,6 @@ void IckleGUI::queue_added_cb(MessageEvent *ev) {
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
     
   ContactRef c = icq->getICQContact();
-  /*
-   * FIXME - make properly handling of incoming
-   * authorization requests
-   */
-  if (icq->getICQMessageType() == ICQMessageEvent::AuthReq) {     
-    AuthReqICQMessageEvent *msg = static_cast<AuthReqICQMessageEvent*>(ev);
-    ICQ2000::AuthAckEvent *ack = new ICQ2000::AuthAckEvent(c, true);
-    icqclient.SendEvent( ack );
-  }
 
   if (m_message_boxes.count(c->getUIN()) == 0) {
     if ( g_settings.getValueBool("message_autopopup") )
@@ -243,40 +235,93 @@ ContactListView* IckleGUI::getContactListView() {
   return &m_contact_list;
 }
 
-void IckleGUI::messagebox_popup(const ContactRef& c, History *h) {
-  if (m_message_boxes.count(c->getUIN()) == 0) {
-    ContactRef self = icqclient.getSelfContact();
-    MessageBox *m = new MessageBox(m_message_queue, self, c, h);
-    manage(m);
-    /*
-     * gtkmm doesn't delete it on destroy event unless it's managed
-     * however we don't add them to anything, so they still need to be signalled to
-     * destroy themselves when the main window is closed.
-     */
-    m->destroy.connect(bind(slot(this,&IckleGUI::message_box_close_cb), c));
-    m->send_event.connect(send_event.slot());
-    m->userinfo_dialog.connect(bind(slot(this,&IckleGUI::userinfo_toggle_cb), c));
-    m_message_boxes[c->getUIN()] = m;
+void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
+  MessageEvent *ev = m_message_queue.get_contact_first_message(c);
+  if (ev->getServiceType() == MessageEvent::ICQ) {
+    ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+    switch (icq->getICQMessageType()) {
+    case ICQMessageEvent::Normal:
+    case ICQMessageEvent::URL:
+    case ICQMessageEvent::SMS:
+    case ICQMessageEvent::SMS_Receipt:
+    case ICQMessageEvent::EmailEx:
+      popup_messagebox(c, h);
+      break;
+      
+    case ICQMessageEvent::AuthReq:
+      popup_auth_req(c, static_cast<AuthReqICQMessageEvent*>(icq));
+      break;
 
-    if (m_status == ICQ2000::STATUS_OFFLINE) m->offline();
-    else m->online();
-
-    if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
-
-    if (gtkspell_running())
-      m->spell_attach();
-
-    m->setDisplayTimes(m_display_times);
-    m->popup();
-  } else {
-    // raise MessageBox
-    MessageBox *m = m_message_boxes[c->getUIN()];
-    m->raise();
+    case ICQMessageEvent::AuthAck:
+      popup_auth_resp(c, static_cast<AuthAckICQMessageEvent*>(icq));
+      break;
+    }
   }
 }
 
-void IckleGUI::popup_messagebox(const ContactRef& c, History *h) {
-  messagebox_popup(c,h);
+void IckleGUI::popup_auth_req(const ContactRef& c, AuthReqICQMessageEvent *ev)
+{
+  AuthRespDialog *dialog = new AuthRespDialog(c, ev);
+  manage( dialog );
+  m_message_queue.remove_from_queue(ev);
+}
+
+void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
+{
+  ostringstream ostr;
+  ostr << c->getNameAlias() << " has " << (ev->isGranted() ? "granted" : "refused")
+       << " your request for authorisation." << endl;
+  if (!ev->isGranted()) {
+    ostr << "Their refusal message was:" << endl
+	 << ev->getMessage() << endl;
+  }
+
+  PromptDialog *dialog = new PromptDialog( PromptDialog::PROMPT_INFO, ostr.str(), false );
+  manage( dialog );
+  m_message_queue.remove_from_queue(ev);
+}
+
+void IckleGUI::popup_messagebox(const ContactRef& c, History *h)
+{
+  if (m_message_boxes.count(c->getUIN()) == 0) {
+    create_messagebox(c, h);
+  } else {
+    raise_messagebox(c);
+  }
+}
+
+void IckleGUI::create_messagebox(const ContactRef& c, History *h)
+{
+  ContactRef self = icqclient.getSelfContact();
+  MessageBox *m = new MessageBox(m_message_queue, self, c, h);
+  manage(m);
+  /*
+   * gtkmm doesn't delete it on destroy event unless it's managed
+   * however we don't add them to anything, so they still need to be signalled to
+   * destroy themselves when the main window is closed.
+   */
+  m->destroy.connect(bind(slot(this,&IckleGUI::message_box_close_cb), c));
+  m->send_event.connect(send_event.slot());
+  m->userinfo_dialog.connect(bind(slot(this,&IckleGUI::userinfo_toggle_cb), c));
+  m_message_boxes[c->getUIN()] = m;
+  
+  if (m_status == ICQ2000::STATUS_OFFLINE) m->offline();
+  else m->online();
+  
+  if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
+  
+  if (gtkspell_running())
+    m->spell_attach();
+  
+  m->setDisplayTimes(m_display_times);
+  m->popup();
+}
+
+void IckleGUI::raise_messagebox(const ContactRef& c)
+{
+  // raise MessageBox
+  MessageBox *m = m_message_boxes[c->getUIN()];
+  m->raise();
 }
 
 void IckleGUI::setGeometry(int x, int y)
@@ -510,13 +555,13 @@ string IckleGUI::getAutoResponse() const
 void IckleGUI::userinfo_toggle_cb(bool b, ContactRef c) {
   unsigned int uin = c->getUIN();
   if ( b && m_userinfo_dialogs.count(uin) == 0 ) {
-    userinfo_popup(c);
+    popup_userinfo(c);
   } else if ( !b && m_userinfo_dialogs.count(uin) > 0 ) {
     m_userinfo_dialogs[uin]->destroy();
   }
 }
 
-void IckleGUI::userinfo_popup(const ContactRef& c) {
+void IckleGUI::popup_userinfo(const ContactRef& c) {
   unsigned int uin = c->getUIN();
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
     UserInfoDialog *d = new UserInfoDialog(c);

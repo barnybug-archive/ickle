@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.48 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.49 2002-03-31 17:00:16 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -318,7 +318,7 @@ void MessageBox::raise() const {
 gint MessageBox::key_press_cb(GdkEventKey* ev) {
   if (m_online) {
     if (ev->state & GDK_CONTROL_MASK ) {
-      if (ev->keyval == GDK_Return || ev->keyval== GDK_KP_Enter)
+      if (ev->keyval == GDK_Return || ev->keyval == GDK_KP_Enter)
         m_send_button.clicked();
     } else if (ev->state & GDK_MOD1_MASK) {
       if (ev->keyval == GDK_s)
@@ -839,7 +839,28 @@ gint MessageBox::clear_queue_idle_cb()
 
 void MessageBox::clear_queue()
 {
-  m_message_queue.clear_queue_for_contact(m_contact);
+  MessageQueue::iterator next, curr = m_message_queue.begin();
+  while (curr != m_message_queue.end()) {
+    next = curr;
+    ++next;
+
+    if ((*curr)->getServiceType() == MessageEvent::ICQ) {
+      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(*curr);
+      ICQMessageEvent::ICQMessageType t = icq->getICQMessageType();
+
+      // only empty queue of event types handled by the MessageBox
+      // others, such as AuthReq we shouldn't touch
+      if (m_contact->getUIN() == icq->getICQContact()->getUIN()
+	  && (t == ICQMessageEvent::Normal
+	      || t == ICQMessageEvent::URL
+	      || t == ICQMessageEvent::SMS
+	      || t == ICQMessageEvent::SMS_Receipt
+	      || t == ICQMessageEvent::EmailEx))
+	m_message_queue.remove_from_queue(curr);
+    }
+    
+    curr = next;
+  }
   m_pending = false;
 }
 

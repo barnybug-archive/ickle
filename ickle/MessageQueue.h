@@ -1,4 +1,4 @@
-/* $Id: MessageQueue.h,v 1.2 2002-03-30 14:48:09 nordman Exp $
+/* $Id: MessageQueue.h,v 1.3 2002-03-31 17:00:16 barnabygray Exp $
  *
  * Queueing for MessageEvents.
  *
@@ -46,6 +46,7 @@ class MessageQueue
   // global queue methods
   void add_to_queue(MessageEvent *ev);
   void remove_from_queue(MessageEvent *ev);
+  void remove_from_queue(iterator& iter);
   MessageEvent* get_first_message();
 
   unsigned int get_size() const;
@@ -54,12 +55,14 @@ class MessageQueue
   typedef std::list<MessageEvent*>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
+  iterator begin();
+  iterator end();
 
   // per-contact methods
   MessageEvent* get_contact_first_message(const ICQ2000::ContactRef& c);
   unsigned int get_contact_size(const ICQ2000::ContactRef& c) const;
   void clear_queue_for_contact(const ICQ2000::ContactRef& c);
-  
+
   // signals
   SigC::Signal1<void, MessageEvent*> added;
   SigC::Signal1<void, MessageEvent*> removed;

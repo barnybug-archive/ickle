@@ -1,4 +1,4 @@
-/* $Id: MessageQueue.cpp,v 1.2 2002-03-30 14:48:09 nordman Exp $
+/* $Id: MessageQueue.cpp,v 1.3 2002-03-31 17:00:16 barnabygray Exp $
  *
  * Queueing for MessageEvents.
  *
@@ -61,6 +61,14 @@ void MessageQueue::remove_from_queue(MessageEvent *ev)
   }
 }
   
+void MessageQueue::remove_from_queue(iterator& iter)
+{
+  MessageEvent *ev = *iter;
+  m_event_list.erase(iter);
+  removed.emit(ev);
+  delete ev;
+}
+
 MessageEvent* MessageQueue::get_first_message()
 {
   return m_event_list.front();
@@ -82,6 +90,16 @@ MessageQueue::const_iterator MessageQueue::begin() const
 }
 
 MessageQueue::const_iterator MessageQueue::end() const
+{
+  return m_event_list.end();
+}
+
+MessageQueue::iterator MessageQueue::begin()
+{
+  return m_event_list.begin();
+}
+
+MessageQueue::iterator MessageQueue::end()
 {
   return m_event_list.end();
 }

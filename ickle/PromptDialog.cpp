@@ -79,12 +79,13 @@ PromptDialog::PromptDialog(PromptType t, const string& msg, bool modal)
   }
 
   Gtk::Label *label = manage( new Gtk::Label( msg, 0 ) );
+  label->set_justify(GTK_JUSTIFY_FILL);
   label->set_line_wrap(true);
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *label, true, true );
+  vbox->set_border_width(5);
 
-  set_default_size(300,100);
-  set_border_width(10);
+  set_border_width(5);
   show_all();
 }
 

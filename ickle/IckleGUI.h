@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.34 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.35 2002-03-31 17:00:16 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -82,7 +82,8 @@ class IckleGUI : public Gtk::Window {
 
   // --
 
-  void messagebox_popup(const ICQ2000::ContactRef& c, History *h);
+  void create_messagebox(const ICQ2000::ContactRef& c, History *h);
+  void raise_messagebox(const ICQ2000::ContactRef& c);
 
   void set_ickle_title();
 
@@ -96,8 +97,11 @@ class IckleGUI : public Gtk::Window {
   void status_menu_invisible_changed_cb(bool inv);
   void status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv);
 
+  void popup_next_event(const ICQ2000::ContactRef& c, History *h);
   void popup_messagebox(const ICQ2000::ContactRef& c, History *h);
-  void userinfo_popup(const ICQ2000::ContactRef& c);
+  void popup_auth_req(const ICQ2000::ContactRef& c, AuthReqICQMessageEvent *ev);
+  void popup_auth_resp(const ICQ2000::ContactRef& c, AuthAckICQMessageEvent *ev);
+  void popup_userinfo(const ICQ2000::ContactRef& c);
 
   // important - this are not passed by reference, as otherwise ref
   // counting screws up when used inconjunction with SigC::bind

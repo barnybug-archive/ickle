@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.19 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.20 2002-03-31 17:00:16 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -59,6 +59,7 @@ class ContactListView : public Gtk::CList {
   void userinfo_cb();
   void remove_user_cb();
   void fetch_away_msg_cb();
+  void send_auth_req_cb();
   unsigned int current_selection_uin();
 
  protected:

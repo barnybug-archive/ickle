@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.16 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: History.cpp,v 1.17 2002-03-31 17:00:16 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -80,6 +80,15 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
   ofstream of;
 
   ContactRef c = ev->getContact();
+
+  /* there are some other events that aren't logged in history
+     (auth requests for example) */
+  if (!(ev->getType() == ICQ2000::MessageEvent::Normal
+	|| ev->getType() == ICQ2000::MessageEvent::URL
+	|| ev->getType() == ICQ2000::MessageEvent::SMS
+	|| ev->getType() == ICQ2000::MessageEvent::SMS_Receipt
+	|| ev->getType() == ICQ2000::MessageEvent::EmailEx))
+    return;
 
   of.open( m_filename.c_str(), std::ios::out | std::ios::app );
   if (!of.is_open())
