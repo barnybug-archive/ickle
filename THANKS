@@ -32,3 +32,5 @@ Dominic Sacré - improvements for the applet and a fix for saving settings
   correctly upon exit.
 
 Jan Demaerel - gcc 3 namespace fixes
+
+Daniel <dss@home.se> - message box remembering sizes

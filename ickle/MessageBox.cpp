@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.38 2002-01-19 15:20:38 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.39 2002-01-22 10:50:49 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -57,7 +57,8 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 
   set_contact_title();
   set_border_width(10);
-  //  set_usize(450,300);
+
+  //set_usize(450,300);
 
   m_pane.set_handle_size (8);
   m_pane.set_gutter_size (12);                       
@@ -242,6 +243,26 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   g_icons.icons_changed.connect( slot(this, &MessageBox::icons_changed_cb) );
   
   add(m_vbox_top);
+
+  /* Default size 0 means that we leave it up to the packed widgets to decide size */
+  g_settings.defaultValueUnsignedInt("message_box_width", 0, 0, 2000);
+  g_settings.defaultValueUnsignedInt("message_box_height", 0, 0, 2000);
+  g_settings.defaultValueUnsignedInt("message_box_pane_position", 0, 0, 2000);
+
+  /* restore message box size */
+  int message_box_width = g_settings.getValueInt("message_box_width");
+  int message_box_height = g_settings.getValueInt("message_box_height");
+  int message_box_pane_position = g_settings.getValueInt("message_box_pane_position");
+
+  if ( (message_box_width > 0) && (message_box_width > 0) ) {
+    set_usize( message_box_width, message_box_height );
+  } 
+  if ( message_box_pane_position > 0 ) {
+    m_pane.set_position( message_box_pane_position );
+  }
+  size_allocate.connect( slot(this, &MessageBox::resized_cb) );
+  /* m_history_table height == pane position */
+  m_history_table.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
 }
 
 MessageBox::~MessageBox() {
@@ -657,4 +678,14 @@ void MessageBox::spell_detach()
   gtkspell_detach(GTK_TEXT(m_message_text.gtkobj()));
   gtkspell_detach(GTK_TEXT(m_url_text.gtkobj()));
   gtkspell_detach(GTK_TEXT(m_sms_text.gtkobj()));
+}
+
+void MessageBox::resized_cb(GtkAllocation *allocation) {
+  g_settings.setValue("message_box_width", width());
+  g_settings.setValue("message_box_height", height());
+}
+
+void MessageBox::pane_position_changed_cb(GtkAllocation *allocation) {
+  /* Pane position is the same as m_history_table.height() */
+  g_settings.setValue("message_box_pane_position", m_history_table.height());
 }
