@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.29 2002-07-20 02:41:47 bugcreator Exp $
+/* $Id: IckleApplet.cpp,v 1.30 2002-07-20 22:51:33 bugcreator Exp $
  *
  * GNOME applet for ickle.
  *
@@ -35,6 +35,7 @@
 using std::ostringstream;
 using std::string;
 using std::map;
+using std::endl;
 
 void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, gpointer data)
 {
