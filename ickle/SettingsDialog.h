@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.57 2003-04-13 12:42:18 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.58 2003-07-06 15:54:45 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -56,6 +56,7 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::Tooltips m_tooltip;
   bool m_client_restart;
   bool m_icons_changed;
+  bool m_fonts_changed;
 
   // the Tree store
   Glib::RefPtr<Gtk::TreeStore> m_reftreestore;
@@ -75,6 +76,10 @@ class SettingsDialog : public Gtk::Dialog
   ICQ2000::Status m_auto_connect;
   Gtk::CheckButton m_auto_reconnect;
   Gtk::SpinButton m_reconnect_retries;
+
+  // look'n'feel
+  Gtk::Button m_message_header_font;
+  Gtk::Button m_message_text_font;
 
   // look'n'feel - charset
   Gtk::Entry m_lnf_charset;
@@ -251,6 +256,8 @@ class SettingsDialog : public Gtk::Dialog
 
   void on_apply_clicked();
   void on_ok_clicked();
+  void set_message_header_font_cb();
+  void set_message_text_font_cb();
 
   void choose_autoconnect (unsigned int s);
 
@@ -273,6 +280,7 @@ class SettingsDialog : public Gtk::Dialog
   ~SettingsDialog();
 
   SigC::Signal0<void> change_client; //signal that determines that new settings for the client are available
+  SigC::Signal0<void> change_fonts; //signal that determines that new font settings are available
   SigC::Signal0<void> change_contact_list; //signal that determines that new settings for the contact list are available
 
   // TODO

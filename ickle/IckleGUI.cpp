@@ -212,6 +212,11 @@ void IckleGUI::change_client()
   signal_restart_client.emit();
 }
 
+void IckleGUI::change_fonts()
+{
+  signal_change_fonts.emit();
+}
+
 
 void IckleGUI::icons_changed_cb()
 {
@@ -348,7 +353,7 @@ void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent 
 
 void IckleGUI::popup_file_transfer_request(const ContactRef& c, FileTransferICQMessageEvent *ev)
 {
-  ReceiveFileDialog *dialog = new ReceiveFileDialog( this, c, ev );
+  new ReceiveFileDialog( this, c, ev );
   remove_from_queue_delayed(ev);
 }
 
@@ -391,11 +396,13 @@ void IckleGUI::create_messagebox(const ContactRef& c, History *h)
   ContactRef self = icqclient.getSelfContact();
   MessageBox *m = new MessageBox(m_message_queue, self, c, h);
 
+  signal_change_fonts.connect (SigC::slot( *m, &MessageBox::redraw_cb ) );
   m->signal_destroy().connect(SigC::bind(SigC::slot(*this,&IckleGUI::messagebox_destroy_cb), c));
   m->signal_send_event().connect(m_signal_send_event.slot());
   m->signal_userinfo_dialog().connect(SigC::bind(SigC::slot(*this,&IckleGUI::userinfo_toggle_cb), c));
   m_message_boxes[c->getUIN()] = m;
   
+
   if (m_status == ICQ2000::STATUS_OFFLINE)
     m->offline();
   else
@@ -727,6 +734,7 @@ void IckleGUI::show_settings_dialog(Gtk::Window& w, bool away)
 {
   SettingsDialog dialog(w, away);
   dialog.change_client.connect(SigC::slot(*this, &IckleGUI::change_client) );
+  dialog.change_fonts.connect(SigC::slot(*this, &IckleGUI::change_fonts) );
   
   if (dialog.run() == Gtk::RESPONSE_OK)
   {

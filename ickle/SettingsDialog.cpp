@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.75 2003-04-13 12:42:18 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.76 2003-07-06 15:54:44 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,7 @@
 #include <gtkmm/menushell.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/treeview.h>
+#include <gtkmm/fontselection.h>
 
 #include "main.h"
 #include "Settings.h"
@@ -131,6 +132,9 @@ SettingsDialog::SettingsDialog(Gtk::Window& parent, bool start_on_away)
   //same for the contact list
   m_icons_changed=false;
 
+  //same for the fonts
+  m_fonts_changed=false;
+
   // finally show all!
 
   show_all();
@@ -163,6 +167,11 @@ void SettingsDialog::on_apply_clicked()
     {
       g_icons.setIcons(m_icons_dir);
     }
+    if (m_fonts_changed)
+    {
+      m_fonts_changed=false;
+      change_fonts.emit();
+    }
   }
 }
 
@@ -179,6 +188,11 @@ void SettingsDialog::on_ok_clicked()
     if (m_icons_changed)
     {
       g_icons.setIcons(m_icons_dir);
+    }
+    if (m_fonts_changed)
+    {
+      m_fonts_changed=false;
+      change_fonts.emit();
     }
     response(Gtk::RESPONSE_OK);
   }
@@ -328,6 +342,26 @@ void SettingsDialog::init_login_page()
 void SettingsDialog::init_look_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * fonts = manage( new SectionFrame( _("Messagebox fonts") ) );
+
+  Gtk::Table * table = manage (new Gtk::Table( 2, 2 ) );
+  table->attach( * manage( new Gtk::Label( _("Header font"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_message_header_font.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::set_message_header_font_cb ) );
+  m_message_header_font.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_message_header_font, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  table->attach( * manage( new Gtk::Label( _("Text font"), 0.0, 0.5 ) ),
+		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  m_message_text_font.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::set_message_text_font_cb ) );
+  m_message_text_font.signal_clicked().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_message_text_font, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  fonts->add( * table );
+  vbox->pack_start( *fonts, Gtk::PACK_SHRINK );
+
   add_page( _("Look'n'feel"), vbox, true );
 
   // sub-pages
@@ -967,6 +1001,9 @@ void SettingsDialog::load_look_page()
   load_look_contact_list_page();
   load_look_icons_page();
   load_look_charset_page();
+  m_message_header_font.set_label(g_settings.getValueString("message_header_font") );
+  m_message_text_font.set_label(g_settings.getValueString("message_text_font") );
+
 }
 
 void SettingsDialog::load_look_message_page()
@@ -1120,6 +1157,9 @@ void SettingsDialog::save_look_page()
   save_look_contact_list_page();
   save_look_icons_page();
   save_look_charset_page();
+  g_settings.setValue("message_header_font", m_message_header_font.get_label() );
+  g_settings.setValue("message_text_font", m_message_text_font.get_label() );
+
 }
 
 void SettingsDialog::save_look_message_page()
@@ -1451,3 +1491,28 @@ void SettingsDialog::away_message_text_edit_cb()
   }
 }
   
+
+void SettingsDialog::set_message_header_font_cb()
+{
+  Gtk::FontSelectionDialog fd;
+  fd.set_title (_("Set header font") );
+  fd.set_font_name(m_message_header_font.get_label() );
+  if (fd.run() != Gtk::RESPONSE_OK )
+    return;
+  if (m_message_header_font.get_label() != fd.get_font_name() )
+    m_fonts_changed=true;
+  m_message_header_font.set_label(fd.get_font_name() );
+
+}
+void SettingsDialog::set_message_text_font_cb()
+{
+  Gtk::FontSelectionDialog fd;
+  fd.set_title (_("Set text font") );
+  fd.set_font_name(m_message_text_font.get_label() );
+  if (fd.run() != Gtk::RESPONSE_OK )
+    return;
+  if (m_message_header_font.get_label() != fd.get_font_name() )
+    m_fonts_changed=true;
+  m_message_text_font.set_label(fd.get_font_name() );
+}
+

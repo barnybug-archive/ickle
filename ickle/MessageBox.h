@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.28 2003-06-30 06:09:35 cborni Exp $
+/* $Id: MessageBox.h,v 1.29 2003-07-06 15:54:44 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -151,6 +151,7 @@ class MessageBox : public Gtk::Window,
   void messageack_cb(ICQ2000::MessageEvent *ev);
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
   void status_change_cb(ICQ2000::StatusChangeEvent *ev);
+  void redraw_cb ();
 
   // -- MessageQueue callbacks --
   void queue_added_cb(MessageEvent *ev);

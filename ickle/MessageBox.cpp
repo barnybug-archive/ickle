@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.80 2003-06-30 06:09:35 cborni Exp $
+/* $Id: MessageBox.cpp,v 1.81 2003-07-06 15:54:44 cborni Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -830,18 +830,12 @@ void MessageBox::display_message(History::Entry &e)
   Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
   Glib::RefPtr<Gtk::TextBuffer::Tag> tag_header;
 
-  /*  
   string message_text_font = g_settings.getValueString("message_text_font");
   string message_header_font = g_settings.getValueString("message_header_font");
   if ( !message_text_font.empty() )
   {
-    normal_tag->property_font().set_value( message_text_font );
+    m_tag_normal->property_font().set_value( message_text_font );
   }
-  if ( !message_header_font.empty() )
-  {
-    header_tag->property_font().set_value( message_header_font );
-  }
-  */
 
   string nick;
 
@@ -855,6 +849,11 @@ void MessageBox::display_message(History::Entry &e)
   {
     tag_header = m_tag_header_red;
     nick = m_contact->getAlias();
+  }
+
+  if ( !message_header_font.empty() )
+  {
+    tag_header->property_font().set_value( message_header_font );
   }
 
   // new-line between messages if not the first
@@ -1243,3 +1242,7 @@ SigC::Signal1<void,bool>& MessageBox::signal_userinfo_dialog()
   return m_signal_userinfo_dialog;
 }
 
+void MessageBox::redraw_cb()
+{
+  redraw_history ();
+}

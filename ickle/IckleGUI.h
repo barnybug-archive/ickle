@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.54 2003-05-26 15:52:27 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.55 2003-07-06 15:54:44 cborni Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -106,6 +106,7 @@ class IckleGUI : public Gtk::Window,
 
   void set_ickle_title();
   void change_client();
+  void change_fonts();
 
  protected:
   // handle wm calls
@@ -199,6 +200,7 @@ class IckleGUI : public Gtk::Window,
 
   //public signal activated by SettingsDialog
   SigC::Signal0<void> signal_restart_client;
+  SigC::Signal0<void> signal_change_fonts;
 };
 
 #endif
