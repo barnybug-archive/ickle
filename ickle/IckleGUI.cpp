@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.38 2002-02-05 18:49:43 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.39 2002-02-12 17:09:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -386,7 +386,7 @@ void IckleGUI::turboing_prompt(){
 
 void IckleGUI::duallogin_prompt() {
   PromptDialog pd(PromptDialog::PROMPT_WARNING,
-                  "The server recieved multiple simultaneous login for this account"
+                  "The server recieved multiple simultaneous login for this account.\n"
                   "Do you have multiple clients running with the same account?" );
   pd.run();
 }
