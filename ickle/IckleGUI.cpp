@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.33 2002-01-21 13:30:35 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.34 2002-01-25 11:35:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -225,19 +225,20 @@ void IckleGUI::popup_messagebox(Contact *c, History *h) {
   }
 }
 
+void IckleGUI::setGeometry(int x, int y)
+{
+  geometry_x = x;
+  geometry_y = y;
+  set_uposition(geometry_x, geometry_y);
+}
+
 void IckleGUI::show_impl() {
-  int x, y;
-  x = g_settings.getValueUnsignedInt("geometry_x");
-  y = g_settings.getValueUnsignedInt("geometry_y");
-  set_uposition(x, y);
+  set_uposition(geometry_x, geometry_y);
   Window::show_impl();
 }
 
 void IckleGUI::hide_impl() {
-  int x, y;
-  get_window().get_root_origin(x, y);
-  g_settings.setValue("geometry_x", x);
-  g_settings.setValue("geometry_y", y);
+  get_window().get_root_origin(geometry_x, geometry_y);
   Window::hide_impl();
 }
 

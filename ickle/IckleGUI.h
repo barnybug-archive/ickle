@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.28 2002-01-21 13:30:35 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.29 2002-01-25 11:35:42 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -79,6 +79,8 @@ class IckleGUI : public Gtk::Window {
   Gtk::Menu m_ickle_menu;
   StatusMenu m_status_menu;
 
+  int geometry_x, geometry_y;
+
   // --
 
   void messagebox_popup(Contact *c, History *h);
@@ -112,6 +114,7 @@ class IckleGUI : public Gtk::Window {
   void setDisplayTimes(bool d);
   string getAutoResponse() const;
   void setAutoResponse(const string& ar);
+  void setGeometry(int x, int y);
 
   gint ickle_popup_cb(GdkEventButton*);
 
