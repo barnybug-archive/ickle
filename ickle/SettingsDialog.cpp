@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.35 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.36 2002-03-05 12:54:00 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -82,7 +82,8 @@ SettingsDialog::SettingsDialog()
     away_response_label_entry(15),
     away_response_list(1)
 {
-  
+  Gtk::VBox *vbox;
+
   set_title("Settings Dialog");
   set_modal(true);
 
@@ -97,7 +98,7 @@ SettingsDialog::SettingsDialog()
 
   // ---------------- General tab -------------------------
 
-  Gtk::Table *ftable = manage( new Gtk::Table( 2, 2, true ) );
+  Gtk::Table *ftable = manage( new Gtk::Table( 2, 2, false ) );
   ftable->set_border_width(5);
   ftable->set_spacings(5);
 
@@ -157,16 +158,18 @@ SettingsDialog::SettingsDialog()
   Gtk::Frame *frame = manage( new Gtk::Frame("Login Details") );
   frame->add(*table);
 
-  ftable->attach( *frame, 0, 1, 0, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  ftable->attach( *frame, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Translation") );
+  vbox = manage( new Gtk::VBox() );
   trans_l.set_text( icqclient.getTranslationMapName() );
   trans_b.set_border_width(10);
   trans_b.add(trans_l);
   trans_b.clicked.connect( slot( this, &SettingsDialog::trans_cb ) );
-  frame->add(trans_b);
+  vbox->pack_start(trans_b, false);
+  frame->add(*vbox);
 
-  ftable->attach( *frame, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  ftable->attach( *frame, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Icons") );
   icons_list.set_selection_mode(GTK_SELECTION_BROWSE);
@@ -335,7 +338,7 @@ SettingsDialog::SettingsDialog()
   table->set_col_spacings(10);
   table->set_border_width(10);
 
-  Gtk::VBox *vbox = manage(new Gtk::VBox());
+  vbox = manage(new Gtk::VBox());
   vbox->pack_start(*table);
 
   frame = manage( new Gtk::Frame("Away Status") );
