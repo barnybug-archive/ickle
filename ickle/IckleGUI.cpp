@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.40 2002-02-23 20:06:24 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.41 2002-02-26 17:21:34 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,7 +60,7 @@ IckleGUI::IckleGUI()
   set_wmclass( "ickle_main", "ickle_main" );
   set_border_width(5);
 
-  m_contact_scroll.set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  m_contact_scroll.set_policy(GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
   m_contact_scroll.add(m_contact_list);
 
   m_top_vbox.pack_start(m_contact_scroll,true);
