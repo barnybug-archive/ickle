@@ -84,6 +84,37 @@ AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries ins
 # libicq2000 checks
 AM_PATH_LIBICQ2000(0.3.0, [], [AC_MSG_ERROR([You need to have the libicq2000 library installed - see the README for more information])])
 
+# Check for XScreenSaver support, adapted from gnomeicu
+xss_ldflags=""
+AC_ARG_WITH(xss, AC_HELP_STRING([--with-xss=PREFIX], [Enable XScreenSaver support (default: check for it)] ),
+        if test "x$withval" != "xno"; then
+                want_xss=yes
+                if test "x$withval" != "xyes" && test -d "$withval/lib"; then
+                        xss_ldflags="-L$withval/lib"
+                fi
+        else
+                want_xss=no
+        fi,
+        want_xss=yes)
+
+if test "x$want_xss" = xyes; then
+        AC_CHECK_LIB(Xext, XextCreateExtension,
+                have_xext=yes,
+                have_xext=no,
+                $GTKMM_LIBS)
+
+        AC_CHECK_LIB(Xss, XScreenSaverRegister,
+                have_xss=yes,
+                have_xss=no,
+                $GTKMM_LIBS $xss_ldflags)
+
+        if test "x$have_xext" = xyes && test "x$have_xss" = xyes; then
+		XSS_LIBS="$XSS_LIBS $xss_ldflags -lXext -lXss"
+		AC_SUBST(XSS_LIBS)
+		AC_DEFINE(USE_XSCREENSAVER,,[Whether the XScreenSaver extension should be used])
+        fi
+fi
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_SIZE_T
