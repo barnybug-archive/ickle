@@ -1,0 +1,91 @@
+                 ----------------------------------
+                 | ickle - A Gtk-- ICQ2000 Client |
+                 ----------------------------------
+
+http://ickle.sourceforge.net/
+
+Version: 0.1-pre1
+-----------------
+
+This is the first release of ickle, so please be tolerant of bugs, and
+the lack of features. Given time ickle will grow bigger.
+
+ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
+
+
+Prerequisites
+-------------
+You will need:
+- gtkmm version 1.2.0 or above (preferably 1.2.5 or above)
+- the sigc library
+- gtk+ library
+
+The last two should be installed if you have gtkmm working and
+installed.
+
+Note for RPM distributions (Redhat, SuSE, etc..) - make sure you
+install the 'development' RPMs for all these libraries as
+well. Usually these are called library-devel.rpm or similar.
+
+Debian based distributions (Debian, Progeny, etc..) - you will need
+these packages installed:
+libgtkmm1.2
+libgtkmm-dev
+libgtk1.2
+libgtk1.2-dev
+libsigc++0
+libsigc++-dev
+
+Sources for these libraries can be found on or linked from:
+http://gtkmm.sourceforge.net/
+
+Compiling & Installation
+------------------------
+Generic configure instructions can be found in INSTALL. These are the
+brief instructions for ickle:
+
+1. Type './configure'
+
+2. Type 'make' to compile the package.
+
+3. Type 'make install' as root to install ickle.
+
+Easy as that.
+
+To run ickle you should be able to type simply 'ickle', assuming
+/usr/local/bin is in your path.
+
+Icons
+-----
+
+The default icons distributed with ickle are some designed by
+me. They're not amazing but they do the job. I've also included some
+more familiar ones in the directory icons.icq. At the moment the icons
+are compiled into ickle, so if you want to use these alternate icons
+do (before compiling):
+mv icons icons.old
+mv icons.icq icons
+Then compile.
+
+Comments, bug reports, etc..
+----------------------------
+Please send all your comments, wanted features and bug reports to:
+  <barnaby@beedesign.co.uk>
+
+Send me a message (ICQ# 12137587 Alias bee) if you like ickle.
+
+For bug reports ensure you include these details:
+- Version of ickle
+- Source (tarball, CVS)
+- Distribution
+- gtkmm version (type: gtkmm-config --version)
+- sigc version (type: sigc-config --version)
+- gtk+ version (type: gtk-config --version)
+- Any other quirks of your system..
+
+Thanks.
+
+License
+-------
+ickle is released under the GNU GPL license, see COPYING for copying
+conditions.

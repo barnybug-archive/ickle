@@ -1,0 +1,20 @@
+Stuff to do:
+(This are in rough order of when they will get done, most pressing first)
+
+* Recording History
+
+* Non-blocking DNS lookup
+
+* Handle Rate Limit and SNAC Error packets
+
+* Authorisation request/responses
+
+* Reviewing History
+
+* TCP Client-Client connections (a lot of work)
+
+Things that are likely never to be included:
+
+* File transfer (use FTP/HTTP!)
+
+* Chat (use IRC!)

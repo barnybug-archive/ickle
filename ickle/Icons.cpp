@@ -1,0 +1,124 @@
+/*
+ * Icons
+ * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
+#include "Icons.h"
+
+#include "online.xpm"
+#include "offline.xpm"
+#include "away.xpm"
+#include "na.xpm"
+#include "ffc.xpm"
+#include "dnd.xpm"
+#include "occ.xpm"
+#include "chat.xpm"
+#include "invisible.xpm"
+#include "message.xpm"
+#include "url.xpm"
+#include "sms.xpm"
+#include "file.xpm"
+
+ImageLoader *Icons::Icon_Status_Online = NULL;
+ImageLoader *Icons::Icon_Status_Away = NULL;
+ImageLoader *Icons::Icon_Status_NA = NULL;
+ImageLoader *Icons::Icon_Status_Occupied = NULL;
+ImageLoader *Icons::Icon_Status_DND = NULL;
+ImageLoader *Icons::Icon_Status_FFC = NULL;
+ImageLoader *Icons::Icon_Status_Offline = NULL;
+ImageLoader *Icons::Icon_Status_Message = NULL;
+ImageLoader *Icons::Icon_Status_URL = NULL;
+ImageLoader *Icons::Icon_Status_SMS = NULL;
+
+void Icons::DefaultIcons() {
+  Icon_Status_Online = new ImageLoaderData(online_xpm);
+  Icon_Status_Away = new ImageLoaderData(away_xpm);
+  Icon_Status_NA = new ImageLoaderData(na_xpm);
+  Icon_Status_Occupied = new ImageLoaderData(occ_xpm);
+  Icon_Status_DND = new ImageLoaderData(dnd_xpm);
+  Icon_Status_FFC = new ImageLoaderData(ffc_xpm);
+  Icon_Status_Offline = new ImageLoaderData(offline_xpm);
+  Icon_Status_Message = new ImageLoaderData(message_xpm);
+  Icon_Status_URL = new ImageLoaderData(url_xpm);
+  Icon_Status_SMS = new ImageLoaderData(sms_xpm);
+}
+
+void Icons::FreeIcons() {
+  delete Icon_Status_Online;
+  delete Icon_Status_Away;
+  delete Icon_Status_NA;
+  delete Icon_Status_Occupied;
+  delete Icon_Status_DND;
+  delete Icon_Status_FFC;
+  delete Icon_Status_Offline;
+  delete Icon_Status_Message;
+  delete Icon_Status_URL;
+  delete Icon_Status_SMS;
+
+}
+
+ImageLoader* Icons::IconForStatus(Status s) {
+  ImageLoader *p;
+  switch(s) {
+  case STATUS_ONLINE:
+    p = Icon_Status_Online;
+    break;
+  case STATUS_AWAY:
+    p = Icon_Status_Away;
+    break;
+  case STATUS_NA:
+    p = Icon_Status_NA;
+    break;
+  case STATUS_OCCUPIED:
+    p = Icon_Status_Occupied;
+    break;
+  case STATUS_DND:
+    p = Icon_Status_DND;
+    break;
+  case STATUS_FREEFORCHAT:
+    p = Icon_Status_FFC;
+    break;
+  case STATUS_OFFLINE:
+    p = Icon_Status_Offline;
+    break;
+  default:
+    p = Icon_Status_Offline;
+    break;
+  }
+  return p;
+}
+
+ImageLoader* Icons::IconForEvent(MessageEvent::MessageType t) {
+  ImageLoader *p;
+  switch(t) {
+  case MessageEvent::Normal:
+    p = Icon_Status_Message;
+    break;
+  case MessageEvent::URL:
+    p = Icon_Status_URL;
+    break;
+  case MessageEvent::SMS:
+  case MessageEvent::SMS_Response:
+  case MessageEvent::SMS_Receipt:
+  default:
+    p = Icon_Status_SMS;
+    break;
+  }
+  return p;
+}
+
