@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.27 2002-03-30 14:48:09 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.28 2002-04-18 22:00:29 bugcreator Exp $
  *
  * GNOME applet for ickle.
  *
@@ -73,7 +73,10 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
 void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
 {
   ICQ2000::Status st = (ICQ2000::Status)(int)data;
-  icqclient.setStatus(st);
+  if (g_settings.getValueBool("status_classic_invisibility"))
+    icqclient.setStatus(st, false);
+  else
+    icqclient.setStatus(st);
 }
 
 
