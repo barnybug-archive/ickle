@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.42 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.43 2002-03-12 21:39:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -504,16 +504,29 @@ void IckleGUI::spell_check_setup()
   if (g_settings.getValueBool("spell_check")) {
     // start gtkspell
 
-    char *ispellcmd[] = { "ispell", "-a", NULL };
-    char *aspellcmd[] = { "aspell", "pipe", NULL };
-
+    char spell_language[128];
+	
+    char *ispellcmd[] = { "ispell", "-a", "-d","place holder",NULL };
+    char *aspellcmd[] = { "aspell", "pipe", "place holder", NULL };
     char **spellcmd;
-    
-    if (g_settings.getValueBool("spell_check_aspell")) {
-      spellcmd = aspellcmd;
-    } else {
-      spellcmd = ispellcmd;
+
+    if (g_settings.getValueString("spell_check_lang").size()>0) {
+    //some language was specified
+    	strncpy (spell_language, g_settings.getValueString("spell_check_lang").c_str(), 100);
+	char language_parm[128];
+        strncpy (language_parm, "--lang=",8);
+        strncat (language_parm,spell_language,100);
+        aspellcmd[2] = language_parm;
+        ispellcmd[3] = spell_language;
+    } else {// no language? then system default
+	aspellcmd[2] = NULL;
+	ispellcmd[2] = NULL;
     }
+    
+	if (g_settings.getValueBool("spell_check_aspell"))
+	    spellcmd = aspellcmd;    
+	else
+            spellcmd = ispellcmd;
           
     if (gtkspell_running()) gtkspell_stop();
     
@@ -544,9 +557,7 @@ void IckleGUI::spell_check_setup()
 
 void IckleGUI::settings_changed_cb(const string& k)
 {
-  if (k == "spell_check")
-    spell_check_setup();
-  else if (k == "spell_check_aspell")
+  if ((k == "spell_check") || (k == "spell_check_lang") || (k == "spell_check_aspell"))
     spell_check_setup();
 }
 

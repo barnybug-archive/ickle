@@ -42,3 +42,6 @@ Daniel <dss@home.se>
 
 CB'ke
  - Run-only-once pid lockfile behaviour
+
+Christian Bornträger
+ - Patch to allow changing language ispell/aspell uses

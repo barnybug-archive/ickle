@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.31 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.32 2002-03-12 21:39:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -67,6 +67,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::CheckButton network_in_dc, network_out_dc;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
   Gtk::CheckButton spell_check, spell_check_aspell;
+  Gtk::Entry spell_check_lang;
   Gtk::CheckButton mouse_single_click, mouse_check_away_click;
   Gtk::CheckButton status_cl_inv;
   Gtk::SpinButton *reconnect_spinner, *network_port, *history_shownr_spinner;
