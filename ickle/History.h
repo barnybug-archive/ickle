@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.6 2001-12-10 02:04:33 barnabygray Exp $
+/* $Id: History.h,v 1.7 2001-12-17 15:16:41 nordman Exp $
  *
  * Logging and loading of history.
  *
@@ -42,6 +42,7 @@ using std::ifstream;
 using std::ofstream;
 using std::ostream;
 using std::vector;
+using std::streampos;
 
 class History : public SigC::Object {
   
