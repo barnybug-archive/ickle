@@ -28,6 +28,9 @@
 #include <gtk--/table.h>
 #include <gtk--/frame.h>
 #include <gtk--/scrolledwindow.h>
+#include <gtk--/optionmenu.h>
+#include <gtk--/menu.h>
+#include <gtk--/menushell.h>
 
 using SigC::slot;
 using SigC::bind;
@@ -54,7 +57,7 @@ SettingsDialog::SettingsDialog()
   ftable->set_border_width(5);
   ftable->set_spacings(5);
 
-  Gtk::Table *table = manage( new Gtk::Table( 3, 2, false ) );
+  Gtk::Table *table = manage( new Gtk::Table( 3, 3, false ) );
 
   Gtk::Label *label;
   label = manage( new Gtk::Label( "UIN", 0 ) );
@@ -67,6 +70,22 @@ SettingsDialog::SettingsDialog()
   password_entry.set_text( g_settings.getValueString("password") );
   password_entry.set_visibility(false);
   table->attach( password_entry, 1, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  label = manage( new Gtk::Label( "AutoConnect", 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+
+  Gtk::OptionMenu *autoconnect_om = manage( new Gtk::OptionMenu() );
+  Gtk::Menu *m = manage( new Gtk::Menu() );
+  {
+    using namespace Gtk::Menu_Helpers;
+    MenuList& ml = m->items();
+    for (int n = STATUS_ONLINE; n <= STATUS_OFFLINE; n++)
+      ml.push_back( MenuElem( Status_text[n], bind( slot(this, &SettingsDialog::setStatus), Status(n) ) ) );
+  }
+  m->set_active( g_settings.getValueUnsignedInt("autoconnect") - STATUS_ONLINE );
+  autoconnect_om->set_menu(*m);
+
+  table->attach( *autoconnect_om, 1, 3, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -167,6 +186,10 @@ SettingsDialog::SettingsDialog()
   show_all();
 }
 
+void SettingsDialog::setStatus(Status s) {
+  m_status = s;
+}
+
 bool SettingsDialog::run() {
   Gtk::Main::run();
   return finished_okay;
@@ -176,6 +199,7 @@ void SettingsDialog::updateSettings() {
   // ------------ Login details tab ----------------
   g_settings.setValue("uin", ICQ2000::Contact::StringtoUIN(uin_entry.get_text()));
   g_settings.setValue("password", password_entry.get_text());
+  g_settings.setValue("autoconnect", m_status );
 
   g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
   g_settings.setValue("icons_dir", getIconsFilename());

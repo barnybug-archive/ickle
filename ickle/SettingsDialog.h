@@ -50,10 +50,14 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
 
+  Status m_status;
+
   bool finished_okay;
 
   string getIconsFilename();
   
+  void setStatus(Status s);
+
   void okay_cb();
   void cancel_cb();
   void trans_cb();

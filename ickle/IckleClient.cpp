@@ -22,8 +22,8 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 #ifdef HAVE_GETOPT_H
 # include <getopt.h>
@@ -66,9 +66,9 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
+  icqclient.away_message.connect(slot(this,&IckleClient::away_message_cb));
 
   // set up GUI callbacks
-  gui.status_changed.connect(slot(this,&IckleClient::status_change_cb));
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
   gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
@@ -86,6 +86,9 @@ IckleClient::IckleClient(int argc, char* argv[])
   loadContactList();
 
   gui.show_all();
+
+  Status st = Status(g_settings.getValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE));
+  if (st != STATUS_OFFLINE) icqclient.setStatus(st);
 }
 
 IckleClient::~IckleClient() {
@@ -233,10 +236,22 @@ void IckleClient::saveSettings() {
     return;
   }
   
-  if ( !g_settings.save(BASE_DIR + "ickle.conf") ) {
+  string ickle_conf = BASE_DIR + "ickle.conf";
+
+  // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
+  mode_t old_umask = umask(0077);
+
+  if ( !g_settings.save(ickle_conf) ) {
     cout << "Couldn't save " << BASE_DIR << "ickle.conf" << endl;
   }
-  
+
+  umask(old_umask);
+
+  // ensure permissions on ickle.conf are secure
+  if ( chmod( ickle_conf.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
+    cout << "The permissions on " << ickle_conf << " couldn't be set to 0600. Your ICQ password is vulnerable!" << endl;
+  }
+
 }
 
 gint IckleClient::close_cb(GdkEventAny*) {
@@ -262,8 +277,6 @@ void IckleClient::quit() {
 void IckleClient::connected_cb(ConnectedEvent *c) {
   // setup PingServer timed callback
   ping_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::ping_server_cb ), 60000 );
-
-  gui.setStatus(icqclient.getStatus());
 }
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
@@ -299,8 +312,6 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   // disconnect PingServer callback
   ping_server_cnt.disconnect();
 
-  // set status to offline
-  gui.setStatus(STATUS_OFFLINE);
 }
 
 void IckleClient::logger_cb(LogEvent *c) {
@@ -319,25 +330,6 @@ void IckleClient::logger_cb(LogEvent *c) {
 
   cout << c->getMessage() << endl;
   cout << "[39m";
-}
-
-void IckleClient::status_change_cb(Status st) {
-  if(st == STATUS_OFFLINE) {
-    icqclient.Disconnect();
-  } else {
-    icqclient.setStatus(st);
-    if (icqclient.isConnected()) {
-      gui.setStatus(st);
-    } else {
-      if (icqclient.getUIN() == 0 || icqclient.getPassword() == "") {
-	gui.setStatus(STATUS_OFFLINE);
-	gui.invalid_login_prompt();
-	return;
-      }
-
-      icqclient.Connect();
-    }
-  }
 }
 
 void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
@@ -583,6 +575,10 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     // delete
     unlink( m_fmap[c->getUIN()].c_str() );
   }
+}
+
+void IckleClient::away_message_cb(AwayMsgEvent *ev) {
+  cout << "Away Message: " << ev->getMessage() << endl;
 }
 
 void IckleClient::settings_changed_cb() {

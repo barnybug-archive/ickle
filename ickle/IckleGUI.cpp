@@ -34,6 +34,7 @@ IckleGUI::IckleGUI()
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
+  icqclient.statuschanged.connect(slot(this,&IckleGUI::status_change_cb));
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
@@ -89,7 +90,7 @@ void IckleGUI::menu_status_update() {
 
 Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
   Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
-  mi->activate.connect( bind(slot(this,&IckleGUI::status_change_cb),s) );
+  mi->activate.connect( bind(slot(this,&IckleGUI::status_change_menu_cb),s) );
   Gtk::HBox *hbox=manage( new Gtk::HBox() );
   Gtk::ImageLoader *p = Icons::IconForStatus(s, false);
   hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
@@ -189,7 +190,16 @@ void IckleGUI::user_popup(Contact *c) {
   }
 }
 
-void IckleGUI::setStatus(Status st) {
+int IckleGUI::delete_event_impl(GdkEventAny*) {
+  return false;
+}
+
+void IckleGUI::status_change_menu_cb(Status st) {
+  icqclient.setStatus(st);
+}
+
+void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
+  Status st = ev->getStatus();
   Gtk::MenuItem *m = m_ickle_menubar.items()[1];
   m->remove();
   m->add_label( string(Status_text[st]) );
@@ -202,14 +212,6 @@ void IckleGUI::setStatus(Status st) {
     else (*i).second->online();
     ++i;
   }
-}
-
-int IckleGUI::delete_event_impl(GdkEventAny*) {
-  return false;
-}
-
-void IckleGUI::status_change_cb(Status st) {
-  status_changed.emit(st);
 }
 
 void IckleGUI::user_popup_close_cb(unsigned int uin) {
@@ -273,7 +275,7 @@ void IckleGUI::settings_cb() {
     if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
     if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
   
-    if (reconnect) status_change_cb(STATUS_ONLINE);
+    if (reconnect) status_change_menu_cb(STATUS_ONLINE);
 
     settings_changed.emit();
   }

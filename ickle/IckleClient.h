@@ -94,9 +94,9 @@ class IckleClient : public SigC::Object {
   void contactlist_cb(ContactListEvent *ev);
   bool message_cb(MessageEvent* ev);
   void socket_cb(SocketEvent* ev);
+  void away_message_cb(AwayMsgEvent* ev);
 
   // -- Callbacks for GUI --
-  void status_change_cb(Status st);
   void user_popup_cb(unsigned int uin);
   void user_info_cb(unsigned int uin);
   void send_event_cb(MessageEvent *ev);

@@ -166,6 +166,13 @@ namespace ICQ2000 {
 
     // ensure all contacts return to Offline
     ContactList::iterator curr = m_contact_list.begin();
+
+    if (m_status != STATUS_OFFLINE) {
+      m_status = STATUS_OFFLINE;
+      MyStatusChangeEvent ev(m_status);
+      statuschanged.emit( &ev );
+    }
+
     while(curr != m_contact_list.end()) {
       if ( (*curr).getStatus() != STATUS_OFFLINE ) {
 	(*curr).setStatus(STATUS_OFFLINE);
@@ -1244,6 +1251,11 @@ namespace ICQ2000 {
 
   void Client::setStatus(const Status st) {
     if (m_state == BOS_LOGGED_IN) {
+      if (st == STATUS_OFFLINE) {
+	Disconnect();
+	return;
+      }
+
       Buffer b(&m_translator);
       unsigned int d;
       
@@ -1253,9 +1265,11 @@ namespace ICQ2000 {
       FLAPFooter(b,d);
       
       Send(b);
-    }
-    else // We'll set this as the initial status upon Connect()
+    } else {
+      // We'll set this as the initial status upon Connect()
       m_status = st;
+      if (st != STATUS_OFFLINE) Connect();
+    }
   }
 
   Status Client::getStatus() {

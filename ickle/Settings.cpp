@@ -139,6 +139,7 @@ unsigned int Settings::getValueUnsignedInt(const string& k, unsigned int dflt,
     if (v > upper) v = upper;
   } else {
     v = dflt;
+    setValue(k,dflt);
   }
   return v;
 }
@@ -153,6 +154,7 @@ unsigned short Settings::getValueUnsignedShort(const string& k, unsigned short d
     if (v > upper) v = upper;
   } else {
     v = dflt;
+    setValue(k,dflt);
   }
   return v;
 }
@@ -169,6 +171,7 @@ unsigned char Settings::getValueUnsignedChar(const string& k, unsigned char dflt
     if (vi > upper) v = upper;
   } else {
     v = dflt;
+    setValue(k,dflt);
   }
   return v;
 }

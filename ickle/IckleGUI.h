@@ -101,11 +101,9 @@ class IckleGUI : public Gtk::Window {
   IckleGUI();
   ~IckleGUI();
 
-  void setStatus(Status st);
-
   ContactListView* getContactListView();
 
-  void status_change_cb(Status st);
+  void status_change_menu_cb(Status st);
   void user_popup(Contact *c);
   void user_info_edit(Contact *c);
   void user_popup_close_cb(unsigned int uin);
@@ -122,6 +120,7 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
   void settings_cb();
   void icons_changed_cb(string);
+  void status_change_cb(MyStatusChangeEvent *ev);
 
   // signals
   Signal0<void> settings_changed;
