@@ -1,6 +1,6 @@
-/*
- * IckleGUI (the view)
- * The 'looks' part of Ickle
+/* $Id: IckleGUI.h,v 1.17 2001-12-18 19:45:10 nordman Exp $
+ * 
+ * The 'looks' part of Ickle (the view)
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -123,7 +123,7 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
-  void icons_changed_cb();
+  void settings_changed_cb(const string &key);
   void userinfo_toggle_cb(bool b, Contact *c);
   void status_change_cb(MyStatusChangeEvent *ev);
 

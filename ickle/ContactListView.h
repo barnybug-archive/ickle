@@ -1,5 +1,5 @@
-/*
- * ContactListView
+/* $Id: ContactListView.h,v 1.13 2001-12-18 19:45:10 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify

@@ -1,5 +1,5 @@
-/*
- * SettingsDialog
+/* $Id: SettingsDialog.cpp,v 1.19 2001-12-18 19:45:10 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -148,7 +148,7 @@ SettingsDialog::SettingsDialog()
   frame = manage( new Gtk::Frame("Icons") );
   icons_list.set_selection_mode(GTK_SELECTION_BROWSE);
   {
-    string current = g_settings.getValueString("icons_dir");
+    m_old_icons_dir = g_settings.getValueString("icons_dir");
 
     using namespace Gtk::List_Helpers;
     using Gtk::ListItem;
@@ -166,7 +166,7 @@ SettingsDialog::SettingsDialog()
       else name = string(filename,pos+1);
 
       il.push_back( * manage( new ListItem( name ) ) );
-      if (current == filename+"/") icons_list.select_item(n);
+      if (m_old_icons_dir == filename+"/") icons_list.select_item(n);
       ++iter;
       ++n;
     }
@@ -419,7 +419,7 @@ void SettingsDialog::updateSettings() {
   }
 
   g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
-  g_settings.setValue("icons_dir", getIconsFilename());
+  // icons settings are updated in realtime
 
   // ------------ Events tab -----------------------
   g_settings.setValue("event_message", event_message_entry.get_text());
@@ -488,7 +488,6 @@ void SettingsDialog::okay_cb() {
 void SettingsDialog::cancel_cb() {
   Gtk::Main::quit();
   finished_okay = false;
-  string m_old_icons_dir = g_settings.getValueString("icons_dir");
   if ( getIconsFilename() != m_old_icons_dir ) {
     // restore icons
     g_icons.setIcons( m_old_icons_dir );

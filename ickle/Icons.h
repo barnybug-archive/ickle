@@ -1,5 +1,5 @@
-/*
- * Icons
+/* $Id: Icons.h,v 1.5 2001-12-18 19:45:10 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -57,9 +57,6 @@ class Icons {
   void FreeIcons();
   ImageLoader* IconForStatus(Status s,bool inv);
   ImageLoader* IconForEvent(MessageEvent::MessageType t);
-
-  Signal0<void> icons_changed;
-
 };
 
 #endif

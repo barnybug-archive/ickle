@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.9 2001-12-12 22:43:00 nordman Exp $
+/* $Id: MessageBox.h,v 1.10 2001-12-18 19:45:10 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -91,11 +91,15 @@ class MessageBox : public Gtk::Window {
 
   MessageEvent::MessageType m_message_type;
 
+  SigC::Connection m_settingsconn;
+
+
   void send_button_update();
   void set_contact_title();
   string format_time(time_t t);
   void display_message(History::Entry &he);
   void set_status( const string& text );
+  void redraw_history();
   void scaleadj_value_changed_cb();
   gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
 
@@ -129,6 +133,7 @@ class MessageBox : public Gtk::Window {
   void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);
   void userinfo_toggle_cb();
   void sms_count_update_cb();
+  void settings_changed_cb(const string &key);
   gint key_press_cb(GdkEventKey*);
   virtual gint delete_event_impl(GdkEventAny *ev);
 };

@@ -1,5 +1,5 @@
-/*
- * Settings
+/* $Id: Settings.h,v 1.11 2001-12-18 19:45:10 nordman Exp $
+ * 
  * Handle loading/parsing/saving of settings to
  * a configuration file
  *
@@ -24,9 +24,9 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <string>
-
 #include <config.h>
+#include <string>
+#include <sigc++/signal_system.h>
 
 #ifdef HAVE_EXT_HASH_MAP
 # include <ext/hash_map>
@@ -44,7 +44,7 @@ class _HashString {
   size_t operator()(string const &str) const { return std::hash<char const *>()(str.c_str()); }
 };
   
-class Settings {
+class Settings : public SigC::Object {
  private:
   hash_map<const string,string,_HashString> m_map;
   
@@ -81,6 +81,7 @@ class Settings {
   static string Escape(const string& t);
   static string Unescape(const string& t);
 
+  SigC::Signal1<void,const string &> settings_changed;
 };
 
 #endif

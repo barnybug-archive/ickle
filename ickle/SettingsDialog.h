@@ -1,5 +1,5 @@
-/*
- * SettingsDialog
+/* $Id: SettingsDialog.h,v 1.16 2001-12-18 19:45:10 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -64,6 +64,7 @@ class SettingsDialog : public Gtk::Dialog {
 
   string message_header_font, message_text_font;
 
+  string m_old_icons_dir;
   Status m_status;
 
   bool finished_okay;

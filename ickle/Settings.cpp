@@ -1,5 +1,5 @@
-/*
- * Settings
+/* $Id: Settings.cpp,v 1.10 2001-12-18 19:45:10 nordman Exp $
+ * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -221,35 +221,48 @@ void Settings::defaultValueString(const string& k, const string& dflt)
 
 void Settings::setValue(const string& k, const string& v) {
   m_map[k] = v;
+  settings_changed.emit( k );
 }
 
 void Settings::setValue(const string& k, int v) {
   ostringstream ostr;
   ostr << v;
-  m_map[k] = ostr.str();
+  if( m_map[k] != ostr.str() ) {
+    m_map[k] = ostr.str();
+    settings_changed.emit( k );
+  }
 }
 
 void Settings::setValue(const string& k, unsigned int v) {
   ostringstream ostr;
   ostr << v;
-  m_map[k] = ostr.str();
+  if( m_map[k] != ostr.str() ) {
+    m_map[k] = ostr.str();
+    settings_changed.emit( k );
+  }
 }
 
 void Settings::setValue(const string& k, unsigned short v) {
   ostringstream ostr;
   ostr << v;
   m_map[k] = ostr.str();
+  settings_changed.emit( k );
 }
 
 void Settings::setValue(const string& k, unsigned char v) {
   ostringstream ostr;
   ostr << (unsigned int)v;
-  m_map[k] = ostr.str();
+  if( m_map[k] != ostr.str() ) {
+    m_map[k] = ostr.str();
+    settings_changed.emit( k );
+  }
 }
 
 void Settings::setValue(const string& k, bool v) {
-  if (v) m_map[k] = "1";
-  else m_map[k] = "0";
+  if( m_map[k] != (v ? "1" : "0") ) {
+    m_map[k] = v ? "1" : "0";
+    settings_changed.emit( k );
+  }
 }
 
 bool Settings::exists(const string& k) {

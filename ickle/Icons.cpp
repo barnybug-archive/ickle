@@ -1,5 +1,5 @@
-/*
- * Icons
+/* $Id: Icons.cpp,v 1.7 2001-12-18 19:45:10 nordman Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,8 @@
  */
 
 #include "Icons.h"
+#include "Settings.h"
+#include "main.h"
 
 #include "online.xpm"
 #include "offline.xpm"
@@ -34,6 +36,11 @@
 #include "sms.xpm"
 #include "file.xpm"
 
+/*
+  Sets the icons to the default compiled in icons.
+
+  Note: This also automatically updates the settings for the icons.
+*/
 void Icons::setDefaultIcons() {
   Icon_Status_Online = new ImageLoaderData(online_xpm);
   Icon_Status_Away = new ImageLoaderData(away_xpm);
@@ -46,9 +53,14 @@ void Icons::setDefaultIcons() {
   Icon_Status_URL = new ImageLoaderData(url_xpm);
   Icon_Status_SMS = new ImageLoaderData(sms_xpm);
   Icon_Status_Invisible = new ImageLoaderData(invisible_xpm);
-  icons_changed.emit();
+  g_settings.setValue("icons_dir", "Default");
 }
 
+/*
+  Sets the icons to the set given by dir.
+
+  Note: This also automatically updates the settings for the icons.
+*/
 bool Icons::setIcons(const string &dir) {
   FreeIcons();
 
@@ -68,7 +80,7 @@ bool Icons::setIcons(const string &dir) {
   Icon_Status_URL = new ImageLoader( dir + "url.xpm" );
   Icon_Status_SMS = new ImageLoader( dir + "sms.xpm" );
   Icon_Status_Invisible = new ImageLoader( dir + "invisible.xpm" );
-  icons_changed.emit();
+  g_settings.setValue("icons_dir", dir);
   return true;
 }
 

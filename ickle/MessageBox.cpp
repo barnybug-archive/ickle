@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.30 2001-12-17 18:58:07 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.31 2001-12-18 19:45:10 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -72,7 +72,7 @@ MessageBox::MessageBox(Contact *c, History *h)
   scrollbar = manage( new Gtk::VScrollbar (*(m_history_text.get_vadjustment())) );
   m_history_table.attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
 
-  // scale adjustment
+  // initial scale adjustment
   guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
   gfloat upper = m_history->size() / nr_shown;
   if( !(m_history->size() % nr_shown) && upper )
@@ -231,12 +231,14 @@ MessageBox::MessageBox(Contact *c, History *h)
   m_sms_text.button_press_event.connect( bind( slot(this, &MessageBox::text_button_press_cb), &m_sms_text ) );
   
   m_histconn = m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
+  m_settingsconn = g_settings.settings_changed.connect( slot(this, &MessageBox::settings_changed_cb) );
   
   add(m_vbox_top);
 }
 
 MessageBox::~MessageBox() {
   m_histconn.disconnect();
+  m_settingsconn.disconnect();
 }
 
 void MessageBox::raise() const {
@@ -342,6 +344,12 @@ void MessageBox::sms_count_update_cb() {
   m_sms_count.set_text(ostr.str());
 }
 
+void MessageBox::settings_changed_cb(const string &key) {
+  if( key == "history_shownr" ) {
+    redraw_history();
+  }
+}
+
 void MessageBox::userinfo_toggle_cb() {
   userinfo_dialog.emit( m_userinfo_toggle->get_active() );
 }
@@ -362,16 +370,7 @@ void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
 }
 
 void MessageBox::new_entry_cb(History::Entry *ev) {
-  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
-  gfloat upper = m_history->size() / nr_shown;
-  if( !(m_history->size() % nr_shown) && upper )
-    --upper;
-
-  m_scaleadj.set_upper( upper );
-  if( upper != m_scaleadj.get_value() )
-    m_scaleadj.set_value( upper );
-  else
-    scaleadj_value_changed_cb();
+  redraw_history();
 }
 
 void MessageBox::messageack_cb(MessageEvent *ev) {
@@ -478,11 +477,7 @@ void MessageBox::popup() {
   Gtk::Adjustment *adj;
 
   show_all();
-  
-  scaleadj_value_changed_cb();
-
-  adj = m_history_text.get_vadjustment();
-  adj->set_value( adj->get_upper() );
+  redraw_history();
 }
 
 void MessageBox::send_clicked_cb() {
@@ -526,6 +521,20 @@ void MessageBox::set_status( const string& text )
   m_status.push( m_status_context, text);
 }
 
+void MessageBox::redraw_history()
+{
+  guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
+  gfloat upper = m_history->size() / nr_shown;
+  if( !(m_history->size() % nr_shown) && upper )
+    --upper;
+
+  m_scaleadj.set_upper( upper );
+  if( upper != m_scaleadj.get_value() )
+    m_scaleadj.set_value( upper );
+  else
+    scaleadj_value_changed_cb();
+}
+
 void MessageBox::scaleadj_value_changed_cb()
 {
   History::Entry he;
@@ -534,8 +543,6 @@ void MessageBox::scaleadj_value_changed_cb()
   ostringstream os;
   guchar nr_shown = g_settings.getValueUnsignedChar("history_shownr");
 
-  m_history_text.freeze();
-  
   try {
     m_history->stream_lock();
   }
@@ -544,6 +551,7 @@ void MessageBox::scaleadj_value_changed_cb()
     return;
   }
 
+  m_history_text.freeze();
   m_history_text.delete_text(0,-1);
   i = nr_shown * (guint)m_scaleadj.get_value();
   end = i + nr_shown;
