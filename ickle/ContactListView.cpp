@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.53 2003-01-12 16:55:05 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.54 2003-01-12 17:42:17 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -100,8 +100,10 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
 
     // popup for right-click contact
     MenuList& ml_c = m_rc_popup_contact.items();
-    ml_c.push_back( MenuElem( _("Check away message"), SigC::slot( *this, &ContactListView::contact_fetch_away_msg_cb ) ) );
-    m_rc_popup_away = &(ml_c.back());
+    ml_c.push_back( ImageMenuElem( _("Check away message"),
+				   * manage( new Gtk::Image( g_icons.get_icon_for_status( ICQ2000::STATUS_AWAY, false ) ) ),  /* just a placeholder */
+				   SigC::slot( *this, &ContactListView::contact_fetch_away_msg_cb ) ) );
+    m_rc_popup_away = dynamic_cast<Gtk::ImageMenuItem*>(&(ml_c.back()));
     ml_c.push_back( ImageMenuElem( _("User Info"),
 				   * manage( new Gtk::Image( Gdk::Pixbuf::create_from_xpm_data( info_xpm ) ) ),
 				   SigC::slot( *this, &ContactListView::contact_userinfo_cb ) ) );
@@ -215,7 +217,7 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
       else if (ev->button == 3)
       {
 	/* right click - popup contact menu */
-	m_rc_popup_contact.popup( ev->button, ev->time );
+	popup_contact_menu( ev->button, ev->time, row[m_columns.id] );
       }
     }
     else
@@ -243,6 +245,28 @@ bool ContactListView::on_button_press_event(GdkEventButton * ev)
   
   
   return TreeView::on_button_press_event(ev);
+}
+
+void ContactListView::popup_contact_menu(guint button, guint32 activate_time, unsigned int uin)
+{
+  ICQ2000::ContactRef c = icqclient.getContactTree().lookup_uin(uin);
+
+  /* set check away message icon */
+  if ( c->getStatus() != ICQ2000::STATUS_OFFLINE && c->getStatus() != ICQ2000::STATUS_ONLINE
+       && icqclient.getSelfContact()->getStatus() != ICQ2000::STATUS_OFFLINE )
+  {
+    Gtk::Image * img = Gtk::manage( new Gtk::Image( g_icons.get_icon_for_status( c->getStatus(), false ) ) );
+    img->show();
+    m_rc_popup_away->set_image( * img );
+    m_rc_popup_away->set_sensitive(true);
+  }
+  else
+  {
+    m_rc_popup_away->set_image( * Gtk::manage( new Gtk::Image() ) ); /* a blank */
+    m_rc_popup_away->set_sensitive(false);
+  }
+
+  m_rc_popup_contact.popup( button, activate_time );
 }
 
 void ContactListView::on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn * col)

@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.31 2003-01-12 16:55:06 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.32 2003-01-12 17:42:17 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -90,6 +90,8 @@ class ContactListView : public Gtk::TreeView,
   bool contact_restore_weight_timeout_cb(ICQ2000::ContactRef c);
   bool contact_restore_colour_timeout_cb(ICQ2000::ContactRef c);
 
+  void popup_contact_menu(guint button, guint32 activate_time, unsigned int uin);
+
   ICQ2000::ContactRef get_selected_contact();
   ICQ2000::ContactTree::Group * get_selected_group();
 
@@ -138,7 +140,8 @@ class ContactListView : public Gtk::TreeView,
   bool m_check_away_click;
 
   Gtk::Menu m_rc_popup_contact, m_rc_popup_group, m_rc_popup_blank;
-  Gtk::MenuItem *m_rc_popup_away, *m_rc_popup_auth;
+  Gtk::ImageMenuItem * m_rc_popup_away;
+  Gtk::MenuItem      * m_rc_popup_auth;
 
   // signals
   SigC::Signal1<void, unsigned int> m_signal_messagebox_popup;
