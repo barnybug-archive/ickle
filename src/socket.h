@@ -39,6 +39,7 @@
 #include "buffer.h"
 
 using std::string;
+using std::exception;
 
 unsigned int StringtoIP(const string& ip);
 

@@ -31,6 +31,9 @@
 #include <string>
 #include <exception>
 
+using std::exception;
+using std::string;
+
 namespace ICQ2000 {
   class TranslatorException : exception {
    private:
