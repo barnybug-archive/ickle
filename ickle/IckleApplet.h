@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.4 2001-11-23 19:36:37 nordman Exp $
+/* $Id: IckleApplet.h,v 1.5 2001-11-25 15:30:17 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -47,10 +47,8 @@ class IckleApplet : public SigC::Object {
 
   class msg_entry {
   public:
-    msg_entry(unsigned int uin, const string &al)
-      : uin(uin), alias(al), nr_msgs(1) {}
-    unsigned int uin;
-    string alias;
+    msg_entry(Contact *c) : contact(c), nr_msgs(1) {}
+    Contact *contact;
     int nr_msgs;
   };
 
@@ -65,9 +63,10 @@ class IckleApplet : public SigC::Object {
   static void   applet_sizechange_converter     (GtkWidget *w, int size, gpointer data);
   
   // callbacks
-  void          applet_click_cb         ();
+  void          applet_click_cb         (GdkEventButton *ev);
   void          applet_sizechange_cb    (int size);
   static void   applet_status_menu_cb   (AppletWidget *applet, gpointer data);
+  static void   applet_toogle_menu_cb   (AppletWidget *applet, gpointer data);
   static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent  *event, gpointer data);
   bool          icq_messaged_cb         (MessageEvent *ev);
   void          icq_statuschanged_cb    (MyStatusChangeEvent *ev);
@@ -76,6 +75,7 @@ class IckleApplet : public SigC::Object {
   // misc
   void          update_applet_tooltip   ();
   void          update_applet_number    ();
+  void          toggle_gui              ();
 
  public:
 

@@ -1,5 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.4 2001-11-23 19:36:37 nordman Exp $
- * IckleApplet.cpp
+/* $Id: IckleApplet.cpp,v 1.5 2001-11-25 15:30:17 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -36,8 +35,7 @@ using std::ostringstream;
 
 void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, gpointer data)
 {
-  if (ev && ev->button == 1 && ev->type == GDK_BUTTON_PRESS)
-    ((IckleApplet *)data)->applet_click_cb();
+  ((IckleApplet *)data)->applet_click_cb(ev);
 }
 
 
@@ -47,12 +45,15 @@ void IckleApplet::applet_sizechange_converter(GtkWidget *w, int size, gpointer d
 }
  
 
-void IckleApplet::applet_click_cb()
+void IckleApplet::applet_click_cb(GdkEventButton *ev)
 {
-  if( m_gui->is_visible() )
-    m_gui->hide();
+  if (!ev || ev->button != 1 || ev->type != GDK_BUTTON_PRESS)
+    return;
+  
+  if( !m_nr_msgs || ev->state & GDK_SHIFT_MASK )
+    toggle_gui();
   else
-    m_gui->show();
+    m_gui->user_popup( m_pending.front().contact );
 }
 
 
@@ -67,6 +68,12 @@ void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
 {
   Status st = (Status)(int)data;
   icqclient.setStatus( st );
+}
+
+
+void IckleApplet::applet_toogle_menu_cb(AppletWidget *applet, gpointer data)
+{
+  ((IckleApplet *)data)->toggle_gui();
 }
 
 
@@ -89,9 +96,9 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 
   // record in msg list
   list<msg_entry>::iterator itr = m_pending.begin();
-  for( ; itr->uin != c->getUIN() && itr != m_pending.end(); ++itr );
+  for( ; itr->contact != c && itr != m_pending.end(); ++itr );
   if( itr == m_pending.end() )
-    m_pending.push_back( msg_entry( c->getUIN(), c->getAlias() ) );
+    m_pending.push_back( msg_entry(c) );
   else
     ++itr->nr_msgs;
   
@@ -134,12 +141,12 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
   }
   else if( ev->getType() == ContactListEvent::MessageQueueChanged ) {
     
-    // find entry for this UIN in msg list
+    // find entry for this contact in msg list
     list<msg_entry>::iterator itr = m_pending.begin();
-    for( ; itr->uin != c->getUIN() && itr != m_pending.end(); ++itr );
+    for( ; itr->contact != c && itr != m_pending.end(); ++itr );
 
-    if( itr == m_pending.end() ) // no UIN?!
-      g_warning( "empty message queue changed for uin %i", c->getUIN()  );
+    if( itr == m_pending.end() ) // no entry?!
+      g_warning( "empty message queue changed for %s(%i)", c->getUIN(), c->getAlias().c_str()  );
     else {
       m_nr_msgs -= (itr->nr_msgs - c->numberPendingMessages());
       if( !c->numberPendingMessages() ) // no more pending messages from this contact
@@ -166,9 +173,8 @@ void IckleApplet::update_applet_tooltip()
   ostr << m_nr_online_users << " of " << m_nr_users << " users connected" << endl;
   if( m_nr_msgs ) {
     ostr << m_nr_msgs << ((m_nr_msgs > 1) ? " events" : " event")  << " pending:" << endl;
-    for( list<msg_entry>::iterator itr = m_pending.begin();
-         itr != m_pending.end(); ++itr ) {
-      ostr << itr->alias << " (" << itr->nr_msgs << ")" << endl;
+    for( list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr ) {
+      ostr << itr->contact->getAlias() << " (" << itr->contact->numberPendingMessages() << ")" << endl;
     }
   }
   applet_widget_set_tooltip( APPLET_WIDGET(m_applet), ostr.str().c_str() );
@@ -184,6 +190,15 @@ void IckleApplet::update_applet_number()
   else
     ostr << m_nr_online_users;
   m_nr.set_text( ostr.str() );
+}
+
+
+void IckleApplet::toggle_gui()
+{
+  if( m_gui->is_visible() )
+    m_gui->hide();
+  else
+    m_gui->show();
 }
 
 
@@ -247,6 +262,9 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 				   Status_text[STATUS_FREEFORCHAT], applet_status_menu_cb, (void *)STATUS_FREEFORCHAT);
   applet_widget_register_callback( APPLET_WIDGET(m_applet), "status/offline",
 				   Status_text[STATUS_OFFLINE], applet_status_menu_cb, (void *)STATUS_OFFLINE);
+
+  applet_widget_register_callback( APPLET_WIDGET(m_applet), "toogle_gui",
+				   "Show/hide main window", applet_toogle_menu_cb, this);
 
   // whip the layout together
   il = Icons::IconForStatus( STATUS_OFFLINE, false );
