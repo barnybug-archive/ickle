@@ -34,18 +34,16 @@ AddMobileUserDialog::AddMobileUserDialog()
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
-  Gtk::Table *table = manage( new Gtk::Table( 3, 2, false ) );
+  Gtk::Table *table = manage( new Gtk::Table( 2, 2, false ) );
 
   Gtk::Label *label;
   label = manage( new Gtk::Label( "Alias", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  table->attach( alias_entry, 1, 3, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( alias_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Mobile No", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
-  label = manage( new Gtk::Label( "+", 1 ) );
-  table->attach( *label, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 3);
-  table->attach( mobileno_entry, 2, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  table->attach( mobileno_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
 
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *table, true, true );

@@ -1,5 +1,5 @@
 /*
- * AddMobileUserDialog
+ * MobileNoEntry
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,41 +18,32 @@
  *
  */
 
-#ifndef ADDMOBILEUSERDIALOG_H
-#define ADDMOBILEUSERDIALOG_H
+#ifndef MOBILENOENTRY_H
+#define MOBILENOENTRY_H
 
-#include <gtk--/main.h>
-#include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
+#include <gtk--/widget.h>
 #include <gtk--/entry.h>
+#include <gtk--/label.h>
 #include <gtk--/table.h>
-
-#include "MobileNoEntry.h"
+#include <gtk--/box.h>
 
 #include <string>
+#include <sstream>
 
 using namespace std;
 
-class AddMobileUserDialog : public Gtk::Dialog {
+class MobileNoEntry : public Gtk::Table {
  private:
-  Gtk::Button okay, cancel;
-  Gtk::Entry alias_entry;
-  MobileNoEntry mobileno_entry;
-
-  bool finished_okay;
+  Gtk::Entry m_country, m_areacode, m_number;
 
  public:
-  AddMobileUserDialog();
+  MobileNoEntry();
 
-  bool run();
-
-  string getMobileNo() const;
-  string getAlias() const;
-
-  void okay_cb();
-  void cancel_cb();
+  string get_text() const;
 };
 
 #endif
+
+
+
+

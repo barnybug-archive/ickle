@@ -61,53 +61,56 @@ MessageBox::MessageBox(Contact *c)
 
   // tab index
 
-  m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
   m_tab.set_tab_pos(GTK_POS_LEFT);
 
+  if ( c->isICQContact() ) {
+    m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
+
   // -- normal message tab --
-  table = manage( new Gtk::Table( 2, 1, false ) );
-  table->set_usize(400,100);
-  table->attach(m_message_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
-			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-  scrollbar = manage( new Gtk::VScrollbar (*(m_message_text.get_vadjustment())) );
-  table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+    table = manage( new Gtk::Table( 2, 1, false ) );
+    table->set_usize(400,100);
+    table->attach(m_message_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
+		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+    scrollbar = manage( new Gtk::VScrollbar (*(m_message_text.get_vadjustment())) );
+    table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
   
-  m_message_text.set_word_wrap(true);
-  m_message_text.set_editable(true);
-  m_message_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+    m_message_text.set_word_wrap(true);
+    m_message_text.set_editable(true);
+    m_message_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
 
-  l = Icons::IconForEvent(MessageEvent::Normal);
-  i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    l = Icons::IconForEvent(MessageEvent::Normal);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
-  m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
-  // -------------------------
+    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
+    // -------------------------
 
   // -------- url tab --------
-  Gtk::Box *url_hbox = manage( new Gtk::HBox() );
-  Gtk::Box *url_vbox = manage( new Gtk::VBox() );
-  table = manage( new Gtk::Table( 2, 1, false ) );
-  table->set_usize(400,100);
-  table->attach(m_url_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
-		GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-  scrollbar = manage( new Gtk::VScrollbar (*(m_url_text.get_vadjustment())) );
-  table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+    Gtk::Box *url_hbox = manage( new Gtk::HBox() );
+    Gtk::Box *url_vbox = manage( new Gtk::VBox() );
+    table = manage( new Gtk::Table( 2, 1, false ) );
+    table->set_usize(400,100);
+    table->attach(m_url_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
+		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+    scrollbar = manage( new Gtk::VScrollbar (*(m_url_text.get_vadjustment())) );
+    table->attach (*scrollbar, 1, 2, 0, 1, GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
   
-  m_url_text.set_word_wrap(true);
-  m_url_text.set_editable(true);
-  m_url_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
+    m_url_text.set_word_wrap(true);
+    m_url_text.set_editable(true);
+    m_url_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
 
-  url_vbox->pack_start( *table, true, true );
+    url_vbox->pack_start( *table, true, true );
 
-  url_hbox->pack_start( * manage( new Gtk::Label("URL:") ), false );
-  url_hbox->pack_start( m_url_entry, true, true );
+    url_hbox->pack_start( * manage( new Gtk::Label("URL:") ), false );
+    url_hbox->pack_start( m_url_entry, true, true );
 
-  url_vbox->pack_start( *url_hbox, false );
+    url_vbox->pack_start( *url_hbox, false );
 
-  l = Icons::IconForEvent(MessageEvent::URL);
-  i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    l = Icons::IconForEvent(MessageEvent::URL);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
-  m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
-  // -------------------------
+    m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
+    // -------------------------
+  }
 
   // -------- sms tab --------
   Gtk::Box *sms_hbox = manage( new Gtk::HBox() );
