@@ -100,6 +100,8 @@ void ControlHandler::command (ControlSocket & s)
     case CMD_GET_AWAY_MESSAGE:  cmdGetAwayMessage (s); break;
     case CMD_ADD_CONTACT:       cmdAddContact (s); break;
     case CMD_SEND_MESSAGE:      cmdSendMessage (s); break;
+    case CMD_SET_SETTING:       cmdSetSetting (s); break;
+    case CMD_GET_SETTING:       cmdGetSetting (s); break;
     case CMD_QUIT:              cmdQuit (s); break;
   }
 }
@@ -205,6 +207,7 @@ void ControlHandler::cmdAddContact (ControlSocket & s)
 }
 
 // --- send message ---
+
 void ControlHandler::cmdSendMessage (ControlSocket & s)
 {
   unsigned int uin;
@@ -212,6 +215,7 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
   int timeout;
   CommandMessageType type;
   ICQ2000::MessageEvent *ev;
+
   s >> uin >> type >> msg >> timeout;
 
   if (!icqclient.isConnected ()) {
@@ -225,11 +229,11 @@ void ControlHandler::cmdSendMessage (ControlSocket & s)
     return;
   }
   
-switch (type) {
-  case MESSAGE_SMS:	
+  switch (type) {
+   case MESSAGE_SMS:	
     ev = new ICQ2000::SMSMessageEvent (icqclient.getContact(uin), msg, true);
     break;
-  case MESSAGE_Normal:
+   case MESSAGE_Normal:
     ev = new ICQ2000::NormalMessageEvent (icqclient.getContact(uin), msg);
     break;
   }
@@ -250,6 +254,36 @@ void ControlHandler::messageack_cb (ICQ2000::MessageEvent *ack, int sd, ICQ2000:
   }
 }
 
+// --- setting ---
+
+void ControlHandler::cmdSetSetting (ControlSocket & s)
+{
+  string key, value;
+
+  s >> key >> value;
+
+  if (!(g_settings.getValueString (key).empty())) {
+    g_settings.setValue (key, value);
+    s << true;
+  }
+  else {
+    s << false;
+  }
+}
+
+void ControlHandler::cmdGetSetting (ControlSocket & s)
+{
+  string key, value;
+
+  s >> key;
+  value = g_settings.getValueString (key);
+
+  if (!value.empty()) {
+    s << true << value;
+  } else {
+    s << false;
+  }
+}
 
 // --- quit ---
 

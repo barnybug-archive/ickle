@@ -37,7 +37,7 @@ class ControlHandler : public SigC::Object
   void init ();
   void quit ();
 
-private:
+ private:
   void input_cb (int, GdkInputCondition);
   void connection_input_cb (int, GdkInputCondition);
 
@@ -51,6 +51,8 @@ private:
   void cmdGetAwayMessage (ControlSocket &);
   void cmdAddContact (ControlSocket &);
   void cmdSendMessage (ControlSocket &);
+  void cmdSetSetting (ControlSocket &);
+  void cmdGetSetting (ControlSocket &);
   void cmdQuit (ControlSocket &);
 
   void addTimeout (int, SigC::Connection, SigC::Connection);

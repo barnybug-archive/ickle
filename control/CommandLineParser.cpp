@@ -14,10 +14,12 @@
  */
 
 #include <string>
+#include <sstream>
 
 #include "CommandLineParser.h"
 
 using std::string;
+using std::ostringstream;
 using std::vector;
 
 // ============================================================================
@@ -46,28 +48,29 @@ CommandLineParser::CommandLineParser (int argc, char ** argv)
 //  CommandLineOption
 // ============================================================================
 
-bool CommandLineOption::isOption (const string & long_opt, const string & short_opt, int num_args)
+bool CommandLineOption::isOption (const string & long_opt, const string & short_opt, int min_args, int max_args)
 {
+  ostringstream s;
+
   if ((m_opt == "--" + long_opt && !long_opt.empty()) ||
-      (m_opt == "-" + short_opt && !short_opt.empty())) {
-    if (num_args == 0) {
-      if (m_args.size() == 0) return true;
-      else throw CommandLineException ("Option `" + m_opt + "' doesn't take an argument");
+      (m_opt == "-" + short_opt && !short_opt.empty()))
+  {
+    if (max_args == -1 && m_args.size() != min_args) {
+      s << "Option `" << m_opt << "' requires " << min_args << " arguments";
+      throw CommandLineException (s.str());
     }
-    else if (num_args == 1) {
-      if (m_args.size() == 1) return true;
-      else throw CommandLineException ("Option `" + m_opt + "' requires one argument");
+    if (m_args.size() < min_args) {
+      s << "Option `" << m_opt << "' requires at least " << min_args << " arguments";
+      throw CommandLineException (s.str());
     }
-    else if (num_args == 2) {
-      if (m_args.size() == 2) return true;
-      else throw CommandLineException ("Option `" + m_opt + "' requires two arguments");
+    if (m_args.size() > max_args) {
+      s << "Option `" << m_opt << "' doesn't take more than " << max_args << " arguments";
+      throw CommandLineException (s.str());
     }
-    else if (num_args == -1) {
-      if (m_args.size() < 2) return true;
-      else throw CommandLineException ("Option `" + m_opt + "' used with invalid arguments");
-    }
+    return true;
   }
-  else {
+  else
+  {
     return false;
   }
 }

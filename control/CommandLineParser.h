@@ -40,7 +40,7 @@ class CommandLineOption
   CommandLineOption (const std::string & o, const std::vector<std::string> & a)
     : m_opt (o), m_args (a) { }
 
-  bool isOption (const std::string &, const std::string &, int = 0);
+  bool isOption (const std::string & long_opt, const std::string & short_opt, int min_args = 0, int max_args = -1);
   std::string argument (int n = 0) const { return (m_args.size() > n) ? m_args[n] : ""; }
   void invalid ();
 

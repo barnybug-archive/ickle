@@ -107,15 +107,16 @@ int IckleControl::main (int argc, char ** argv)
 bool IckleControl::runCommands (CommandLineParser & p)
 {
   for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
-    if      (o->isOption ("timeout",    "t", -1)) { setTimeout (o->argument()); }
-    else if (o->isOption ("status",     "s", -1)) { if (!cmdStatus (o->argument())) return false; }
-    else if (o->isOption ("invisible",  "i", -1)) { if (!cmdInvisible (o->argument())) return false; }
-    else if (o->isOption ("away",       "a", -1)) { cmdAwayMessage (o->argument()); }
-    else if (o->isOption ("addcontact", "c",  1)) { if (!cmdAddContact (o->argument())) return false; }
-    else if (o->isOption ("send",       "m",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_Normal)) return false; }
-    else if (o->isOption ("sms",        "o",  2)) { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_SMS)) return false; }
-    else if (o->isOption ("quit",       "q",  0)) { cmdQuit (); }
-    else if (o->isOption ("configdir",  "b",  1)) { /* nop here */ }
+    if      (o->isOption ("timeout",    "t", 0, 1)) { setTimeout (o->argument()); }
+    else if (o->isOption ("status",     "s", 0, 1)) { if (!cmdStatus (o->argument())) return false; }
+    else if (o->isOption ("invisible",  "i", 0, 1)) { if (!cmdInvisible (o->argument())) return false; }
+    else if (o->isOption ("away",       "a", 0, 1)) { cmdAwayMessage (o->argument()); }
+    else if (o->isOption ("addcontact", "c", 1))    { if (!cmdAddContact (o->argument())) return false; }
+    else if (o->isOption ("send",       "m", 2))    { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_Normal)) return false; }
+    else if (o->isOption ("sms",        "o", 2))    { if (!cmdSendMessage (o->argument(0), o->argument(1), MESSAGE_SMS)) return false; }
+    else if (o->isOption ("setting",    "S", 1, 2)) { if (!cmdSetting (o->argument(0), o->argument(1))) return false; }
+    else if (o->isOption ("quit",       "q", 0))    { cmdQuit (); }
+    else if (o->isOption ("configdir",  "b", 1))    { /* nop here */ }
     else {
       o->invalid ();
     }
@@ -143,7 +144,8 @@ void IckleControl::printUsage ()
         << "  -a, --away [\"MESSAGE\"]    Set/get away message" << endl
         << "  -c, --addcontact UIN      Add a new contact" << endl
         << "  -m, --send UIN \"MESSAGE\"  Send MESSAGE to user UIN" << endl
-	<< "  -o, --sms UIN \"MESSAGE\"   Send SMS to user UIN" << endl
+        << "  -o, --sms UIN \"MESSAGE\"   Send SMS to user UIN" << endl
+        << "  -S, --setting KEY [VALUE] Set/get the setting KEY. >>Use with caution!<<" << endl
         << "  -q, --quit                Terminate ickle" << endl
         << "  -h, --help                Display this help and exit" << endl
         << "  -v, --version             Display ickle version and exit" << endl
@@ -316,6 +318,35 @@ bool IckleControl::cmdSendMessage (const string & param1, const string & param2,
       if (!str.empty()) cerr << " (" << str << ")";
       cerr << endl;
       return false;
+    }
+  }
+  return true;
+}
+
+// --- setting ---
+
+bool IckleControl::cmdSetting (const string & key, const string & value)
+{
+  if (!value.empty()) {
+    // set setting
+    m_socket << CMD_SET_SETTING << key << value;
+    bool r;
+    m_socket >> r;
+    if (!r) {
+      cerr << "No such setting `" << key << "'" << endl;
+    }
+  }
+  else {
+    // get setting
+    m_socket << CMD_GET_SETTING << key;
+    bool r;
+    m_socket >> r;
+    if (r) {
+      string v;
+      m_socket >> v;
+      cout << v << endl;
+    } else {
+      cerr << "No such setting `" << key << "'" << endl;
     }
   }
   return true;
