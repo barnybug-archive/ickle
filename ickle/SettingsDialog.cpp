@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.68 2003-03-12 22:11:09 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.69 2003-03-26 12:44:16 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -38,6 +38,7 @@
 #include "utils.h"
 #include "Icons.h"
 
+#include "iostream"
 
 class SectionFrame : public Gtk::Frame
 {
@@ -200,6 +201,7 @@ void SettingsDialog::init_pages()
 {
   init_login_page();
   init_look_page();
+  init_events_page();
   init_away_page();
   init_advanced_page();
 
@@ -369,9 +371,20 @@ void SettingsDialog::init_look_contact_list_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * clicking = manage( new SectionFrame( _("Clicking") ) );
+  //todo: Offline Contacts
+  Gtk::Table * table = manage( new Gtk::Table( 1, 3 ) );
   
-  Gtk::Table * table = manage( new Gtk::Table( 2, 3 ) );
-  //todo
+  m_mouse_check_away_click.set_label(_("Check away message with click on icon"));
+  m_mouse_check_away_click.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_mouse_check_away_click,_("todo"));
+  table->attach( m_mouse_check_away_click, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+
+  m_mouse_single_click.set_label(_("Open message window with single click"));
+  m_mouse_single_click.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_mouse_single_click,_("todo"));
+  table->attach( m_mouse_single_click, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+
+   //todo these settings have no effect at the moment
   
   clicking->add( * table );
   
@@ -428,7 +441,21 @@ void SettingsDialog::init_look_charset_page()
 void SettingsDialog::init_look_icons_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * icons = manage( new SectionFrame( _("Icons") ) );
+  //todo: list of icon sets, set window icon
+  vbox->pack_start( *icons );
   add_page( _("Icons"), vbox, false );
+}
+
+
+void SettingsDialog::init_events_page()
+{
+  Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * commands = manage( new SectionFrame( _("Commands") ) );
+  SectionFrame * repetition = manage( new SectionFrame( _("Repetition") ) );
+  vbox->pack_start( *commands );
+  vbox->pack_start( *repetition );
+  add_page( _("Events"), vbox, true );
 }
 
 void SettingsDialog::init_away_page()
@@ -574,14 +601,54 @@ void SettingsDialog::init_advanced_security_page()
   
   SectionFrame * frame = manage( new SectionFrame( _("Connections") ) );
   
-  Gtk::Table * table = manage( new Gtk::Table( 1, 2 ) );
+  Gtk::Table * table = manage( new Gtk::Table( 4, 4 ) );
   
   m_network_in_dc.set_label(_("Allow incoming direct connections"));
   m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  table->attach( m_network_in_dc, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_tooltip.set_tip (m_network_in_dc,_("todo"));
+  table->attach( m_network_in_dc, 0, 4, 0, 1, Gtk::FILL, Gtk::FILL );
+
   m_network_out_dc.set_label(_("Allow outgoing direct connections"));
-  m_network_in_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  table->attach( m_network_out_dc, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+  m_network_out_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_out_dc.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_tooltip.set_tip (m_network_out_dc,_("todo"));
+  table->attach( m_network_out_dc, 0, 4, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  m_network_use_portrange.set_label(_("Specify port range for incoming connections"));
+  m_network_use_portrange.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_use_portrange.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_network_use_portrange.signal_toggled().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),0 ) );
+  m_tooltip.set_tip (m_network_use_portrange,_("todo"));
+  table->attach( m_network_use_portrange, 0, 4, 2, 3, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+
+  table->attach( * manage( new Gtk::Label( _("Local direct connection listening port from"), 0.0, 0.5 ) ),
+		 0, 1, 3 ,4 , Gtk::FILL, Gtk::FILL );
+
+  m_network_lower_bind_port.set_range(1024, 0xffff);
+  m_network_lower_bind_port.set_digits(0);
+  m_network_lower_bind_port.set_increments(1, 10);
+  m_network_lower_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_lower_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_network_lower_bind_port.signal_value_changed().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),1 ) );
+  m_tooltip.set_tip (m_network_lower_bind_port,_("todo"));
+  table->attach( m_network_lower_bind_port, 1, 2, 3, 4, Gtk::FILL, Gtk::FILL );
+
+  table->attach( * manage( new Gtk::Label( _("to"), 0.0, 0.5 ) ),
+		 2, 3, 3, 4, Gtk::FILL, Gtk::FILL );
+
+  m_network_upper_bind_port.set_range(1024, 0xffff);
+  m_network_upper_bind_port.set_digits(0);
+  m_network_upper_bind_port.set_increments(1, 10);
+  m_network_upper_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_network_upper_bind_port.signal_changed().connect( SigC::slot( *this, &SettingsDialog::client_changed ) );
+  m_network_upper_bind_port.signal_value_changed().connect( SigC::bind<int>( SigC::slot(*this, &SettingsDialog::toggle_dc),2 ) );
+  m_tooltip.set_tip (m_network_upper_bind_port,_("todo"));
+  table->attach( m_network_upper_bind_port, 3, 4, 3, 4, Gtk::FILL, Gtk::FILL );
+
+  //todo
+
+
   
   
   table->set_spacings(5);
@@ -636,6 +703,21 @@ void SettingsDialog::init_advanced_smtp_page()
 void SettingsDialog::init_advanced_logging_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  SectionFrame * where = manage( new SectionFrame( _("Where") ) );
+  //todo
+  //Gtk::CheckButton m_log_to_console;
+  //Gtk::CheckButton m_log_to_file;
+
+  SectionFrame * what = manage( new SectionFrame( _("What") ) );
+  //todo
+  // Gtk::CheckButton m_log_directpacket;
+  // Gtk::CheckButton m_log_error;
+  // Gtk::CheckButton m_log_info;
+  // Gtk::CheckButton m_log_packet;
+  // Gtk::CheckButton m_log_warn;
+
+  vbox->pack_start( *where );
+  vbox->pack_start( *what );
   add_page( _("Logging"), vbox, false );
 }
 
@@ -643,6 +725,7 @@ void SettingsDialog::load_pages()
 {
   load_login_page();
   load_look_page();
+  load_events_page();
   load_away_page();
   load_advanced_page();
   m_apply_button.set_sensitive(false);
@@ -678,6 +761,8 @@ void SettingsDialog::load_look_message_page()
 
 void SettingsDialog::load_look_contact_list_page()
 {
+  m_mouse_check_away_click.set_active(g_settings.getValueBool("mouse_check_away_click") );
+  m_mouse_single_click.set_active(g_settings.getValueBool("mouse_single_click") );
 }
 
 void SettingsDialog::load_look_icons_page()
@@ -706,6 +791,10 @@ void SettingsDialog::load_away_message_page()
 {
 }
 
+void SettingsDialog::load_events_page()
+{
+}
+
 void SettingsDialog::load_advanced_page()
 {
   m_network_login_host.set_text( g_settings.getValueString("network_login_host") );
@@ -720,6 +809,10 @@ void SettingsDialog::load_advanced_security_page()
 {
   m_network_in_dc.set_active(g_settings.getValueBool("network_in_dc") );
   m_network_out_dc.set_active(g_settings.getValueBool("network_out_dc") );
+  m_network_use_portrange.set_active(g_settings.getValueBool("network_use_portrange") );
+  m_network_lower_bind_port.set_value((double) g_settings.getValueUnsignedInt("network_lower_bind_port") );
+  m_network_upper_bind_port.set_value((double) g_settings.getValueUnsignedInt("network_upper_bind_port") );
+  toggle_dc( 0 );
 }
 
 
@@ -775,6 +868,8 @@ void SettingsDialog::save_look_message_page()
 
 void SettingsDialog::save_look_contact_list_page()
 {
+  g_settings.setValue("mouse_check_away_click", m_mouse_check_away_click.get_active() );
+  g_settings.setValue("mouse_single_click", m_mouse_single_click.get_active() );
 }
 
 void SettingsDialog::save_look_icons_page()
@@ -787,6 +882,9 @@ void SettingsDialog::save_look_charset_page()
 }
 
 
+void SettingsDialog::save_events_page()
+{
+}
 
 
 //Saves the settings of the look page
@@ -823,6 +921,9 @@ void SettingsDialog::save_advanced_security_page()
 {
   g_settings.setValue( "network_in_dc", m_network_in_dc.get_active() );
   g_settings.setValue( "network_out_dc", m_network_out_dc.get_active() );
+  g_settings.setValue( "network_use_portrange", m_network_use_portrange.get_active() );
+  g_settings.setValue( "network_lower_bind_port", (unsigned int) m_network_lower_bind_port.get_value() );
+  g_settings.setValue( "network_upper_bind_port", (unsigned int) m_network_upper_bind_port.get_value() );
 }
 
 void SettingsDialog::save_advanced_smtp_page()
@@ -915,4 +1016,29 @@ void SettingsDialog::toggle_reconnect()
   {
      m_reconnect_retries.set_sensitive(false);
   }
+}
+
+//some settings of direct connection have side effects on others. Be aware of it
+void SettingsDialog::toggle_dc(unsigned int what)
+{
+  switch (what)
+  {
+     case 0:	m_network_lower_bind_port.set_sensitive(m_network_use_portrange.get_active() );
+     			m_network_upper_bind_port.set_sensitive(m_network_use_portrange.get_active() );
+			break;
+     case 1:       if (m_network_lower_bind_port.get_value() > m_network_upper_bind_port.get_value() )
+     			  m_network_upper_bind_port.set_value( m_network_lower_bind_port.get_value () );
+     			break;
+     case 2:       if (m_network_lower_bind_port.get_value() > m_network_upper_bind_port.get_value() )
+     			  m_network_lower_bind_port.set_value( m_network_upper_bind_port.get_value () );
+     			break;
+     default:  std::cerr << _("Error in SettingsDialog::toggle_dc. Unknown option ") << what << std::endl;
+  }
+}
+
+//sends the settings to the Ickleclient and reconnects if necessary
+void SettingsDialog::activate_changes()
+{
+//todo
+//we need network_use_portrange,network_upper_bind_port,network_lower_bind_port, uin, passwort, network_in_dc, network_out_dc
 }

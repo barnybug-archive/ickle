@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.52 2003-03-12 22:11:11 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.53 2003-03-26 12:44:16 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -77,6 +77,11 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::Entry m_lnf_charset;
   Gtk::Label m_lnf_charset_valid;
   
+  // look'n'feel - contact list
+  Gtk::CheckButton m_mouse_check_away_click;
+  Gtk::CheckButton m_mouse_single_click;
+
+
   // message window
   Gtk::CheckButton m_message_autoclose;
   Gtk::CheckButton m_message_autopopup;
@@ -102,6 +107,19 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_network_in_dc;
   Gtk::CheckButton m_network_out_dc;
 
+  Gtk::CheckButton m_log_to_console;
+  Gtk::CheckButton m_log_to_file;
+
+  Gtk::CheckButton m_log_directpacket;
+  Gtk::CheckButton m_log_error;
+  Gtk::CheckButton m_log_info;
+  Gtk::CheckButton m_log_packet;
+  Gtk::CheckButton m_log_warn;
+
+  Gtk::SpinButton m_network_lower_bind_port;
+  Gtk::SpinButton m_network_upper_bind_port;
+  Gtk::CheckButton m_network_use_portrange;
+
   // page init functions
   void init_pages();
   void init_login_page();
@@ -110,6 +128,7 @@ class SettingsDialog : public Gtk::Dialog
   void init_look_contact_list_page();
   void init_look_icons_page();
   void init_look_charset_page();
+  void init_events_page();
   void init_away_page();
   void init_away_idle_page();
   void init_away_message_page();
@@ -126,6 +145,7 @@ class SettingsDialog : public Gtk::Dialog
   void load_look_contact_list_page();
   void load_look_icons_page();
   void load_look_charset_page();
+  void load_events_page();
   void load_away_page();
   void load_away_idle_page();
   void load_away_message_page();
@@ -142,6 +162,7 @@ class SettingsDialog : public Gtk::Dialog
   void save_look_contact_list_page();
   void save_look_icons_page();
   void save_look_charset_page();
+  void save_events_page();
   void save_away_page();
   void save_away_idle_page();
   void save_away_message_page();
@@ -162,6 +183,8 @@ class SettingsDialog : public Gtk::Dialog
   void toggle_smtp();
   void toggle_reconnect();
   void client_changed();
+  void toggle_dc(unsigned int what);
+  void activate_changes();
 
   void on_apply_clicked();
   void on_ok_clicked();
