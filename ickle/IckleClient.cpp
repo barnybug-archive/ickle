@@ -367,12 +367,24 @@ gint IckleClient::idle_reconnect_cb(Status s) {
   return 0;
 }
 
+void IckleClient::logger_file_cb(const string& msg) {
+  string log_file = BASE_DIR + "messages.log";
+  
+  ofstream of(log_file.c_str(), std::ios::out | std::ios::app, 0600 );
+  if (of) of << msg;
+  of.close();
+
+  // ensure permissions on log file are secure
+  if ( chmod( log_file.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
+    cout << "The permissions on " << log_file << " couldn't be set to 0600. Your ICQ password may be logged in this file, so it could be vulnerable!" << endl;
+  }
+}
+
 void IckleClient::logger_cb(LogEvent *c) {
 
   bool log_to_console = g_settings.getValueBool("log_to_console");
   bool log_to_file = g_settings.getValueBool("log_to_file");
-
-  string log_file = BASE_DIR + "messages.log";
+  if (!log_to_console && !log_to_file) return;
 
   time_t t = time(NULL);
   struct tm *tm = localtime(&t);
@@ -380,8 +392,9 @@ void IckleClient::logger_cb(LogEvent *c) {
   strftime(time_str, 255, "[%H:%M:%S] ", tm);
 
   if ( log_to_console && log_to_file ) {
-    ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
-    if (of) of << time_str << c->getMessage() << endl;
+    ostringstream ostr;
+    ostr << time_str << c->getMessage() << endl;
+    logger_file_cb( ostr.str() );
   }
 
   switch(c->getType()) {
@@ -403,8 +416,9 @@ void IckleClient::logger_cb(LogEvent *c) {
   }
 
   if ( !log_to_console && log_to_file ) {
-    ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
-    if (of) of << time_str << c->getMessage() << endl;
+    ostringstream ostr;
+    ostr << time_str << c->getMessage() << endl;
+    logger_file_cb(ostr.str());
   }
 
   if (log_to_console) {

@@ -84,6 +84,8 @@ class IckleClient : public SigC::Object {
 
   void SignalLog(LogEvent::LogType type, const string& msg);
 
+  void logger_file_cb(const string& msg);
+
  public:
   IckleClient(int argc, char* argv[]);
   ~IckleClient();
