@@ -217,6 +217,7 @@ namespace ICQ2000 {
     Signal1<void,RateInfoChangeEvent*> rate;
     Signal1<void,LogEvent*> logger;
     Signal1<void,SocketEvent*> socket;
+    Signal1<void,MyStatusChangeEvent*> statuschanged;
     // -------------
 
     // -- Signal Dispatchers --

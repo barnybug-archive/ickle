@@ -612,6 +612,13 @@ namespace ICQ2000 {
 
     d = FLAPHeader(b,0x02);
     SetStatusSNAC sss(MapStatusToICQStatus(m_status, m_invisible));
+
+    // explicitly set status to offline. If the user set the status
+    // before calling Connect and we don't do this, we'll miss the
+    // status change upon the user info reception and will not emit
+    // the statuschanged signal correctly
+    m_status = STATUS_OFFLINE;
+
     sss.setIP( m_serverSocket.getLocalIP() );
     sss.setPort( m_listenServer.getPort() );
     b << sss;
@@ -1123,6 +1130,14 @@ namespace ICQ2000 {
       // currently only interested in our external IP
       // - we might be behind NAT
       if (ub.getExtIP() != 0) m_ext_ip = ub.getExtIP();
+
+      // Check for status change
+      Status newstat = MapICQStatusToStatus( ub.getStatus() );
+      if( m_status != newstat ) {
+        m_status = newstat;
+        MyStatusChangeEvent ev(m_status);
+        statuschanged.emit( &ev );
+      }
     }
   }
 
@@ -1176,18 +1191,19 @@ namespace ICQ2000 {
   }
 
   void Client::setStatus(const Status st) {
-    m_status = st;
     if (m_state == BOS_LOGGED_IN) {
       Buffer b(&m_translator);
       unsigned int d;
       
       d = FLAPHeader(b,0x02);
-      SetStatusSNAC sss(MapStatusToICQStatus(m_status, m_invisible));
+      SetStatusSNAC sss(MapStatusToICQStatus(st, m_invisible));
       b << sss;
       FLAPFooter(b,d);
       
       Send(b);
     }
+    else // We'll set this as the initial status upon Connect()
+      m_status = st;
   }
 
   Status Client::getStatus() {
