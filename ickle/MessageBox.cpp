@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.58 2002-04-21 23:12:20 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.59 2002-04-25 09:20:28 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,7 +60,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_history(h),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
-    m_history_table(4,1,false),
+    m_history_table(3,2,false),
     m_sms_count_label("", 0),
     m_sms_count_over(false),
     m_sms_enabled(true),
@@ -112,8 +112,8 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scale.set_draw_value( false );
   m_scale.set_update_policy(GTK_UPDATE_DELAYED);
   m_scale.set_digits(0);
-  m_history_table.attach( m_scalelabel, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL );
-  m_history_table.attach( m_scale, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0 );
+  m_history_table.attach( m_scalelabel, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL );
+  m_history_table.attach( m_scale, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0 );
 
   m_history_text.set_editable(false);
   m_history_text.set_word_wrap(true);
