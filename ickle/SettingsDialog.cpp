@@ -22,18 +22,19 @@
 
 #include "main.h"
 #include "Client.h"
+#include "Dir.h"
 
 #include <gtk--/box.h>
 #include <gtk--/table.h>
 #include <gtk--/frame.h>
+#include <gtk--/scrolledwindow.h>
 
 using SigC::slot;
 using SigC::bind;
 
-SettingsDialog::SettingsDialog(Settings& settings)
+SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
-    okay("OK"), cancel("Cancel"),
-    m_settings(&settings)
+    okay("OK"), cancel("Cancel")
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -58,12 +59,12 @@ SettingsDialog::SettingsDialog(Settings& settings)
   Gtk::Label *label;
   label = manage( new Gtk::Label( "UIN", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
-  uin_entry.set_text(ICQ2000::Contact::UINtoString( settings.getValueUnsignedInt("uin") ));
+  uin_entry.set_text(ICQ2000::Contact::UINtoString( g_settings.getValueUnsignedInt("uin") ));
   table->attach( uin_entry, 1, 3, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Password", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
-  password_entry.set_text( settings.getValueString("password") );
+  password_entry.set_text( g_settings.getValueString("password") );
   password_entry.set_visibility(false);
   table->attach( password_entry, 1, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
@@ -81,16 +82,44 @@ SettingsDialog::SettingsDialog(Settings& settings)
   trans_b.set_border_width(10);
   trans_b.add(trans_l);
   trans_b.clicked.connect( slot( this, &SettingsDialog::trans_cb ) );
-  icons_b.clicked.connect( slot( this, &SettingsDialog::icons_cb ) );
   frame->add(trans_b);
 
   ftable->attach( *frame, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Icons") );
-  icons_l.set_text("None");
-  icons_b.set_border_width(10);
-  icons_b.add(icons_l);
-  frame->add(icons_b);
+  {
+    string current = g_settings.getValueString("icons");
+
+    using namespace Gtk::List_Helpers;
+    using Gtk::ListItem;
+    ItemList& il = icons_list.items();
+    il.push_back( * manage( new ListItem("Default") ) );
+    Dir dir;
+    dir.setDirectoriesOnly(true);
+    dir.list( ICONS_DIR + "*" );
+    Dir::iterator iter = dir.begin();
+    int n = 1;
+    while (iter != dir.end()) {
+      string name, filename = *iter;
+      string::size_type pos = filename.rfind('/');
+      if ( pos == string::npos) name = filename;
+      else name = string(filename,pos+1);
+
+      il.push_back( * manage( new ListItem( name ) ) );
+      if (current == filename) icons_list.select_item(n);
+      ++iter;
+      ++n;
+    }
+    if (icons_list.selection().size() == 0) icons_list.select_item(0);
+  }
+
+  icons_list.selection_changed.connect( slot( this, &SettingsDialog::icons_cb ) );
+
+  Gtk::ScrolledWindow *scrolled_window = manage(new Gtk::ScrolledWindow());
+  scrolled_window->set_usize(250, 150);
+  scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  scrolled_window->add_with_viewport(icons_list);
+  frame->add(*scrolled_window);
 
   ftable->attach( *frame, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
@@ -109,17 +138,17 @@ SettingsDialog::SettingsDialog(Settings& settings)
 
   label = manage( new Gtk::Label( "Message Event", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
-  event_message_entry.set_text( settings.getValueString("event_message") );
+  event_message_entry.set_text( g_settings.getValueString("event_message") );
   table->attach( event_message_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "URL Event", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, 0);
-  event_url_entry.set_text( settings.getValueString("event_url") );
+  event_url_entry.set_text( g_settings.getValueString("event_url") );
   table->attach( event_url_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "SMS Event", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, 0);
-  event_sms_entry.set_text( settings.getValueString("event_sms") );
+  event_sms_entry.set_text( g_settings.getValueString("event_sms") );
   table->attach( event_sms_entry, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   label = manage( new Gtk::Label( "Events" ) );
@@ -146,18 +175,17 @@ bool SettingsDialog::run() {
   }
 }
 
-void SettingsDialog::updateSettings(Settings& settings) {
+void SettingsDialog::updateSettings() {
   // ------------ Login details tab ----------------
-  settings.setValue("uin", ICQ2000::Contact::StringtoUIN(uin_entry.get_text()));
-  settings.setValue("password", password_entry.get_text());
+  g_settings.setValue("uin", ICQ2000::Contact::StringtoUIN(uin_entry.get_text()));
+  g_settings.setValue("password", password_entry.get_text());
 
-  settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
-  settings.setValue("icons", icons_d);
+  g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
 
   // ------------ Events tab -----------------------
-  settings.setValue("event_message", event_message_entry.get_text());
-  settings.setValue("event_url", event_url_entry.get_text());
-  settings.setValue("event_sms", event_sms_entry.get_text());
+  g_settings.setValue("event_message", event_message_entry.get_text());
+  g_settings.setValue("event_url", event_url_entry.get_text());
+  g_settings.setValue("event_sms", event_sms_entry.get_text());
 }
 
 unsigned int SettingsDialog::getUIN() const {
@@ -192,24 +220,18 @@ void SettingsDialog::trans_cb() {
 }
 
 void SettingsDialog::icons_cb() {
-  Gtk::FileSelection filesel("Find the icon directory");
-  filesel.destroy.connect( Gtk::Main::quit.slot() );
-  filesel.get_ok_button()->clicked.connect( bind( slot( this, &SettingsDialog::icons_ok_cb), &filesel ) );
-  filesel.get_cancel_button()->clicked.connect( filesel.destroy.slot() );
-  filesel.hide_fileop_buttons();
-  filesel.set_modal(true);
-  filesel.set_filename( m_settings->getValueString("icons") );
-  filesel.show();
-  Gtk::Main::run();
+  Gtk::List::SelectionList &slist = icons_list.selection();
+  if (slist.empty()) return;
+
+  Gtk::List::SelectionList::iterator iter = slist.begin();
+  
+  string filename = dynamic_cast<Gtk::Label*>((*iter)->get_child())->get();
+  if (filename != "Default") filename = ICONS_DIR + filename + "/";
+  icons_changed.emit( filename );
 }
 
 void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
   icqclient.setTranslationMap(filesel->get_filename());
   trans_l.set_text(icqclient.getTranslationMapName());
-  filesel->destroy();
-}
-
-void SettingsDialog::icons_ok_cb(Gtk::FileSelection *filesel) {
-  cout << filesel->get_filename() << endl;
   filesel->destroy();
 }

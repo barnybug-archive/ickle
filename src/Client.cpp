@@ -59,11 +59,19 @@ namespace ICQ2000 {
     m_invisible = false;
 
     m_ext_ip = 0;
-    m_buddy_uin = 0;
   }
 
   unsigned short Client::NextSeqNum() {
     return m_client_seq_num++;
+  }
+
+  unsigned int Client::NextRequestID() {
+    m_requestid = ++m_requestid & 0x7fffffff;
+    /* top bit mustn't be set for requestid
+     * I presume this is them just using a signed
+     * and negative is incorrect
+     */
+    return m_requestid;
   }
 
   void Client::ConnectAuthorizer(State state) {
@@ -92,6 +100,7 @@ namespace ICQ2000 {
     // randomize sequence number
     srand(time(0));
     m_client_seq_num = (unsigned short)(0xFFFF*(rand()/(RAND_MAX+1.0)));
+    m_requestid = (unsigned int)(0x7ffffff*(rand()/(RAND_MAX+1.0)));
 
     m_state = state;
   }
@@ -311,33 +320,62 @@ namespace ICQ2000 {
       }
       
     } else if (snac->getType() == SrvResponseSNAC::RMainHomeInfo) {
-      if ( m_buddy_uin > 0) {
-        Contact& c = m_contact_list[ m_buddy_uin ];
-        
-        c.setMainHomeInfo( snac->getMainHomeInfo() );
-        UserInfoChangeEvent ev(&c);
-        contactlist.emit(&ev);
+
+      try {
+	Contact& c = getCacheUserInfoContact( snac->RequestID() );
+	c.setMainHomeInfo( snac->getMainHomeInfo() );
+	UserInfoChangeEvent ev(&c);
+	contactlist.emit(&ev);
+      } catch(ParseException e) {
+	SignalLog(LogEvent::WARN, e.what());
       }
+	
     } else if (snac->getType() == SrvResponseSNAC::RHomepageInfo) {
-      if ( m_buddy_uin > 0) {
-        Contact& c = m_contact_list[ m_buddy_uin ];
-        
-        c.setHomepageInfo( snac->getHomepageInfo() );
-        UserInfoChangeEvent ev(&c);
-        contactlist.emit(&ev);
+
+      try {
+	Contact& c = getCacheUserInfoContact( snac->RequestID() );
+	c.setHomepageInfo( snac->getHomepageInfo() );
+	UserInfoChangeEvent ev(&c);
+	contactlist.emit(&ev);
+      } catch(ParseException e) {
+	SignalLog(LogEvent::WARN, e.what());
       }
 
     } else if (snac->getType() == SrvResponseSNAC::RAboutInfo) {
-      if ( m_buddy_uin > 0) {
-        Contact& c = m_contact_list[ m_buddy_uin ];
-        m_buddy_uin = 0;
-        c.setAboutInfo( snac->getAboutInfo() );
+
+      try {
+	Contact& c = getCacheUserInfoContact( snac->RequestID() );
+	c.setAboutInfo( snac->getAboutInfo() );
 	UserInfoChangeEvent ev(&c);
-        contactlist.emit(&ev);
+	contactlist.emit(&ev);
+      } catch(ParseException e) {
+	SignalLog(LogEvent::WARN, e.what());
       }
+
     }
   }
   
+  Contact& Client::getCacheUserInfoContact(unsigned int reqid) {
+
+    if ( m_reqidcache.exists( reqid ) ) {
+      RequestIDCacheValue *v = m_reqidcache[ reqid ];
+
+      if ( v->getType() == RequestIDCacheValue::UserInfo ) {
+	UserInfoCacheValue *uv = static_cast<UserInfoCacheValue*>(v);
+
+
+	if ( m_contact_list.exists( uv->getUIN() ) ) return m_contact_list[ uv->getUIN() ];
+	else throw ParseException("User Info request response for user not on contact list");
+
+      } else {
+	throw ParseException("Request ID cached value is not for a User Info request");
+      }
+    } else {
+      throw ParseException("Received a UserInfo response for unknown request id");
+    }
+
+  }
+
   void Client::SignalUINResponse(UINResponseSNAC *snac) {
     unsigned int uin = snac->getUIN();
     NewUINEvent e(uin);
@@ -1106,6 +1144,9 @@ namespace ICQ2000 {
     d = FLAPHeader(b,0x05);
     FLAPFooter(b,d);
     Send(b);
+
+    // take the opportunity to clearout caches
+    m_reqidcache.clearoutPoll();
   }
 
   void Client::setStatus(const Status st) {
@@ -1221,7 +1262,10 @@ namespace ICQ2000 {
     if ( !c->isICQContact() ) return;
 
     d = FLAPHeader(b,0x02);
-    SrvRequestDetailUserInfo ssnac( m_uin, m_buddy_uin = c->getUIN() );
+    unsigned int reqid = NextRequestID();
+    m_reqidcache.insert( reqid, new UserInfoCacheValue( c->getUIN() ) );
+    SrvRequestDetailUserInfo ssnac( m_uin, c->getUIN() );
+    ssnac.setRequestID( reqid );
     b << ssnac;
     FLAPFooter(b,d);
 

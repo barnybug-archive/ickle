@@ -1,5 +1,5 @@
 /*
- * Cache
+ * RequestIDCache
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,82 +18,43 @@
  *
  */
 
-#ifndef CACHE_H
-#define CACHE_H
+#ifndef REQUESTIDCACHE_H
+#define REQUESTIDCACHE_H
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
-#endif
-
-#include <list>
-#include <utility>
-#include <time.h>
-
-using std::list;
-using std::hash;
-using std::pair;
+#include "Cache.h"
 
 namespace ICQ2000 {
-  
-  /*
-   * This class will cache an id to an object, it's templated
-   * since it'll be useful in several places with different sorts of
-   * ids and objects.
-   */
-  
-  template <typename Key, typename Value> class CacheItem {
-   protected:
-    time_t m_timestamp;
-    Key m_key;
-    Value m_value;
 
+  class RequestIDCacheValue {
    public:
-    CacheItem(const Key &k, const Value &v);
-    
-    Key& getKey();
-    Value& getValue();
-    time_t getTimestamp() const;
-    void setTimestamp(time_t t);
+    enum Type {
+      UserInfo
+    };
+
+    virtual Type getType() const = 0;
   };
 
-  template < typename Key, typename Value >
-  class Cache {
-   protected:
-    typedef list< pair<Key,Value> >::iterator literator;
+  class UserInfoCacheValue : public RequestIDCacheValue {
+   private:
+    unsigned int m_uin;
 
-    unsigned int m_timeout;
-    
-    /*
-     * list for storing them in order to timeout
-     * a hash could be used as well, but efficiency isn't really an
-     * issue - there shouldn't be more than 10 items in here at any one point
-     */
-    list< CacheItem<Key,Value> > m_list;
-    
    public:
-    Cache();
-    virtual ~Cache();
+    UserInfoCacheValue(unsigned int uin) : m_uin(uin) { }
+    unsigned int getUIN() const { return m_uin; }
 
-    bool exists(const Key &k);
-
-    Value& operator[](const Key &k);
-    virtual void remove(const Key &k);
-    Value& insert(const Key &k, const Value &v);
-
-    unsigned int getTimeout(); // seconds
-    void setTimeout(unsigned int s);
-
-    void clearoutPoll();
+    Type getType() const { return UserInfo; }
   };
 
+  class RequestIDCache : public Cache<unsigned int, RequestIDCacheValue*> {
+   public:
+    RequestIDCache() { }
+
+    void removeItem(const RequestIDCache::literator& l) {
+      delete ((*l).getValue());
+      Cache<unsigned int, RequestIDCacheValue*>::removeItem(l);
+    }
+  };
+  
 }
 
 #endif

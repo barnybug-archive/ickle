@@ -23,6 +23,8 @@
 
 #include <gtk--/imageloader.h>
 
+#include <string>
+
 #include "main.h"
 
 #include "constants.h"
@@ -31,6 +33,7 @@
 using Gtk::ImageLoader;
 using Gtk::ImageLoaderData;
 using ICQ2000::MessageEvent;
+using std::string;
 
 class Icons {
  private:
@@ -47,7 +50,8 @@ class Icons {
   static ImageLoader *Icon_Status_Invisible;
 
  public:
-  static void DefaultIcons();
+  static void setDefaultIcons();
+  static bool setIcons(const string& dir);
   static void FreeIcons();
   static ImageLoader* IconForStatus(Status s,bool inv);
   static ImageLoader* IconForEvent(MessageEvent::MessageType t);

@@ -20,6 +20,8 @@
 
 #include "IckleGUI.h"
 
+#include "SettingsDialog.h"
+
 IckleGUI::IckleGUI()
   : m_top_vbox(false),
     m_contact_scroll(),
@@ -27,7 +29,7 @@ IckleGUI::IckleGUI()
     m_status(STATUS_OFFLINE)
 {
   // setup default compiled in xpms
-  Icons::DefaultIcons();
+  Icons::setDefaultIcons();
 
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
@@ -44,22 +46,15 @@ IckleGUI::IckleGUI()
 
   m_top_vbox.pack_start(m_contact_scroll,true);
 
+  menu_status_update();
+
   {
     using namespace Gtk::Menu_Helpers;
-
-    MenuList& sl = m_status_menu.items();
-    sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
-    sl.push_back(* menu_status_widget( STATUS_AWAY ) );
-    sl.push_back(* menu_status_widget( STATUS_NA ) );
-    sl.push_back(* menu_status_widget( STATUS_DND ) );
-    sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
-    sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
-    sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
 
     MenuList& ml = m_ickle_menu.items();
     ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
     ml.push_back( MenuElem("Add Mobile User", slot(this, &IckleGUI::add_mobile_user_cb)) );
-    ml.push_back( MenuElem("Settings", settings.slot()) );
+    ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
     ml.push_back( MenuElem("Exit", destroy.slot()) );
     
     MenuList& mbl = m_ickle_menubar.items();
@@ -73,6 +68,21 @@ IckleGUI::IckleGUI()
   add(m_top_vbox);
 
   m_contact_list.setupAccelerators();
+}
+
+void IckleGUI::menu_status_update() {
+  using namespace Gtk::Menu_Helpers;
+  
+  MenuList& sl = m_status_menu.items();
+  sl.clear();
+
+  sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
+  sl.push_back(* menu_status_widget( STATUS_AWAY ) );
+  sl.push_back(* menu_status_widget( STATUS_NA ) );
+  sl.push_back(* menu_status_widget( STATUS_DND ) );
+  sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
+  sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
+  sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
 }
 
 Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
@@ -235,4 +245,32 @@ void IckleGUI::user_info_edit(Contact *c) {
   m_userinfodialog->fetch.connect( bind( fetch.slot(), c) );
   if (m_userinfodialog->run()) icqclient.SignalUserInfoChange(c);
   m_userinfodialog.reset();
+}
+
+void IckleGUI::settings_cb() {
+  SettingsDialog dialog;
+  dialog.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
+
+  if (dialog.run()) {
+    bool reconnect = false;
+    if (dialog.getUIN() != icqclient.getUIN() ||
+	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
+
+    if (reconnect) icqclient.Disconnect();
+    
+    dialog.updateSettings();
+
+    if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
+    if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
+  
+    if (reconnect) status_change_cb(STATUS_ONLINE);
+
+    settings_changed.emit();
+  }
+
+}
+
+void IckleGUI::icons_changed_cb(string s) {
+  Icons::setIcons(s);
+  menu_status_update();
 }

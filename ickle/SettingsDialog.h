@@ -28,20 +28,27 @@
 #include <gtk--/entry.h>
 #include <gtk--/notebook.h>
 #include <gtk--/fileselection.h>
+#include <gtk--/list.h>
+
+#include <sigc++/signal_system.h>
 
 #include <string>
 
 #include "Settings.h"
+#include "main.h"
 
 #include "Contact.h"
 
+using SigC::Signal1;
+using std::string;
+
 class SettingsDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel, icons_b, trans_b;
-  Gtk::Label trans_l, icons_l;
+  Gtk::Button okay, cancel, trans_b;
+  Gtk::Label trans_l;
+  Gtk::List icons_list;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
-  string icons_d;
 
   bool finished_okay;
 
@@ -50,20 +57,18 @@ class SettingsDialog : public Gtk::Dialog {
   void trans_cb();
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
-  void icons_ok_cb(Gtk::FileSelection *fs);
-
-  Settings *m_settings;
 
  public:
-  SettingsDialog(Settings& settings);
+  SettingsDialog();
 
   bool run();
 
   unsigned int getUIN() const;
   string getPassword() const;
 
-  void updateSettings(Settings& settings);
+  void updateSettings();
 
+  Signal1<void,string> icons_changed;
 };
 
 #endif

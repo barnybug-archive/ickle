@@ -20,7 +20,6 @@
 
 #include "IckleClient.h"
 
-#include <glob.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -32,8 +31,8 @@
 
 #include <sstream>
 
-#include "SettingsDialog.h"
 #include "Icons.h"
+#include "Dir.h"
 
 #include "Client.h"
 
@@ -65,6 +64,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 
   // set up GUI callbacks
   gui.status_changed.connect(slot(this,&IckleClient::status_change_cb));
+  gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
   gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->user_info.connect( slot( this, &IckleClient::user_info_cb ) );
@@ -72,7 +72,6 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.send_event.connect(slot(this,&IckleClient::send_event_cb));
   gui.add_user.connect(slot(this,&IckleClient::add_user_cb));
   gui.add_mobile_user.connect(slot(this,&IckleClient::add_mobile_user_cb));
-  gui.settings.connect(slot(this,&IckleClient::settings_cb));
 
   gui.setDisplayTimes(true);
 
@@ -89,70 +88,66 @@ IckleClient::~IckleClient() {
 }
 
 void IckleClient::loadContactList() {
-  glob_t gr;
-  string pattern( CONTACT_DIR + "*.user" );
+  Dir dir;
+  dir.list( CONTACT_DIR + "*.user" );
 
-  if ( glob( pattern.c_str(), 0, NULL, &gr ) == 0
-       && gr.gl_pathc > 0 ) {
-    char **nextp;
-    nextp = gr.gl_pathv;
-
-    while (*nextp != NULL) {
-      Settings cs;
-      if (cs.load(string(*nextp))) {
-	unsigned int uin = cs.getValueUnsignedInt("uin");
-	if (uin != 0) {
-	  Contact c(uin);
-
-	  string alias = cs.getValueString("alias");
-	  if (!alias.empty()) c.setAlias(alias);
-	  c.setMobileNo(cs.getValueString("mobile_no"));
-	  c.setFirstName(cs.getValueString("firstname"));
-	  c.setLastName(cs.getValueString("lastname"));
-	  c.setEmail(cs.getValueString("email"));
-
-	  // Main Home Info
-	  MainHomeInfo& mhi = c.getMainHomeInfo();
-	  mhi.city = cs.getValueString("city");
-	  mhi.state = cs.getValueString("state");
-	  mhi.phone = cs.getValueString("phone");
-	  mhi.fax = cs.getValueString("fax");
-	  mhi.street = cs.getValueString("street");
-	  mhi.zip = cs.getValueString("zip");
-	  mhi.country = cs.getValueUnsignedShort("country");
-	  mhi.gmt = cs.getValueUnsignedChar("gmt");
-	  
-	  // Homepage Info
-	  HomepageInfo& hpi = c.getHomepageInfo();
-	  hpi.age = cs.getValueUnsignedChar("age", 0, 0, 150);
-	  hpi.sex = cs.getValueUnsignedChar("sex", 0, 0, 2);
-	  hpi.homepage = cs.getValueString("homepage");
-	  hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-	  hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 0, 12);
-	  hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 0, 31);
-	  hpi.lang1 = cs.getValueUnsignedChar("lang1");
-	  hpi.lang2 = cs.getValueUnsignedChar("lang2");
-	  hpi.lang3 = cs.getValueUnsignedChar("lang3");
-
-	  // About Info
-	  c.setAboutInfo( cs.getValueString("about") );
-
-	  m_fmap[c.getUIN()] = string(*nextp);
-	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
-	  icqclient.addContact(c);
-	} else {
-	  Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
-	  m_fmap[c.getUIN()] = string(*nextp);
-	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
-	  icqclient.addContact(c);
-	}
-      }
-      ++nextp;
-    }
+  Dir::iterator dirit = dir.begin();
+  while( dirit != dir.end() ) {
     
+    Settings cs;
+    if (cs.load(*dirit)) {
+      unsigned int uin = cs.getValueUnsignedInt("uin");
+      if (uin != 0) {
+	Contact c(uin);
+	
+	string alias = cs.getValueString("alias");
+	if (!alias.empty()) c.setAlias(alias);
+	c.setMobileNo(cs.getValueString("mobile_no"));
+	c.setFirstName(cs.getValueString("firstname"));
+	c.setLastName(cs.getValueString("lastname"));
+	c.setEmail(cs.getValueString("email"));
+	
+	// Main Home Info
+	MainHomeInfo& mhi = c.getMainHomeInfo();
+	mhi.city = cs.getValueString("city");
+	mhi.state = cs.getValueString("state");
+	mhi.phone = cs.getValueString("phone");
+	mhi.fax = cs.getValueString("fax");
+	mhi.street = cs.getValueString("street");
+	mhi.zip = cs.getValueString("zip");
+	mhi.country = cs.getValueUnsignedShort("country");
+	mhi.gmt = cs.getValueUnsignedChar("gmt");
+	
+	// Homepage Info
+	HomepageInfo& hpi = c.getHomepageInfo();
+	hpi.age = cs.getValueUnsignedChar("age", 0, 0, 150);
+	hpi.sex = cs.getValueUnsignedChar("sex", 0, 0, 2);
+	hpi.homepage = cs.getValueString("homepage");
+	hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+	hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 0, 12);
+	hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 0, 31);
+	hpi.lang1 = cs.getValueUnsignedChar("lang1");
+	hpi.lang2 = cs.getValueUnsignedChar("lang2");
+	hpi.lang3 = cs.getValueUnsignedChar("lang3");
+
+	// About Info
+	c.setAboutInfo( cs.getValueString("about") );
+	
+	m_fmap[c.getUIN()] = *dirit;
+	m_histmap[c.getUIN()] = history_filename( *dirit );
+	icqclient.addContact(c);
+      } else {
+	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
+	m_fmap[c.getUIN()] = *dirit;
+	m_histmap[c.getUIN()] = history_filename( *dirit );
+	icqclient.addContact(c);
+      }
+    }
+
+    ++dirit;
+
   }
 
-  globfree( &gr );
 }
 
 History IckleClient::history_filename(const string& s) {
@@ -195,24 +190,25 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   CONTACT_DIR = BASE_DIR + "contacts/";
   DATA_DIR = string(PKGDATADIR) + "/";
   TRANSLATIONS_DIR = DATA_DIR + "translations/";
+  ICONS_DIR = DATA_DIR + "icons/";
 }
 
 
 void IckleClient::loadSettings() {
   // load in settings
-  if (!settings.load(BASE_DIR + "ickle.conf")) {
+  if (!g_settings.load(BASE_DIR + "ickle.conf")) {
     cout << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl;
   } else {
-    icqclient.setUIN(settings.getValueUnsignedInt("uin"));
-    icqclient.setPassword(settings.getValueString("password"));
-    icqclient.setTranslationMap( settings.getValueString("translation_map") );
+    icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
+    icqclient.setPassword(g_settings.getValueString("password"));
+    icqclient.setTranslationMap( g_settings.getValueString("translation_map") );
   }
 
   int width, height, x, y;
-  width = settings.getValueUnsignedInt("geometry_width", 130, 30, 1000);
-  height = settings.getValueUnsignedInt("geometry_height", 300, 30, 2000);
-  x = settings.getValueUnsignedInt("geometry_x", 50);
-  y = settings.getValueUnsignedInt("geometry_y", 50);
+  width = g_settings.getValueUnsignedInt("geometry_width", 130, 30, 1000);
+  height = g_settings.getValueUnsignedInt("geometry_height", 300, 30, 2000);
+  x = g_settings.getValueUnsignedInt("geometry_x", 50);
+  y = g_settings.getValueUnsignedInt("geometry_y", 50);
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
   
@@ -222,17 +218,17 @@ void IckleClient::saveSettings() {
   int width, height, x, y;
   gui.get_window().get_root_origin(x, y);
   gui.get_window().get_size(width, height);
-  settings.setValue( "geometry_x", x );
-  settings.setValue( "geometry_y", y );
-  settings.setValue( "geometry_width", width );
-  settings.setValue( "geometry_height", height );
+  g_settings.setValue( "geometry_x", x );
+  g_settings.setValue( "geometry_y", y );
+  g_settings.setValue( "geometry_width", width );
+  g_settings.setValue( "geometry_height", height );
 
   if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
     cout << "mkdir " << BASE_DIR << " failed: " << strerror(errno) << endl;
     return;
   }
   
-  if ( !settings.save(BASE_DIR + "ickle.conf") ) {
+  if ( !g_settings.save(BASE_DIR + "ickle.conf") ) {
     cout << "Couldn't save " << BASE_DIR << "ickle.conf" << endl;
   }
   
@@ -376,26 +372,6 @@ void IckleClient::add_mobile_user_cb(string alias, string mobile_no) {
   icqclient.addContact( nc );
 }
 
-void IckleClient::settings_cb() {
-  SettingsDialog dialog( settings );
-  if (dialog.run()) {
-    bool reconnect = false;
-    if (dialog.getUIN() != icqclient.getUIN() ||
-	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
-
-    if (reconnect) icqclient.Disconnect();
-    
-    dialog.updateSettings(settings);
-    saveSettings();
-
-    if (dialog.getUIN() != icqclient.getUIN()) icqclient.setUIN(dialog.getUIN());
-    if (dialog.getPassword() != icqclient.getPassword()) icqclient.setPassword(dialog.getPassword());
-  
-    if (reconnect) status_change_cb(STATUS_ONLINE);
-  }
-
-}
-
 void IckleClient::socket_cb(SocketEvent *ev) {
   
   if (dynamic_cast<AddSocketHandleEvent*>(ev) != NULL) {
@@ -442,13 +418,13 @@ bool IckleClient::message_cb(MessageEvent *ev) {
 }
 
 void IckleClient::event_system(const string& s, MessageEvent *ev) {
-  if (settings.getValueString(s) != "") {
+  if (g_settings.getValueString(s) != "") {
     Contact *co = ev->getContact();
 
     char c;
     char timebuf[100];
     time_t ev_time;
-    istringstream istr (settings.getValueString(s), istringstream::in);
+    istringstream istr (g_settings.getValueString(s), istringstream::in);
     ostringstream ostr;
 
     while(istr.good()){
@@ -596,6 +572,10 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     // delete
     unlink( m_fmap[c->getUIN()].c_str() );
   }
+}
+
+void IckleClient::settings_changed_cb() {
+  saveSettings();
 }
 
 void IckleClient::fetch_cb(Contact* c) {

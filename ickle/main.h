@@ -30,10 +30,12 @@ namespace ICQ2000 {
 }
 
 extern class ICQ2000::Client icqclient;
+extern class Settings g_settings;
 
 extern string BASE_DIR;
 extern string CONTACT_DIR;
 extern string DATA_DIR;
 extern string TRANSLATIONS_DIR;
+extern string ICONS_DIR;
 
 #endif

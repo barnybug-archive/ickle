@@ -49,6 +49,7 @@
 #include "DirectClient.h"
 #include "custom_marshal.h"
 #include "Translator.h"
+#include "RequestIDCache.h"
 
 using std::string;
 
@@ -64,7 +65,6 @@ namespace ICQ2000 {
   const unsigned short STATUS_FLAG_INVISIBLE = 0x0100;
 
   class Client : public SigC::Object {
-
    private:
     enum State { NOT_CONNECTED,
 		 AUTH_AWAITING_CONN_ACK,
@@ -86,6 +86,7 @@ namespace ICQ2000 {
     unsigned short m_bosPort;
 
     unsigned short m_client_seq_num;
+    unsigned int m_requestid;
     Status m_status;
     bool m_invisible;
     
@@ -102,12 +103,13 @@ namespace ICQ2000 {
     hash_map<int, DirectClient*> m_fdmap;
     hash_map<unsigned int, DirectClient*> m_uinmap;
 
+    RequestIDCache m_reqidcache;
+
     Buffer m_recv;
    
-    unsigned int m_buddy_uin;	// store uin here. Server does not send back
-				// the uin we're looking for 
     void Init();
     unsigned short NextSeqNum();
+    unsigned int NextRequestID();
 
     void ConnectAuthorizer(State state);
     void DisconnectAuthorizer();
@@ -177,6 +179,8 @@ namespace ICQ2000 {
 
     Contact* lookupICQ(unsigned int uin);
     Contact* lookupMobile(const string& m);
+
+    Contact& getCacheUserInfoContact(unsigned int reqid);
 
     /* Maps the Status enum code to the real uint16
      * value ICQ sends and vice versa

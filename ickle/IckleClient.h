@@ -56,7 +56,6 @@ using namespace ICQ2000;
 class IckleClient : public SigC::Object {
  private:
   IckleGUI gui;
-  Settings settings;
   Status status;
 
   hash_map<unsigned int, string> m_fmap;
@@ -95,9 +94,9 @@ class IckleClient : public SigC::Object {
   void send_event_cb(MessageEvent *ev);
   void add_user_cb(unsigned int uin);
   void add_mobile_user_cb(string,string);
-  void settings_cb();
   void fetch_cb(Contact *c);
   gint close_cb(GdkEventAny*);
+  void settings_changed_cb();
 
   // -- Callback for a socket ready --
   void socket_select_cb(int source, GdkInputCondition cond);

@@ -94,6 +94,7 @@ class IckleGUI : public Gtk::Window {
   auto_ptr<UserInfoDialog> m_userinfodialog;
   // --
 
+  void menu_status_update();
   Gtk::MenuItem* menu_status_widget( Status s );
 
  public:
@@ -119,13 +120,15 @@ class IckleGUI : public Gtk::Window {
   // callbacks
   void contactlist_cb(ContactListEvent* ev);
   bool message_cb(MessageEvent* ev);
+  void settings_cb();
+  void icons_changed_cb(string);
 
   // signals
+  Signal0<void> settings_changed;
   Signal1<void,Status> status_changed;
   Signal1<void,MessageEvent*> send_event;
   Signal1<void,unsigned int> add_user;
   Signal2<void,string,string> add_mobile_user;
-  Signal0<void> settings;
   Signal1<void,Contact*> fetch;
 
   // handle wm calls

@@ -21,25 +21,10 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#ifdef HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
-#endif
-
 #include <list>
-#include <utility>
 #include <time.h>
 
 using std::list;
-using std::hash;
-using std::pair;
 
 namespace ICQ2000 {
   
@@ -67,7 +52,7 @@ namespace ICQ2000 {
   template < typename Key, typename Value >
   class Cache {
    protected:
-    typedef list< pair<Key,Value> >::iterator literator;
+    typedef list< CacheItem<Key,Value> >::iterator literator;
 
     unsigned int m_timeout;
     
@@ -85,14 +70,88 @@ namespace ICQ2000 {
     bool exists(const Key &k);
 
     Value& operator[](const Key &k);
-    virtual void remove(const Key &k);
-    Value& insert(const Key &k, const Value &v);
+    void remove(const Key &k)  {
+      literator curr = m_list.begin();
+      while (curr != m_list.end()) {
+	if ((*curr).getKey() == k) {
+	  removeItem(curr);
+	  return;
+	}
+	++curr;
+      }
+    }
 
-    unsigned int getTimeout(); // seconds
-    void setTimeout(unsigned int s);
+    virtual void removeItem(const literator& l) {
+      m_list.erase(l);
+    }
 
-    void clearoutPoll();
+    Value& insert(const Key &k, const Value &v) {
+      m_list.push_front( CacheItem<Key,Value>(k,v) );
+      return m_list.front().getValue();
+    }
+
+    unsigned int getTimeout() { return m_timeout; }
+    void setTimeout(unsigned int s) { m_timeout = s; }
+
+    void clearoutPoll() {
+      time_t n = time(NULL) - m_timeout;
+      while (!m_list.empty() && m_list.front().getTimestamp() < n)
+	removeItem( m_list.begin() );
+
+    }
+
   };
+
+  template <typename Key, typename Value>
+  CacheItem<Key,Value>::CacheItem(const Key &k, const Value &v)
+    : m_key(k), m_value(v),
+      m_timestamp(time(NULL)) { }
+
+  template <typename Key, typename Value>
+  void CacheItem<Key,Value>::setTimestamp(time_t t) { m_timestamp = t; }
+  
+  template <typename Key, typename Value>
+  time_t CacheItem<Key,Value>::getTimestamp() const { return m_timestamp; }
+  
+  template <typename Key, typename Value>
+  Key& CacheItem<Key,Value>::getKey() {
+    return m_key;
+  }
+
+  template <typename Key, typename Value>
+  Value& CacheItem<Key,Value>::getValue() {
+    return m_value;
+  }
+
+  template <typename Key, typename Value>
+  Cache<Key,Value>::Cache() {
+    setTimeout(60); // default timeout
+  }
+
+  template <typename Key, typename Value>
+  Cache<Key,Value>::~Cache() {
+    
+  }
+ 
+  template <typename Key, typename Value>
+  bool Cache<Key,Value>::exists(const Key &k) {
+    literator curr = m_list.begin();
+    while (curr != m_list.end()) {
+      if ((*curr).getKey() == k) return true;
+      ++curr;
+    }
+    return false;
+  }
+
+  template <typename Key, typename Value>
+  Value& Cache<Key,Value>::operator[](const Key &k) {
+    literator curr = m_list.begin();
+    while (curr != m_list.end()) {
+      if ((*curr).getKey() == k) return (*curr).getValue();
+      ++curr;
+    }
+    return insert(k, Value());
+  }
 
 }
 

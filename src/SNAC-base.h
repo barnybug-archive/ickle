@@ -62,6 +62,8 @@ namespace ICQ2000 {
 
     virtual unsigned short Flags() const;
     virtual unsigned int RequestID() const;
+    void setRequestID(unsigned int id);
+    void setFlags(unsigned short fl);
   };
 
   // -- Inbound SNAC --

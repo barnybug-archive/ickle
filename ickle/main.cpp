@@ -27,10 +27,13 @@
 
 class ICQ2000::Client icqclient;
 
+class Settings g_settings;
+
 string BASE_DIR;
 string CONTACT_DIR;
 string DATA_DIR;
 string TRANSLATIONS_DIR;
+string ICONS_DIR;
 
 int main(int argc, char* argv[]) {
   Gtk::Main gtkmain(argc,argv,true);

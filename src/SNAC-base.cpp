@@ -36,6 +36,14 @@ namespace ICQ2000 {
     return m_requestID;
   }
 
+  void SNAC::setRequestID(unsigned int id) {
+    m_requestID = id;
+  }
+
+  void SNAC::setFlags(unsigned short fl) {
+    m_flags = fl;
+  }
+
   void InSNAC::Parse(Buffer& b) {
     b >> m_flags
       >> m_requestID;

@@ -46,7 +46,7 @@ ImageLoader *Icons::Icon_Status_URL = NULL;
 ImageLoader *Icons::Icon_Status_SMS = NULL;
 ImageLoader *Icons::Icon_Status_Invisible = NULL;
 
-void Icons::DefaultIcons() {
+void Icons::setDefaultIcons() {
   Icon_Status_Online = new ImageLoaderData(online_xpm);
   Icon_Status_Away = new ImageLoaderData(away_xpm);
   Icon_Status_NA = new ImageLoaderData(na_xpm);
@@ -58,6 +58,27 @@ void Icons::DefaultIcons() {
   Icon_Status_URL = new ImageLoaderData(url_xpm);
   Icon_Status_SMS = new ImageLoaderData(sms_xpm);
   Icon_Status_Invisible = new ImageLoaderData(invisible_xpm);
+}
+
+bool Icons::setIcons(const string &dir) {
+  FreeIcons();
+  if (dir == "Default") {
+    setDefaultIcons();
+    return true;
+  }
+
+  Icon_Status_Online = new ImageLoader( dir + "online.xpm" );
+  Icon_Status_Away = new ImageLoader( dir + "away.xpm" );
+  Icon_Status_NA = new ImageLoader( dir + "na.xpm" );
+  Icon_Status_Occupied = new ImageLoader( dir + "occ.xpm" );
+  Icon_Status_DND = new ImageLoader( dir + "dnd.xpm" );
+  Icon_Status_FFC = new ImageLoader( dir + "ffc.xpm" );
+  Icon_Status_Offline = new ImageLoader( dir + "offline.xpm" );
+  Icon_Status_Message = new ImageLoader( dir + "message.xpm" );
+  Icon_Status_URL = new ImageLoader( dir + "url.xpm" );
+  Icon_Status_SMS = new ImageLoader( dir + "sms.xpm" );
+  Icon_Status_Invisible = new ImageLoader( dir + "invisible.xpm" );
+  return true;
 }
 
 void Icons::FreeIcons() {
@@ -72,7 +93,6 @@ void Icons::FreeIcons() {
   delete Icon_Status_URL;
   delete Icon_Status_SMS;
   delete Icon_Status_Invisible;
-
 }
 
 ImageLoader* Icons::IconForStatus(Status s,bool inv) { 
