@@ -230,9 +230,28 @@ namespace ICQ2000 {
 				sst->getSubmissionTime(),
 				sst->getDeliveryTime(),
 				sst->delivered());
-      }
+      }                          
+    } else if (st->getType() == MSG_Type_AuthReq) {
+      AuthReqICQSubType *ust = static_cast<AuthReqICQSubType*>(st);
+      
+      contact = lookupICQ( ust->getSource() );
+      e = new AuthReqEvent(contact,ust->getNick(),ust->getFirstName(),
+			       ust->getLastName(),ust->getEmail(),
+                               ust->getMessage());
 
-    }
+    } else if (st->getType() == MSG_Type_AuthRej) {
+      AuthRejICQSubType *ust = static_cast<AuthRejICQSubType*>(st);
+    
+      contact = lookupICQ( ust->getSource() );
+      e = new AuthAckEvent(contact, ust->getMessage(), false);
+
+    } else if (st->getType() == MSG_Type_AuthAcc) {
+      AuthAccICQSubType *ust = static_cast<AuthAccICQSubType*>(st);
+    
+      contact = lookupICQ( ust->getSource() );
+      e = new AuthAckEvent(contact, true);
+
+      }
 
     if (e != NULL) {
       contact->addPendingMessage(e);
@@ -297,6 +316,18 @@ namespace ICQ2000 {
 				ust->getMessage(),
 				ust->getURL(),
 				snac->getTime());
+      } else if (st->getType() == MSG_Type_AuthReq) {
+        AuthReqICQSubType *ust = static_cast<AuthReqICQSubType*>(st);
+        e = new AuthReqEvent(contact,ust->getNick(),ust->getFirstName(),
+			     ust->getLastName(),ust->getEmail(),
+                             ust->getMessage(), snac->getTime());
+      } else if (st->getType() == MSG_Type_AuthRej) {
+        AuthRejICQSubType *ust = static_cast<AuthRejICQSubType*>(st);
+        e = new AuthAckEvent(contact, ust->getMessage(), false, 
+                             snac->getTime());
+      } else if (st->getType() == MSG_Type_AuthAcc) {
+        AuthAccICQSubType *ust = static_cast<AuthAccICQSubType*>(st);
+        e = new AuthAckEvent(contact, true, snac->getTime());
       }
       
       if (e != NULL) {
@@ -1169,7 +1200,28 @@ namespace ICQ2000 {
       }
       b << msnac;
 
-    } else if (ev->getType() == MessageEvent::SMS) {
+    } else if (ev->getType() == MessageEvent::AuthReq) {
+      AuthReqEvent *uv = static_cast<AuthReqEvent*>(ev);
+      AuthReqICQSubType uist(uv->getMessage(), m_uin, c->getUIN(),
+                             c->acceptAdvancedMsgs());
+
+      MsgSendSNAC msnac(&uist);
+      b << msnac;
+
+    } else if (ev->getType() == MessageEvent::AuthAck) {
+      AuthAckEvent *uv = static_cast<AuthAckEvent*>(ev);
+      ICQSubType *uist;
+      if(uv->isGranted())
+        uist=new AuthAccICQSubType(m_uin, c->getUIN(), 
+                                        c->acceptAdvancedMsgs());
+      else
+        uist=new AuthRejICQSubType(uv->getMessage(), m_uin, c->getUIN(), 
+                                        c->acceptAdvancedMsgs());
+      
+      MsgSendSNAC msnac(uist);
+      b << msnac;
+      
+    }  else if (ev->getType() == MessageEvent::SMS) {
       SMSMessageEvent *sv = static_cast<SMSMessageEvent*>(ev);
       SrvSendSNAC ssnac(sv->getMessage(), c->getMobileNo(), m_uin, "", sv->getRcpt());
       b << ssnac;

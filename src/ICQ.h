@@ -220,6 +220,62 @@ namespace ICQ2000 {
 
   };
 
+  class AuthReqICQSubType : public UINRelatedSubType {
+   private:
+    string m_nick;
+    string m_first_name;
+    string m_last_name;
+    string m_email;
+    string m_message;
+
+   public:
+    AuthReqICQSubType(bool adv);
+    AuthReqICQSubType(const string& msg, unsigned int source, 
+                      unsigned int destination, bool adv);
+
+    string getMessage() const;
+    string getNick() const;
+    string getFirstName() const;
+    string getLastName() const;
+    string getEmail() const;
+
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
+    unsigned short Length() const;
+    unsigned char getType() const;
+
+  };
+  
+  class AuthAccICQSubType : public UINRelatedSubType {
+   public:
+    AuthAccICQSubType(bool adv);
+    AuthAccICQSubType(unsigned int source, unsigned int destination, bool adv);
+
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
+    unsigned short Length() const;
+    unsigned char getType() const;
+
+  };
+  
+  class AuthRejICQSubType : public UINRelatedSubType {
+   private:
+    string m_message;
+
+   public:
+    AuthRejICQSubType(bool adv);
+    AuthRejICQSubType(const string& msg, unsigned int source, 
+                      unsigned int destination, bool adv);
+
+    string getMessage() const;
+    void setMessage(const string& msg);
+
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
+    unsigned short Length() const;
+    unsigned char getType() const;
+
+  };
 }
 
 #endif

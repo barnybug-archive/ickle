@@ -52,6 +52,15 @@ namespace ICQ2000 {
     case MSG_Type_SMS:
       ist = new SMSICQSubType();
       break;
+    case MSG_Type_AuthReq:
+      ist = new AuthReqICQSubType(adv);
+      break;
+    case MSG_Type_AuthRej:
+      ist = new AuthRejICQSubType(adv);
+      break;
+    case MSG_Type_AuthAcc:
+      ist = new AuthAccICQSubType(adv);
+      break;
     case MSG_Type_AutoReq_Away:
     case MSG_Type_AutoReq_Occ:
     case MSG_Type_AutoReq_NA:
@@ -427,5 +436,95 @@ namespace ICQ2000 {
 
   unsigned char SMSICQSubType::getType() const { return MSG_Type_SMS; }
 
+  AuthReqICQSubType::AuthReqICQSubType(bool adv)
+    : UINRelatedSubType(adv) { }
+
+  AuthReqICQSubType::AuthReqICQSubType(const string& msg, unsigned int source, 
+                                       unsigned int destination, bool adv)
+    : UINRelatedSubType(source, destination, adv), m_message(msg)  { }
+
+  string AuthReqICQSubType::getMessage() const { return m_message; }
+  string AuthReqICQSubType::getNick() const { return m_nick; }
+  string AuthReqICQSubType::getFirstName() const { return m_first_name; }
+  string AuthReqICQSubType::getLastName() const { return m_last_name; }
+  string AuthReqICQSubType::getEmail() const { return m_email; }
   
+  void AuthReqICQSubType::Parse(Buffer& b) {
+    unsigned char skip;
+    b.UnpackUint16StringNull(m_nick);
+    b.ServerToClient(m_nick);
+    b>>skip;
+    b.UnpackUint16StringNull(m_first_name);
+    b.ServerToClient(m_first_name);
+    b>>skip;
+    b.UnpackUint16StringNull(m_last_name);
+    b.ServerToClient(m_last_name);
+    b>>skip;
+    b.UnpackUint16StringNull(m_email);
+    b.ServerToClient(m_email);
+    b>>skip;
+    b>>skip;
+    b>>skip;
+    b.UnpackUint16StringNull(m_message);
+    b.ServerToClient(m_message);
+  }
+
+  void AuthReqICQSubType::OutputBody(Buffer& b) const {
+    string m_text = m_message;
+    b.ClientToServer(m_text);
+    b.PackUint16StringNull(m_text);
+  }
+
+  unsigned short AuthReqICQSubType::Length() const {
+    return 0;
+  }
+
+  unsigned char AuthReqICQSubType::getType() const { return MSG_Type_AuthReq; }
+  
+  AuthRejICQSubType::AuthRejICQSubType(bool adv)
+    : UINRelatedSubType(adv) { }
+
+  AuthRejICQSubType::AuthRejICQSubType(const string& msg, unsigned int source, 
+                                       unsigned int destination, bool adv)
+    : UINRelatedSubType(source, destination, adv), m_message(msg)  { }
+
+  string AuthRejICQSubType::getMessage() const { return m_message; }
+  
+  void AuthRejICQSubType::setMessage(const string& msg) { m_message = msg; }
+
+  void AuthRejICQSubType::Parse(Buffer& b) {
+    b.UnpackUint16StringNull(m_message);
+    b.ServerToClient(m_message);
+  }
+
+  void AuthRejICQSubType::OutputBody(Buffer& b) const {
+    string m_text = m_message;
+    b.ClientToServer(m_text);
+    b.PackUint16StringNull(m_text);
+  }
+
+  unsigned short AuthRejICQSubType::Length() const {
+    return m_message.size()+3;
+  }
+
+  unsigned char AuthRejICQSubType::getType() const { return MSG_Type_AuthRej; }
+
+  AuthAccICQSubType::AuthAccICQSubType(bool adv)
+    : UINRelatedSubType(adv) { }
+  AuthAccICQSubType::AuthAccICQSubType(unsigned int source, 
+                                       unsigned int destination, bool adv)    
+    : UINRelatedSubType(source,destination,adv) { }
+
+  void AuthAccICQSubType::Parse(Buffer& b) {
+  }
+
+  void AuthAccICQSubType::OutputBody(Buffer& b) const {
+  }
+
+  unsigned short AuthAccICQSubType::Length() const {
+    return 0;
+  }
+
+  unsigned char AuthAccICQSubType::getType() const { return MSG_Type_AuthAcc; }
+
 }

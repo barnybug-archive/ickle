@@ -269,5 +269,74 @@ namespace ICQ2000 {
     : m_code(code), m_rateclass(rateclass), m_windowsize(windowsize),
       m_clear(clear), m_alert(alert), m_limit(limit), m_disconnect(disconnect), 
       m_currentavg(currentavg), m_maxavg(maxavg) { }
+
+  AuthReqEvent::AuthReqEvent(Contact* c, const string& msg)
+    : MessageEvent(c), m_message(msg) {}
     
+  AuthReqEvent::AuthReqEvent(Contact* c, const string& nick, 
+                             const string& first_name, 
+                             const string& last_name,
+                             const string& email, const string& msg)
+    : MessageEvent(c), m_nick(nick), m_first_name(first_name),
+      m_last_name(last_name), m_email(email), m_message(msg), 
+      m_offline(false) {}
+  AuthReqEvent::AuthReqEvent(Contact* c, const string& nick, 
+                             const string& first_name, 
+                             const string& last_name,
+                             const string& email, 
+                             const string& msg,time_t t)
+    : MessageEvent(c), m_nick(nick), m_first_name(first_name),
+      m_last_name(last_name), m_email(email), m_message(msg), 
+      m_offline(true) {
+    m_time=t;  
+  }
+  MessageEvent::MessageType AuthReqEvent::getType() const { 
+    return MessageEvent::AuthReq; 
+  }
+  
+  unsigned int AuthReqEvent::getSenderUIN() const { 
+    return m_contact->getUIN(); 
+  }
+
+  string AuthReqEvent::getMessage() const { return m_message; }
+  string AuthReqEvent::getNick() const { return m_nick; }
+  string AuthReqEvent::getFirstName() const { return m_first_name; }
+  string AuthReqEvent::getLastName() const { return m_last_name; }
+  string AuthReqEvent::getEmail() const { return m_email; }
+
+  bool AuthReqEvent::isOfflineMessage() const { return m_offline; }
+    
+  AuthAckEvent::AuthAckEvent(Contact* c, bool granted)
+    : MessageEvent(c), m_offline(false), m_granted(granted) {}
+      
+  AuthAckEvent::AuthAckEvent(Contact* c, const string& msg, bool granted)
+    : MessageEvent(c),  m_message(msg), m_offline(false), 
+      m_granted(granted) {}
+      
+  AuthAckEvent::AuthAckEvent(Contact* c, bool granted, time_t t)
+    : MessageEvent(c), m_offline(true), m_granted(granted) {
+    m_time=t;  
+  }
+
+  AuthAckEvent::AuthAckEvent(Contact* c, const string& msg,
+                             bool granted, time_t t)
+    : MessageEvent(c), m_message(msg), m_offline(true), m_granted(granted) {
+    m_time=t;  
+  }
+  
+  MessageEvent::MessageType AuthAckEvent::getType() const { 
+    return MessageEvent::AuthAck; 
+  }
+
+  bool AuthAckEvent::isGranted() const { 
+    return m_granted; 
+  }
+  
+  unsigned int AuthAckEvent::getSenderUIN() const { 
+    return m_contact->getUIN(); 
+  }
+
+  string AuthAckEvent::getMessage() const { return m_message; }
+  bool AuthAckEvent::isOfflineMessage() const { return m_offline; }
+
 }

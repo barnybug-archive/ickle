@@ -186,7 +186,67 @@ namespace ICQ2000 {
       b << (unsigned char)0xfe; // separator
       b.Pack(m_url);
       b << (unsigned char)0x00; // null terminated
+    } if (m_icqsubtype->getType() == MSG_Type_AuthReq) {
+      AuthReqICQSubType *ust = static_cast<AuthReqICQSubType*>(m_icqsubtype);
+      
+      b << (unsigned short)0x0004;
+
+      // Destination UIN (screenname)
+      b.PackByteString( Contact::UINtoString(ust->getDestination()) );
+      
+      string m_text;
+      m_text = ust->getMessage();
+      b.ClientToServer(m_text);
+
+      /* Data Block TLV
+       */
+      b << (unsigned short)0x0005
+	<< (unsigned short)(9+m_text.size());
+
+      b.setEndianness(Buffer::LITTLE);
+      b << (unsigned int)ust->getSource()
+	<< (unsigned short)MSG_Type_AuthReq; // ICQ Subtype
+      b.PackUint16StringNull(m_text);
+    } else if (m_icqsubtype->getType() == MSG_Type_AuthRej) {
+      AuthRejICQSubType *ust = static_cast<AuthRejICQSubType*>(m_icqsubtype);
+      
+      b << (unsigned short)0x0004;
+
+      // Destination UIN (screenname)
+      b.PackByteString( Contact::UINtoString(ust->getDestination()) );
+      
+      string m_text;
+      m_text = ust->getMessage();
+      b.ClientToServer(m_text);
+
+      /* Data Block TLV
+       */
+      b << (unsigned short)0x0005
+	<< (unsigned short)(9+m_text.size());
+
+      b.setEndianness(Buffer::LITTLE);
+      b << (unsigned int)ust->getSource()
+	<< (unsigned short)MSG_Type_AuthRej; // ICQ Subtype
+      b.PackUint16StringNull(m_text);
+    } else if (m_icqsubtype->getType() == MSG_Type_AuthAcc) {
+      AuthAccICQSubType *ust = static_cast<AuthAccICQSubType*>(m_icqsubtype);
+      
+      b << (unsigned short)0x0004;
+
+      // Destination UIN (screenname)
+      b.PackByteString( Contact::UINtoString(ust->getDestination()) );
+      
+
+      /* Data Block TLV
+       */
+      b << (unsigned short)0x0005
+	<< (unsigned short)0x9;
+      b.setEndianness(Buffer::LITTLE);
+      b << (unsigned int)ust->getSource()
+	<< (unsigned short)MSG_Type_AuthAcc; // ICQ Subtype
+      b.PackUint16StringNull("");
     }
+
 
     /* Another TLV - dunno what it means
      * - it doesn't seem to matter if I take this out

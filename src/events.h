@@ -211,7 +211,9 @@ namespace ICQ2000 {
       URL,
       SMS,
       SMS_Response,
-      SMS_Receipt
+      SMS_Receipt,
+      AuthReq,
+      AuthAck
     };
 
     MessageEvent(Contact* c);
@@ -392,6 +394,53 @@ namespace ICQ2000 {
     unsigned int getCurrentAvg() const { return m_currentavg; }
     unsigned int getMaxAvg() const { return m_maxavg; }
   };
-}
 
+  class AuthReqEvent : public MessageEvent {
+   private:
+    string m_nick;
+    string m_first_name;
+    string m_last_name;
+    string m_email;
+    string m_message;
+    bool m_offline;
+
+   public:
+    AuthReqEvent(Contact* c, const string& msg);
+    AuthReqEvent(Contact* c, const string& nick, const string& first_name, 
+                 const string& last_name, const string& email,
+                 const string& msg);
+    AuthReqEvent(Contact* c, const string& nick, const string& first_name, 
+                 const string& last_name, const string& email,
+                 const string& msg,time_t time);
+
+    string getMessage() const;
+    string getNick() const;
+    string getFirstName() const;
+    string getLastName() const;
+    string getEmail() const;
+    MessageType getType() const;
+    bool isOfflineMessage() const;
+    unsigned int getSenderUIN() const;
+  };
+  
+  class AuthAckEvent : public MessageEvent {
+   private:
+    string m_message;
+    bool m_offline;
+    bool m_granted;
+
+   public:
+    AuthAckEvent(Contact* c, bool granted);
+    AuthAckEvent(Contact* c, bool granted, time_t time);
+    AuthAckEvent(Contact* c, const string& msg, bool granted);
+    AuthAckEvent(Contact* c, const string& msg, bool granted, time_t time);
+
+    string getMessage() const;
+    MessageType getType() const;
+    bool isOfflineMessage() const;
+    bool isGranted() const;
+    unsigned int getSenderUIN() const;
+  };
+
+} 
 #endif

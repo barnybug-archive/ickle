@@ -107,7 +107,15 @@ IckleGUI::~IckleGUI() {
 
 bool IckleGUI::message_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
-  
+  /*
+  /* FIXME - make properly handling of incoming
+  /* authorization requests
+  */
+  if (ev->getType() == MessageEvent::AuthReq) {     
+    AuthReqEvent *msg = static_cast<AuthReqEvent*>(ev);
+    AuthAckEvent ack(c, true);
+    icqclient.SendEvent( &ack );
+  }
   /*
    * Call the callback in the MessageBox
    * we do it this way so we don't have loads of
