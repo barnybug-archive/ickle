@@ -47,6 +47,35 @@ exit 1
   ])
 ])
 
+dnl optional GNOME support
+AC_ARG_WITH(gnome,
+	    AC_HELP_STRING([--with-gnome],
+			    [build GNOME applet (default=no)]),
+			    use_gnome=$withval, use_gnome=no)
+	    
+AC_MSG_CHECKING(whether to build gnome applet)
+AC_MSG_RESULT($use_gnome)
+
+if test "x$use_gnome" = "xyes"; then
+  AC_PATH_PROG(gnome_config, gnome-config)
+  if test "x$gnome_config" = "x"; then
+     AC_MSG_ERROR([GNOME support was requested but GNOME wasn't found!])
+  fi
+  ICKLE_PROGRAM=ickle_applet
+  GNOME_CFLAGS=`$gnome_config --cflags applets`
+  GNOME_LIBS=`$gnome_config --libs applets`
+  CORBA_FILES=ickle_applet.gnorba
+  DESKTOP_FILES=ickle_applet.desktop
+  AC_DEFINE(GNOME_ICKLE,,[Define if GNOME applet should be built])
+else
+  ICKLE_PROGRAM=ickle
+fi
+
+AC_SUBST(ICKLE_PROGRAM)
+AC_SUBST(GNOME_CFLAGS)	
+AC_SUBST(GNOME_LIBS)
+AC_SUBST(CORBA_FILES)
+AC_SUBST(DESKTOP_FILES)
 
 dnl Switch to C++ mode and check for needed C++ headers
 AC_LANG_SAVE
