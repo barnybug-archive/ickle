@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.31 2002-03-01 18:38:36 bugcreator Exp $
+/* $Id: ContactListView.cpp,v 1.32 2002-03-08 17:53:28 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -155,6 +155,8 @@ void ContactListView::clear() {
 // on a keypress event.
 gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
   char key = tolower(ev->string[0]);
+
+  if (!isalpha(key) || ev->state != 0) return Gtk::CList::key_press_event_impl(ev);
 
   if (rows().size() == 0) return Gtk::CList::key_press_event_impl(ev);
 
