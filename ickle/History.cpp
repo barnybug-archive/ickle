@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.7 2001-12-10 02:04:33 barnabygray Exp $
+/* $Id: History.cpp,v 1.8 2001-12-10 02:34:43 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -217,6 +217,15 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
     throw runtime_error( string("History::get_msg: Could not open historyfile for reading: ") + m_filename );
 
   m_if.seekg( m_index[ index ] );
+
+  e.timestamp = 0;
+  e.multiparty = false;
+  e.dir = Entry::SENT;
+  e.offline = false;
+  e.receipt = false;
+  e.delivered = true;
+  e.message.erase();
+  e.URL.erase();
 
   while (true) {
     getline( m_if, s );
