@@ -1,0 +1,19 @@
+7th November 2001
+
+ickle version 0.1.2 released. Interrim release before the next major
+release, to fix important bugs that have emerged. ICQ decided to stop
+sending the MOTD today which screwed ickle up, but it is fixed in this
+release. Also bugfixes to hopefully get it compiling on FreeBSD and
+Solaris more easily.
+
+8th October 2001
+
+ickle version 0.1.1 released. Many bugfixes to catch missing libraries
+at configure time. Added fetching basic user info off server, history
+logging (although not reviewing yet) and tweaked GUI generally.
+
+1st October 2001
+
+ickle version 0.1.0 released. Supports through server messaging, urls
+and SMSs to mobile phones. Get the source under downloads on the
+right.
