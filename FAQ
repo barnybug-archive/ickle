@@ -44,6 +44,8 @@ errors about symbols. I'm using gcc 3.0.
 3. Why does ickle require all these libraries, I can't do with having
    that!
 
+4. ickle won't compile - gcc complains about getting the kill signal
+
  --------------------------------------------------------------------
  - The Answers                                                      -
  --------------------------------------------------------------------
@@ -196,3 +198,8 @@ problems, or that you're any denser than the coders.. send me an
 email!
 
  --------------------------------------------------------------------
+
+Q. ickle won't compile - gcc complains about getting the kill signal
+
+A. This happens wheng++: Internal compiler error: program cc1plus got fatal signal 9
+

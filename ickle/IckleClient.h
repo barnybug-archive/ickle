@@ -100,7 +100,7 @@ class IckleClient : public SigC::Object {
   void saveContact(ICQ2000::ContactRef c, const std::string& s, bool self);
 
   void event_system(const std::string& s, ICQ2000::ContactRef c, time_t t);
-  gint idle_connect_cb(ICQ2000::Status s);
+  gint idle_connect_cb(ICQ2000::Status s, bool inv);
   MessageEvent* convert_libicq2000_event(ICQ2000::MessageEvent *ev);
 
   void SignalLog(ICQ2000::LogEvent::LogType type, const std::string& msg);

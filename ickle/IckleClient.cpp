@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.104 2002-04-26 13:10:51 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.105 2002-05-06 00:15:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -140,12 +140,12 @@ IckleClient::IckleClient(int argc, char* argv[])
   // give gtk some time to breathe before we do an auto connect - dns
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
-  if (st != ICQ2000::STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st ) );
+  if (st != ICQ2000::STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st, false ) );
 
   if( g_settings.getValueUnsignedInt("uin") == 0 ) {
     WizardDialog wiz;
     if( wiz.run() ) // if we got an uin, automatically go online to allow the user to set his info
-      Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE ) );
+      Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE, false ) );
   }
 }
 
@@ -526,7 +526,7 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
 
   if (m_retries > 0) {
     --m_retries;
-    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE ) );
+    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), icqclient.getStatusWanted(), icqclient.getInvisibleWanted() ) );
   }
   else {
     m_retries = g_settings.getValueUnsignedChar("reconnect_retries"); // reset m_retries
@@ -538,8 +538,8 @@ void IckleClient::disconnected_cb(ICQ2000::DisconnectedEvent *c) {
   }
 }
 
-gint IckleClient::idle_connect_cb(ICQ2000::Status s) {
-  icqclient.setStatus( s );
+gint IckleClient::idle_connect_cb(ICQ2000::Status s, bool inv) {
+  icqclient.setStatus( s, inv );
   return 0;
 }
 
