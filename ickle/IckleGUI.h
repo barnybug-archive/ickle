@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.22 2001-12-27 15:16:18 nordman Exp $
+/* $Id: IckleGUI.h,v 1.23 2001-12-28 16:19:34 nordman Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -138,6 +138,8 @@ class IckleGUI : public Gtk::Window {
   Signal0<void> exit;
 
   // handle wm calls
+  void show_impl();
+  void hide_impl();
   gint delete_event_impl(GdkEventAny*);
 };
 

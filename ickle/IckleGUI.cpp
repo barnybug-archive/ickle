@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.25 2001-12-27 15:16:18 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.26 2001-12-28 16:19:34 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -248,6 +248,22 @@ void IckleGUI::popup_messagebox(Contact *c, History *h) {
     }
     icqclient.SignalMessageQueueChanged(c);
   }
+}
+
+void IckleGUI::show_impl() {
+  int x, y;
+  x = g_settings.getValueUnsignedInt("geometry_x");
+  y = g_settings.getValueUnsignedInt("geometry_y");
+  set_uposition(x, y);
+  Window::show_impl();
+}
+
+void IckleGUI::hide_impl() {
+  int x, y;
+  get_window().get_root_origin(x, y);
+  g_settings.setValue("geometry_x", x);
+  g_settings.setValue("geometry_y", y);
+  Window::hide_impl();
 }
 
 int IckleGUI::delete_event_impl(GdkEventAny*) {
