@@ -21,8 +21,12 @@
 
 #include "SNAC-MSG.h"
 
+#include <sstream>
+
 #include "TLV.h"
 #include "Contact.h"
+
+using std::ostringstream;
 
 namespace ICQ2000 {
 
