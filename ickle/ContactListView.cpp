@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.24 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.25 2002-01-07 21:13:52 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,9 @@
 #include <libicq2000/Client.h>
 #include "PromptDialog.h"
 
+#include "main.h"
+#include "Settings.h"
+
 using std::string;
 using std::vector;
 using std::transform;
@@ -37,7 +40,8 @@ using std::inserter;
 using std::ostringstream;
 
 ContactListView::ContactListView()
-  : CList(2) {
+  : CList(2), m_single_click(false),
+    m_check_away_click(false) {
   set_column_title(0, "S");
   set_column_min_width(0, 15);
   set_column_title(1, "Alias");
@@ -45,6 +49,7 @@ ContactListView::ContactListView()
   
   // callbacks
   icqclient.contactlist.connect(slot(this,&ContactListView::contactlist_cb));
+  g_settings.settings_changed.connect(slot(this,&ContactListView::settings_changed_cb));
 
   set_selection_mode(GTK_SELECTION_BROWSE);
   set_row_height(18);
@@ -72,6 +77,16 @@ ContactListView::~ContactListView() {
 void ContactListView::setupAccelerators() {
   // the popup menu needs to be told where to place its accelerators
   rc_popup.accelerate( *(this->get_toplevel()) );
+}
+
+void ContactListView::setSingleClick(bool b) 
+{
+  m_single_click = b;
+}
+
+void ContactListView::setCheckAwayClick(bool b)
+{
+  m_check_away_click = b;
 }
 
 gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 ) {
@@ -195,26 +210,39 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
   int rw = -1, col;
 
   get_selection_info((int)ev->x, (int)ev->y, &rw, &col);
-  if (rw != -1) {
-    RowData *p = (RowData*)get_row_data(rw);
-    if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
+
+  if (rw == -1) return false;
+
+  RowData *p = (RowData*)get_row_data(rw);
+  Contact *c;
+    
+  if (ev->button == 3) {
+    row(rw).select();
+    rc_popup.popup(ev->button, ev->time);
+    return true;
+  }
+
+  if (ev->button == 1) {
+
+    if (ev->type == GDK_2BUTTON_PRESS) {
       user_popup.emit(p->uin);
       return true;
-    } else if (ev->button == 1 && col == 0) {
-      Contact *c = icqclient.getContact( p->uin );
-      if (c != NULL) {
-	MessageEvent *ev = new AwayMessageEvent(c);
-	icqclient.SendEvent(ev);
-      }
-      row(rw).select();
-      return true;
-    } else if(ev->button == 3) {
-      row(rw).select();
-      rc_popup.popup(ev->button, ev->time);
+    }
+
+    if (col == 0 && m_check_away_click == true) {
+      c = icqclient.getContact( p->uin );
+      if (c != NULL) icqclient.SendEvent( new AwayMessageEvent(c) );
       return true;
     }
+
+    if (m_single_click) {
+      user_popup.emit(p->uin);
+      return true;
+    }
+
   }
-  return false;
+
+  return false;  
 }
 
 ContactListView::citerator ContactListView::lookupUIN(unsigned int uin) {
@@ -311,4 +339,11 @@ void ContactListView::icons_changed_cb() {
     if (c != NULL) UpdateRow(*c);
     ++curr;
   }
+}
+
+void ContactListView::settings_changed_cb(const string& key) {
+  if (key == "mouse_single_click")
+    m_single_click = g_settings.getValueBool(key);
+  else if (key == "mouse_check_away_click")
+    m_check_away_click = g_settings.getValueBool(key);
 }

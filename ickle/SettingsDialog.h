@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.19 2002-01-02 17:20:45 nordman Exp $
+/* $Id: SettingsDialog.h,v 1.20 2002-01-07 21:13:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -56,6 +56,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Notebook notebook;
   Gtk::CheckButton away_autoposition, reconnect_checkbox, network_override_port;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
+  Gtk::CheckButton mouse_single_click, mouse_check_away_click;
   Gtk::SpinButton *reconnect_spinner, *network_port, *history_shownr_spinner;
   Gtk::Label reconnect_label, history_shownr_label;
 

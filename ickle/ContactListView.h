@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.15 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.16 2002-01-07 21:13:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -64,6 +64,9 @@ class ContactListView : public Gtk::CList {
  protected:
   virtual gint key_press_event_impl(GdkEventKey* ev);
 
+ private:
+  bool m_single_click, m_check_away_click;
+
  public:
   ContactListView();
   ~ContactListView();
@@ -72,11 +75,15 @@ class ContactListView : public Gtk::CList {
 
   void clear();
 
+  void setSingleClick(bool b);
+  void setCheckAwayClick(bool b);
+
   gint button_press_cb(GdkEventButton *ev);
 
   bool message_cb(MessageEvent *ev);
   void contactlist_cb(ContactListEvent *ev);
   void icons_changed_cb();
+  void settings_changed_cb(const string&);
 
   static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
 

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.53 2002-01-04 14:15:04 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.54 2002-01-07 21:13:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -273,6 +273,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueString("message_text_font", "");
   g_settings.defaultValueString("last_away_response", "User is currently not available\nYou can leave him/her a message");
   g_settings.defaultValueBool("set_away_response_timeout", true);
+  g_settings.defaultValueBool("mouse_single_click", false);
+  g_settings.defaultValueBool("mouse_check_away_click", true);
 
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
@@ -285,8 +287,7 @@ void IckleClient::loadSettings() {
     icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   }
 
-  // --
-
+  // Set contact list stuff
   int width, height, x, y;
   width = g_settings.getValueUnsignedInt("geometry_width");
   height = g_settings.getValueUnsignedInt("geometry_height");
@@ -305,6 +306,12 @@ void IckleClient::loadSettings() {
 
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
+  
+  ContactListView* clist = gui.getContactListView();
+  if (clist) {
+    clist->setSingleClick(g_settings.getValueBool("mouse_single_click"));
+    clist->setCheckAwayClick(g_settings.getValueBool("mouse_check_away_click"));
+  }
 
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
   

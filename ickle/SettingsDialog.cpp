@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.22 2002-01-02 17:20:45 nordman Exp $
+/* $Id: SettingsDialog.cpp,v 1.23 2002-01-07 21:13:52 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,6 +60,8 @@ SettingsDialog::SettingsDialog()
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
+    mouse_single_click("Single click opens Message Window", 0),
+    mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0)
 {
   set_title("Settings Dialog");
@@ -394,6 +396,31 @@ SettingsDialog::SettingsDialog()
 
   // ---------------------------------------------------------
 
+
+  // ------------------ Contact List ------------------------------
+
+  table = manage( new Gtk::Table( 2, 1, false ) );
+  
+  mouse_single_click.set_active( g_settings.getValueBool("mouse_single_click"));
+  table->attach( mouse_single_click, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+
+  mouse_check_away_click.set_active( g_settings.getValueBool("mouse_check_away_click"));
+  table->attach( mouse_check_away_click, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+
+  table->set_row_spacings(10);
+  table->set_col_spacings(10);
+  table->set_border_width(10);
+
+  frame = manage( new Gtk::Frame("Contact List") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  label = manage( new Gtk::Label( "Contact List" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+  
+  // ---------------------------------------------------------
+
+
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
@@ -466,6 +493,11 @@ void SettingsDialog::updateSettings() {
     icqclient.setBOSServerOverridePort(true);
     icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   }
+  
+  // ------------ Contact List tab ----------------------
+  g_settings.setValue("mouse_single_click", mouse_single_click.get_active());
+  g_settings.setValue("mouse_check_away_click", mouse_check_away_click.get_active());
+
 }
 
 unsigned int SettingsDialog::getUIN() const {
