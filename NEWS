@@ -1,3 +1,24 @@
+Xth December 2001
+
+ickle version 2.0 released. Changes since last version includes:
+
+* Support for direct connections
+* History-viewing support
+* Optional support for a GNOME applet
+* Support for dealing with authorization requests/responses
+* Support for fetching away messages
+* Numerous bugfixes
+* Portability fixes (OpenBSD, gcc 3.*, sstream)
+* New settings:
+  - autologin
+  - autoraise messagebox
+  - autopopup messagebox
+  - autoclose messagebox
+  - autoreconnect
+  - logging
+  - font selection for messagebox
+  - network
+
 7th November 2001
 
 ickle version 0.1.2 released. Interrim release before the next major
