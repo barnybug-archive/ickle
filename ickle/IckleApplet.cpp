@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.26 2002-03-28 21:51:49 barnabygray Exp $
+/* $Id: IckleApplet.cpp,v 1.27 2002-03-30 14:48:09 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -21,6 +21,7 @@
  */
 
 #include <gnome.h>
+#include <map>
 
 #include <libicq2000/Client.h>
 #include <libicq2000/constants.h>
@@ -31,6 +32,8 @@
 #include "Icons.h"
 
 using std::ostringstream;
+using std::string;
+using std::map;
 
 void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, gpointer data)
 {
@@ -55,16 +58,15 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
   if (!ev || ev->button != 1 || ev->type != GDK_BUTTON_PRESS)
     return;
   
-  if (!m_nr_msgs || ev->state & GDK_SHIFT_MASK)
+  if (!m_msg_queue.get_size() || ev->state & GDK_SHIFT_MASK)
     toggle_gui();
   else {
-    MessageEvent *ev = m_message_queue.get_first_message();
+    MessageEvent *ev = m_msg_queue.get_first_message();
     if (ev->getServiceType() == MessageEvent::ICQ) {
       ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
       user_popup.emit(icq->getICQContact()->getUIN());
     }
   }
-  
 }
 
 
@@ -109,7 +111,6 @@ void IckleApplet::queue_added_cb(MessageEvent* ev)
   if (!m_applet)
     return;
   
-  m_nr_msgs++;
   update_applet_icon();
   update_applet_number();
   update_applet_tooltip();
@@ -117,7 +118,9 @@ void IckleApplet::queue_added_cb(MessageEvent* ev)
 
 void IckleApplet::queue_removed_cb(MessageEvent* ev)
 {
-  m_nr_msgs--;
+  if (!m_applet)
+    return;
+  
   update_applet_icon();
   update_applet_number();
   update_applet_tooltip();
@@ -125,9 +128,10 @@ void IckleApplet::queue_removed_cb(MessageEvent* ev)
 
 void IckleApplet::icq_self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 {
-  if (!m_applet) return;
+  if (!m_applet) 
+    return;
 
-  if (!m_nr_msgs) // we don't even display the status for (m_nr_msgs > 0)
+  if (!m_msg_queue.get_size()) // we don't even display the status for (m_msg_queue.get_size() > 0)
     update_applet_icon();
 
   update_applet_tooltip();
@@ -135,12 +139,18 @@ void IckleApplet::icq_self_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 
 void IckleApplet::icq_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 {
+  if (!m_applet) 
+    return;
+
   ICQ2000::ContactRef c = ev->getContact();
   
   if(ev->getOldStatus() == ICQ2000::STATUS_OFFLINE)
     m_online_users.push_back(c->getUIN());
   else if (ev->getStatus() == ICQ2000::STATUS_OFFLINE)
     m_online_users.remove(c->getUIN());
+
+  update_applet_number();
+  update_applet_tooltip();
 }
 
 void IckleApplet::icq_contactlist_cb(ICQ2000::ContactListEvent *ev)
@@ -156,14 +166,7 @@ void IckleApplet::icq_contactlist_cb(ICQ2000::ContactListEvent *ev)
   else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
     --m_nr_users;
     m_online_users.remove(c->getUIN());
-
-    //    for (list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr) {
-    //      if (itr->contact->getUIN() == c->getUIN()) {
-    //        m_nr_msgs -= itr->nr_msgs;
-    //        update_applet_icon();
-    //        m_pending.erase(itr);
-    //        break;
-    //      }
+    update_applet_icon();
   }
   update_applet_number();
   update_applet_tooltip();
@@ -198,10 +201,10 @@ void IckleApplet::update_applet_icon()
 {
   Gtk::ImageLoader *il;
 
-  if (!m_nr_msgs)
+  if (!m_msg_queue.get_size())
     il = g_icons.IconForStatus(icqclient.getStatus(), icqclient.getInvisible());
   else {
-    MessageEvent *ev = m_message_queue.get_first_message();
+    MessageEvent *ev = m_msg_queue.get_first_message();
     if (ev->getServiceType() == MessageEvent::ICQ) {
       ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
       il = g_icons.IconForEvent(icq->getICQMessageType());
@@ -215,15 +218,21 @@ void IckleApplet::update_applet_icon()
 void IckleApplet::update_applet_tooltip()
 {
   ostringstream ostr;
+  map<string,bool> msgs;
 
   ostr << icqclient.getUIN() << " " << icqclient.getSelfContact()->getStatusStr() << endl;
   ostr << m_online_users.size() << " of " << m_nr_users << " users connected" << endl;
-  if (m_nr_msgs) {
-    ostr << m_nr_msgs << ((m_nr_msgs > 1) ? " events" : " event") << endl;
-    // ostr << m_nr_msgs << ((m_nr_msgs > 1) ? " events" : " event") << " pending:" << endl;
-    //for (list<msg_entry>::iterator itr = m_pending.begin(); itr != m_pending.end(); ++itr) {
-    //  ostr << itr->contact->getAlias() << " (" << itr->contact->numberPendingMessages() << ")" << endl;
-    //}
+  if (m_msg_queue.get_size()) {
+    ostr << m_msg_queue.get_size() << ((m_msg_queue.get_size() > 1) ? " events" : " event") << " pending:" << endl;
+
+    for (MessageQueue::const_iterator itr = m_msg_queue.begin(); itr != m_msg_queue.end(); ++itr) {
+      ICQMessageEvent *icqm = dynamic_cast<ICQMessageEvent *>(*itr);
+      if (icqm && !msgs.count(icqm->getICQContact()->getAlias())) {
+        ostr << icqm->getICQContact()->getAlias() << " (" <<
+          m_msg_queue.get_contact_size(icqm->getICQContact()) << ")" << endl;
+        msgs[icqm->getICQContact()->getAlias()] == true;
+      }
+    }
   }
   applet_widget_set_tooltip(APPLET_WIDGET(m_applet), ostr.str().c_str());
 }
@@ -233,10 +242,11 @@ void IckleApplet::update_applet_number()
 {
   ostringstream ostr;
 
-  if (m_nr_msgs)
-    ostr << m_nr_msgs;
+  if (m_msg_queue.get_size())
+    ostr << m_msg_queue.get_size();
   else
     ostr << m_online_users.size();
+
   m_nr.set_text(ostr.str());
 }
 
@@ -279,13 +289,12 @@ void IckleApplet::toggle_gui()
 
 
 IckleApplet::IckleApplet(MessageQueue& mq)
-  : m_message_queue(mq)
+  : m_msg_queue(mq)
 {
   m_applet = NULL;
   m_box = NULL;
   m_nr.set_text("0");
 
-  m_nr_msgs = 0;
   m_nr_users = 0;
 }
 
@@ -303,10 +312,11 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 
   // setup callbacks
   icqclient.self_contact_status_change_signal.connect(slot(this, &IckleApplet::icq_self_status_change_cb));
+  icqclient.contact_status_change_signal.connect(slot(this, &IckleApplet::icq_status_change_cb));
   icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
 
-  m_message_queue.added.connect(slot(this,&IckleApplet::queue_added_cb));
-  m_message_queue.removed.connect(slot(this,&IckleApplet::queue_removed_cb));
+  m_msg_queue.added.connect(slot(this,&IckleApplet::queue_added_cb));
+  m_msg_queue.removed.connect(slot(this,&IckleApplet::queue_removed_cb));
 
   g_icons.icons_changed.connect(slot(this, &IckleApplet::icons_changed_cb));
 

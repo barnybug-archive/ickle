@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.18 2002-03-28 21:51:49 barnabygray Exp $
+/* $Id: IckleApplet.h,v 1.19 2002-03-30 14:48:09 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -33,13 +33,12 @@
 #include <list>
 
 #include "IckleGUI.h"
-
 #include "MessageQueue.h"
 
 class IckleApplet : public SigC::Object {
   
  private:
-  MessageQueue& m_message_queue;
+  MessageQueue& m_msg_queue;
 
   GtkWidget *   m_applet;
   Gtk::Frame    m_frame;
@@ -48,8 +47,7 @@ class IckleApplet : public SigC::Object {
   Gtk::Pixmap   m_pm;
   IckleGUI *    m_gui;
 
-  gint          m_nr_msgs;              /* nr of messages pending, != m_pending.size() */
-  gint          m_nr_users;             /* nr of users on contactlist */
+  gint          m_nr_users;               /* nr of users on contactlist */
   std::list<unsigned int> m_online_users; /* online users on contactlist */
 
   // C-callback to member function converters
@@ -58,18 +56,17 @@ class IckleApplet : public SigC::Object {
   static void   applet_orientchange_converter   (AppletWidget *applet, GNOME_Panel_OrientType orient, gpointer data);
 
   // callbacks
-  void          applet_click_cb          (GdkEventButton *ev);
-  static void   applet_status_menu_cb    (AppletWidget *applet, gpointer data);
-  static void   applet_toogle_menu_cb    (AppletWidget *applet, gpointer data);
-  static gint   applet_delete_cb         (GtkWidget *widget, GdkEvent *event, gpointer data);
-  void          applet_orientchange_cb   (PanelOrientType orient);
+  void          applet_click_cb         (GdkEventButton *ev);
+  static void   applet_status_menu_cb   (AppletWidget *applet, gpointer data);
+  static void   applet_toogle_menu_cb   (AppletWidget *applet, gpointer data);
+  static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent *event, gpointer data);
+  void          applet_orientchange_cb  (PanelOrientType orient);
   void          icq_self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
-  void          icq_status_change_cb     (ICQ2000::StatusChangeEvent *ev);
-  void          icq_contactlist_cb       (ICQ2000::ContactListEvent *ev);
-  void          icons_changed_cb         ();
-  
-  void          queue_added_cb           (MessageEvent *ev);
-  void          queue_removed_cb           (MessageEvent *ev);
+  void          icq_status_change_cb    (ICQ2000::StatusChangeEvent *ev);
+  void          icq_contactlist_cb      (ICQ2000::ContactListEvent *ev);
+  void          icons_changed_cb        ();
+  void          queue_added_cb          (MessageEvent *ev);
+  void          queue_removed_cb        (MessageEvent *ev);
 
   // misc
   void          set_applet_size         (int size, PanelOrientType orient);

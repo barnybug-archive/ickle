@@ -1,4 +1,4 @@
-/* $Id: MessageQueue.cpp,v 1.1 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: MessageQueue.cpp,v 1.2 2002-03-30 14:48:09 nordman Exp $
  *
  * Queueing for MessageEvents.
  *
@@ -53,7 +53,7 @@ void MessageQueue::add_to_queue(MessageEvent *ev)
 
 void MessageQueue::remove_from_queue(MessageEvent *ev)
 {
-  event_iter f = find( m_event_list.begin(), m_event_list.end(), ev );
+  iterator f = find( m_event_list.begin(), m_event_list.end(), ev );
   if ( f != m_event_list.end() ) {
     m_event_list.erase(f);
     removed.emit(ev);
@@ -76,12 +76,22 @@ bool MessageQueue::empty() const
   return m_event_list.empty();
 }
 
+MessageQueue::const_iterator MessageQueue::begin() const
+{
+  return m_event_list.begin();
+}
+
+MessageQueue::const_iterator MessageQueue::end() const
+{
+  return m_event_list.end();
+}
+
 MessageEvent* MessageQueue::get_contact_first_message(const ContactRef& c)
 {
   // this will be generalised to a general client-side contact eventually..
   // these could be done more efficiently
 
-  event_iter curr = m_event_list.begin();
+  iterator curr = m_event_list.begin();
   while (curr != m_event_list.end()) {
     if ((*curr)->getServiceType() == MessageEvent::ICQ) {
       ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(*curr);
@@ -101,7 +111,7 @@ unsigned int MessageQueue::get_contact_size(const ContactRef& c) const
 
   // this will be generalised to a general client-side contact eventually..
 
-  event_const_iter curr = m_event_list.begin();
+  const_iterator curr = m_event_list.begin();
   while (curr != m_event_list.end()) {
     if ((*curr)->getServiceType() == MessageEvent::ICQ) {
       ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(*curr);
@@ -115,9 +125,9 @@ unsigned int MessageQueue::get_contact_size(const ContactRef& c) const
 
 void MessageQueue::clear_queue_for_contact(const ContactRef& c)
 {
-  event_iter curr = m_event_list.begin();
+  iterator curr = m_event_list.begin();
   while (curr != m_event_list.end()) {
-    event_iter next = curr;
+    iterator next = curr;
     ++next;
 
     if ((*curr)->getServiceType() == MessageEvent::ICQ) {
