@@ -54,6 +54,7 @@ class ControlSocket : public ControlSocketBase
   ControlSocket & operator<< (const std::string &);
   ControlSocket & operator<< (int v) { return operator<< ((unsigned int)v); }
   ControlSocket & operator<< (const CommandType & v) { return operator<< ((unsigned int&)v); }
+  ControlSocket & operator<< (const CommandMessageType & v) { return operator>> ((unsigned int&)v); }
   ControlSocket & operator<< (const ICQ2000::Status & v) { return operator<< ((unsigned int&)v); }
 
   ControlSocket & operator>> (unsigned int &);
