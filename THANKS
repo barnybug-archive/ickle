@@ -28,8 +28,11 @@ Tobias Hoffman - socket IP order bug, Alt-S send shortcut
 
 Serhiy Brytskyy - translation file for wincp1251 - koi8-u (UKRAINIAN_WIN)
 
-Dominic Sacré - improvements for the applet and a fix for saving settings
-  correctly upon exit.
+Dominic Sacré
+ - improvements for the applet and a fix for saving settings
+   correctly upon exit.
+ - contact list column sorting
+ - user online event notification
 
 Jan Demaerel - gcc 3 namespace fixes
 
