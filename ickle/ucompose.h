@@ -3,9 +3,9 @@
  * Uses Glib::ustring instead of std::string which doesn't work with
  * Gtkmm due to character encoding troubles with stringstreams.
  *
- * Version 1.0.
+ * Version 1.0.3.
  *
- * Copyright (c) 2002 Ole Laursen <olau@hardworking.dk>.
+ * Copyright (c) 2002, 2003 Ole Laursen <olau@hardworking.dk>.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public License
@@ -32,8 +32,8 @@
 // README.compose for more details.
 //
 
-#ifndef STRING_UCOMPOSE_H
-#define STRING_UCOMPOSE_H
+#ifndef STRING_UCOMPOSE_HPP
+#define STRING_UCOMPOSE_HPP
 
 #include <glibmm/ustring.h>
 #include <glibmm/convert.h>
@@ -43,7 +43,7 @@
 #include <list>
 #include <map>			// for multimap
 
-namespace StringPrivate
+namespace UStringPrivate
 {
   // the actual composition class - using String::ucompose is cleaner, so we
   // hide it here
@@ -51,32 +51,33 @@ namespace StringPrivate
   {
   public:
     // initialize and prepare format string on the form "text %1 text %2 etc."
-    explicit Composition(Glib::ustring fmt);
+    explicit Composition(std::string fmt);
 
     // supply an replacement argument starting from %1
     template <typename T>
     Composition &arg(const T &obj);
 
-    template <typename T>
-    Glib::ustring as_ustring(const T &obj);
-
     // compose and return string
     Glib::ustring str() const;
 
   private:
+    std::ostringstream os;
     int arg_no;
 
     // we store the output as a list - when the output string is requested, the
     // list is concatenated to a string; this way we can keep iterators into
-    // the list instead of into a string where they're possibly invalidated on
-    // inserting a specification string
-    typedef std::list<Glib::ustring> output_list;
+    // the list instead of into a string where they're possibly invalidated
+    // when inserting a specification string
+    typedef std::list<std::string> output_list;
     output_list output;
 
     // the initial parse of the format string fills in the specification map
     // with positions for each of the various %?s
     typedef std::multimap<int, output_list::iterator> specification_map;
     specification_map specs;
+
+    template <typename T>
+    std::string stringify(T obj);
   };
 
   // helper for converting spec string numbers
@@ -118,30 +119,41 @@ namespace StringPrivate
   }
 
   template <typename T>
-  inline Glib::ustring
-  Composition::as_ustring(const T& obj)
+  inline std::string Composition::stringify(T obj)
   {
-    std::ostringstream os;
-#ifdef HAVE_STD_LOCALE
-    os.imbue(std::locale("")); // use the user's locale for the stream
-#endif
     os << obj;
+
     return Glib::locale_to_utf8(os.str());
   }
-  
+
+  // partial specialisations for the common string types
   template <>
-  inline Glib::ustring
-  Composition::as_ustring<Glib::ustring>(const Glib::ustring& obj)
+  inline std::string
+  Composition::stringify<std::string>(std::string obj)
   {
     return obj;
   }
-
+  
+  template <>
+  inline std::string
+  Composition::stringify<Glib::ustring>(Glib::ustring obj)
+  {
+    return obj;
+  }
+  
+  template <>
+  inline std::string
+  Composition::stringify<const char *>(const char *obj)
+  {
+    return obj;
+  }
+  
   // implementation of class Composition
   template <typename T>
   inline Composition &Composition::arg(const T &obj)
   {
-    Glib::ustring rep = as_ustring(obj);
-  
+    Glib::ustring rep = stringify(obj);
+    
     if (!rep.empty()) {		// manipulators don't produce output
       for (specification_map::const_iterator i = specs.lower_bound(arg_no),
 	     end = specs.upper_bound(arg_no); i != end; ++i) {
@@ -151,22 +163,27 @@ namespace StringPrivate
 	output.insert(pos, rep);
       }
     
+      os.str(std::string());
+      //os.clear();
       ++arg_no;
     }
   
     return *this;
   }
 
-  inline Composition::Composition(Glib::ustring fmt)
+  inline Composition::Composition(std::string fmt)
     : arg_no(1)
   {
-    Glib::ustring::size_type b = 0, i = 0;
+#if __GNUC__ >= 3
+    os.imbue(std::locale("")); // use the user's locale for the stream
+#endif
+    std::string::size_type b = 0, i = 0;
   
     // fill in output with the strings between the %1 %2 %3 etc. and
     // fill in specs with the positions
     while (i < fmt.length()) {
       if (fmt[i] == '%' && i + 1 < fmt.length()) {
-	if (fmt[i + 1] == '%') {	// catch %%
+	if (fmt[i + 1] == '%') { // catch %%
 	  fmt.replace(i, 2, "%");
 	  ++i;
 	}
@@ -185,7 +202,7 @@ namespace StringPrivate
 
 	  spec_no /= 10;
 	  output_list::iterator pos = output.end();
-	  --pos;		// safe since we have just inserted a string>
+	  --pos;		// safe since we have just inserted a string
 	
 	  specs.insert(specification_map::value_type(spec_no, pos));
 	
@@ -207,7 +224,7 @@ namespace StringPrivate
   inline Glib::ustring Composition::str() const
   {
     // assemble string
-    Glib::ustring str;
+    std::string str;
   
     for (output_list::const_iterator i = output.begin(), end = output.end();
 	 i != end; ++i)
@@ -226,7 +243,7 @@ namespace String
   template <typename T1>
   inline Glib::ustring ucompose(const Glib::ustring &fmt, const T1 &o1)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1);
     return c.str();
   }
@@ -235,7 +252,7 @@ namespace String
   inline Glib::ustring ucompose(const Glib::ustring &fmt,
 				const T1 &o1, const T2 &o2)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2);
     return c.str();
   }
@@ -244,7 +261,7 @@ namespace String
   inline Glib::ustring ucompose(const Glib::ustring &fmt,
 				const T1 &o1, const T2 &o2, const T3 &o3)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3);
     return c.str();
   }
@@ -254,7 +271,7 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4);
     return c.str();
   }
@@ -264,7 +281,7 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4, const T5 &o5)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5);
     return c.str();
   }
@@ -275,7 +292,7 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4, const T5 &o5, const T6 &o6)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6);
     return c.str();
   }
@@ -287,7 +304,7 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7);
     return c.str();
   }
@@ -299,7 +316,7 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7, const T8 &o8)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8);
     return c.str();
   }
@@ -311,7 +328,7 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7, const T8 &o8, const T9 &o9)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9);
     return c.str();
   }
@@ -324,7 +341,7 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10);
     return c.str();
@@ -339,7 +356,7 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10, const T11 &o11)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11);
     return c.str();
@@ -354,7 +371,7 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10, const T11 &o11, const T12 &o12)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12);
     return c.str();
@@ -370,7 +387,7 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13);
     return c.str();
@@ -386,7 +403,7 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13, const T14 &o14)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13).arg(o14);
     return c.str();
@@ -403,7 +420,7 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13, const T14 &o14, const T15 &o15)
   {
-    StringPrivate::Composition c(fmt);
+    UStringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13).arg(o14).arg(o15);
     return c.str();
@@ -411,4 +428,4 @@ namespace String
 }
 
 
-#endif // STRING_UCOMPOSE_H
+#endif // STRING_UCOMPOSE_HPP
