@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.30 2002-02-26 17:30:38 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.31 2002-03-01 18:38:36 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -41,8 +41,7 @@ using std::ostringstream;
 
 ContactListView::ContactListView()
   : CList(2), m_single_click(false),
-    m_check_away_click(false),
-    m_sort(SORT_MESSAGES_STATUS)
+    m_check_away_click(false)
 {
   column(0).set_title("S");
   column(0).set_width(15);
@@ -98,14 +97,14 @@ void ContactListView::setCheckAwayClick(bool b)
 
 void ContactListView::click_column_impl(gint c)
 {
-  if (c == 0) {
-    if (m_sort == SORT_MESSAGES_STATUS) m_sort = SORT_STATUS_MESSAGES;
-                                   else m_sort = SORT_MESSAGES_STATUS;
-  }
-  else if (c == 1) {
-    m_sort = SORT_ALIAS;
-  }
+  m_sort = c;
+  g_settings.setValue ("sort_contact_list_column", c);
   sort();
+}
+
+void ContactListView::load_sort_column ()
+{
+  m_sort = g_settings.getValueInt ("sort_contact_list_column");
 }
 
 gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 )
@@ -113,18 +112,33 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
   RowData *d1 = (RowData*)((const GtkCListRow*)ptr1)->data;
   RowData *d2 = (RowData*)((const GtkCListRow*)ptr2)->data;
 
-  int s = (d1->status < d2->status) ? -1 : (d1->status > d2->status) ? 1 : 0;
+  int o1 = status_order (d1->status);
+  int o2 = status_order (d2->status);
+
+  int s = (o1 < o2) ? -1 : (o1 > o2) ? 1 : 0;
   int m = (d1->msgs > d2->msgs) ? -1 : (d1->msgs < d2->msgs) ? 1 : 0;
   int a = d1->alias.compare(d2->alias);
 
   ContactListView * clist_obj = ((ContactListView*)gtk_object_get_user_data((GtkObject*)clist));
 
   switch (clist_obj->m_sort) {
-    case SORT_MESSAGES_STATUS: return m ? m : s ? s : a;
-    case SORT_STATUS_MESSAGES: return s ? s : m ? m : a;
-    case SORT_ALIAS: return a ? a : m ? m : s;
+    case 0: return m ? m : s ? s : a;
+    case 1: return a ? a : m ? m : s;
   }
   return 0;
+}
+
+int ContactListView::status_order (Status s)
+{
+  switch (s) {
+    case STATUS_ONLINE:       return 1;
+    case STATUS_FREEFORCHAT:  return 2;
+    case STATUS_OCCUPIED:     return 3;
+    case STATUS_DND:          return 4;
+    case STATUS_AWAY:         return 5;
+    case STATUS_NA:           return 6;
+    case STATUS_OFFLINE:      return 7;
+  }
 }
 
 void ContactListView::clear() {

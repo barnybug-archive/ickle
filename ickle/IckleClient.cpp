@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.73 2002-02-20 17:34:07 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.74 2002-03-01 18:38:36 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -113,6 +113,8 @@ IckleClient::IckleClient(int argc, char* argv[])
 
   loadSettings();
   loadSelfContact();
+
+  gui.getContactListView()->load_sort_column ();
 
   // setup contact list
   loadContactList();
@@ -251,6 +253,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
   g_settings.defaultValueBool("mouse_check_away_click", true);
+  g_settings.defaultValueUnsignedInt("sort_contact_list_column", 0, 0, 1000);
   g_settings.defaultValueBool("spell_check", true);
   g_settings.defaultValueBool("spell_check_aspell", false);
   g_settings.defaultValueBool("initial_userinfo_done", false );
