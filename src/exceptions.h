@@ -35,8 +35,9 @@ namespace ICQ2000 {
     
    public:
     ParseException(const string& text);
-    
-    const char* what() const;
+    ~ParseException() throw() { }
+
+    const char* what() const throw();
   };
   
 }

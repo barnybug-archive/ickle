@@ -111,8 +111,9 @@ class SocketException : exception {
 
  public:
   SocketException(const string& text);
+  ~SocketException() throw() { }
 
-  const char* what() const;
+  const char* what() const throw();
 };
 
 #endif

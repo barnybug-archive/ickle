@@ -44,11 +44,12 @@ class Icons {
   static ImageLoader *Icon_Status_Message;
   static ImageLoader *Icon_Status_URL;
   static ImageLoader *Icon_Status_SMS;
+  static ImageLoader *Icon_Status_Invisible;
 
  public:
   static void DefaultIcons();
   static void FreeIcons();
-  static ImageLoader* IconForStatus(Status s);
+  static ImageLoader* IconForStatus(Status s,bool inv);
   static ImageLoader* IconForEvent(MessageEvent::MessageType t);
 };
 

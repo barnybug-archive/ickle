@@ -44,6 +44,7 @@ ImageLoader *Icons::Icon_Status_Offline = NULL;
 ImageLoader *Icons::Icon_Status_Message = NULL;
 ImageLoader *Icons::Icon_Status_URL = NULL;
 ImageLoader *Icons::Icon_Status_SMS = NULL;
+ImageLoader *Icons::Icon_Status_Invisible = NULL;
 
 void Icons::DefaultIcons() {
   Icon_Status_Online = new ImageLoaderData(online_xpm);
@@ -56,6 +57,7 @@ void Icons::DefaultIcons() {
   Icon_Status_Message = new ImageLoaderData(message_xpm);
   Icon_Status_URL = new ImageLoaderData(url_xpm);
   Icon_Status_SMS = new ImageLoaderData(sms_xpm);
+  Icon_Status_Invisible = new ImageLoaderData(invisible_xpm);
 }
 
 void Icons::FreeIcons() {
@@ -69,14 +71,19 @@ void Icons::FreeIcons() {
   delete Icon_Status_Message;
   delete Icon_Status_URL;
   delete Icon_Status_SMS;
+  delete Icon_Status_Invisible;
 
 }
 
-ImageLoader* Icons::IconForStatus(Status s) {
+ImageLoader* Icons::IconForStatus(Status s,bool inv) { 
   ImageLoader *p;
   switch(s) {
   case STATUS_ONLINE:
-    p = Icon_Status_Online;
+    if (inv) {
+    p = Icon_Status_Invisible;
+    } else {
+      p = Icon_Status_Online;
+    } 
     break;
   case STATUS_AWAY:
     p = Icon_Status_Away;

@@ -132,7 +132,7 @@ void ContactListView::UpdateRow(const Contact& c) {
     MessageEvent *ev = c.getPendingMessage();
     p = Icons::IconForEvent(ev->getType());
   } else {
-    p = Icons::IconForStatus(c.getStatus());
+    p = Icons::IconForStatus(c.getStatus(),c.isInvisible());
   }
   
   (*row)[0].set_pixmap( p->pix(), p->bit() );
