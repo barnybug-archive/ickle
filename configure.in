@@ -60,6 +60,23 @@ AC_SUBST(ICKLE_MANPAGES)
 AC_SUBST(CORBA_FILES)
 AC_SUBST(DESKTOP_FILES)
 
+dnl ickle_control
+AC_ARG_WITH(ickle_control, [  --without-ickle-control don't build ickle_control], ickle_control=$withval, ickle_control=yes)
+
+AC_MSG_CHECKING([whether ickle_control should be built])
+if test "x$ickle_control" = xyes; then
+   AC_DEFINE(CONTROL_SOCKET,,[Define if the control socket should be enabled])
+   ICKLE_CONTROL="ickle_control"
+   LIBICKLE_CTRLSOCKET="libickle_ctrlsocket.a"
+   LIBICKLE_CTRLSOCKET_FLAG="-lickle_ctrlsocket"
+   LIBICKLE_CTRLSOCKET_DEP="\$(top_builddir)/ctrlsocket/libickle_ctrlsocket.a"
+fi
+AC_MSG_RESULT($ickle_control)
+AC_SUBST(ICKLE_CONTROL)
+AC_SUBST(LIBICKLE_CTRLSOCKET)
+AC_SUBST(LIBICKLE_CTRLSOCKET_FLAG)
+AC_SUBST(LIBICKLE_CTRLSOCKET_DEP)
+
 # Switch to C++ mode and check for needed C++ headers
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
@@ -133,6 +150,7 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([mktime stat mkdir strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
 AC_OUTPUT([Makefile ickle/Makefile share/Makefile \
+           control/Makefile ctrlsocket/Makefile \
            share/icons/Makefile share/icons/ickle/Makefile \
            share/icons/doors/Makefile share/icons/icq/Makefile \
            share/icons/new/Makefile share/icons/gnomeicu/Makefile \

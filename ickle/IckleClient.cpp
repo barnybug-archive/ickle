@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.70 2002-01-30 15:35:35 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.71 2002-02-05 19:40:05 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -57,6 +57,9 @@ using std::runtime_error;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
+#ifdef CONTROL_SOCKET
+    ctrl(*this),
+#endif
     status(STATUS_OFFLINE)
 {
   // process command line parameters
@@ -67,6 +70,11 @@ IckleClient::IckleClient(int argc, char* argv[])
   applet.init(argc, argv, gui);
   applet.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   applet.exit.connect(slot(this,&IckleClient::exit_cb));
+#endif
+
+#ifdef CONTROL_SOCKET
+  // initialize control socket
+  ctrl.init();
 #endif
 
   // let us know when the gui is destroyed
@@ -360,6 +368,9 @@ gint IckleClient::close_cb(GdkEventAny*) {
 }
 
 void IckleClient::quit() {
+#ifdef CONTROL_SOCKET
+  ctrl.quit();
+#endif
 #ifdef GNOME_ICKLE
   applet.quit();
 #else

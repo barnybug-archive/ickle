@@ -2,7 +2,7 @@
 ## Process with automake to produce Makefile.in
 ##
 
-SUBDIRS = ickle share macros
+SUBDIRS = ctrlsocket ickle control share macros
 
 EXTRA_DIST = THANKS NEWS scripts/licq2ickle.pl scripts/micq2ickle.pl	\
 scripts/gnomeicu2ickle.pl debian/README debian/changelog		\

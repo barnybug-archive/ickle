@@ -49,6 +49,10 @@ using std::map;
 # include "IckleApplet.h"
 #endif
 
+#ifdef CONTROL_SOCKET
+# include "ControlHandler.h"
+#endif
+
 using SigC::slot;
 
 using Gtk::Connection;
@@ -56,6 +60,9 @@ using Gtk::Connection;
 using namespace ICQ2000;
 
 class IckleClient : public SigC::Object {
+#ifdef CONTROL_SOCKET
+  friend class ControlHandler;
+#endif
  private:
   IckleGUI gui;
   Status status;
@@ -64,6 +71,10 @@ class IckleClient : public SigC::Object {
 
 #ifdef GNOME_ICKLE
   IckleApplet applet;
+#endif
+
+#ifdef CONTROL_SOCKET
+  ControlHandler ctrl;
 #endif
 
   IdleTimer m_idletimer;
