@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.2 2002-02-12 16:46:04 barnabygray Exp $
+/* $Id: WizardDialog.cpp,v 1.3 2002-02-12 17:15:11 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -290,10 +290,16 @@ void WizardDialog::existing_details_next() {
 void WizardDialog::finished_next() {
   icqclient.setUIN( newuin );
   g_settings.setValue("uin", newuin);
+
+  string password;
   if( rb_existing_uin.get_active() )
-    g_settings.setValue("password", en_existing_pass1.get_text());
+    password = en_existing_pass1.get_text();
   else
-    g_settings.setValue("password", en_new_pass1.get_text());
+    password = en_new_pass1.get_text();
+  
+  g_settings.setValue("password", password);
+  icqclient.setPassword(password);
+
   retval = true;
   Gtk::Main::quit();
   destroy();
