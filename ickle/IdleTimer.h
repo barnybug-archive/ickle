@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.h,v 1.4 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: IdleTimer.h,v 1.5 2003-04-13 12:42:18 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -60,6 +60,7 @@ class IdleTimer : public SigC::Object
 
   void                  get_idle                ();
   bool                  timer_cb                ();
+  void                  set_idle_auto_response  ();
   
  public:
 

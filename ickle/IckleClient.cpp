@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.128 2003-04-07 07:21:42 cborni Exp $
+/* $Id: IckleClient.cpp,v 1.129 2003-04-13 12:42:18 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -301,7 +301,7 @@ void IckleClient::loadSettings()
 
   g_settings.defaultValueBool("status_classic_invisibility", false);
 
-  g_settings.defaultValueString("last_away_response", _("User is currently not available\nYou can leave him/her a message") );
+  g_settings.defaultValueString("last_auto_response", _("I really enjoy the default away message of ickle %v") );
   g_settings.defaultValueBool("set_away_response_dialog", true);
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
@@ -922,7 +922,7 @@ void IckleClient::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev)
 {
   ICQ2000::ContactRef c = ev->getContact();
   EventSubstituter evs(m_message_queue, c);
-  evs << gui.getAutoResponse();
+  evs << g_settings.getValueString( "last_auto_response" );
   ev->setAwayMessage(evs.str());
 }
 

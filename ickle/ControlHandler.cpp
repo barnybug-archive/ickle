@@ -199,12 +199,12 @@ void ControlHandler::cmdSetAwayMessage (ControlSocket & s)
 {
   string msg;
   s >> msg;
-  ickle.gui.setAutoResponse (msg); // hmm...
+  g_settings.setValue( "last_auto_response", msg );
 }
 
 void ControlHandler::cmdGetAwayMessage (ControlSocket & s)
 {
-  s << ickle.gui.getAutoResponse (); // hmm...
+  s << g_settings.getValueString( "last_auto_response" );
 }
 
 // --- add contact ---

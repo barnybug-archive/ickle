@@ -183,6 +183,9 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
       case 'r':
         sanecat(repeated ? "true" : "false");
         break;
+      case 'v':
+        static_cast<ostringstream&>(*this) << ICKLE_VERSION;
+	break;
       case '%':
         static_cast<ostringstream&>(*this) << '%';
 	break;

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.74 2003-04-12 16:29:28 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.75 2003-04-13 12:42:18 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,7 +29,6 @@
 #include <gtkmm/imagemenuitem.h>
 #include <gtkmm/menushell.h>
 #include <gtkmm/scrolledwindow.h>
-#include <gtkmm/liststore.h>
 #include <gtkmm/treeview.h>
 
 #include "main.h"
@@ -478,8 +477,8 @@ void SettingsDialog::init_look_icons_page()
   
   std::vector<std::string> iconsets = g_icons.get_icon_sets();
   Glib::RefPtr< Gtk::ListStore > liststore = Gtk::ListStore::create( m_icons_columns );
-  m_reftreemodel = liststore;
-  m_icons_treeview.set_model( m_reftreemodel );
+  m_icons_reftreemodel = liststore;
+  m_icons_treeview.set_model( m_icons_reftreemodel );
   m_icons_treeview.get_selection()->signal_changed().connect( SigC::slot( *this, &SettingsDialog::icons_changed) );
 
   scr_win->add( m_icons_treeview );
@@ -636,6 +635,90 @@ void SettingsDialog::init_away_idle_page()
 void SettingsDialog::init_away_message_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Preset messages") ) );
+
+  Gtk::HBox * hbox = manage( new Gtk::HBox() );
+  hbox->set_border_width(10);
+  
+  // setup the treeview (list)
+
+  Gtk::ScrolledWindow * scr_win = manage( new Gtk::ScrolledWindow() );
+  scr_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+  scr_win->set_shadow_type(Gtk::SHADOW_IN);
+  scr_win->set_size_request(140, 100);
+
+  m_away_treeview.set_headers_visible(false);
+  
+  m_away_refliststore = Gtk::ListStore::create( m_away_columns );
+  m_away_treeview.set_model( m_away_refliststore );
+  m_away_treeview.get_selection()->signal_changed().connect( SigC::slot( *this, &SettingsDialog::away_message_select_cb) );
+
+  m_away_treeview.append_column_editable("", m_away_columns.label);
+
+  scr_win->add( m_away_treeview );
+
+  hbox->pack_start( * scr_win, Gtk::PACK_SHRINK );
+
+  Gtk::VBox * vbox2 = manage( new Gtk::VBox() );
+  vbox2->set_spacing(5);
+  vbox2->set_border_width(10);
+  
+  m_away_up_button.add( * manage( new Gtk::Image(Gtk::Stock::GO_UP, Gtk::ICON_SIZE_MENU) ) );
+  m_away_up_button.signal_clicked().connect(  SigC::slot( *this, &SettingsDialog::away_message_up_cb ) );
+  m_tooltip.set_tip(m_away_up_button, _("Move the selected message up in the list") );
+  vbox2->pack_start( m_away_up_button, Gtk::PACK_SHRINK );
+
+  m_away_remove_button.add( * manage( new Gtk::Image(Gtk::Stock::DELETE, Gtk::ICON_SIZE_MENU) ) );
+  m_away_remove_button.signal_clicked().connect(  SigC::slot( *this, &SettingsDialog::away_message_remove_cb ) );
+  m_tooltip.set_tip(m_away_remove_button, _("Delete the selected message") );
+  vbox2->pack_start( m_away_remove_button, Gtk::PACK_SHRINK );
+
+  m_away_down_button.add( * manage( new Gtk::Image(Gtk::Stock::GO_DOWN, Gtk::ICON_SIZE_MENU) ) );
+  m_away_down_button.signal_clicked().connect(  SigC::slot( *this, &SettingsDialog::away_message_down_cb ) );
+  m_tooltip.set_tip(m_away_down_button, _("Move the selected message down in the list") );
+  vbox2->pack_start( m_away_down_button, Gtk::PACK_SHRINK );
+
+  m_away_new_button.add( * manage( new Gtk::Image(Gtk::Stock::NEW, Gtk::ICON_SIZE_MENU) ) );
+  m_away_new_button.signal_clicked().connect(  SigC::slot( *this, &SettingsDialog::away_message_new_cb ) );
+  m_tooltip.set_tip(m_away_new_button, _("Create a new preset message") );
+  vbox2->pack_end( m_away_new_button, Gtk::PACK_SHRINK );
+
+  hbox->pack_start( *vbox2, Gtk::PACK_SHRINK );
+  
+  scr_win = manage( new Gtk::ScrolledWindow() );
+  scr_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+  scr_win->set_size_request(100, 100); // gtk - otherwise the text widget forces it to enlarge (!?)
+  scr_win->set_shadow_type(Gtk::SHADOW_IN);
+
+  m_away_up_button.set_sensitive(false);
+  m_away_remove_button.set_sensitive(false);
+  m_away_down_button.set_sensitive(false);
+
+  m_away_textview.set_sensitive(false);
+  m_away_textview.set_wrap_mode(Gtk::WRAP_WORD);
+
+  m_away_textview.get_buffer()->signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_away_textview.get_buffer()->signal_changed().connect( SigC::slot( *this, &SettingsDialog::away_message_text_edit_cb ) );
+  scr_win->add(m_away_textview);
+
+  hbox->pack_start( * scr_win, Gtk::PACK_EXPAND_WIDGET );
+
+  vbox2 = manage( new Gtk::VBox() );
+
+  vbox2->pack_start( *hbox, Gtk::PACK_SHRINK );
+  
+  Gtk::Label * label = manage( new Gtk::Label( _("Note: When ickle idles and changes to away or N/A the first of these messages "
+						 "will be used as the default auto response."), Gtk::ALIGN_LEFT, Gtk::ALIGN_TOP ) );
+  label->set_line_wrap(true);
+  label->set_justify(Gtk::JUSTIFY_FILL);
+
+  vbox2->pack_start( *label, Gtk::PACK_EXPAND_WIDGET );
+
+  frame->add( *vbox2 );
+
+  vbox->pack_start( *frame, Gtk::PACK_SHRINK );
+
   add_page( _("Away Messages"), vbox, false );
 }
 
@@ -914,8 +997,8 @@ void SettingsDialog::load_look_icons_page()
   if (n != std::string::npos)
     name = m_icons_dir.substr(n+1, fin-n-1);
 
-  for (Gtk::TreeModel::Children::iterator curr = m_reftreemodel->children().begin() ;
-       curr != m_reftreemodel->children().end() ;
+  for (Gtk::TreeModel::Children::iterator curr = m_icons_reftreemodel->children().begin() ;
+       curr != m_icons_reftreemodel->children().end() ;
        ++curr )
   {
     if ( (*curr)[m_icons_columns.name] == name )
@@ -943,6 +1026,23 @@ void SettingsDialog::load_away_idle_page()
 
 void SettingsDialog::load_away_message_page()
 {
+  // populate the list with entries
+  int no_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
+  for (int i = 1; i <= no_autoresponses; ++i)
+  {
+    Gtk::TreeModel::Row row = * m_away_refliststore->append();
+
+    std::string label = g_settings.getValueString( Utils::format_string( "autoresponse_%d_label", i ) );
+    std::string text  = g_settings.getValueString( Utils::format_string( "autoresponse_%d_text", i ) );
+    
+    row[ m_away_columns.text ]  = text;
+    row[ m_away_columns.label ] = label;
+
+    // select the first entry
+    if (i == 1)
+      m_away_treeview.get_selection()->select( row );
+  }
+  
 }
 
 void SettingsDialog::load_events_page()
@@ -1068,6 +1168,20 @@ void SettingsDialog::save_away_idle_page()
 
 void SettingsDialog::save_away_message_page()
 {
+  unsigned short size = m_away_refliststore->children().size();
+  
+  g_settings.setValue("no_autoresponses", size );
+  int i = 1;
+  for ( Gtk::TreeModel::iterator curr = m_away_refliststore->children().begin() ;
+	curr != m_away_refliststore->children().end() ;
+	++curr, ++i )
+  {
+    Glib::ustring label = (*curr)[ m_away_columns.label ];
+    Glib::ustring text  = (*curr)[ m_away_columns.text ];
+    
+    g_settings.setValue( Utils::format_string( "autoresponse_%d_label", i ), label );
+    g_settings.setValue( Utils::format_string( "autoresponse_%d_text", i ),  text );
+  }
 }
 
 
@@ -1236,3 +1350,104 @@ void SettingsDialog::activate_changes()
 {
   change_client.emit();
 }
+
+void SettingsDialog::away_message_up_cb()
+{
+  Gtk::TreeModel::iterator iter = m_away_treeview.get_selection()->get_selected();
+  if (iter && iter != m_away_refliststore->children().begin())
+  {
+    Gtk::TreeModel::iterator iter2, iteri;
+    
+    // urgh.. why no operator-- :-(
+    for ( iter2 = iteri = m_away_refliststore->children().begin(), ++iteri;
+	  iteri != m_away_refliststore->children().end();
+	  ++iteri, ++iter2 )
+      if (iteri == iter) break;
+    
+    m_away_down_button.set_sensitive(true);
+    if (iter2 == m_away_refliststore->children().begin())
+      m_away_up_button.set_sensitive(false);
+
+    /* this is some gtk bizarreness - doing the move iter to iter2
+     * doesn't work for the case when iter2 == begin (it moves to end
+     * instead), so instead we always do the swap by moving iter2 to
+     * the space after iter, effectively swapping them in the same way
+     * as required */
+    m_away_refliststore->move( iter2, ++iter );
+  }
+}
+
+void SettingsDialog::away_message_remove_cb()
+{
+  Gtk::TreeModel::iterator iter = m_away_treeview.get_selection()->get_selected();
+  if (iter)
+  {
+    Gtk::TreeModel::Row row = *iter;
+    m_away_textview.get_buffer()->set_text("");
+    m_away_textview.set_sensitive(false);
+    m_away_refliststore->erase(iter);
+    // select the first
+    if (m_away_refliststore->children().size())
+      m_away_treeview.get_selection()->select( m_away_refliststore->children().begin() );
+  }
+}
+
+void SettingsDialog::away_message_down_cb()
+{
+  Gtk::TreeModel::iterator iter = m_away_treeview.get_selection()->get_selected();
+  if (iter)
+  {
+    Gtk::TreeModel::iterator iter2 = iter;
+    ++iter2;
+    if (iter2 != m_away_refliststore->children().end())
+    {
+      ++iter2;
+      m_away_refliststore->move( iter, iter2 );
+
+      m_away_up_button.set_sensitive(true);
+      if (iter2 == m_away_refliststore->children().end())
+	m_away_down_button.set_sensitive(false);
+    }
+  }
+}
+
+void SettingsDialog::away_message_new_cb()
+{
+  Gtk::TreeModel::Row row = * m_away_refliststore->append();
+  row[ m_away_columns.text ]  = _("Enter your away response here.");
+  row[ m_away_columns.label ] = _("New message");
+  m_away_treeview.get_selection()->select( row );
+}
+
+void SettingsDialog::away_message_select_cb()
+{
+  Gtk::TreeModel::iterator iter = m_away_treeview.get_selection()->get_selected();
+  if (iter)
+  {
+    Gtk::TreeModel::Row row = *iter;
+    m_away_up_button.set_sensitive( iter != m_away_refliststore->children().begin() );
+    m_away_remove_button.set_sensitive(true);
+    m_away_down_button.set_sensitive( ++iter != m_away_refliststore->children().end() );
+    m_away_textview.get_buffer()->set_text( row[ m_away_columns.text ] );
+    m_away_textview.set_sensitive(true);
+  }
+  else
+  {
+    m_away_up_button.set_sensitive(false);
+    m_away_remove_button.set_sensitive(false);
+    m_away_down_button.set_sensitive(false);
+    m_away_textview.get_buffer()->set_text("");
+    m_away_textview.set_sensitive(false);
+  }
+}
+
+void SettingsDialog::away_message_text_edit_cb()
+{
+  Gtk::TreeModel::iterator iter = m_away_treeview.get_selection()->get_selected();
+  if (iter)
+  {
+    Gtk::TreeModel::Row row = *iter;
+    row[ m_away_columns.text ] = m_away_textview.get_buffer()->get_text();
+  }
+}
+  

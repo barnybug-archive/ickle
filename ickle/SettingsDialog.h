@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.56 2003-04-12 16:29:28 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.57 2003-04-13 12:42:18 barnabygray Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,8 @@
 #include <gtkmm/dialog.h>
 #include <gtkmm/treeview.h>
 #include <gtkmm/treestore.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/textview.h>
 #include <gtkmm/label.h>
 #include <gtkmm/frame.h>
 #include <gtkmm/entry.h>
@@ -113,7 +115,7 @@ class SettingsDialog : public Gtk::Dialog
 
   const IconsModelColumns m_icons_columns;
 
-  Glib::RefPtr<Gtk::TreeModel> m_reftreemodel;
+  Glib::RefPtr<Gtk::TreeModel> m_icons_reftreemodel;
   Gtk::TreeView m_icons_treeview;
 
   // message window
@@ -128,6 +130,28 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::SpinButton m_auto_na;
   Gtk::CheckButton m_auto_return;
 
+  // Away messages page
+  struct AwayModelColumns : public Gtk::TreeModel::ColumnRecord
+  {
+    Gtk::TreeModelColumn<Glib::ustring> label;
+    Gtk::TreeModelColumn<Glib::ustring> text;
+
+    AwayModelColumns() { add(label); add(text); }
+  };
+
+  const AwayModelColumns m_away_columns;
+
+  Glib::RefPtr<Gtk::ListStore> m_away_refliststore;
+  Gtk::TreeView m_away_treeview;
+
+  Gtk::TextView m_away_textview;
+ 
+  Gtk::Button m_away_up_button;
+  Gtk::Button m_away_remove_button;
+  Gtk::Button m_away_down_button;
+  Gtk::Button m_away_new_button;
+
+  // Charset page
   Gtk::TreeModel::iterator m_row_lnf_charset;
 
   // Advanced Page
@@ -140,7 +164,7 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::Entry m_network_smtp_host;
   Gtk::SpinButton m_network_smtp_port;
 
-  // Advanced Page Securtiy
+  // Advanced Page Security
   Gtk::CheckButton m_network_in_dc;
   Gtk::CheckButton m_network_out_dc;
   Gtk::SpinButton m_network_lower_bind_port;
@@ -229,8 +253,19 @@ class SettingsDialog : public Gtk::Dialog
   void on_ok_clicked();
 
   void choose_autoconnect (unsigned int s);
+
+  // Away messages
+  void away_message_up_cb();
+  void away_message_remove_cb();
+  void away_message_down_cb();
+  void away_message_new_cb();
+  void away_message_select_cb();
+  void away_message_text_edit_cb();
+
+  // Icons
   void icons_changed();
 
+  // Charset
   void lnf_charset_validate_cb();
 
  public:

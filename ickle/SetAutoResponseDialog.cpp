@@ -191,7 +191,7 @@ void SetAutoResponseDialog::build_optionmenu()
   int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
   for (int i = 1; i <= n_autoresponses; i++)
   {
-    std::string key = Utils::format_string( "autoresponse_%d_text", i );
+    std::string key = Utils::format_string( "autoresponse_%d_label", i );
 
     menu_list.push_back( MenuElem( g_settings.getValueString(key),
 				   SigC::bind<int>( SigC::slot(*this,

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.52 2003-04-10 08:28:12 cborni Exp $
+/* $Id: IckleGUI.h,v 1.53 2003-04-13 12:42:18 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -66,7 +66,6 @@ class IckleGUI : public Gtk::Window,
   std::map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
   ICQ2000::Status m_status;
   bool m_invisible;
-  std::string auto_response;
 
   bool m_display_times;
 
@@ -156,7 +155,6 @@ class IckleGUI : public Gtk::Window,
   void already_running_prompt(const std::string& pid_file, unsigned int pid);
 
   void setDisplayTimes(bool d);
-  std::string getAutoResponse() const;
   void setAutoResponse(const std::string& ar);
   void setGeometry(int x, int y, int w, int h);
 

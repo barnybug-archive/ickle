@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.10 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: IdleTimer.cpp,v 1.11 2003-04-13 12:42:18 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -105,15 +105,27 @@ bool IdleTimer::timer_cb()
 
   if ( limit == auto_na * 60 ) {
     if( currstatus != ICQ2000::STATUS_NA )
+    {
       icqclient.setStatus( ICQ2000::STATUS_NA );
+      set_idle_auto_response();
+    }
   }
   else if( currstatus != ICQ2000::STATUS_AWAY )
+  {
     icqclient.setStatus( ICQ2000::STATUS_AWAY );
+    set_idle_auto_response();
+  }
 
   m_autostatus = true;
   return true;
 }
 
+void IdleTimer::set_idle_auto_response()
+{
+  unsigned short no = g_settings.getValueUnsignedShort("no_autoresponses");
+  if (no >= 1)
+    g_settings.setValue( "last_auto_response", g_settings.getValueString( "autoresponse_1_text" ) );
+}
 
 IdleTimer::IdleTimer()
 {

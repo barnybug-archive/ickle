@@ -464,7 +464,7 @@ void IckleGUI::status_menu_status_inv_changed_cb(ICQ2000::Status st, bool inv) {
 
 void IckleGUI::set_auto_response_dialog (bool timeout)
 {
-  SetAutoResponseDialog *d = new SetAutoResponseDialog(*this, auto_response, timeout);
+  SetAutoResponseDialog *d = new SetAutoResponseDialog(*this, g_settings.getValueString("last_auto_response"), timeout);
   d->save_new_msg.connect(SigC::slot(*this, &IckleGUI::setAutoResponse));
   d->settings_dialog.connect(SigC::bind<Gtk::Window*>( SigC::slot(*this, &IckleGUI::settings_away_cb), d ));
 }
@@ -680,14 +680,9 @@ void IckleGUI::setDisplayTimes(bool d)
   }
 }
 
-void IckleGUI::setAutoResponse(const string& ar) {
-  auto_response = ar;
-  g_settings.setValue("last_auto_response", ar);
-}
-
-string IckleGUI::getAutoResponse() const
+void IckleGUI::setAutoResponse(const string& ar)
 {
-  return auto_response;
+  g_settings.setValue("last_auto_response", ar);
 }
 
 void IckleGUI::userinfo_toggle_cb(bool b, ContactRef c) {
