@@ -85,6 +85,6 @@ AC_CHECK_FUNCS([dup2 mkdir select socket strerror],,AC_MSG_ERROR([You do not hav
 
 AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile
 share/Makefile share/icons/Makefile share/icons/ickle/Makefile
-share/icons/doors/Makefile share/icons/icq/Makefile
-share/translations/Makefile])
+share/icons/doors/Makefile share/icons/icq/Makefile share/icons/new/Makefile
+share/icons/gnomeicu/Makefile share/translations/Makefile])
 AC_OUTPUT

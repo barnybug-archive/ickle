@@ -211,7 +211,7 @@ void IckleClient::loadSettings() {
   y = g_settings.getValueUnsignedInt("geometry_y", 50);
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
-  
+  gui.icons_changed_cb( g_settings.getValueString("icons_dir") );
 }
 
 void IckleClient::saveSettings() {

@@ -75,7 +75,6 @@ void IckleGUI::menu_status_update() {
   
   MenuList& sl = m_status_menu.items();
   sl.clear();
-
   sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
   sl.push_back(* menu_status_widget( STATUS_AWAY ) );
   sl.push_back(* menu_status_widget( STATUS_NA ) );
@@ -83,10 +82,12 @@ void IckleGUI::menu_status_update() {
   sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
   sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
   sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
+  m_status_menu.show_all();
+
 }
 
 Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
-  Gtk::MenuItem *mi=manage( new Gtk::MenuItem() );
+  Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
   mi->activate.connect( bind(slot(this,&IckleGUI::status_change_cb),s) );
   Gtk::HBox *hbox=manage( new Gtk::HBox() );
   Gtk::ImageLoader *p = Icons::IconForStatus(s, false);
@@ -273,4 +274,5 @@ void IckleGUI::settings_cb() {
 void IckleGUI::icons_changed_cb(string s) {
   Icons::setIcons(s);
   menu_status_update();
+  m_contact_list.icons_changed_cb();
 }

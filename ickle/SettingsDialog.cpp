@@ -87,8 +87,9 @@ SettingsDialog::SettingsDialog()
   ftable->attach( *frame, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Icons") );
+  icons_list.set_selection_mode(GTK_SELECTION_BROWSE);
   {
-    string current = g_settings.getValueString("icons");
+    string current = g_settings.getValueString("icons_dir");
 
     using namespace Gtk::List_Helpers;
     using Gtk::ListItem;
@@ -106,7 +107,7 @@ SettingsDialog::SettingsDialog()
       else name = string(filename,pos+1);
 
       il.push_back( * manage( new ListItem( name ) ) );
-      if (current == filename) icons_list.select_item(n);
+      if (current == filename+"/") icons_list.select_item(n);
       ++iter;
       ++n;
     }
@@ -168,11 +169,7 @@ SettingsDialog::SettingsDialog()
 
 bool SettingsDialog::run() {
   Gtk::Main::run();
-  if (finished_okay) {
-    return true;
-  } else {
-    return false;
-  }
+  return finished_okay;
 }
 
 void SettingsDialog::updateSettings() {
@@ -181,6 +178,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("password", password_entry.get_text());
 
   g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
+  g_settings.setValue("icons_dir", getIconsFilename());
 
   // ------------ Events tab -----------------------
   g_settings.setValue("event_message", event_message_entry.get_text());
@@ -204,6 +202,11 @@ void SettingsDialog::okay_cb() {
 void SettingsDialog::cancel_cb() {
   Gtk::Main::quit();
   finished_okay = false;
+  string m_old_icons_dir = g_settings.getValueString("icons_dir");
+  if ( getIconsFilename() != m_old_icons_dir ) {
+    // restore icons
+    icons_changed.emit( m_old_icons_dir );
+  }
 }
 
 void SettingsDialog::trans_cb() {
@@ -220,15 +223,20 @@ void SettingsDialog::trans_cb() {
 }
 
 void SettingsDialog::icons_cb() {
+  icons_changed.emit( getIconsFilename() );
+}
+ 
+string SettingsDialog::getIconsFilename() {
   Gtk::List::SelectionList &slist = icons_list.selection();
-  if (slist.empty()) return;
+  if (slist.empty()) return "Default";
 
   Gtk::List::SelectionList::iterator iter = slist.begin();
   
   string filename = dynamic_cast<Gtk::Label*>((*iter)->get_child())->get();
   if (filename != "Default") filename = ICONS_DIR + filename + "/";
-  icons_changed.emit( filename );
+  return filename;
 }
+
 
 void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
   icqclient.setTranslationMap(filesel->get_filename());

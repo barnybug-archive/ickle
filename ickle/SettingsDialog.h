@@ -52,6 +52,8 @@ class SettingsDialog : public Gtk::Dialog {
 
   bool finished_okay;
 
+  string getIconsFilename();
+  
   void okay_cb();
   void cancel_cb();
   void trans_cb();

@@ -52,8 +52,8 @@ unsigned int StringtoIP(const string& s) {
 string IPtoString(unsigned int ip) {
   ostringstream ostr;
   ostr << (ip >> 24) << "."
-       << ((ip >> 8) & 0xff) << "."
        << ((ip >> 16) & 0xff) << "."
+       << ((ip >> 8) & 0xff) << "."
        << (ip & 0xff);
   return ostr.str();
 }

@@ -184,8 +184,12 @@ void MessageBox::raise() const {
 }
 
 gint MessageBox::key_press_cb(GdkEventKey* ev) {
-  if ((ev->state & 4) && (ev->keyval == 65293 || ev->keyval == 65421) && m_online) {
-    m_send_button.clicked();
+  if (m_online) {
+    if (ev->state & 4) {
+      if (ev->keyval == 65293 || ev->keyval== 65421) m_send_button.clicked();
+    } else if (ev->state & 8) {
+      if (ev->keyval == 115) m_send_button.clicked();
+    }
   }
   return false;
 }

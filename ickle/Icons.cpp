@@ -62,7 +62,7 @@ void Icons::setDefaultIcons() {
 
 bool Icons::setIcons(const string &dir) {
   FreeIcons();
-  if (dir == "Default") {
+  if (dir == "" || dir == "Default") {
     setDefaultIcons();
     return true;
   }

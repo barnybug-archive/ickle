@@ -74,8 +74,26 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
 
   Status s1 = d1->status;
   Status s2 = d2->status;
+  unsigned int m1 = d1->msgs;
+  unsigned int m2 = d2->msgs;
 
-  return ((s1 < s2) ? -1 : (s1 > s2) ? 1 : 0);
+  /* contacts are sorted by status, then by
+   * number of messages - this is just my personal
+   * preference, maybe at some date make it more
+   * customisable
+   */
+  
+  return ((s1 < s2)
+	  ? -1
+	  : (s1 > s2)
+	  ? 1
+	  : // s1 == s2
+	  (m1 > m2)
+	  ? -1
+	  : (m2 > m1)
+	  ? 1
+	  : 0
+	  );
 }
 
 void ContactListView::clear() {
@@ -144,8 +162,12 @@ void ContactListView::UpdateRow(const Contact& c) {
   citerator row = lookupUIN(c.getUIN());
   if (row == rows().end()) return;
 
+  RowData *rp = (RowData*)(*row).get_data();
+  rp->status = c.getStatus();
+  rp->msgs = c.numberPendingMessages();
+
   ImageLoader *p;
-  if (c.numberPendingMessages() > 0) {
+  if (rp->msgs > 0) {
     MessageEvent *ev = c.getPendingMessage();
     p = Icons::IconForEvent(ev->getType());
   } else {
@@ -154,11 +176,6 @@ void ContactListView::UpdateRow(const Contact& c) {
   
   (*row)[0].set_pixmap( p->pix(), p->bit() );
   (*row)[1].set_text( c.getAlias() );
-
-  RowData *rp = (RowData*)(*row).get_data();
-  rp->status = c.getStatus();
-
-  // resort ??
 }
 
 void ContactListView::contactlist_cb(ContactListEvent *ev) {
@@ -204,6 +221,17 @@ bool ContactListView::message_cb(MessageEvent *ev) {
   Contact *c = ev->getContact();
 
   UpdateRow(*c);
+  sort();
 
   return false; // return false because the message shouldn't be swallowed yet
+}
+
+void ContactListView::icons_changed_cb() {
+  citerator curr = rows().begin();
+  while (curr != rows().end()) {
+    RowData *rp = (RowData*)(*curr).get_data();
+    Contact *c = icqclient.getContact( rp->uin );
+    if (c != NULL) UpdateRow(*c);
+    ++curr;
+  }
 }

@@ -52,6 +52,7 @@ class ContactListView : public Gtk::CList {
   struct RowData {
     unsigned int uin;
     Status status;
+    unsigned int msgs;
   };
 
   /* The CList in Gtk and RowIterator's have no guarantee they
@@ -84,6 +85,7 @@ class ContactListView : public Gtk::CList {
 
   bool message_cb(MessageEvent *ev);
   void contactlist_cb(ContactListEvent *ev);
+  void icons_changed_cb();
 
   static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
 
@@ -93,7 +95,3 @@ class ContactListView : public Gtk::CList {
 };
 
 #endif
-
-
-
-
