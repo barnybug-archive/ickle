@@ -50,9 +50,7 @@ SearchDialog::SearchDialog()
   : Gtk::Dialog(), m_clist(7), m_ev(NULL),
     m_ok_button("OK"), m_search_button("Search"), m_stop_button("Stop"),
     m_add_button("Add to List"), m_reset_button("Reset form"), m_sex_selected(SEX_UNSPECIFIED),
-    m_only_online_check("Only Online Users", 0),
-    m_language_list(1),
-    m_country_list(1)
+    m_only_online_check("Only Online Users", 0)
 {
   Gtk::Label *label;
   Gtk::Table *table;
@@ -149,26 +147,15 @@ SearchDialog::SearchDialog()
   m_max_age_spin.changed.connect( bind( slot( this, &SearchDialog::spin_changed_cb ), &m_max_age_spin ) );
   m_max_age_spin.changed.emit();
 
-  label = manage( new Gtk::Label( "Language", 0, 0 ) );
-  {
-    using namespace Gtk::CList_Helpers;
-    RowList& il = m_language_list.rows();
-    for (int a = 0; a < Language_table_size; a++) {
-      vector<const char*> r;
-      r.push_back( Language_table[a] );
-      il.push_back(r);
-    }
-  }
-  m_language_list.set_selection_mode(GTK_SELECTION_BROWSE);
-  m_language_list.row(0).select();
-  m_language_list.columns_autosize();
-  
-  table->attach( *label, 2, 3, 2, 4, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
+  label = manage( new Gtk::Label( "Language", 0) );
 
-  scrolled_window = manage(new Gtk::ScrolledWindow());
-  scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  scrolled_window->add(m_language_list);
-  table->attach( *scrolled_window, 3, 4, 2, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  vector<string> languages;
+  for (int i = 0; i < Language_table_size; i++)
+    languages.push_back( string(Language_table[i]) );
+  m_language_combo.set_popdown_strings(languages);
+
+  table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
+  table->attach( m_language_combo, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   table->attach( m_only_online_check, 2, 3, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
   m_reset_button.clicked.connect( slot( this, &SearchDialog::reset_cb ) );
@@ -199,25 +186,15 @@ SearchDialog::SearchDialog()
   m_state_entry.set_usize(90,0);
   table->attach( m_state_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
   
-  label = manage( new Gtk::Label( "Country", 0, 0 ) );
-  {
-    using namespace Gtk::CList_Helpers;
-    RowList& il = m_country_list.rows();
-    for (int a = 0; a < Country_table_size; a++) {
-      vector<const char*> r;
-      r.push_back(Country_table[a].name);
-      il.push_back(r);
-    }
-  }
-  m_country_list.set_selection_mode(GTK_SELECTION_BROWSE);
-  m_country_list.row(0).select();
-  m_country_list.columns_autosize();
+  label = manage( new Gtk::Label( "Country", 0) );
 
-  table->attach( *label, 2, 3, 0, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
-  scrolled_window = manage(new Gtk::ScrolledWindow());
-  scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
-  scrolled_window->add(m_country_list);
-  table->attach( *scrolled_window, 3, 4, 0, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
+  vector<string> countries;
+  for (int i = 0; i < Country_table_size; i++)
+    countries.push_back( string(Country_table[i].name) );
+  m_country_combo.set_popdown_strings(countries);
+
+  table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
+  table->attach( m_country_combo, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
   table->set_spacings(3);
   table->set_col_spacing(1, 10);
@@ -325,16 +302,16 @@ void SearchDialog::search_cb()
 
     unsigned char language = 0;
     unsigned short country = 0;
-    {
-      using namespace Gtk::CList_Helpers;
 
-      SelectionList& sl = m_language_list.selection();
-      if (!sl.empty()) language = sl.begin()->get_row_num();
-	
-      SelectionList& sl2 = m_country_list.selection();
-      if (!sl2.empty()) country = sl2.begin()->get_row_num();
-			 
-    }
+    string country_str = m_country_combo.get_entry()->get_text();
+    for (int i = 0; i < Country_table_size; i++)
+      if ( country_str == string(Country_table[i].name))
+	country = i;
+
+    string language_str = m_language_combo.get_entry()->get_text();
+    for (unsigned char c = 0; c < Language_table_size; c++)
+      if ( language_str == string(Language_table[c]))
+	language = c;
 
     m_ev = icqclient.searchForContacts
       (m_alias_entry.get_text(),
@@ -482,8 +459,6 @@ void SearchDialog::reset_cb()
   m_max_age_spin.set_value(0);
   m_sex_menu.set_history(0);
   m_sex_selected = SEX_UNSPECIFIED;
-  m_language_list.row(0).select();
-  m_country_list.row(0).select();
 }
 
 void SearchDialog::set_status( const string& text )

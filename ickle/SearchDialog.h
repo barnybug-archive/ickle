@@ -24,6 +24,7 @@
 #include <gtk--/dialog.h>
 #include <gtk--/notebook.h>
 #include <gtk--/entry.h>
+#include <gtk--/combo.h>
 #include <gtk--/clist.h>
 #include <gtk--/button.h>
 #include <gtk--/statusbar.h>
@@ -47,7 +48,7 @@ class SearchDialog : public Gtk::Dialog {
   Gtk::SpinButton m_min_age_spin, m_max_age_spin;
   Gtk::OptionMenu m_sex_menu;
   ICQ2000::Sex m_sex_selected;
-  Gtk::CList m_language_list, m_country_list;
+  Gtk::Combo m_language_combo, m_country_combo;
 
   // -- uin search --
   Gtk::Entry m_uin_entry;
