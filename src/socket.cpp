@@ -55,6 +55,7 @@ string IPtoString(unsigned int ip) {
 }
 
 TCPSocket::TCPSocket() {
+  memset(&remoteAddr, 0, sizeof(remoteAddr));
   socketDescriptor = -1;
 }
 
@@ -74,7 +75,7 @@ void TCPSocket::Connect() {
     throw SocketException("Already connected");
   } else {
     socketDescriptor = socket(AF_INET,SOCK_STREAM,0);
-    if (socketDescriptor <= 0) throw SocketException("Couldn't create socket");
+    if (socketDescriptor < 0) throw SocketException("Couldn't create socket");
   }      
   remoteAddr.sin_family = AF_INET;
 
@@ -209,7 +210,7 @@ void TCPServer::StartServer() {
   if (socketDescriptor != -1) throw SocketException("Already listening");
   
   socketDescriptor = socket( AF_INET, SOCK_STREAM, 0 );
-  if (socketDescriptor <= 0) throw SocketException("Couldn't create socket");
+  if (socketDescriptor < 0) throw SocketException("Couldn't create socket");
   
   /*
    * don't bother with bind, we don't care which port
@@ -222,7 +223,7 @@ void TCPServer::StartServer() {
    *   if ( bind( socketDescriptor,
    *   (struct sockaddr *)&localAddr,
    *   sizeof(struct sockaddr) ) < 0 ) throw SocketException("Couldn't bind socket");
-  */
+   */
 
   listen( socketDescriptor, 5 );
   // queue size of 5 should be sufficient
