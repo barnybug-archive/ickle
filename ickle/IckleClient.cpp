@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.103 2002-04-25 19:36:58 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.104 2002-04-26 13:10:51 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -795,7 +795,7 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   } else {
     History *h = m_histmap[ev->getContact()->getUIN()];
     try {
-      h->log(ev, false);
+      h->log(ev, true);
     } catch(runtime_error& e) {
       // thrown when the history file can't be opened
       SignalLog(ICQ2000::LogEvent::WARN, e.what());
