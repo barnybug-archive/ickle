@@ -109,7 +109,8 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
 
     if (got_special == '|') execute();
     got_special = 0;
-    ostringstream::operator<<(c);
+    static_cast<ostringstream&>(*this) << c;
+    // bug in g++ 3.xx - operator<<(char c) method doesn't exist
     return (*this);  // C++ is silly.
   }
 
