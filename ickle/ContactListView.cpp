@@ -183,7 +183,15 @@ void ContactListView::UpdateRow(const Contact& c) {
   }
   
   (*row)[0].set_pixmap( p->pix(), p->bit() );
-  (*row)[1].set_text( c.getAlias() );
+  string alias = c.getAlias();
+  if (alias.empty()) {
+    alias = c.getFirstName() + " " + c.getLastName();
+    if (alias == " ") {
+      if (c.isICQContact()) alias = c.getStringUIN();
+      else alias = c.getMobileNo();
+    }
+  }
+  (*row)[1].set_text( alias );
 }
 
 void ContactListView::contactlist_cb(ContactListEvent *ev) {

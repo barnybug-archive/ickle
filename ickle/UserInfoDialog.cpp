@@ -65,26 +65,22 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "UIN:", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   uin_entry.set_editable(false);
-  uin_entry.set_sensitive(false);
   table->attach( uin_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "IP:", 0 ) );
   table->attach( *label, 2, 3, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   ip_entry.set_editable(false);
-  //  ip_entry.set_sensitive(false);
   
   table->attach( ip_entry, 3, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Status:", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   status_entry.set_editable(false);
-  status_entry.set_sensitive(false);
   table->attach( status_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Timezone:", 0 ) );
   table->attach( *label, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   gmt_entry.set_editable(false);
-  gmt_entry.set_sensitive(false);
   table->attach( gmt_entry, 3, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Name:", 0 ) );
@@ -105,7 +101,6 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "Address:", 0 ) );
   table->attach( *label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   addr_entry.set_editable(false);
-  addr_entry.set_sensitive(false);
   table->attach( addr_entry, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Phone:", 0 ) );
@@ -115,7 +110,6 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "State:", 0 ) );
   table->attach( *label, 0, 1, 8, 9, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   state_entry.set_editable(false);
-  state_entry.set_sensitive(false);
   table->attach( state_entry, 1, 2, 8, 9, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Fax:", 0 ) );
@@ -125,7 +119,6 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "City:", 0 ) );
   table->attach( *label, 0, 1, 9, 10, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   city_entry.set_editable(false);
-  city_entry.set_sensitive(false);
   table->attach( city_entry, 1, 2, 9, 10, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
   
   label = manage( new Gtk::Label( "Cellular:", 0 ) );
@@ -135,13 +128,11 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "Zip:", 0 ) );
   table->attach( *label, 0, 1, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   zip_entry.set_editable(false);
-  zip_entry.set_sensitive(false);
   table->attach( zip_entry, 1, 2, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   label = manage( new Gtk::Label( "Country:", 0 ) );
   table->attach( *label, 2, 3, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
   country_entry.set_editable(false);
-  country_entry.set_sensitive(false);
   table->attach( country_entry, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   table->set_border_width(10);
@@ -154,43 +145,36 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "Age:", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
   age_entry.set_editable(false);
-  age_entry.set_sensitive(false);
   table->attach( age_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Gender:", 0 ) );
   table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   sex_entry.set_editable(false);
-  sex_entry.set_sensitive(false);
   table->attach( sex_entry, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Homepage:", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   homepage_entry.set_editable(false);
-  homepage_entry.set_sensitive(false);
   table->attach( homepage_entry, 1, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Birthday:", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   birthday_entry.set_editable(false);
-  birthday_entry.set_sensitive(false);
   table->attach( birthday_entry, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Language 1:", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   lang_entry1.set_editable(false);
-  lang_entry1.set_sensitive(false);
   table->attach( lang_entry1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Language 2:", 0 ) );
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   lang_entry2.set_editable(false);
-  lang_entry2.set_sensitive(false);
   table->attach( lang_entry2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Language 3:", 0 ) );
   table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
   lang_entry3.set_editable(false);
-  lang_entry3.set_sensitive(false);
   table->attach( lang_entry3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   table->set_border_width(10);
