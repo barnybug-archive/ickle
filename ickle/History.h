@@ -25,11 +25,17 @@
 
 #include <string>
 
+#include <fstream>
+
 #include "events.h"
 
 using ICQ2000::MessageEvent;
 
 using std::string;
+
+using std::ifstream;
+using std::ofstream;
+using std::ostream;
 
 class History {
  private:

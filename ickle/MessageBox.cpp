@@ -28,6 +28,7 @@
 #include <gtk--/scrollbar.h>
 
 using std::ostringstream;
+using std::endl;
 
 MessageBox::MessageBox(Contact *c)
   : m_contact(c),

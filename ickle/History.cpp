@@ -20,14 +20,11 @@
 
 #include "History.h"
 
-#include <fstream>
-
-using std::ifstream;
-using std::ofstream;
-
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
+
+using std::endl;
 
 History::History() { }
 
@@ -38,7 +35,7 @@ void History::setFilename(const string& filename) { m_filename = filename; }
 string History::getFilename() const { return m_filename; }
 
 void History::log(MessageEvent *ev, bool received) {
-  ofstream of( m_filename.c_str(), ios::out | ios::app );
+  ofstream of( m_filename.c_str(), std::ios::out | std::ios::app );
 
   if (of) {
 

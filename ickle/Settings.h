@@ -41,7 +41,7 @@ using std::hash_map;
 
 class _HashString {
  public:
-  size_t operator()(string const &str) const { return hash<char const *>()(str.c_str()); }
+  size_t operator()(string const &str) const { return std::hash<char const *>()(str.c_str()); }
 };
   
 class Settings {
