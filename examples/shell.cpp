@@ -57,7 +57,8 @@ using namespace std;
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- * */
+ *
+ */
 
 // ------------------------------------------------------------------
 void usage(const char *c);
@@ -140,52 +141,85 @@ void SimpleClient::run() {
     FD_ZERO(&wfds);
     FD_ZERO(&efds);
 
+    cout << "----------------------------------------" << endl;
+    cout << "Selecting on:" << endl;
+    cout << " Read: ";
     set<int>::iterator curr = rfdl.begin();
     while (curr != rfdl.end()) {
       FD_SET(*curr, &rfds);
       if (*curr > max_fd) max_fd = *curr;
+      cout << *curr << " ";
       ++curr;
     }
+    cout << endl;
 
     curr = wfdl.begin();
+    cout << " Write: ";
     while (curr != wfdl.end()) {
       FD_SET(*curr, &wfds);
       if (*curr > max_fd) max_fd = *curr;
+      cout << *curr << " ";
       ++curr;
     }
+    cout << endl;
 
     curr = efdl.begin();
+    cout << " Exception: ";
     while (curr != efdl.end()) {
       FD_SET(*curr, &efds);
       if (*curr > max_fd) max_fd = *curr;
+      cout << *curr << " ";
       ++curr;
     }
+    cout << endl;
+    cout << "----------------------------------------" << endl;
 
-    // should ping server every minute
-    tv.tv_sec = 60;
-    tv.tv_usec = 0;
+    // should poll icqclient every 5 seconds once connected
+    struct timeval *tvptr;
+    if (icqclient.isConnected()) {
+      tvptr = &tv;
+      tv.tv_sec = 5;
+      tv.tv_usec = 0;
+    } else {
+      tvptr = NULL;
+    }
 
-    int ret = select(max_fd+1, &rfds, &wfds, &efds, &tv);
+    int ret = select(max_fd+1, &rfds, &wfds, &efds, tvptr);
     if (ret) {
-      curr = rfdl.begin();
-      while (curr != rfdl.end()) {
+      /*
+       * Care must be taken here, when iterating through the sets of
+       * file descriptors the Client::socket_cb()'s may signal
+       * Adding/Removing - modifying the sets inplace whilst we are
+       * iterating through them. Use a temporary copy for safety.
+       *
+       */
+
+      set<int>rfdt = rfdl;
+      curr = rfdt.begin();
+      while (curr != rfdt.end()) {
 	if ( FD_ISSET( *curr, &rfds ) ) icqclient.socket_cb( *curr, SocketEvent::READ );
 	++curr;
       }
 
-      curr = wfdl.begin();
-      while (curr != wfdl.end()) {
+      set<int>wfdt = wfdl;
+      curr = wfdt.begin();
+      while (curr != wfdt.end()) {
 	if ( FD_ISSET( *curr, &wfds ) ) icqclient.socket_cb( *curr, SocketEvent::WRITE );
 	++curr;
       }
 
-      curr = efdl.begin();
-      while (curr != efdl.end()) {
+      set<int>efdt = efdl;
+      curr = efdt.begin();
+      while (curr != efdt.end()) {
 	if ( FD_ISSET( *curr, &efds ) ) icqclient.socket_cb( *curr, SocketEvent::EXCEPTION );
 	++curr;
       }
       
-    } else icqclient.PingServer();
+    } else {
+      if (icqclient.isConnected()) {
+	icqclient.Poll();
+      }
+    }	
   }
 
   // never reached
