@@ -297,6 +297,35 @@ namespace ICQ2000 {
     
   }
 
+  MessageACKSNAC::MessageACKSNAC() { }
+
+  void MessageACKSNAC::ParseBody(Buffer& b) {
+    b.advance(8); // ICBM cookie
+
+    unsigned short channel;
+    b >> channel;
+
+    unsigned char len;
+    string sn;
+    b >> len;
+    b.Unpack(sn, len);
+
+    b.advance(2); // 0x0003 unknown
+    b.advance(47); // unknown
+    
+    unsigned char accept_status;
+    b >> accept_status;
+    b.advance(3);
+
+    b.setEndianness(Buffer::LITTLE);
+    string msg;
+    b.UnpackUint16StringNull(msg);
+
+    b.advance(8); // unknown
+
+    m_uin = Contact::StringtoUIN(sn);
+  }
+
   void MessageSentOfflineSNAC::ParseBody(Buffer& b) {
     b.advance(10);
 

@@ -1,3 +1,110 @@
+2001-11-07 15:12  barnabygray
+
+	* README: CVS instructions updated.
+
+2001-11-07 13:39  barnabygray
+
+	* src/Contact.cpp: TCP Version not initialised properly in
+	Contact.cpp
+
+2001-11-07 01:52  barnabygray
+
+	* ickle/IckleClient.cpp, ickle/UserInfoDialog.cpp,
+	ickle/UserInfoDialog.h, src/Client.cpp, src/Contact.cpp,
+	src/Contact.h, src/buffer.cpp: - Fixed bug in
+	Buffer::UnpackUint16StringNull, wasn't advancing over the null	 at
+	the end.  - Added First name, Last name and Email details to User
+	Info dialog.
+
+2001-11-06 16:47  barnabygray
+
+	* configure.ac, src/Client.cpp, src/Contact.cpp, src/Contact.h,
+	src/SNAC-MSG.cpp, src/SNAC-MSG.h, src/socket.cpp, src/socket.h:
+	Fixed problem on MacOS X with inet address lookup.
+
+2001-11-06 15:19  barnabygray
+
+	* README, configure.ac, examples/shell.cpp,
+	ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/Makefile.am, src/Client.cpp, src/Client.h, src/Contact.cpp,
+	src/Contact.h, src/DirectClient.cpp, src/DirectClient.h,
+	src/ICQ.cpp, src/ICQ.h, src/Makefile.am, src/SNAC-BUD.cpp,
+	src/SNAC-BUD.h, src/SNAC-GEN.cpp, src/SNAC-GEN.h, src/SNAC-LOC.cpp,
+	src/SNAC-LOC.h, src/SNAC-MSG.cpp, src/SNAC-MSG.h, src/SNAC-SRV.cpp,
+	src/SNAC-SRV.h, src/SNAC-UIN.cpp, src/SNAC-UIN.h,
+	src/SNAC-base.cpp, src/SNAC-base.h, src/SNAC.cpp, src/SNAC.h,
+	src/TLV.cpp, src/TLV.h, src/UserInfoBlock.cpp, src/UserInfoBlock.h,
+	src/buffer.cpp, src/buffer.h, src/events.cpp, src/events.h,
+	src/exceptions.h, src/socket.cpp, src/socket.h: Lots of work in
+	progress stuff..  - bug fixes - Direct Connections halfdone - Split
+	up SNAC into separate files - Added patch by Alex Antropoff for
+	rate limit responses + new uin Beware, it's half done currently, so
+	sending + receiving messages is broken for the moment.
+
+2001-10-30 20:51  barnabygray
+
+	* configure.ac: Fixed configure so it should link in correct
+	libraries for solaris.
+
+2001-10-21 15:03  barnabygray
+
+	* TODO, ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.h,
+	ickle/Settings.h, src/Client.cpp, src/Client.h, src/Contact.cpp,
+	src/Contact.h, src/ContactList.h, src/SNAC.cpp, src/SNAC.h,
+	src/TLV.cpp, src/TLV.h, src/events.cpp, src/events.h,
+	src/socket.cpp: Added Alex Antropoff changes: - Registering new
+	UINs to libicq2000 - Handle SNAC 4 0 - message sent offline -
+	Compiler warnings on his compiler - Invisible status
+	
+	My changes: - Half-way through implementing a proper socket handle
+	signalling system.  - Invisible status to contacts - Handle Dual
+	Login error SNAC
+
+2001-10-21 14:56  barnabygray
+
+	* Makefile.am: Icons directories changed around
+
+2001-10-21 14:56  barnabygray
+
+	* icons/: away.xpm, dnd.xpm, ffc.xpm, invisible.xpm, na.xpm,
+	occ.xpm, offline.xpm, online.xpm: New icons!
+
+2001-10-21 14:55  barnabygray
+
+	* icons.doors/: away.xpm, chat.xpm, dnd.xpm, ffc.xpm, file.xpm,
+	invisible.xpm, message.xpm, na.xpm, occ.xpm, offline.xpm,
+	online.xpm, sms.xpm, url.xpm: Moved old icons to icons.doors
+	directory.
+
+2001-10-21 14:53  barnabygray
+
+	* README, configure.ac, examples/Makefile.am, examples/shell.cpp:
+	Added a basic example
+
+2001-10-14 14:56  barnabygray
+
+	* ickle/History.cpp, src/events.cpp: Added history logging
+	Offline/Multiparty message info.
+
+2001-10-14 12:23  barnabygray
+
+	* ickle/MessageBox.cpp, src/Client.cpp, src/SNAC.cpp, src/TLV.cpp,
+	src/TLV.h, src/events.cpp, src/events.h: Receiving Multiparty
+	messages supported.
+
+2001-10-13 14:15  barnabygray
+
+	* Makefile.am, configure.ac, src/Client.cpp: Test wasn't any use to
+	anyone and wasn't keeping up with the library either.
+
+2001-10-09 09:40  barnabygray
+
+	* ChangeLog, ickle/MessageBox.cpp: Eeek, SMS not working for
+	non-ICQ contacts - forgot to change the tab numbering after
+	changing the tabs.
+
 2001-10-08 19:49  barnabygray
 
 	* README, configure.ac: Version 0.1.1 ready for release.
@@ -76,8 +183,7 @@
 	ickle/PromptDialog.h, ickle/Settings.h, ickle/UserInfoDialog.h,
 	ickle/main.h, src/Client.h, src/Contact.h, src/ContactList.h,
 	src/SNAC.h, src/TLV.h, src/Xml.h, src/buffer.h, src/events.h,
-	src/exceptions.h, src/socket.h, test/test-client.cpp: Fixed
-	namespace std problems.
+	src/exceptions.h, src/socket.h: Fixed namespace std problems.
 
 2001-10-03 01:13  barnabygray
 
@@ -103,8 +209,8 @@
 2001-10-01 17:35  barnabygray
 
 	* ChangeLog, config.log, config.status, configure.ac, libtool,
-	ickle/IckleClient.cpp, src/Client.cpp, src/events.h,
-	test/test-client.cpp: Fixed configure versioning.
+	ickle/IckleClient.cpp, src/Client.cpp, src/events.h: Fixed
+	configure versioning.
 
 2001-10-01 15:23  barnabygray
 
@@ -122,8 +228,7 @@
 	src/.deps/Client.P, src/.deps/Contact.P, src/.deps/ContactList.P,
 	src/.deps/SNAC.P, src/.deps/TLV.P, src/.deps/Xml.P,
 	src/.deps/buffer.P, src/.deps/events.P, src/.deps/exceptions.P,
-	src/.deps/logger.P, src/.deps/socket.P, test/.deps/test-client.P,
-	test/.deps/test-sms.P, test/.deps/test-sms.pp: [no log message]
+	src/.deps/logger.P, src/.deps/socket.P: [no log message]
 
 2001-10-01 13:21  barnabygray
 
@@ -134,9 +239,8 @@
 	* COPYING, INSTALL, Makefile, Makefile.in, aclocal.m4, config.h,
 	config.log, config.status, configure, configure.ac, libtool,
 	ickle/Makefile, ickle/Makefile.in, src/Makefile, src/Makefile.in,
-	test/Makefile, test/Makefile.in, Makefile, Makefile.in,
-	ickle/Makefile, ickle/Makefile.in, src/Makefile, src/Makefile.in,
-	test/Makefile, test/Makefile.in: [no log message]
+	Makefile, Makefile.in, ickle/Makefile, ickle/Makefile.in,
+	src/Makefile, src/Makefile.in: [no log message]
 
 2001-10-01 12:28  barnabygray
 
@@ -153,20 +257,17 @@
 	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
 	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
 	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
-	src/.deps/logger.P, src/.deps/socket.P, test/Makefile.in,
-	test/test-client.cpp, test/test-xml.cpp, test/Makefile,
-	test/Makefile.am, ickle/AddMobileUserDialog.cpp,
-	ickle/AddMobileUserDialog.h, ickle/AddUserDialog.cpp,
-	ickle/AddUserDialog.h, ickle/ContactListView.cpp,
-	ickle/ContactListView.h, ickle/IckleClient.cpp,
-	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
-	ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile, ickle/Makefile.am,
-	ickle/Makefile.in, ickle/MessageBox.cpp, ickle/MessageBox.h,
-	ickle/PromptDialog.cpp, ickle/PromptDialog.h, ickle/Settings.cpp,
-	ickle/Settings.h, ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
-	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, ickle/main.cpp,
-	ickle/main.h, test/test-xml, test/.deps/test-client.P,
-	test/.deps/test-sms.P, test/.deps/test-sms.pp,
+	src/.deps/logger.P, src/.deps/socket.P,
+	ickle/AddMobileUserDialog.cpp, ickle/AddMobileUserDialog.h,
+	ickle/AddUserDialog.cpp, ickle/AddUserDialog.h,
+	ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile,
+	ickle/Makefile.am, ickle/Makefile.in, ickle/MessageBox.cpp,
+	ickle/MessageBox.h, ickle/PromptDialog.cpp, ickle/PromptDialog.h,
+	ickle/Settings.cpp, ickle/Settings.h, ickle/SettingsDialog.cpp,
+	ickle/SettingsDialog.h, ickle/UserInfoDialog.cpp,
+	ickle/UserInfoDialog.h, ickle/main.cpp, ickle/main.h,
 	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
 	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
 	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,
@@ -199,20 +300,17 @@
 	src/.deps/Client.P, src/.deps/TLV.P, src/.deps/buffer.P,
 	src/.deps/events.P, src/.deps/exceptions.P, src/.deps/Contact.P,
 	src/.deps/ContactList.P, src/.deps/SNAC.P, src/.deps/Xml.P,
-	src/.deps/logger.P, src/.deps/socket.P, test/Makefile.in,
-	test/test-client.cpp, test/test-xml.cpp, test/Makefile,
-	test/Makefile.am, ickle/AddMobileUserDialog.cpp,
-	ickle/AddMobileUserDialog.h, ickle/AddUserDialog.cpp,
-	ickle/AddUserDialog.h, ickle/ContactListView.cpp,
-	ickle/ContactListView.h, ickle/IckleClient.cpp,
-	ickle/IckleClient.h, ickle/IckleGUI.cpp, ickle/IckleGUI.h,
-	ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile, ickle/Makefile.am,
-	ickle/Makefile.in, ickle/MessageBox.cpp, ickle/MessageBox.h,
-	ickle/PromptDialog.cpp, ickle/PromptDialog.h, ickle/Settings.cpp,
-	ickle/Settings.h, ickle/SettingsDialog.cpp, ickle/SettingsDialog.h,
-	ickle/UserInfoDialog.cpp, ickle/UserInfoDialog.h, ickle/main.cpp,
-	ickle/main.h, test/test-xml, test/.deps/test-client.P,
-	test/.deps/test-sms.P, test/.deps/test-sms.pp,
+	src/.deps/logger.P, src/.deps/socket.P,
+	ickle/AddMobileUserDialog.cpp, ickle/AddMobileUserDialog.h,
+	ickle/AddUserDialog.cpp, ickle/AddUserDialog.h,
+	ickle/ContactListView.cpp, ickle/ContactListView.h,
+	ickle/IckleClient.cpp, ickle/IckleClient.h, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/Icons.cpp, ickle/Icons.h, ickle/Makefile,
+	ickle/Makefile.am, ickle/Makefile.in, ickle/MessageBox.cpp,
+	ickle/MessageBox.h, ickle/PromptDialog.cpp, ickle/PromptDialog.h,
+	ickle/Settings.cpp, ickle/Settings.h, ickle/SettingsDialog.cpp,
+	ickle/SettingsDialog.h, ickle/UserInfoDialog.cpp,
+	ickle/UserInfoDialog.h, ickle/main.cpp, ickle/main.h,
 	ickle/.deps/Contact.P, ickle/.deps/ContactList.P,
 	ickle/.deps/ContactListView.P, ickle/.deps/IckleClient.P,
 	ickle/.deps/IckleGUI.P, ickle/.deps/Icons.P,

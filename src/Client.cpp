@@ -541,8 +541,15 @@ namespace ICQ2000 {
     b << crs;
     FLAPFooter(b,d);
 
-    SignalLog(LogEvent::INFO, "Sending Contact List, Status and Client Ready\n");
+    d = FLAPHeader(b,0x02);
+    SrvRequestOfflineSNAC ssnac(m_uin);
+    b << ssnac;
+    FLAPFooter(b,d);
+
+    SignalLog(LogEvent::INFO, "Sending Contact List, Status, Client Ready and Offline Messages Request\n");
     Send(b);
+
+    SignalConnect();
   }
 
   void Client::SendOfflineMessagesRequest() {
@@ -705,6 +712,8 @@ namespace ICQ2000 {
 
     } else if (b.remains() == 4 && m_state == BOS_AWAITING_CONN_ACK) {
 
+      SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending cookie\n");
+
       // Connection Ack, send the cookie
       unsigned int unknown;
       b >> unknown; // always 0x0001
@@ -734,9 +743,11 @@ namespace ICQ2000 {
     case SNAC_FAM_GEN:
       switch(snac->Subtype()) {
       case SNAC_GEN_ServerReady:
+	SignalLog(LogEvent::INFO, "Received Server Ready from server\n");
 	SendCapabilities();
 	break;
       case SNAC_GEN_RateInfo:
+	SignalLog(LogEvent::INFO, "Received Rate Information from server\n");
 	SendRateInfoAck();
 	SendPersonalInfoRequest();
 	SendAddICBMParameter();
@@ -744,19 +755,24 @@ namespace ICQ2000 {
 	SendLogin();
 	break;
       case SNAC_GEN_CapAck:
+	SignalLog(LogEvent::INFO, "Received Capabilities Ack from server\n");
 	SendRateInfoRequest();
 	break;
       case SNAC_GEN_UserInfo:
+	SignalLog(LogEvent::INFO, "Received User Info from server\n");
 	HandleUserInfoSNAC(static_cast<UserInfoSNAC*>(snac));
 	break;
       case SNAC_GEN_MOTD:
-	SignalConnect();
-	SendOfflineMessagesRequest();
+	SignalLog(LogEvent::INFO, "Received MOTD from server\n");
+	//	SignalConnect();
 	/* take the MOTD as the sign we
 	 * are online proper
+	 * - unfortunately they seemed to have stopped sending that
+	 *   so this isn't the sign anymore.
 	 */
 	break;
       case SNAC_GEN_RateInfoChange:
+	SignalLog(LogEvent::INFO, "Received Rate Info Change from server\n");
 	SignalRateInfoChange(static_cast<RateInfoChangeSNAC*>(snac));
 	break;
       }
@@ -765,9 +781,11 @@ namespace ICQ2000 {
     case SNAC_FAM_BUD:
       switch(snac->Subtype()) {
       case SNAC_BUD_Online:
+	SignalLog(LogEvent::INFO, "Received Buddy Online from server\n");
 	SignalUserOnline(static_cast<BuddyOnlineSNAC*>(snac));
 	break;
       case SNAC_BUD_Offline:
+	SignalLog(LogEvent::INFO, "Received Buddy Offline from server\n");
 	SignalUserOffline(static_cast<BuddyOfflineSNAC*>(snac));
       }
       break;
@@ -775,6 +793,7 @@ namespace ICQ2000 {
     case SNAC_FAM_MSG:
       switch(snac->Subtype()) {
       case SNAC_MSG_Message:
+	SignalLog(LogEvent::INFO, "Received Message from server\n");
 	SignalMessage(static_cast<MessageSNAC*>(snac));
 	break;
       }
@@ -783,6 +802,7 @@ namespace ICQ2000 {
     case SNAC_FAM_SRV:
       switch(snac->Subtype()) {
       case SNAC_SRV_Response:
+	SignalLog(LogEvent::INFO, "Received Server Response from server\n");
 	SignalSrvResponse(static_cast<SrvResponseSNAC*>(snac));
 	break;
       }
@@ -790,9 +810,11 @@ namespace ICQ2000 {
     case SNAC_FAM_UIN:
       switch(snac->Subtype()) {
       case SNAC_UIN_Response:
+	SignalLog(LogEvent::INFO, "Received UIN Response from server\n");
 	SignalUINResponse(static_cast<UINResponseSNAC*>(snac));
 	break;
       case SNAC_UIN_RequestError:
+	SignalLog(LogEvent::INFO, "Received UIN Request Error from server\n");
 	SignalUINRequestError();
 	break;
       }

@@ -32,6 +32,7 @@ namespace ICQ2000 {
   const unsigned short SNAC_MSG_AddICBMParameter = 0x0002;
   const unsigned short SNAC_MSG_Send = 0x0006;
   const unsigned short SNAC_MSG_Message = 0x0007;
+  const unsigned short SNAC_MSG_MessageACK = 0x000b;
   const unsigned short SNAC_MSG_SentOffline = 0x000c;
 
   // ----------------- Message (Family 0x0004) SNACs --------------
@@ -86,6 +87,20 @@ namespace ICQ2000 {
 
     unsigned short Subtype() const { return SNAC_MSG_Message; }
   };
+
+  class MessageACKSNAC : public MsgFamilySNAC, public InSNAC {
+   protected:
+    unsigned int m_uin;
+
+    void ParseBody(Buffer& b);
+
+   public:
+    MessageACKSNAC();
+
+    unsigned short Subtype() const { return SNAC_MSG_MessageACK; }
+    unsigned int getUIN() const { return m_uin; }  
+  };
+
   class MessageSentOfflineSNAC : public MsgFamilySNAC, public InSNAC {
    protected:
     unsigned int m_uin;
@@ -97,7 +112,6 @@ namespace ICQ2000 {
     unsigned short Subtype() const { return SNAC_MSG_SentOffline; }
     unsigned int getUIN() const { return m_uin; }  
   };
-
 
 }
 
