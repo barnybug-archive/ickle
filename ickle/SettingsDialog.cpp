@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.23 2002-01-07 21:13:52 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.24 2002-01-07 22:18:40 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -588,11 +588,17 @@ void SettingsDialog::fontsel_cb(int n) {
 }
 
 void SettingsDialog::fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n) {
-  if (n == 0) {
-    message_header_font = fontsel->get_font_name();
-  } else {
-    message_text_font = fontsel->get_font_name();
+  GtkFontSelection* fs = const_cast<GtkFontSelection*>(fontsel->get_font_selection()->gtkobj());
+  gchar *tmp = gtk_font_selection_get_font_name(fs);
+  if(tmp != 0) {
+    if (n == 0) {
+      message_header_font = fontsel->get_font_name();
+    } else {
+      message_text_font = fontsel->get_font_name();
+    }
   }
+  else
+    g_warning( "No font selected, neither font nor size was changed!" );
   fontsel->destroy();
 }
 
