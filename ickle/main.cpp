@@ -48,6 +48,7 @@ string CONTACT_DIR;
 string DATA_DIR;
 string TRANSLATIONS_DIR;
 string ICONS_DIR;
+string PID_FILENAME;
 
 int main(int argc, char* argv[]) {
   try {

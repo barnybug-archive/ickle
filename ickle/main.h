@@ -38,5 +38,6 @@ extern string CONTACT_DIR;
 extern string DATA_DIR;
 extern string TRANSLATIONS_DIR;
 extern string ICONS_DIR;
+extern string PID_FILENAME;
 
 #endif

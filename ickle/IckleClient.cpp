@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.72 2002-02-13 14:50:49 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.73 2002-02-20 17:34:07 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,6 +35,7 @@
 
 #include <stdexcept>
 #include <fstream>
+#include <signal.h>
 #include "sstream_fix.h"
 
 #include "main.h"
@@ -64,6 +65,9 @@ IckleClient::IckleClient(int argc, char* argv[])
 {
   // process command line parameters
   processCommandLine(argc,argv);
+
+  // make sure ickle is't already running with the current configuration directory
+  check_pid_file();
 
 #ifdef GNOME_ICKLE
   // initialize GNOME applet
@@ -135,6 +139,10 @@ IckleClient::~IckleClient() {
   // free History objects
   for( map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
     delete itr->second;
+
+  // remove the ickle.pid file
+  if (!PID_FILENAME.empty()) unlink(PID_FILENAME.c_str());
+
 }
 
 void IckleClient::loadContactList() {
@@ -185,6 +193,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   DATA_DIR = string(PKGDATADIR) + "/";
   TRANSLATIONS_DIR = DATA_DIR + "translations/";
   ICONS_DIR = DATA_DIR + "icons/";
+  PID_FILENAME = BASE_DIR + "ickle.pid";
 }
 
 void IckleClient::usageInstructions(const char* progname) {
@@ -317,12 +326,7 @@ void IckleClient::saveSettings() {
   g_settings.setValue( "geometry_width", width );
   g_settings.setValue( "geometry_height", height );
 
-  if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-    ostringstream ostr;
-    ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
-    SignalLog(LogEvent::ERROR, ostr.str());
-    return;
-  }
+  if (!mkdir_BASE_DIR()) return;
   
   string ickle_conf = BASE_DIR + "ickle.conf";
 
@@ -693,6 +697,17 @@ void IckleClient::event_system(const string& s, Contact * c, time_t t) {
   }
 }
 
+bool IckleClient::mkdir_BASE_DIR()
+{
+  if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
+    ostringstream ostr;
+    ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
+    SignalLog(LogEvent::ERROR, ostr.str());
+    return false;
+  }
+  return true;
+}
+
 void IckleClient::contactlist_cb(ContactListEvent *ev) {
   Contact *c = ev->getContact();
 
@@ -727,12 +742,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
         m_histmap[c->getUIN()] = new History( get_unique_historyname() );
     }
 
-    if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-      ostringstream ostr;
-      ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
-      SignalLog(LogEvent::ERROR, ostr.str());
-      return;
-    }
+    if ( !mkdir_BASE_DIR() ) return;
+
     if ( mkdir( CONTACT_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
       ostringstream ostr;
       ostr << "mkdir " << CONTACT_DIR << " failed: " << strerror(errno);
@@ -900,4 +911,36 @@ void IckleClient::loadContact(const string& s, bool self)
 void IckleClient::loadSelfContact()
 {
   loadContact( BASE_DIR + "self.user", true );
+}
+
+void IckleClient::check_pid_file(){
+
+  fstream pidfile;
+  pid_t pid;
+
+  if (!mkdir_BASE_DIR()) return;
+
+  pidfile.open(PID_FILENAME.c_str(), std::ios::in|std::ios::nocreate);
+
+  if (pidfile.is_open()) {
+    pidfile >> pid;
+    if (kill(pid, 0) == -1) {
+      cerr << "ickle left behind a stale lockfile (" << PID_FILENAME << ")" << endl;
+    } else {
+      cerr << "ickle is already running (process id " << pid << ")" << endl;
+      exit(1);
+    }
+  }
+
+  pidfile.close();
+  pidfile.open(PID_FILENAME.c_str(), std::ios::out);
+
+  if (!pidfile.is_open()) {
+    cerr << "Could not create pid_file (" << PID_FILENAME << ")" << endl;
+  } else {
+    pid = getpid();
+    pidfile << pid;
+    pidfile.close();
+  }
+
 }

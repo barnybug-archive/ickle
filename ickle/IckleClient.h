@@ -108,6 +108,9 @@ class IckleClient : public SigC::Object {
   void logger_file_cb(const string& msg);
 
   string get_unique_historyname() throw (runtime_error);
+  
+  void check_pid_file();
+  bool mkdir_BASE_DIR();
 
  public:
   IckleClient(int argc, char* argv[]);
