@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.7 2002-04-18 17:30:00 nordman Exp $
+/* $Id: IdleTimer.cpp,v 1.8 2002-05-21 20:52:22 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -71,6 +71,7 @@ gint IdleTimer::timer_cb()
 {
   unsigned short auto_away = g_settings.getValueUnsignedShort("auto_away");
   unsigned short auto_na = g_settings.getValueUnsignedShort("auto_na");
+  bool auto_return = g_settings.getValueUnsignedShort("auto_return");
 
   if( (icqclient.getStatus() != ICQ2000::STATUS_ONLINE && !m_autostatus) ||
       ( !auto_away && !auto_na ) )
@@ -90,7 +91,7 @@ gint IdleTimer::timer_cb()
     limit = min(auto_away, auto_na) * 60;
     if ( m_idletime < limit || !limit ) { // !limit == this one is disabled
       if (m_autostatus) { // back from idling, reset previous status
-        icqclient.setStatus( m_prevstatus );
+        if (auto_return) icqclient.setStatus( m_prevstatus );
         m_autostatus = false;
       }
       return 1;

@@ -42,3 +42,7 @@ Christian Bornträger
 
 Plutonski <Plutonski@gmx.net>
  - ickle_control sms messaging support
+
+Vladimir Klebanov <unny@rz.uni-karlsruhe.de>
+- option to keep the automatically set away status when returning from
+  idle state.

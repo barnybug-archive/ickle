@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.105 2002-05-06 00:15:13 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.106 2002-05-21 20:52:21 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -245,6 +245,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("away_autoposition", true);
   g_settings.defaultValueUnsignedShort("auto_away", 0, 0, 65535);
   g_settings.defaultValueUnsignedShort("auto_na", 0, 0, 65535);
+  g_settings.defaultValueBool("auto_return", true);
   g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 0, 10);
 
   g_settings.defaultValueBool("window_status_icons", true);

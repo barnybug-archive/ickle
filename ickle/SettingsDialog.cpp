@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.50 2002-04-21 14:56:19 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.51 2002-05-21 20:52:22 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -56,6 +56,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     subs_b("Substitutions legend..."),
     event_execute_all("Execute all events", 0),
     away_autoposition("Autoposition away messages dialog", 0),
+    auto_return("Automatically return (from auto-away or auto-N/A)", 0),
     status_cl_inv("Classic Invisibility", 0),
     popup_away_response("Popup auto response dialog on status change", 0),
     reconnect_checkbox("Auto Reconnect", 0),
@@ -406,7 +407,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   // ------------------ Away Status ------------------------
 
-  table = manage( new Gtk::Table( 2, 5, false ) );
+  table = manage( new Gtk::Table( 2, 6, false ) );
   
   away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
   table->attach( away_autoposition, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
@@ -438,6 +439,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autona_spinner, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   autona_spinner->changed ();
+
+  auto_return.set_active( g_settings.getValueBool("auto_return") );
+  table->attach( auto_return, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND, 0);
 
   table->set_row_spacings(5);
   table->set_col_spacings(5);
@@ -812,6 +816,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("set_away_response_dialog", popup_away_response.get_active() );
   g_settings.setValue("auto_away", (unsigned short)autoaway_spinner->get_value_as_int());
   g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
+  g_settings.setValue("auto_return", auto_return.get_active() );
 
   /* Predefined away-messages */
 
