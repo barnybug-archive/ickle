@@ -21,6 +21,6 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
                  Icons.h UserInfoDialog.h AddMobileUserDialog.h \
 		 SettingsDialog.h PromptDialog.h History.h \
 		 MobileNoEntry.h
-ickle_LDADD = -L$(top_srcdir)/src/ -licq2000
-ickle_DEPENDENCIES = $(top_srcdir)/src/.libs/libicq2000.a
+ickle_LDADD = $(top_srcdir)/src/libicq2000.la
+ickle_DEPENDENCIES = $(top_srcdir)/src/libicq2000.la
 

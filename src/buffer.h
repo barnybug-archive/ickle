@@ -34,7 +34,7 @@ class Buffer {
  public:
   enum endian { BIG, LITTLE };
 
-  typedef vector<unsigned char>::iterator iterator ;
+  typedef vector<unsigned char>::iterator iterator;
 
  private:
   vector<unsigned char> data;
