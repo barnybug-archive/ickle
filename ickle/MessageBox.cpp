@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.43 2002-02-02 16:26:43 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.44 2002-02-18 19:15:36 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -19,6 +19,10 @@
  */
 
 #include <stdlib.h>
+#include <ctype.h>
+
+#include <algorithm>
+#include <functional>
 
 #include "MessageBox.h"
 #include "sstream_fix.h"
@@ -36,6 +40,8 @@
 
 #include "gtkspell.h"
 
+#include "PromptDialog.h"
+
 using Gtk::Text;
 using Gtk::Text_Helpers::Context;
 using SigC::bind;
@@ -43,6 +49,8 @@ using SigC::slot;
 using std::ostringstream;
 using std::endl;
 using std::exception;
+using std::not1;
+using std::find_if;
 
 MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   : m_self_contact(self),
@@ -578,17 +586,43 @@ void MessageBox::popup() {
   redraw_history();
 }
 
+struct isnotspace
+{
+  bool operator()(int n) { return !isspace(n); }
+};
+
+bool MessageBox::isBlank(const string& s)
+{
+  return (find_if(s.begin(), s.end(), isnotspace() ) == s.end());
+}
+
 void MessageBox::send_clicked_cb() {
 
-  set_status("Sending message...");
-
   if (m_message_type == MessageEvent::Normal) {
+    if (isBlank(m_message_text.get_chars(0,-1))) {
+      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (!pd.run()) return;
+    }
+    
+    set_status("Sending message...");
     NormalMessageEvent *nv = new NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
     send_event.emit( nv );
   } else if (m_message_type == MessageEvent::URL) {
+    if (isBlank(m_url_entry.get_text())) {
+      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (!pd.run()) return;
+    }
+
+    set_status("Sending URL...");
     URLMessageEvent *uv = new URLMessageEvent( m_contact, m_url_text.get_chars(0,-1), m_url_entry.get_text() );
     send_event.emit( uv );
   } else if (m_message_type == MessageEvent::SMS) {
+    if (isBlank(m_sms_text.get_chars(0,-1))) {
+      PromptDialog pd(PromptDialog::PROMPT_CONFIRM, "You are about to send a blank message.\nAre you sure you wish to send it?");
+      if (!pd.run()) return;
+    }
+
+    set_status("Sending SMS...");
     SMSMessageEvent *sv = new SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
     send_event.emit( sv );
   }
