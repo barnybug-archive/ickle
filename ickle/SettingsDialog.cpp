@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.58 2003-02-02 20:03:48 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.59 2003-02-06 19:01:15 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -185,12 +185,14 @@ void SettingsDialog::init_login_page()
   m_login_uin.set_digits(0);
   m_login_uin.set_increments(1, 10);
   m_login_uin.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_login_uin,"UIN is the unique number that identifies the user");
   
   table->attach( m_login_uin, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
   table->attach( * manage( new Gtk::Label( _("Password"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
   m_login_pass.set_visibility(false);
   m_login_pass.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_login_pass,"the password for the account");
   table->attach( m_login_pass, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
 
   table->set_spacings(5);
@@ -245,7 +247,47 @@ void SettingsDialog::init_away_page()
 void SettingsDialog::init_away_idle_page()
 {
   Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  
+  SectionFrame * frame = manage( new SectionFrame( _("Away/Idle") ) );
+  
+  Gtk::Table * table = new Gtk::Table( 2, 3 );
+
+  table->attach( * manage( new Gtk::Label( _("Auto-away (minutes)"), 0.0, 0.5 ) ),
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  m_auto_away.set_range(0, 0xffff);
+  m_auto_away.set_digits(0); 
+  m_auto_away.set_increments(1, 10);
+  m_auto_away.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_away,"After this time ickle will switch its mode to away. 0 to disable");
+  table->attach( m_auto_away, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+    
+  table->attach( * manage( new Gtk::Label( _("Auto-N/A (minutes)"), 0.0, 0.5 ) ),
+		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
+		 
+  m_auto_na.set_range(0, 0xffff);
+  m_auto_na.set_digits(0); 
+  m_auto_na.set_increments(1, 10);
+  m_auto_na.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_na,"After this time ickle will switch its mode to Not Available. 0 to disable");
+  table->attach( m_auto_na, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+
+  
+  m_auto_return.set_label("Automatically return (from Auto-away or Auto-N/A)");
+  m_auto_return.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_auto_return,"Determines if ickle will return from Auto-away or Auto-N/A after pressing a key or moving the mouse.");
+  table->attach( m_auto_return,0,2,2,3, Gtk::FILL, Gtk::FILL );
+
+  table->set_spacings(5);
+  table->set_border_width(10);
+  
+  frame->add( * table );
+
+  vbox->pack_start( *frame );
   add_page( _("Idle"), vbox, false );
+  
+  
+  
 }
 
 void SettingsDialog::init_away_message_page()
@@ -327,6 +369,9 @@ void SettingsDialog::load_away_page()
 
 void SettingsDialog::load_away_idle_page()
 {
+  m_auto_away.set_value((double)g_settings.getValueUnsignedInt("auto_away") );
+  m_auto_na.set_value((double)g_settings.getValueUnsignedInt("auto_na") );
+  m_auto_return.set_active(g_settings.getValueBool("auto_return") );
 }
 
 void SettingsDialog::load_away_message_page()

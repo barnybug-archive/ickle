@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.44 2003-02-02 20:03:48 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.45 2003-02-06 19:01:16 barnabygray Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,7 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/spinbutton.h>
 #include <gtkmm/button.h>
+#include <gtkmm/tooltips.h>
 
 class SettingsDialog : public Gtk::Dialog
 {
@@ -48,6 +49,7 @@ class SettingsDialog : public Gtk::Dialog
   };
 
   const ModelColumns m_columns;
+  Gtk::Tooltips m_tooltip;
 
   // the Tree store
   Glib::RefPtr<Gtk::TreeStore> m_reftreestore;
@@ -64,6 +66,12 @@ class SettingsDialog : public Gtk::Dialog
   // login page
   Gtk::SpinButton m_login_uin;
   Gtk::Entry m_login_pass;
+
+
+  // Away/Idle page
+  Gtk::SpinButton m_auto_away;
+  Gtk::SpinButton m_auto_na;
+  Gtk::CheckButton m_auto_return;
 
   // page init functions
   void init_pages();
