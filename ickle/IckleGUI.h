@@ -34,7 +34,6 @@
 #include <sigc++/signal_system.h>
 
 #include <string>
-#include <memory>
 
 #include <config.h>
 
@@ -66,7 +65,6 @@
 #include "constants.h"
 
 using std::string;
-using std::auto_ptr;
 using std::hash_map;
 
 using SigC::Signal0;
@@ -77,8 +75,8 @@ using namespace ICQ2000;
 
 class IckleGUI : public Gtk::Window {
  private:
-
   hash_map<unsigned int, MessageBox*> m_message_boxes;
+  hash_map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
   Status m_status;
 
   bool m_display_times;
@@ -93,7 +91,6 @@ class IckleGUI : public Gtk::Window {
   Gtk::Menu m_ickle_menu;
   Gtk::Menu m_status_menu;
 
-  auto_ptr<UserInfoDialog> m_userinfodialog;
   // --
 
   void menu_status_update();
@@ -107,8 +104,9 @@ class IckleGUI : public Gtk::Window {
 
   void status_change_menu_cb(Status st);
   void user_popup(Contact *c);
-  void user_info_edit(Contact *c);
-  void user_popup_close_cb(unsigned int uin);
+  void userinfo_popup(Contact *c);
+  void message_box_close_cb(Contact *c);
+  void userinfo_dialog_close_cb(Contact *c);
   void add_user_cb();
   void add_mobile_user_cb();
   void invalid_login_prompt();
@@ -123,6 +121,7 @@ class IckleGUI : public Gtk::Window {
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
   void icons_changed_cb();
+  void userinfo_toggle_cb(bool b, Contact *c);
   void status_change_cb(MyStatusChangeEvent *ev);
 
   // signals

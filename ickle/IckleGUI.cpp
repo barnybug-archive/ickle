@@ -108,6 +108,10 @@ IckleGUI::~IckleGUI() {
     hash_map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
     (*i).second->destroy();
   }
+  while(!m_userinfo_dialogs.empty()) {
+    hash_map<unsigned int, UserInfoDialog*>::iterator i = m_userinfo_dialogs.begin();
+    (*i).second->destroy();
+  }
 }
 
 bool IckleGUI::message_cb(MessageEvent *ev) {
@@ -155,15 +159,22 @@ void IckleGUI::contactlist_cb(ContactListEvent *ev) {
     if (et == ContactListEvent::UserInfoChange) {
       m->contactlist_cb(ev);
     } else if (et == ContactListEvent::UserRemoved) {
-      m_message_boxes.erase(uin);
-      delete m;
+      m->destroy();
     }
       
   }
 
-  if (et == ContactListEvent::UserInfoChange && m_userinfodialog.get() != NULL) {
-    m_userinfodialog->userinfochange_cb();
+  if (m_userinfo_dialogs.count(uin) != 0) {
+    UserInfoDialog *d = m_userinfo_dialogs[uin];
+
+    if (et == ContactListEvent::UserInfoChange) {
+      d->userinfochange_cb();
+    } else if (et == ContactListEvent::UserRemoved) {
+      d->destroy();
+    }
+      
   }
+
 }
 
 ContactListView* IckleGUI::getContactListView() {
@@ -179,12 +190,15 @@ void IckleGUI::user_popup(Contact *c) {
      * however we don't add them to anything, so they still need to be signalled to
      * destroy themselves when the main window is closed.
      */
-    m->destroy.connect(bind(slot(this,&IckleGUI::user_popup_close_cb), c->getUIN()));
+    m->destroy.connect(bind(slot(this,&IckleGUI::message_box_close_cb), c));
     m->send_event.connect(send_event.slot());
+    m->userinfo_dialog.connect(bind(slot(this,&IckleGUI::userinfo_toggle_cb), c));
     m_message_boxes[c->getUIN()] = m;
 
     if (m_status == STATUS_OFFLINE) m->offline();
     else m->online();
+
+    if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
 
     m->setDisplayTimes(m_display_times);
 
@@ -227,8 +241,22 @@ void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
   }
 }
 
-void IckleGUI::user_popup_close_cb(unsigned int uin) {
+void IckleGUI::message_box_close_cb(Contact *c) {
+  unsigned int uin = c->getUIN();
   if (m_message_boxes.count(uin) != 0) m_message_boxes.erase(uin);
+  if (m_userinfo_dialogs.count(uin) != 0) m_userinfo_dialogs[uin]->destroy();
+}
+
+void IckleGUI::userinfo_dialog_close_cb(Contact *c) {
+  unsigned int uin = c->getUIN();
+  if (m_userinfo_dialogs.count(uin) != 0) {
+    if (m_userinfo_dialogs[uin]->isChanged()) icqclient.SignalUserInfoChange(c);
+    m_userinfo_dialogs.erase(uin);
+  }
+
+  if (m_message_boxes.count(uin) != 0) {
+    m_message_boxes[uin]->userinfo_dialog_cb(false);
+  }
 }
 
 void IckleGUI::add_user_cb() {
@@ -265,11 +293,30 @@ void IckleGUI::setDisplayTimes(bool d) {
   }
 }
 
-void IckleGUI::user_info_edit(Contact *c) {
-  m_userinfodialog.reset(new UserInfoDialog(c));
-  m_userinfodialog->fetch.connect( bind( fetch.slot(), c) );
-  if (m_userinfodialog->run()) icqclient.SignalUserInfoChange(c);
-  m_userinfodialog.reset();
+void IckleGUI::userinfo_toggle_cb(bool b, Contact *c) {
+  unsigned int uin = c->getUIN();
+  if ( b && m_userinfo_dialogs.count(uin) == 0 ) {
+    userinfo_popup(c);
+  } else if ( !b && m_userinfo_dialogs.count(uin) > 0 ) {
+    m_userinfo_dialogs[uin]->destroy();
+  }
+}
+
+void IckleGUI::userinfo_popup(Contact *c) {
+  unsigned int uin = c->getUIN();
+  if ( m_userinfo_dialogs.count(uin) == 0 ) {
+    UserInfoDialog *d = new UserInfoDialog(c);
+    manage(d);
+    d->destroy.connect(bind(slot(this,&IckleGUI::userinfo_dialog_close_cb), c));
+    d->fetch.connect( bind( fetch.slot(), c) );
+    m_userinfo_dialogs[ uin ] = d;
+    if (m_message_boxes.count(uin) != 0) {
+      m_message_boxes[uin]->userinfo_dialog_cb(true);
+    }
+  } else {
+    m_userinfo_dialogs[ uin ]->raise();
+  }
+
 }
 
 void IckleGUI::settings_cb() {
@@ -280,7 +327,7 @@ void IckleGUI::settings_cb() {
     if (dialog.getUIN() != icqclient.getUIN() ||
 	dialog.getPassword() != icqclient.getPassword()) reconnect = icqclient.isConnected();
 
-    if (reconnect) icqclient.Disconnect();
+    if (reconnect) icqclient.setStatus(STATUS_OFFLINE);
     
     dialog.updateSettings();
 

@@ -71,7 +71,7 @@ class ContactListView : public Gtk::CList {
 
   citerator lookupUIN(unsigned int uin);
 
-  void user_info_cb();
+  void userinfo_cb();
   void remove_user_cb();
   void fetch_away_msg_cb();
   unsigned int current_selection_uin();
@@ -94,7 +94,7 @@ class ContactListView : public Gtk::CList {
 
   // signals
   Signal1<void,unsigned int> user_popup;
-  Signal1<void,unsigned int> user_info;
+  Signal1<void,unsigned int> userinfo;
 };
 
 #endif

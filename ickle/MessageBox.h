@@ -33,6 +33,7 @@
 #include <gtk--/notebook.h>
 #include <gtk--/entry.h>
 #include <gtk--/statusbar.h>
+#include <gtk--/togglebutton.h>
 
 #include <time.h>
 
@@ -48,48 +49,37 @@ using namespace ICQ2000;
 using std::string;
 using SigC::Signal1;
 
-using Gtk::VBox;
-using Gtk::HButtonBox;
-using Gtk::Button;
-using Gtk::Table;
-using Gtk::Text;
-using Gtk::Entry;
-using Gtk::Label;
-using Gtk::VPaned;
-using Gtk::Notebook;
-using Gtk::Statusbar;
-
 class MessageBox : public Gtk::Window {
  private:
   Contact *m_contact;
 
-  VBox m_vbox_top;
-  HButtonBox m_hbox_buttons;
-  Button m_send_button, m_close_button;
+  Gtk::VBox m_vbox_top;
+  Gtk::Button m_send_button, m_close_button;
 
-  Table m_history_table;
-  Text m_history_text;
+  Gtk::Table m_history_table;
+  Gtk::Text m_history_text;
 
-  Notebook m_tab;
+  Gtk::Notebook m_tab;
 
   // normal message tab
-  Text m_message_text;
+  Gtk::Text m_message_text;
 
   // url tab
-  Text m_url_text;
-  Entry m_url_entry;
+  Gtk::Text m_url_text;
+  Gtk::Entry m_url_entry;
 
   // sms tab
-  Text m_sms_text;
-  Entry m_sms_count;
-  Label m_sms_count_label;
+  Gtk::Text m_sms_text;
+  Gtk::Entry m_sms_count;
+  Gtk::Label m_sms_count_label;
   bool m_sms_count_over;
   bool m_sms_enabled, m_online;
   bool m_display_times;
   
-  VPaned m_pane;
+  Gtk::VPaned m_pane;
+  Gtk::ToggleButton *m_userinfo_toggle;
 
-  Statusbar m_status;
+  Gtk::Statusbar m_status;
   guint m_status_context;
 
   MessageEvent::MessageType m_message_type;
@@ -114,15 +104,19 @@ class MessageBox : public Gtk::Window {
   void online();
   void offline();
 
+  void userinfo_dialog_cb(bool b);
+
   void setDisplayTimes(bool d);
   
   void raise() const;
 
   // signals
   SigC::Signal1<void,MessageEvent *> send_event;
+  SigC::Signal1<void,bool> userinfo_dialog;
 
   void send_clicked_cb();
   void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);
+  void userinfo_toggle_cb();
   void sms_count_update_cb();
   gint key_press_cb(GdkEventKey*);
   virtual gint delete_event_impl(GdkEventAny *ev);

@@ -98,7 +98,7 @@ class IckleClient : public SigC::Object {
 
   // -- Callbacks for GUI --
   void user_popup_cb(unsigned int uin);
-  void user_info_cb(unsigned int uin);
+  void userinfo_cb(unsigned int uin);
   void send_event_cb(MessageEvent *ev);
   void add_user_cb(unsigned int uin);
   void add_mobile_user_cb(string,string);

@@ -30,7 +30,7 @@ using SigC::slot;
 UserInfoDialog::UserInfoDialog(Contact *c)
        : Gtk::Dialog(),
 	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
-	 contact(c)
+	 contact(c), changed(false)
 {
   ostringstream ostr;
   ostr << "User Info - " << c->getAlias() << " (";
@@ -41,10 +41,9 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   }
   ostr << ")";
   set_title(ostr.str());
-  set_modal(true);
 
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
-  cancel.clicked.connect(slot(this,&UserInfoDialog::cancel_cb));
+  cancel.clicked.connect( destroy.slot() );
   fetchb.clicked.connect( fetch.slot() );
   
   notebook.set_tab_pos(GTK_POS_TOP);
@@ -220,57 +219,53 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   show_all();
 }
 
-bool UserInfoDialog::run() {
-  Gtk::Main::run();
-  if (finished_okay) {
-    // check if anything was touched
-    finished_okay = false;
-    if (contact->getAlias() != alias_entry.get_text()) {
-      finished_okay = true;
-      contact->setAlias(alias_entry.get_text());
-    }
-    if (contact->getMobileNo() != cellular_entry.get_text()) {
-      finished_okay = true;
-      contact->setMobileNo(cellular_entry.get_text());
-    }
-    if (contact->getFirstName() != firstname_entry.get_text()) {
-      finished_okay = true;
-      contact->setFirstName(firstname_entry.get_text());
-    }
-    if (contact->getLastName() != lastname_entry.get_text()) {
-      finished_okay = true;
-      contact->setLastName(lastname_entry.get_text());
-    }
-    if (contact->getEmail() != email_entry1.get_text()) {
-      finished_okay = true;
-      contact->setEmail(email_entry1.get_text());
-    }
-    MainHomeInfo& mhi = contact->getMainHomeInfo();
-    if (mhi.phone != phone_entry.get_text()) {
-      finished_okay = true;
-      mhi.phone = phone_entry.get_text();
-    }
-    if (mhi.fax != fax_entry.get_text()) {
-      finished_okay = true;
-      mhi.fax = fax_entry.get_text();
-    }
-    if (mhi.cellular != cellular_entry.get_text()) {
-      finished_okay = true;
-      mhi.cellular = cellular_entry.get_text();
-    }
-  }
-    
-  return finished_okay;
+UserInfoDialog::~UserInfoDialog() { }
+
+bool UserInfoDialog::isChanged() const {
+  return changed;
 }
 
 void UserInfoDialog::okay_cb() {
-  finished_okay = true;
-  Gtk::Main::quit();
+  // check if anything was touched
+  changed = false;
+  if (contact->getAlias() != alias_entry.get_text()) {
+    changed = true;
+    contact->setAlias(alias_entry.get_text());
+  }
+  if (contact->getMobileNo() != cellular_entry.get_text()) {
+    changed = true;
+    contact->setMobileNo(cellular_entry.get_text());
+  }
+  if (contact->getFirstName() != firstname_entry.get_text()) {
+    changed = true;
+    contact->setFirstName(firstname_entry.get_text());
+  }
+  if (contact->getLastName() != lastname_entry.get_text()) {
+    changed = true;
+    contact->setLastName(lastname_entry.get_text());
+  }
+  if (contact->getEmail() != email_entry1.get_text()) {
+    changed = true;
+    contact->setEmail(email_entry1.get_text());
+  }
+  MainHomeInfo& mhi = contact->getMainHomeInfo();
+  if (mhi.phone != phone_entry.get_text()) {
+    changed = true;
+    mhi.phone = phone_entry.get_text();
+  }
+  if (mhi.fax != fax_entry.get_text()) {
+    changed = true;
+    mhi.fax = fax_entry.get_text();
+  }
+  if (mhi.cellular != cellular_entry.get_text()) {
+    changed = true;
+    mhi.cellular = cellular_entry.get_text();
+  }
+  destroy.emit();
 }
 
-void UserInfoDialog::cancel_cb() {
-  finished_okay = false;
-  Gtk::Main::quit();
+void UserInfoDialog::raise() const {
+  get_window().show();
 }
 
 void UserInfoDialog::userinfochange_cb() {

@@ -25,6 +25,7 @@
 #include <gtk--/imageloader.h>
 #include <gtk--/pixmap.h>
 #include <gtk--/scrollbar.h>
+#include <gtk--/toolbar.h>
 #include <gdk/gdkkeysyms.h>
 
 using std::ostringstream;
@@ -46,6 +47,16 @@ MessageBox::MessageBox(Contact *c)
   m_pane.set_handle_size (8);
   m_pane.set_gutter_size (12);                       
   
+  Gtk::Toolbar *toolbar = manage( new Gtk::Toolbar() );
+  {
+    using namespace Gtk::Toolbar_Helpers;
+    ToolList& tl = toolbar->tools();
+    tl.push_back( ToggleElem("User Info", slot( this, &MessageBox::userinfo_toggle_cb ), "Popup User Information Dialog" ) );
+    m_userinfo_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
+  }
+
+  m_vbox_top.pack_start(*toolbar,false);
+
   // -- top pane --
 
   Gtk::Scrollbar *scrollbar;
@@ -168,10 +179,10 @@ MessageBox::MessageBox(Contact *c)
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
   m_close_button.clicked.connect( destroy.slot() );
 
-  m_hbox_buttons.pack_start(m_send_button);
-  m_hbox_buttons.pack_end(m_close_button);
-
-  m_vbox_top.pack_start(m_hbox_buttons,false);
+  Gtk::Box *hbox = manage( new Gtk::HButtonBox() );
+  hbox->pack_start(m_send_button);
+  hbox->pack_end(m_close_button);
+  m_vbox_top.pack_start(*hbox,false);
 
   m_vbox_top.pack_start(m_status, false, false, 0);
   m_status_context = m_status.get_context_id("messagebox");
@@ -251,6 +262,10 @@ void MessageBox::offline() {
   send_button_update();
 }
 
+void MessageBox::userinfo_dialog_cb(bool b) {
+  m_userinfo_toggle->set_active(b);
+}
+
 void MessageBox::setDisplayTimes(bool d) {
   m_display_times = d;
 }
@@ -280,6 +295,10 @@ void MessageBox::sms_count_update_cb() {
     send_button_update();
   }
   m_sms_count.set_text(ostr.str());
+}
+
+void MessageBox::userinfo_toggle_cb() {
+  userinfo_dialog.emit( m_userinfo_toggle->get_active() );
 }
 
 void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
@@ -317,6 +336,10 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
       set_status("Sent message successfully");
     } else {
       set_status("Sending message timed out");
+    }
+  } else {
+    if (ev->isDirect()) {
+      set_status("Sending direct failed, sending through server");
     }
   }
 

@@ -54,17 +54,18 @@ class UserInfoDialog : public Gtk::Dialog {
   Gtk::Notebook notebook;
 
   Contact *contact;
-  bool finished_okay;
+  bool changed;
 
  public:
   UserInfoDialog(Contact *c);
-
-  bool run();
+  ~UserInfoDialog();
 
   void okay_cb();
-  void cancel_cb();
-
   void userinfochange_cb();
+
+  void raise() const;
+
+  bool isChanged() const;
 
   Signal0<void> fetch;
 };

@@ -74,7 +74,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.settings_changed.connect(slot(this,&IckleClient::settings_changed_cb));
   gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
-  gui.getContactListView()->user_info.connect( slot( this, &IckleClient::user_info_cb ) );
+  gui.getContactListView()->userinfo.connect( slot( this, &IckleClient::userinfo_cb ) );
 
   gui.send_event.connect(slot(this,&IckleClient::send_event_cb));
   gui.add_user.connect(slot(this,&IckleClient::add_user_cb));
@@ -257,7 +257,7 @@ gint IckleClient::close_cb(GdkEventAny*) {
    */
 
   saveSettings();
-  icqclient.Disconnect();
+  icqclient.setStatus(STATUS_OFFLINE);
   
   return false;
 }
@@ -347,10 +347,10 @@ void IckleClient::user_popup_cb(unsigned int uin) {
   }
 }
 
-void IckleClient::user_info_cb(unsigned int uin) {
+void IckleClient::userinfo_cb(unsigned int uin) {
   Contact *c = icqclient.getContact(uin);
   if (c != NULL) {
-    gui.user_info_edit(c);
+    gui.userinfo_popup(c);
   }
 }
 

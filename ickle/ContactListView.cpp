@@ -53,7 +53,7 @@ ContactListView::ContactListView()
      using namespace Gtk::Menu_Helpers;
      MenuList& ml = rc_popup.items();
      ml.push_back( MenuElem( "Check away message", slot( this, &ContactListView::fetch_away_msg_cb ) ) );
-     ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::user_info_cb ) ) );
+     ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::userinfo_cb ) ) );
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
 }
@@ -108,8 +108,8 @@ void ContactListView::clear() {
   Gtk::CList::clear();
 }
 
-void ContactListView::user_info_cb() {
-  user_info.emit( current_selection_uin() );
+void ContactListView::userinfo_cb() {
+  userinfo.emit( current_selection_uin() );
 }
 
 void ContactListView::remove_user_cb() {
