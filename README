@@ -28,18 +28,20 @@
 
 5. Icons
 
-6. Importing contacts
+6. Sounds + Noises on events
 
-7. Custom away messages
+7. Importing contacts
 
-8. More info for developers
+8. Custom away messages
+
+9. More info for developers
 - 1. Contributing to ickle
 - 2. Anonymous CVS
 - 3. Alternative client developers (or using the libicq2000 library)
 
-9. Comments, bug fixes, etc..
+10. Comments, bug fixes, etc..
 
-10. License
+11. License
 
 
 
@@ -246,6 +248,38 @@ more familiar ones. To change between icon sets, go to Settings and
 then choose from the list. You are welcome to design you own set (or
 improve on mine) and contribute them.
 
+
+ --------------------------------------------------------------------
+ - Sounds + Noises on events                                        -
+ --------------------------------------------------------------------
+
+You can run any arbitrary shell command on an event - go into Settings
+and then Events to set this up. This is the system by which you can
+make noises on a message. Following the unix philosophy the sound
+support is left to your choice of tools which best fit the job of
+playing sound. Here are some suggestions of shell commands to make
+some noise:
+
+1. use 'echo -e "\a"' - these usually produces a beep on the bell, but
+   doesn't work reliably across different platforms.
+
+2. use 'play wavfile.wav' - the play utility is a standard utility to
+   play wav files to your sound device. Part of the sox package on
+   most systems.
+
+3. get the beep program from:
+    http://johnath.com/beep/
+   I use the command-line:
+    beep -f 523 -l 100 -D 20 -n -l 100 -f 440
+   to play a little tune
+
+4. get a speech synthesis program and then have it announce the person
+   who is sending you the incoming message. *Very cool* :-) I tried
+   out the program 'festival' since that was the easiest to get access
+   to for me (there's a debian package). I'm sure there are lots of
+   other alternative text-to-speech software. For festival use the
+   command-line:
+    echo "Message from %a" | festival --tts
 
 
  --------------------------------------------------------------------
