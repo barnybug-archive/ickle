@@ -1,5 +1,3 @@
-#include "socket.h"
-
 /*
  * TCPSocket class
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
@@ -19,6 +17,10 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+#include <algorithm>
+
+#include "socket.h"
 
 string IPtoString(unsigned int ip) {
   ostringstream ostr;
@@ -79,9 +81,12 @@ void TCPSocket::Send(Buffer& b) {
   int ret;
   unsigned int sent = 0;
 
+  unsigned char data[b.size()];
+  copy( b.begin(), b.end(), data );
+
   while (sent < b.size())
   {
-    ret = send(socketDescriptor, b.Data() + sent, b.size() - sent, 0);
+    ret = send(socketDescriptor, data + sent, b.size() - sent, 0);
     if (ret == -1) throw SocketException("Sending on socket");
     sent += ret;
   }
@@ -234,6 +239,6 @@ void TCPServer::Disconnect() {
  */
 SocketException::SocketException(const string& text) : m_errortext(text) { }
 
-const char* SocketException::what() const {
+const char* SocketException::what() const throw() {
   return m_errortext.c_str();
 }

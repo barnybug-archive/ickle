@@ -310,8 +310,7 @@ namespace ICQ2000 {
 	out << c;
       }
 
-      const unsigned char *buf = out.Data();
-      B1 = (buf[4]<<24) | (buf[6]<<16) | (buf[4]<<8) | (buf[6]<<0);
+      B1 = (out[4]<<24) | (out[6]<<16) | (out[4]<<8) | (out[6]<<0);
       
       // special decryption
       B1 ^= check;
@@ -320,7 +319,7 @@ namespace ICQ2000 {
       M1 = (B1 >> 24) & 0xFF;
       if(M1 < 10 || M1 >= size) return false;
 
-      X1 = buf[M1] ^ 0xFF;
+      X1 = out[M1] ^ 0xFF;
       if(((B1 >> 16) & 0xFF) != X1) return false;
       
       X2 = ((B1 >> 8) & 0xFF);
@@ -350,7 +349,6 @@ namespace ICQ2000 {
       unsigned int i, check;
       unsigned char X1, X2, X3;
       unsigned int size = in.size();
-      const unsigned char *buf = in.Data();
       
       in.setEndianness(Buffer::LITTLE);
       out.setEndianness(Buffer::LITTLE);
@@ -359,11 +357,11 @@ namespace ICQ2000 {
 
       // calculate verification data
       M1 = (rand() % ((size < 255 ? size : 255)-10))+10;
-      X1 = buf[M1] ^ 0xFF;
+      X1 = in[M1] ^ 0xFF;
       X2 = rand() % 220;
       X3 = client_check_data[X2] ^ 0xFF;
 
-      B1 = (buf[4]<<24)|(buf[6]<<16)|(buf[4]<<8)|(buf[6]);
+      B1 = (in[4]<<24)|(in[6]<<16)|(in[4]<<8)|(in[6]);
 
       // calculate checkcode
       check = (M1 << 24) | (X1 << 16) | (X2 << 8) | X3;

@@ -24,6 +24,6 @@ namespace ICQ2000 {
 
   ParseException::ParseException(const string& text) : m_errortext(text) { }
 
-  const char* ParseException::what() const { return m_errortext.c_str(); }
+  const char* ParseException::what() const throw() { return m_errortext.c_str(); }
 
 }

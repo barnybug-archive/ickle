@@ -34,6 +34,8 @@ class Buffer {
  public:
   enum endian { BIG, LITTLE };
 
+  typedef vector<unsigned char>::iterator iterator ;
+
  private:
   vector<unsigned char> data;
   endian endn;
@@ -44,10 +46,12 @@ class Buffer {
   Buffer(const unsigned char *d, int size); // construct from an array
   Buffer(Buffer& b, unsigned int start, unsigned int data_len); // construct by copying from another Buffer
 
-  const unsigned char* Data() { return data.begin(); }
   unsigned int size() const { return data.size(); }
   unsigned int pos() const { return out_pos; }
   unsigned int remains() const { return data.size() - out_pos; }
+
+  iterator begin() { return data.begin(); }
+  iterator end() { return data.end(); }
 
   void clear();
   bool empty();

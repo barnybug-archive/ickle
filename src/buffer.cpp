@@ -27,7 +27,7 @@ Buffer::Buffer() : endn(BIG), out_pos(0), data() { }
 Buffer::Buffer(const unsigned char* d, int size) : endn(BIG), out_pos(0), data(d, d+size) { }
 
 Buffer::Buffer(Buffer& b, unsigned int start, unsigned int data_len)
-  : endn(BIG), out_pos(0), data(b.Data()+start, b.Data()+start+data_len) { }
+  : endn(BIG), out_pos(0), data(b.data.begin()+start, b.data.begin()+start+data_len) { }
 
 unsigned char& Buffer::operator[](unsigned int p) {
   return data[p];
