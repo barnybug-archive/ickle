@@ -1,5 +1,5 @@
-/* $Id: History.cpp,v 1.22 2003-01-04 19:42:45 barnabygray Exp $
- * 
+/* $Id: History.cpp,v 1.23 2003-01-05 21:22:02 barnabygray Exp $
+ *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
  *
@@ -81,13 +81,26 @@ History::~History()
 void History::touch()
 {
   // should just create a blank history file if none exists
-  ofstream( m_filename.c_str(), std::ios::out | std::ios::app );
+  std::ofstream of( m_filename.c_str(), std::ios::out | std::ios::app );
+  of.seekp( 0, std::ios::end );
+  
+  if ( of.tellp() == 0 )
+  {
+    /* empty history - write encoding - ie. new histories default to UTF8 */
+    if (m_utf8)
+      of << "UTF8" << endl;
+  }
+  
 }
 
 void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
 {
   Entry he;
   ofstream of;
+
+  /* need to build index at this point to get encoding of history file */
+  if( !m_builtindex )
+    build_index();
 
   ContactRef c = ev->getContact();
 
