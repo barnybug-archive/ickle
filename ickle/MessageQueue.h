@@ -1,4 +1,4 @@
-/* $Id: MessageQueue.h,v 1.3 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: MessageQueue.h,v 1.4 2002-03-31 22:01:54 barnabygray Exp $
  *
  * Queueing for MessageEvents.
  *
@@ -36,13 +36,15 @@
 class MessageQueue
 {
  private:
-  typedef std::list<MessageEvent*>::iterator iterator;
   std::list<MessageEvent*> m_event_list;
   
  public:
   MessageQueue();
   ~MessageQueue();
   
+  typedef std::list<MessageEvent*>::const_iterator const_iterator;
+  typedef std::list<MessageEvent*>::iterator iterator;
+
   // global queue methods
   void add_to_queue(MessageEvent *ev);
   void remove_from_queue(MessageEvent *ev);
@@ -52,7 +54,6 @@ class MessageQueue
   unsigned int get_size() const;
   bool empty() const;
 
-  typedef std::list<MessageEvent*>::const_iterator const_iterator;
   const_iterator begin() const;
   const_iterator end() const;
   iterator begin();

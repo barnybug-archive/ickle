@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.49 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.50 2002-03-31 22:01:54 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -498,7 +498,7 @@ void MessageBox::new_entry_cb(History::Entry *ev) {
     if (old_upper != upper) m_scaleadj.set_value( upper );
     else redraw_history();
   } else {
-    update_scalelabel(m_scaleadj.get_value());
+    update_scalelabel((guint)m_scaleadj.get_value());
   }
 
   if (m_focus) {
