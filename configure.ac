@@ -84,5 +84,5 @@ AC_FUNC_SETVBUF_REVERSED
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS([dup2 mkdir inet_aton select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
-AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile share/Makefile])
 AC_OUTPUT

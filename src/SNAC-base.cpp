@@ -60,11 +60,7 @@ namespace ICQ2000 {
     : m_family(f), m_subtype(t) { }
 
   void RawSNAC::ParseBody(Buffer& b) {
-    unsigned char c;
-    while(b.beforeEnd()) {
-      b >> c;
-      m_data << c;
-    }
+    b.advance(b.size());
   }
 
 }

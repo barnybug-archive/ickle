@@ -206,12 +206,17 @@ namespace ICQ2000 {
       lang1(0), lang2(0), lang3(0) { }
 
   string HomepageInfo::getBirthDate() const {
-    if (birth_year == 0) return "Unspecified";
+    if (birth_day == 0 || birth_year == 0) return "Unspecified";
 
     struct tm birthdate;
+    birthdate.tm_sec = 0;
+    birthdate.tm_min = 0;
+    birthdate.tm_hour = 0;
     birthdate.tm_mday = birth_day;
     birthdate.tm_mon = birth_month-1;
     birthdate.tm_year = birth_year - 1900;
+    birthdate.tm_isdst = 0;
+    mktime(&birthdate);
     char bday[255];
     strftime(bday, 255, "%B %e, %G", &birthdate);
     return string(bday);

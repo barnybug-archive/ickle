@@ -132,7 +132,7 @@ namespace ICQ2000 {
       b.PackByteString( Contact::UINtoString(nst->getDestination()) );
       
       string m_text = nst->getMessage();
-      ICQSubType::LFtoCRLF(m_text);
+      b.ClientToServer(m_text);
       unsigned short text_size = m_text.size();
 
       /*
@@ -170,8 +170,7 @@ namespace ICQ2000 {
       string m_text, m_url;
       m_text = ust->getMessage();
       m_url = ust->getURL();
-      ICQSubType::LFtoCRLF(m_text);
-      ICQSubType::LFtoCRLF(m_url);
+      b.ClientToServer(m_text);
       unsigned short total_size = m_text.size() + 2 + m_url.size();
 
       /* Data Block TLV

@@ -20,15 +20,14 @@
 
 #include "IckleClient.h"
 
+#include "Client.h"
+
 #include <time.h>
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
     status(STATUS_OFFLINE)
 {
-  // setup default compiled in xpms
-  Icons::DefaultIcons();
-
   // process command line parameters
   processCommandLine(argc,argv);
 
@@ -37,6 +36,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
+
   icqclient.connected.connect(slot(this,&IckleClient::connected_cb));
   icqclient.disconnected.connect(slot(this,&IckleClient::disconnected_cb));
   icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
@@ -104,12 +104,12 @@ void IckleClient::loadContactList() {
 	  
 	  // Homepage Info
 	  HomepageInfo& hpi = c.getHomepageInfo();
-	  hpi.age = cs.getValueUnsignedChar("age", 0, 150, 0);
-	  hpi.sex = cs.getValueUnsignedChar("sex", 0, 2, 0);
+	  hpi.age = cs.getValueUnsignedChar("age", 0, 0, 150);
+	  hpi.sex = cs.getValueUnsignedChar("sex", 0, 0, 2);
 	  hpi.homepage = cs.getValueString("homepage");
 	  hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-	  hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 12, 0);
-	  hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 31, 0);
+	  hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 0, 12);
+	  hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 0, 31);
 	  hpi.lang1 = cs.getValueUnsignedChar("lang1");
 	  hpi.lang2 = cs.getValueUnsignedChar("lang2");
 	  hpi.lang3 = cs.getValueUnsignedChar("lang3");
@@ -174,6 +174,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 
   CONTACT_DIR = BASE_DIR + "contacts/";
   DATA_DIR = string(PKGDATADIR) + "/";
+  TRANSLATIONS_DIR = DATA_DIR + "translations/";
 }
 
 
@@ -184,6 +185,7 @@ void IckleClient::loadSettings() {
   } else {
     icqclient.setUIN(settings.getValueUnsignedInt("uin"));
     icqclient.setPassword(settings.getValueString("password"));
+    icqclient.setTranslationMap( settings.getValueString("translation_map") );
   }
 
   int width, height, x, y;
@@ -497,7 +499,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
   if (ev->getType() == ContactListEvent::UserAdded ||
       ev->getType() == ContactListEvent::UserInfoChange) {
 
-    if (ev->getType() == ContactListEvent::UserAdded && m_fmap.count(c->getUIN()) == 0) {
+    if (ev->getType() == ContactListEvent::UserAdded) {
+      if (m_fmap.count(c->getUIN()) > 0) return;
       ostringstream filename;
 
       filename << CONTACT_DIR << c->getUIN() << ".user";

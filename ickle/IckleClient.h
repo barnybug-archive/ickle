@@ -51,7 +51,6 @@
 #endif
 
 #include "main.h"
-#include "Client.h"
 #include "events.h"
 #include "IckleGUI.h"
 #include "Settings.h"

@@ -46,6 +46,7 @@
 #include "ContactList.h"
 #include "DirectClient.h"
 #include "custom_marshal.h"
+#include "Translator.h"
 
 using namespace SigC;
 using namespace std;
@@ -87,6 +88,8 @@ namespace ICQ2000 {
     Status m_status;
     bool m_invisible;
     
+    Translator m_translator; 
+
     ContactList m_contact_list;
 
     unsigned char *m_cookie_data;
@@ -192,6 +195,11 @@ namespace ICQ2000 {
     unsigned int getUIN() { return m_uin; }
     void setPassword(const string& password) { m_password = password; }
     string getPassword() { return m_password; }
+
+    bool setTranslationMap(const string& szMapFileName);
+    const string& getTranslationMapFileName() { return m_translator.getMapFileName(); }
+    const string& getTranslationMapName() { return m_translator.getMapName(); }
+    bool usingDefaultMap() { return m_translator.usingDefaultMap(); }
 
     // -- Signals --
     Signal1<void,ConnectedEvent*> connected;

@@ -23,12 +23,11 @@
 
 #include <gtk--/main.h>
 #include <gtk--/dialog.h>
-#include <gtk--/box.h>
 #include <gtk--/button.h>
 #include <gtk--/label.h>
 #include <gtk--/entry.h>
-#include <gtk--/table.h>
 #include <gtk--/notebook.h>
+#include <gtk--/fileselection.h>
 
 #include <string>
 
@@ -38,11 +37,17 @@
 
 class SettingsDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel;
+  Gtk::Button okay, cancel, icons_b, trans_b;
+  Gtk::Label trans_l, icons_l;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
 
   bool finished_okay;
+
+  void okay_cb();
+  void cancel_cb();
+  void trans_cb();
+  void trans_ok_cb(Gtk::FileSelection *fs);
 
  public:
   SettingsDialog(Settings& settings);
@@ -54,8 +59,6 @@ class SettingsDialog : public Gtk::Dialog {
 
   void updateSettings(Settings& settings);
 
-  void okay_cb();
-  void cancel_cb();
 };
 
 #endif

@@ -468,13 +468,13 @@ namespace ICQ2000 {
   class RawTLV : public InTLV {
    protected:
     unsigned short m_type;
-    Buffer m_value;
+    unsigned short m_length;
 
    public:
     RawTLV(unsigned short type);
 
     unsigned short Type() const { return m_type; }
-    unsigned short Length() const { return m_value.size(); }
+    unsigned short Length() const { return m_length; }
     void ParseValue(Buffer& b);
   };
 

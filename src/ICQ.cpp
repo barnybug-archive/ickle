@@ -76,22 +76,6 @@ namespace ICQ2000 {
     OutputBody(b);
   }
 
-  void ICQSubType::CRLFtoLF(string& s) {
-    int curr = 0, next;
-    while ( (next = s.find( "\r\n", curr )) != -1 ) {
-      s.replace( next, 2, "\n" );
-      curr = next + 1;
-    }
-  }
-
-  void ICQSubType::LFtoCRLF(string& s) {
-    int curr = 0, next;
-    while ( (next = s.find( "\n", curr )) != -1 ) {
-      s.replace( next, 1, "\r\n" );
-      curr = next + 2;
-    }
-  }
-
   UINRelatedSubType::UINRelatedSubType(bool adv)
     : m_source(0), m_destination(0), m_advanced(adv), m_ack(false) { }
 
@@ -130,7 +114,7 @@ namespace ICQ2000 {
 
   void NormalICQSubType::Parse(Buffer& b) {
     b.UnpackUint16StringNull(m_message);
-    ICQSubType::CRLFtoLF(m_message);
+    b.ServerToClient(m_message);
 
     if (m_advanced) {
       b >> m_foreground
@@ -151,7 +135,7 @@ namespace ICQ2000 {
       b.PackUint16StringNull("");
     } else {
       string m_text = m_message;
-      ICQSubType::LFtoCRLF(m_text);
+      b.ClientToServer(m_text);
       b.PackUint16StringNull(m_text);
     }
     
@@ -168,7 +152,7 @@ namespace ICQ2000 {
 
   unsigned short NormalICQSubType::Length() const {
     string text = m_message;
-    ICQSubType::LFtoCRLF(text);
+    Translator::LFtoCRLF(text);
 
     return text.size() + (m_advanced ? 13 : 5);
   }
@@ -212,8 +196,8 @@ namespace ICQ2000 {
       m_message = text;
       m_url = "";
     }
-    ICQSubType::CRLFtoLF(m_message);
-    ICQSubType::CRLFtoLF(m_url);
+    b.ServerToClient(m_message);
+    b.ServerToClient(m_url);
 
   }
 
@@ -227,16 +211,17 @@ namespace ICQ2000 {
       b.PackUint16StringNull("");
     } else {
       ostringstream ostr;
-      ostr << m_message << (unsigned char)0xfe << m_url;
-      string m_text = ostr.str();
-      ICQSubType::LFtoCRLF(m_text);
+      string m_text=m_message;
+      b.ClientToServer(m_text);
+      ostr << m_text << (unsigned char)0xfe << m_url;
+      m_text = ostr.str();
       b.PackUint16StringNull(m_text);
     }
   }
 
   unsigned short URLICQSubType::Length() const {
     string text = m_message + m_url;
-    ICQSubType::LFtoCRLF(text);
+    Translator::LFtoCRLF(text);
 
     return text.size() + 6;
   }
@@ -273,7 +258,7 @@ namespace ICQ2000 {
 
   void ReqAwayICQSubType::Parse(Buffer& b) {
     b.UnpackUint16StringNull(m_message);
-    ICQSubType::CRLFtoLF(m_message);
+    b.ServerToClient(m_message);
   }
 
   void ReqAwayICQSubType::OutputBody(Buffer& b) const {

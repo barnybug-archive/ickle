@@ -33,10 +33,11 @@ namespace ICQ2000 {
     "ICQ Service and Information may\0"
   };
 
-  DirectClient::DirectClient(TCPSocket *sock, unsigned int uin, unsigned inet_ip, unsigned short server_port)
+  DirectClient::DirectClient(TCPSocket *sock, unsigned int uin, unsigned inet_ip, unsigned short server_port, Translator* translator)
     : m_socket(sock), m_state(WAITING_FOR_INIT),
       m_local_uin(uin), m_local_inet_ip(inet_ip),
-      m_local_server_port(server_port) { }
+      m_local_server_port(server_port),m_translator(translator), 
+      m_recv(translator) { }
 
   DirectClient::~DirectClient() {
     delete m_socket;
@@ -84,7 +85,7 @@ namespace ICQ2000 {
       m_recv >> length;
       if (m_recv.remains() < length) return; // waiting for more of the packet
 
-      Buffer sb;
+      Buffer sb(m_translator);
       m_recv.chopOffBuffer( sb, length+2 );
       sb.advance(2);
 
@@ -116,7 +117,7 @@ namespace ICQ2000 {
   }
 
   void DirectClient::SendInitPacket() {
-    Buffer b;
+    Buffer b(m_translator);
     b.setEndianness(Buffer::LITTLE);
     if (m_eff_tcp_version == 6) b << (unsigned short)0x002c; // length
     else if (m_eff_tcp_version == 7) b << (unsigned short)0x0030;
@@ -201,7 +202,7 @@ namespace ICQ2000 {
   }
 
   void DirectClient::ParsePacket(Buffer& b) {
-    Buffer c;
+    Buffer c(m_translator);
     if (!Decrypt(b, c)) throw ParseException("Decrypting failed");
     if (m_eff_tcp_version == 6) ParsePacketV6(c);
     else if (m_eff_tcp_version == 7) ParsePacketV7(c);
@@ -231,7 +232,7 @@ namespace ICQ2000 {
       >> msgFlags;
     
     b.UnpackUint16StringNull(msg);
-    ICQSubType::CRLFtoLF(msg);
+    b.ServerToClient(msg);
 
     if (command == 0 || subCommand == 0) throw ParseException("Invalid TCP Packet");
 
@@ -394,7 +395,7 @@ namespace ICQ2000 {
   }
 
   void DirectClient::SendInitAck() {
-    Buffer b;
+    Buffer b(m_translator);
     b.setEndianness(Buffer::LITTLE);
     b << (unsigned short)0x0004;
     b << (unsigned int)0x00000001;
@@ -402,7 +403,7 @@ namespace ICQ2000 {
   }
 
   void DirectClient::SendPacketAck(unsigned short seqnum, unsigned short subCommand) {
-    Buffer b;
+    Buffer b(m_translator);
 
     b.setEndianness(Buffer::LITTLE);
     b << (unsigned int)0x00000000 // checksum (filled in by Encrypt)
@@ -419,7 +420,7 @@ namespace ICQ2000 {
       << (unsigned char)0x00 // message null terminator
       << (unsigned int)0x00000000
       << (unsigned int)0xffffffff;
-    Buffer c;
+    Buffer c(m_translator);
     Encrypt(b,c);
     Send(c);
   }

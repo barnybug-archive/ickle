@@ -35,6 +35,8 @@
 #include "ICQ.h"
 #include "Contact.h"
 
+#include "Translator.h"
+
 using namespace std;
 using namespace SigC;
 
@@ -77,9 +79,10 @@ namespace ICQ2000 {
     bool Decrypt(Buffer& in, Buffer& out);
     void Encrypt(Buffer& in, Buffer& out);
     static unsigned char client_check_data[];
+    Translator *m_translator;
 
    public:
-    DirectClient(TCPSocket *sock, unsigned int uin, unsigned inet_ip, unsigned short server_port);
+    DirectClient(TCPSocket *sock, unsigned int uin, unsigned inet_ip, unsigned short server_port,Translator* translator);
     ~DirectClient();
 
     void Recv();

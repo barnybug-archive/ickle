@@ -96,6 +96,19 @@ Easy as that.
 To run ickle you should be able to type simply 'ickle', assuming
 /usr/local/bin is in your path.
 
+Shortcuts
+---------
+
+Ctrl-Enter = Send Message from Message window
+
+Translation (of character sets)
+-------------------------------
+
+I've now added support for translating between different character
+sets. This can be reached by going to Settings. For example, many
+Russian users will want to use the Russian character map file to
+translate between windows-cp1251 and KOI8-R.
+
 Icons
 -----
 

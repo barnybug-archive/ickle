@@ -93,6 +93,8 @@ class IckleGUI : public Gtk::Window {
   auto_ptr<UserInfoDialog> m_userinfodialog;
   // --
 
+  MenuItem* menu_status_widget( Status s );
+
  public:
   IckleGUI();
   ~IckleGUI();

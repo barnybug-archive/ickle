@@ -20,6 +20,16 @@
 
 #include "SettingsDialog.h"
 
+#include "main.h"
+#include "Client.h"
+
+#include <gtk--/box.h>
+#include <gtk--/table.h>
+#include <gtk--/frame.h>
+
+using SigC::slot;
+using SigC::bind;
+
 SettingsDialog::SettingsDialog(Settings& settings)
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel")
@@ -36,7 +46,11 @@ SettingsDialog::SettingsDialog(Settings& settings)
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
-  // ---------------- Login Details tab -------------------------
+  // ---------------- General tab -------------------------
+
+  Gtk::Table *ftable = manage( new Gtk::Table( 2, 2, true ) );
+  ftable->set_border_width(5);
+  ftable->set_spacings(5);
 
   Gtk::Table *table = manage( new Gtk::Table( 3, 2, false ) );
 
@@ -52,11 +66,34 @@ SettingsDialog::SettingsDialog(Settings& settings)
   password_entry.set_visibility(false);
   table->attach( password_entry, 1, 3, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  label = manage( new Gtk::Label( "Login details" ) );
   table->set_row_spacings(10);
   table->set_col_spacings(10);
   table->set_border_width(10);
-  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *label )  );
+
+  Gtk::Frame *frame = manage( new Gtk::Frame("Login Details") );
+  frame->add(*table);
+
+  ftable->attach( *frame, 0, 1, 0, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+
+  frame = manage( new Gtk::Frame("Translation") );
+  trans_l.set_text( icqclient.getTranslationMapName() );
+  trans_b.set_border_width(10);
+  trans_b.add(trans_l);
+  trans_b.clicked.connect( slot( this, &SettingsDialog::trans_cb ) );
+  frame->add(trans_b);
+
+  ftable->attach( *frame, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+
+  frame = manage( new Gtk::Frame("Icons") );
+  icons_l.set_text("None");
+  icons_b.set_border_width(10);
+  icons_b.add(icons_l);
+  frame->add(icons_b);
+
+  ftable->attach( *frame, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+
+  label = manage( new Gtk::Label( "General" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *ftable, *label )  );
   // ------------------------------------------------------------
 
   // ---------------- Events tab --------------------------
@@ -112,6 +149,8 @@ void SettingsDialog::updateSettings(Settings& settings) {
   settings.setValue("uin", ICQ2000::Contact::StringtoUIN(uin_entry.get_text()));
   settings.setValue("password", password_entry.get_text());
 
+  settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
+
   // ------------ Events tab -----------------------
   settings.setValue("event_message", event_message_entry.get_text());
   settings.setValue("event_url", event_url_entry.get_text());
@@ -134,4 +173,23 @@ void SettingsDialog::okay_cb() {
 void SettingsDialog::cancel_cb() {
   Gtk::Main::quit();
   finished_okay = false;
+}
+
+void SettingsDialog::trans_cb() {
+  Gtk::FileSelection filesel("Find the translation map");
+  filesel.destroy.connect( Gtk::Main::quit.slot() );
+  filesel.get_ok_button()->clicked.connect( bind( slot( this, &SettingsDialog::trans_ok_cb), &filesel ) );
+  filesel.get_cancel_button()->clicked.connect( filesel.destroy.slot() );
+  filesel.hide_fileop_buttons();
+  if (icqclient.usingDefaultMap()) filesel.set_filename( TRANSLATIONS_DIR );
+  else filesel.set_filename( icqclient.getTranslationMapFileName() );
+  filesel.set_modal(true);
+  filesel.show();
+  Gtk::Main::run();
+}
+
+void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
+  icqclient.setTranslationMap(filesel->get_filename());
+  trans_l.set_text(icqclient.getTranslationMapName());
+  filesel->destroy();
 }

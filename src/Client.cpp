@@ -29,11 +29,11 @@
 
 namespace ICQ2000 {
 
-  Client::Client() {
+  Client::Client() : m_recv(&m_translator){
     Init();
   }
 
-  Client::Client(const unsigned int uin, const string& password) : m_uin(uin), m_password(password) {
+  Client::Client(const unsigned int uin, const string& password) : m_uin(uin), m_password(password), m_recv(&m_translator) {
     Init();
   }
 
@@ -416,7 +416,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendAuthReq() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x01);
 
     b << (unsigned int)0x00000001;
@@ -439,7 +439,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendNewUINReq() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x01);
 
     b << (unsigned int)0x00000001;
@@ -456,7 +456,7 @@ namespace ICQ2000 {
   }
     
   void Client::SendCookie() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x01);
 
     b << (unsigned int)0x00000001;
@@ -469,7 +469,7 @@ namespace ICQ2000 {
   }
     
   void Client::SendCapabilities() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     CapabilitiesSNAC cs;
     b << cs;
@@ -479,7 +479,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendSetUserInfo() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     SetUserInfoSNAC cs;
     b << cs;
@@ -489,7 +489,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendRateInfoRequest() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     RequestRateInfoSNAC rs;
     b << rs;
@@ -499,7 +499,7 @@ namespace ICQ2000 {
   }
   
   void Client::SendRateInfoAck() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     RateInfoAckSNAC rs;
     b << rs;
@@ -509,7 +509,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendPersonalInfoRequest() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     PersonalInfoRequestSNAC us;
     b << us;
@@ -519,7 +519,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendAddICBMParameter() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d = FLAPHeader(b,0x02);
     MsgAddICBMParameterSNAC ms;
     b << ms;
@@ -529,7 +529,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendLogin() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
 
     // startup listening server at this point, so we
@@ -576,7 +576,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendOfflineMessagesRequest() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
 
     d = FLAPHeader(b,0x02);
@@ -590,7 +590,7 @@ namespace ICQ2000 {
 
 
   void Client::SendOfflineMessagesACK() {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
 
     d = FLAPHeader(b,0x02);
@@ -607,11 +607,11 @@ namespace ICQ2000 {
     if (st == NULL || dynamic_cast<UINRelatedSubType*>(st) == NULL ) return;
     UINRelatedSubType *ust = dynamic_cast<UINRelatedSubType*>(snac->grabICQSubType());
 
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
     
     d = FLAPHeader(b,0x02);
-
+    
     MessageACKSNAC ssnac( snac->getICBMCookie(), ust );
     b << ssnac;
     FLAPFooter(b,d);
@@ -690,7 +690,7 @@ namespace ICQ2000 {
        * onto the separate parse code that way
        * multiple FLAPs in one packet are split up
        */
-      Buffer sb;
+      Buffer sb(&m_translator);
       m_recv.chopOffBuffer( sb, data_len+6 );
       sb.advance(6);
 
@@ -988,7 +988,7 @@ namespace ICQ2000 {
       RecvFromServer();
     } else if ( fd == m_listenServer.getSocketHandle() ) {
       TCPSocket *sock = m_listenServer.Accept();
-      DirectClient *dc = new DirectClient(sock, m_uin, 0, m_listenServer.getPort() );
+      DirectClient *dc = new DirectClient(sock, m_uin, 0, m_listenServer.getPort(), &m_translator);
       m_fdmap[ sock->getSocketHandle() ] = dc;
       dc->logger.connect( slot(this, &Client::SignalLog_cb) );
       dc->messaged.connect( slot(this, &Client::SignalMessageEvent_cb) );
@@ -1060,7 +1060,7 @@ namespace ICQ2000 {
   }
 
   void Client::SendEvent(MessageEvent *ev) {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
     d = FLAPHeader(b,0x02);
 
@@ -1098,7 +1098,7 @@ namespace ICQ2000 {
   
   void Client::PingServer() {
     
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
     d = FLAPHeader(b,0x05);
     FLAPFooter(b,d);
@@ -1108,7 +1108,7 @@ namespace ICQ2000 {
   void Client::setStatus(const Status st) {
     m_status = st;
     if (m_state == BOS_LOGGED_IN) {
-      Buffer b;
+      Buffer b(&m_translator);
       unsigned int d;
       
       d = FLAPHeader(b,0x02);
@@ -1132,7 +1132,7 @@ namespace ICQ2000 {
       SignalUserAdded(&c);
 
       if (c.isICQContact() && m_state == BOS_LOGGED_IN) {
-	Buffer b;
+	Buffer b(&m_translator);
 	unsigned int d;
 	d = FLAPHeader(b,0x02);
 	AddBuddySNAC abs(c);
@@ -1152,7 +1152,7 @@ namespace ICQ2000 {
     if (m_contact_list.exists(uin)) {
       SignalUserRemoved(&(m_contact_list[uin]));
       if (m_contact_list[uin].isICQContact() && m_state == BOS_LOGGED_IN) {
-	Buffer b;
+	Buffer b(&m_translator);
 	unsigned int d;
 	d = FLAPHeader(b,0x02);
 	RemoveBuddySNAC rbs(Contact::UINtoString(uin));
@@ -1212,7 +1212,7 @@ namespace ICQ2000 {
   }
 
   void Client::fetchSimpleContactInfo(Contact *c) {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
 
     if ( !c->isICQContact() ) return;
@@ -1226,7 +1226,7 @@ namespace ICQ2000 {
   }
 
   void Client::fetchAwayMsg(Contact *c) {
-    Buffer b;
+    Buffer b(&m_translator);
     unsigned int d;
 
     if ( !c->isICQContact() ) return;
@@ -1305,5 +1305,17 @@ namespace ICQ2000 {
   bool Client::MapICQStatusToInvisible(unsigned short st) {
     return (st & STATUS_FLAG_INVISIBLE);
   }
-  
+
+  bool Client::setTranslationMap(const string& szMapFileName) { 
+    try{
+      m_translator.setTranslationMap(szMapFileName);
+    } catch (TranslatorException e) {
+      ostringstream ostr;
+      ostr << e.what() << endl;
+      SignalLog(LogEvent::WARN, ostr.str());
+      return false; 
+    }
+    return true;
+  }
+
 }

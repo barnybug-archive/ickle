@@ -467,7 +467,7 @@ namespace ICQ2000 {
     case 5:
       b >> wb; // 0a status code
       b.UnpackUint16StringNull(m_about);
-      ICQSubType::CRLFtoLF(m_about);
+      b.ServerToClient(m_about);
       m_type = RAboutInfo;
       break;
     case 6: {

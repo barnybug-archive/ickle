@@ -34,5 +34,6 @@ extern class ICQ2000::Client icqclient;
 extern string BASE_DIR;
 extern string CONTACT_DIR;
 extern string DATA_DIR;
+extern string TRANSLATIONS_DIR;
 
 #endif

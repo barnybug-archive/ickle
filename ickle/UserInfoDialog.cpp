@@ -255,9 +255,9 @@ bool UserInfoDialog::run() {
       finished_okay = true;
       mhi.cellular = cellular_entry.get_text();
     }
-    
-    return finished_okay;
   }
+    
+  return finished_okay;
 }
 
 void UserInfoDialog::okay_cb() {
@@ -317,7 +317,7 @@ void UserInfoDialog::userinfochange_cb() {
   if (contact->getHomepageInfo().age == 0) {
     age_entry.set_text( "Unspecified" );
   } else {
-    ostr.seekp(0);
+    ostringstream ostr; //seekp doesn't work ;-/ clear() too. 
     ostr << (unsigned int)contact->getHomepageInfo().age;
     age_entry.set_text( ostr.str() );
   }

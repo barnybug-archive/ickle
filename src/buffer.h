@@ -28,7 +28,10 @@
 #include <iterator>
 #include <algorithm>
 
+#include "Translator.h"
+
 using namespace std;
+using ICQ2000::Translator;
 
 class Buffer {
  public:
@@ -40,10 +43,12 @@ class Buffer {
   vector<unsigned char> data;
   endian endn;
   unsigned int out_pos;
+  Translator *m_translator;
 
  public:
-  Buffer();
-  Buffer(const unsigned char *d, int size); // construct from an array
+  Buffer(Translator *translator);
+  Buffer(const unsigned char *d, int size, Translator *translator); 
+  // construct from an array
   Buffer(Buffer& b, unsigned int start, unsigned int data_len); // construct by copying from another Buffer
 
   unsigned int size() const { return data.size(); }
@@ -88,6 +93,12 @@ class Buffer {
   void UnpackByteString(string& s);
 
   unsigned char& operator[](unsigned int p);
+
+  void setTranslator(Translator *translator);
+  void ServerToClient(string& szString);
+  void ClientToServer(string& szString);
+  void ServerToClient(char &_cChar);
+  void ClientToServer(char &_cChar);
 
   void dump(ostream& out);
 };

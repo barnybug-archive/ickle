@@ -26,6 +26,8 @@ IckleGUI::IckleGUI()
     m_contact_list(),
     m_status(STATUS_OFFLINE)
 {
+  // setup default compiled in xpms
+  Icons::DefaultIcons();
 
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
@@ -46,13 +48,13 @@ IckleGUI::IckleGUI()
     using namespace Menu_Helpers;
 
     MenuList& sl = m_status_menu.items();
-    sl.push_back(MenuElem("Online",bind(slot(this,&IckleGUI::status_change_cb),STATUS_ONLINE)));
-    sl.push_back(MenuElem("Away",bind(slot(this,&IckleGUI::status_change_cb),STATUS_AWAY)));
-    sl.push_back(MenuElem("N/A",bind(slot(this,&IckleGUI::status_change_cb),STATUS_NA)));
-    sl.push_back(MenuElem("DND",bind(slot(this,&IckleGUI::status_change_cb),STATUS_DND)));
-    sl.push_back(MenuElem("Occupied",bind(slot(this,&IckleGUI::status_change_cb),STATUS_OCCUPIED)));
-    sl.push_back(MenuElem("Free for chat",bind(slot(this,&IckleGUI::status_change_cb),STATUS_FREEFORCHAT)));
-    sl.push_back(MenuElem("Offline",bind(slot(this,&IckleGUI::status_change_cb),STATUS_OFFLINE)));
+    sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
+    sl.push_back(* menu_status_widget( STATUS_AWAY ) );
+    sl.push_back(* menu_status_widget( STATUS_NA ) );
+    sl.push_back(* menu_status_widget( STATUS_DND ) );
+    sl.push_back(* menu_status_widget( STATUS_OCCUPIED ) );
+    sl.push_back(* menu_status_widget( STATUS_FREEFORCHAT ) );
+    sl.push_back(* menu_status_widget( STATUS_OFFLINE ) );
 
     MenuList& ml = m_ickle_menu.items();
     ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
@@ -65,13 +67,24 @@ IckleGUI::IckleGUI()
     mbl.front()->right_justify();
     mbl.push_front(MenuElem("ickle",m_ickle_menu));
   }
-
+  
   m_top_vbox.pack_end(m_ickle_menubar,false);
   
   add(m_top_vbox);
   show_all();
 
   m_contact_list.setupAccelerators();
+}
+
+MenuItem* IckleGUI::menu_status_widget( Status s ) {
+  MenuItem *mi=manage( new MenuItem() );
+  mi->activate.connect( bind(slot(this,&IckleGUI::status_change_cb),s) );
+  HBox *hbox=manage( new HBox() );
+  ImageLoader *p = Icons::IconForStatus(s, false);
+  hbox->pack_end( * manage( new Pixmap(p->pix(),p->bit()) ), false, false, 3 );
+  hbox->pack_end( * manage( new Label( Status_text[s], 1.0 ) ), true );
+  mi->add(*hbox);
+  return mi;
 }
 
 IckleGUI::~IckleGUI() {

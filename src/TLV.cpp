@@ -367,12 +367,9 @@ namespace ICQ2000 {
   void RawTLV::ParseValue(Buffer& b) {
     unsigned short length;
     b >> length;
-
+    m_length = length;    
     unsigned char c;
-    for(unsigned short a = 0; a < length; a++) {
-      b >> c;
-      m_value << c;
-    }
+    b.advance(length);
   }
 
   MessageDataTLV::MessageDataTLV() { }
@@ -400,7 +397,7 @@ namespace ICQ2000 {
     b >> m_flag2;
 
     b.Unpack(m_message, length-4);
-    ICQSubType::CRLFtoLF(m_message);
+    b.ServerToClient(m_message);
   }
 
   AdvMsgDataTLV::AdvMsgDataTLV() : m_icqsubtype(NULL) { }

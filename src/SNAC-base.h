@@ -88,7 +88,6 @@ namespace ICQ2000 {
   class RawSNAC : public InSNAC {
    protected:
     unsigned short m_family, m_subtype;
-    Buffer m_data;
 
     void ParseBody(Buffer& b);
     

@@ -22,12 +22,15 @@
 #include "buffer.h"
 #include <ctype.h>
 
-Buffer::Buffer() : endn(BIG), out_pos(0), data() { }
+Buffer::Buffer(Translator *translator) : endn(BIG), out_pos(0), data(), 
+  m_translator(translator) { }
 
-Buffer::Buffer(const unsigned char* d, int size) : endn(BIG), out_pos(0), data(d, d+size) { }
+Buffer::Buffer(const unsigned char* d, int size, Translator *translator) 
+  : endn(BIG), out_pos(0), data(d, d+size) { }
 
-Buffer::Buffer(Buffer& b, unsigned int start, unsigned int data_len)
-  : endn(BIG), out_pos(0), data(b.data.begin()+start, b.data.begin()+start+data_len) { }
+Buffer::Buffer(Buffer& b, unsigned int start, unsigned int data_len) 
+  : endn(BIG), out_pos(0), data(b.data.begin()+start, 
+  b.data.begin()+start+data_len), m_translator(b.m_translator) { }
 
 unsigned char& Buffer::operator[](unsigned int p) {
   return data[p];
@@ -224,3 +227,20 @@ void Buffer::dump(ostream& out) {
 }
 
 ostream& operator<<(ostream& out, Buffer& b) { b.dump(out); return out; }
+
+void Buffer::setTranslator(Translator *translator){
+  m_translator=translator;
+} 
+void Buffer::ServerToClient(string& szString){
+  m_translator->ServerToClient(szString);
+}
+void Buffer::ClientToServer(string& szString){
+  m_translator->ClientToServer(szString);
+}
+void Buffer::ServerToClient(char &_cChar){
+  m_translator->ServerToClient(_cChar);
+}
+void Buffer::ClientToServer(char &_cChar){
+  m_translator->ClientToServer(_cChar);
+}
+

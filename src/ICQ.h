@@ -87,9 +87,6 @@ namespace ICQ2000 {
 
     unsigned short getSeqNum() const { return m_seqnum; }
     void setSeqNum(unsigned short s)  { m_seqnum = s; }
-
-    static void CRLFtoLF(string& s);
-    static void LFtoCRLF(string& s);
   };
 
   class UINRelatedSubType : public ICQSubType {
