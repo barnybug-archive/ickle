@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.77 2003-09-29 20:05:30 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.78 2004-02-08 14:05:06 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -567,57 +567,63 @@ void SettingsDialog::init_events_page()
   Gtk::Table * table = manage( new Gtk::Table( 2, 5 ) );
 
   table->attach( * manage( new Gtk::Label( _("Message events"), 0.0, 0.5 ) ),
-		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
   m_event_message.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_message,_("todo"));
-  table->attach( m_event_message, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_message, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   table->attach( * manage( new Gtk::Label( _("SMS events"), 0.0, 0.5 ) ),
 		 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );
   m_event_sms.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_sms,_("todo"));
-  table->attach( m_event_sms, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_sms, 1, 2, 1, 2, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   table->attach( * manage( new Gtk::Label( _("System events"), 0.0, 0.5 ) ),
-		 0, 1, 2, 3, Gtk::FILL, Gtk::FILL );
+		 0, 1, 2, 3, Gtk::FILL , Gtk::FILL );
   m_event_system.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_system,_("todo"));
-  table->attach( m_event_system, 1, 2, 2, 3, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_system, 1, 2, 2, 3, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   table->attach( * manage( new Gtk::Label( _("URL events"), 0.0, 0.5 ) ),
 		 0, 1, 3, 4, Gtk::FILL, Gtk::FILL );
   m_event_url.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_url,_("todo"));
-  table->attach( m_event_url, 1, 2, 3, 4, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_url, 1, 2, 3, 4, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   table->attach( * manage( new Gtk::Label( _("User online events"), 0.0, 0.5 ) ),
 		 0, 1, 4, 5, Gtk::FILL, Gtk::FILL );
   m_event_user_online.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_user_online,_("todo"));
-  table->attach( m_event_user_online, 1, 2, 4, 5, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_user_online, 1, 2, 4, 5, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
 
   table->set_spacings(5);
   table->set_border_width(10);
 
   commands->add( * table );
 
+
+  
   SectionFrame * repetition = manage( new SectionFrame( _("Repetition") ) );
+  table = manage( new Gtk::Table( 2, 2 ) );
 
-  table = manage( new Gtk::Table( 1, 2 ) );
+  m_event_repetition_threshold.set_range(0, 10000);
+  m_event_repetition_threshold.set_digits(0);
+  m_event_repetition_threshold.set_increments(1, 100);
+      
+  m_event_repetition_threshold.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  m_tooltip.set_tip (m_event_repetition_threshold,_("Filters out events occouring in quick succession"));
+  table->attach( m_event_repetition_threshold , 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+  table->attach( * manage( new Gtk::Label( _("Event Repetition Threshold in ms"), 0.0, 0.5 ) ),
+		                    0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
 
-  m_event_execute_repeated.set_label(_("Run repeated events") );
-  m_event_execute_repeated.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_event_execute_repeated,_("todo"));
-  table->attach( m_event_execute_repeated, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
-
-  m_event_execute_all.set_label(_("Run all events") );
+  m_event_execute_all.set_label(_("Execute all events") );
   m_event_execute_all.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_execute_all,_("Always executes the commands above, even if they're below the threshold. You can then use the %r substitution to check for repeated events."));
-  table->attach( m_event_execute_all, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
+  table->attach( m_event_execute_all, 0, 2, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
 
   repetition->add( * table );
 
-  vbox->pack_start( *commands, Gtk::PACK_SHRINK );
+  vbox->pack_start( *commands, Gtk::PACK_EXPAND_WIDGET );
   vbox->pack_start( *repetition, Gtk::PACK_SHRINK );
   add_page( _("Events"), vbox, true );
 }
@@ -1142,7 +1148,7 @@ void SettingsDialog::load_events_page()
   m_event_url.set_text( g_settings.getValueString("event_url") );;
   m_event_user_online.set_text( g_settings.getValueString("event_user_online") );
   m_event_execute_all.set_active(g_settings.getValueBool("event_execute_all") );
-  m_event_execute_repeated.set_active(g_settings.getValueBool("event_execute_repeated") );
+  m_event_repetition_threshold.set_value(g_settings.getValueUnsignedInt("event_repetition_threshold") );
 }
 
 void SettingsDialog::load_advanced_page()
@@ -1255,7 +1261,7 @@ void SettingsDialog::save_events_page()
   g_settings.setValue( "event_url", m_event_url.get_text() );
   g_settings.setValue( "event_user_online", m_event_user_online.get_text() );
   g_settings.setValue( "event_execute_all", m_event_execute_all.get_active() );
-  g_settings.setValue( "event_execute_repeated", m_event_execute_repeated.get_active() );
+  g_settings.setValue( "event_repetition_threshold", (unsigned int) m_event_repetition_threshold.get_value() );
 }
 
 

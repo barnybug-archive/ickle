@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.130 2003-05-26 15:52:27 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.131 2004-02-08 14:05:05 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -247,7 +247,7 @@ void IckleClient::loadSettings()
 
   /* Event settings */
   g_settings.defaultValueUnsignedInt("event_repetition_threshold", 100);
-  g_settings.defaultValueBool("event_execute_repeated", false);
+  g_settings.defaultValueBool("event_execute_all", false);
 
   /* Default log settings */
   g_settings.defaultValueBool("log_to_console", true);
