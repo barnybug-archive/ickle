@@ -20,9 +20,27 @@
 
 #include "IckleClient.h"
 
+#include <glob.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+#ifdef HAVE_GETOPT_H
+# include <getopt.h>
+#endif
+
+#include <sstream>
+
+#include "SettingsDialog.h"
+#include "Icons.h"
+
 #include "Client.h"
 
 #include <time.h>
+
+using std::ostringstream;
+using std::istringstream;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
@@ -32,7 +50,8 @@ IckleClient::IckleClient(int argc, char* argv[])
   processCommandLine(argc,argv);
 
   // let us know when the gui is destroyed
-  gui.close.connect(slot(this,&IckleClient::quit));
+  gui.destroy.connect(slot(this,&IckleClient::quit));
+  gui.delete_event.connect(slot(this,&IckleClient::close_cb));
   
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
@@ -62,6 +81,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   // setup contact list
   loadContactList();
 
+  gui.show_all();
 }
 
 IckleClient::~IckleClient() {
@@ -200,7 +220,7 @@ void IckleClient::loadSettings() {
 
 void IckleClient::saveSettings() {
   int width, height, x, y;
-  gui.get_window().get_origin(x, y);
+  gui.get_window().get_root_origin(x, y);
   gui.get_window().get_size(width, height);
   settings.setValue( "geometry_x", x );
   settings.setValue( "geometry_y", y );
@@ -218,10 +238,19 @@ void IckleClient::saveSettings() {
   
 }
 
-void IckleClient::quit() {
-  saveSettings();
+gint IckleClient::close_cb(GdkEventAny*) {
+  /*
+   * These both need to be done while the widget
+   * still exists, in IckleClient::quit is too late
+   */
 
+  saveSettings();
   icqclient.Disconnect();
+  
+  return false;
+}
+
+void IckleClient::quit() {
   Gtk::Main::quit();   
 }
 

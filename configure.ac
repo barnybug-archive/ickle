@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(ickle, 0.1.1, barnaby@beedesign.co.uk)
-AM_INIT_AUTOMAKE(ickle,0.1.1)
+AC_INIT(ickle, 0.2.0, barnaby@beedesign.co.uk)
+AM_INIT_AUTOMAKE(ickle,0.2.0)
 
 AC_CONFIG_SRCDIR([src/Client.cpp])
 AM_CONFIG_HEADER(config.h)
@@ -25,7 +25,6 @@ AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h arpa/inet.h stdlib.h stri
 AC_CHECK_HEADERS([getopt.h],,)
 
 dnl Checks for library functions.
-AC_CHECK_LIB(xnet,inet_addr)
 AC_CHECK_LIB(socket, socket)
 AC_CHECK_FUNC(gethostbyname, ,
   AC_CHECK_LIB(nsl, gethostbyname,, AC_MSG_ERROR([You do not have gethostbyname - check you have libc installed properly])) )
@@ -82,7 +81,10 @@ AC_FUNC_STRFTIME
 AC_FUNC_FORK
 AC_FUNC_SETVBUF_REVERSED
 AC_HEADER_SYS_WAIT
-AC_CHECK_FUNCS([dup2 mkdir inet_aton select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
+AC_CHECK_FUNCS([dup2 mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
-AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile share/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile
+share/Makefile share/icons/Makefile share/icons/ickle/Makefile
+share/icons/doors/Makefile share/icons/icq/Makefile
+share/translations/Makefile])
 AC_OUTPUT

@@ -25,7 +25,7 @@
 #include <string>
 #include <exception>
 
-using namespace std;
+using std::string;
 
 namespace ICQ2000 {
 

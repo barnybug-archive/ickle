@@ -20,6 +20,8 @@
  */
 
 #include "buffer.h"
+
+#include <algorithm>
 #include <ctype.h>
 
 Buffer::Buffer(Translator *translator) : endn(BIG), out_pos(0), data(), 

@@ -20,6 +20,15 @@
 
 #include "History.h"
 
+#include <fstream>
+
+using std::ifstream;
+using std::ofstream;
+
+using ICQ2000::NormalMessageEvent;
+using ICQ2000::URLMessageEvent;
+using ICQ2000::SMSMessageEvent;
+
 History::History() { }
 
 History::History(const string& filename) : m_filename(filename) { }

@@ -1,21 +1,25 @@
 Stuff to do:
 (This are in rough order of when they will get done, most pressing first)
 
+* TCP Client-Client connections (a lot of work)
+
 * Limit message length
 
 * Parse Message too long error responses
-
-* More User info (only does simple userinfo atm)
-
-* Non-blocking DNS lookup
-
-* Handle Rate Limit and SNAC Error packets
 
 * Authorisation request/responses
 
 * Reviewing History
 
-* TCP Client-Client connections (a lot of work)
+* Non-blocking DNS lookup
+
+* Even More User info (some of the extended info isn't handled)
+
+* Autoconnect on start up
+
+* Moving contacts to top on message
+
+* Better way of indicating messaged
 
 Things that are likely never to be included:
 

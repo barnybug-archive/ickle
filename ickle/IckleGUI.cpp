@@ -45,7 +45,7 @@ IckleGUI::IckleGUI()
   m_top_vbox.pack_start(m_contact_scroll,true);
 
   {
-    using namespace Menu_Helpers;
+    using namespace Gtk::Menu_Helpers;
 
     MenuList& sl = m_status_menu.items();
     sl.push_back(* menu_status_widget( STATUS_ONLINE ) );
@@ -60,7 +60,7 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
     ml.push_back( MenuElem("Add Mobile User", slot(this, &IckleGUI::add_mobile_user_cb)) );
     ml.push_back( MenuElem("Settings", settings.slot()) );
-    ml.push_back( MenuElem("Exit", close.slot()) );
+    ml.push_back( MenuElem("Exit", destroy.slot()) );
     
     MenuList& mbl = m_ickle_menubar.items();
     mbl.push_front(MenuElem("Offline",m_status_menu));
@@ -71,18 +71,17 @@ IckleGUI::IckleGUI()
   m_top_vbox.pack_end(m_ickle_menubar,false);
   
   add(m_top_vbox);
-  show_all();
 
   m_contact_list.setupAccelerators();
 }
 
-MenuItem* IckleGUI::menu_status_widget( Status s ) {
-  MenuItem *mi=manage( new MenuItem() );
+Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
+  Gtk::MenuItem *mi=manage( new Gtk::MenuItem() );
   mi->activate.connect( bind(slot(this,&IckleGUI::status_change_cb),s) );
-  HBox *hbox=manage( new HBox() );
-  ImageLoader *p = Icons::IconForStatus(s, false);
-  hbox->pack_end( * manage( new Pixmap(p->pix(),p->bit()) ), false, false, 3 );
-  hbox->pack_end( * manage( new Label( Status_text[s], 1.0 ) ), true );
+  Gtk::HBox *hbox=manage( new Gtk::HBox() );
+  Gtk::ImageLoader *p = Icons::IconForStatus(s, false);
+  hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
+  hbox->pack_end( * manage( new Gtk::Label( Status_text[s], 1.0 ) ), true );
   mi->add(*hbox);
   return mi;
 }
@@ -90,8 +89,7 @@ MenuItem* IckleGUI::menu_status_widget( Status s ) {
 IckleGUI::~IckleGUI() {
   while(!m_message_boxes.empty()) {
     hash_map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-    delete ((*i).second);
-    m_message_boxes.erase(i);
+    (*i).second->destroy();
   }
 }
 
@@ -141,7 +139,13 @@ ContactListView* IckleGUI::getContactListView() {
 void IckleGUI::user_popup(Contact *c) {
   if (m_message_boxes.count(c->getUIN()) == 0) {
     MessageBox *m = new MessageBox(c);
-    m->close.connect(bind(slot(this,&IckleGUI::user_popup_close_cb), c->getUIN()));
+    manage(m);
+    /*
+     * gtkmm doesn't delete it on destroy event unless it's managed
+     * however we don't add them to anything, so they still need to be signalled to
+     * destroy themselves when the main window is closed.
+     */
+    m->destroy.connect(bind(slot(this,&IckleGUI::user_popup_close_cb), c->getUIN()));
     m->send_event.connect(send_event.slot());
     m_message_boxes[c->getUIN()] = m;
 
@@ -159,12 +163,14 @@ void IckleGUI::user_popup(Contact *c) {
     }
 
   } else {
-    // maybe bring to front?
+    // raise MessageBox
+    MessageBox *m = m_message_boxes[c->getUIN()];
+    m->raise();
   }
 }
 
 void IckleGUI::setStatus(Status st) {
-  MenuItem *m = m_ickle_menubar.items()[1];
+  Gtk::MenuItem *m = m_ickle_menubar.items()[1];
   m->remove();
   m->add_label( string(Status_text[st]) );
 
@@ -179,8 +185,7 @@ void IckleGUI::setStatus(Status st) {
 }
 
 int IckleGUI::delete_event_impl(GdkEventAny*) {
-  close.emit();
-  return true;
+  return false;
 }
 
 void IckleGUI::status_change_cb(Status st) {
@@ -188,11 +193,7 @@ void IckleGUI::status_change_cb(Status st) {
 }
 
 void IckleGUI::user_popup_close_cb(unsigned int uin) {
-  if (m_message_boxes.count(uin) != 0) {
-    MessageBox *m = m_message_boxes[uin];
-    m_message_boxes.erase(uin);
-    delete m;
-  }
+  if (m_message_boxes.count(uin) != 0) m_message_boxes.erase(uin);
 }
 
 void IckleGUI::add_user_cb() {

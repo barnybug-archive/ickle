@@ -36,11 +36,8 @@
 # error "hash_map not defined"
 #endif
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
-using namespace std;
+using std::string;
+using std::hash_map;
 
 class _HashString {
  public:

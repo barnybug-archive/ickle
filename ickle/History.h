@@ -24,13 +24,12 @@
 #define HISTORY_H
 
 #include <string>
-#include <fstream>
-#include <sstream>
 
 #include "events.h"
 
-using namespace ICQ2000;
-using namespace std;
+using ICQ2000::MessageEvent;
+
+using std::string;
 
 class History {
  private:

@@ -24,12 +24,12 @@
 
 #include <list>
 #include <string>
-#include <sstream>
 
 #include "events.h"
 #include "constants.h"
 
-using namespace std;
+using std::list;
+using std::string;
 
 namespace ICQ2000 {
 

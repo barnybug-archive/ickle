@@ -26,11 +26,13 @@
 #include <iomanip.h>
 #include <string>
 #include <iterator>
-#include <algorithm>
 
 #include "Translator.h"
 
-using namespace std;
+using std::vector;
+using std::string;
+using std::ostream;
+
 using ICQ2000::Translator;
 
 class Buffer {

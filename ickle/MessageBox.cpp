@@ -20,6 +20,15 @@
 
 #include "MessageBox.h"
 
+#include <sstream>
+
+#include <gtk--/imageloader.h>
+#include <gtk--/pixmap.h>
+// #include <gtk--/scrolledwindow.h>
+#include <gtk--/scrollbar.h>
+
+using std::ostringstream;
+
 MessageBox::MessageBox(Contact *c)
   : m_contact(c),
     m_send_button("Send"), m_close_button("Close"),
@@ -156,8 +165,7 @@ MessageBox::MessageBox(Contact *c)
   // -- button bar --
 
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
-
-  m_close_button.clicked.connect(close.slot());
+  m_close_button.clicked.connect( destroy.slot() );
 
   m_hbox_buttons.pack_start(m_send_button);
   m_hbox_buttons.pack_end(m_close_button);
@@ -170,6 +178,10 @@ MessageBox::MessageBox(Contact *c)
 }
 
 MessageBox::~MessageBox() { }
+
+void MessageBox::raise() const {
+  get_window().show();
+}
 
 gint MessageBox::key_press_cb(GdkEventKey* ev) {
   if ((ev->state & 4) && (ev->keyval == 65293 || ev->keyval == 65421) && m_online) {
@@ -401,8 +413,6 @@ void MessageBox::send_clicked_cb() {
   m_message_text.thaw();
 
   adj->set_value( bot );
-
-
 }
 
 string MessageBox::format_time(time_t t) {
@@ -413,6 +423,5 @@ string MessageBox::format_time(time_t t) {
 }
 
 gint MessageBox::delete_event_impl(GdkEventAny *ev) {
-  close.emit();
-  return true;
+  return false;
 }

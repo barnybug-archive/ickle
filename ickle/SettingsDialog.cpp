@@ -32,7 +32,8 @@ using SigC::bind;
 
 SettingsDialog::SettingsDialog(Settings& settings)
   : Gtk::Dialog(),
-    okay("OK"), cancel("Cancel")
+    okay("OK"), cancel("Cancel"),
+    m_settings(&settings)
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -80,6 +81,7 @@ SettingsDialog::SettingsDialog(Settings& settings)
   trans_b.set_border_width(10);
   trans_b.add(trans_l);
   trans_b.clicked.connect( slot( this, &SettingsDialog::trans_cb ) );
+  icons_b.clicked.connect( slot( this, &SettingsDialog::icons_cb ) );
   frame->add(trans_b);
 
   ftable->attach( *frame, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
@@ -150,6 +152,7 @@ void SettingsDialog::updateSettings(Settings& settings) {
   settings.setValue("password", password_entry.get_text());
 
   settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
+  settings.setValue("icons", icons_d);
 
   // ------------ Events tab -----------------------
   settings.setValue("event_message", event_message_entry.get_text());
@@ -188,8 +191,25 @@ void SettingsDialog::trans_cb() {
   Gtk::Main::run();
 }
 
+void SettingsDialog::icons_cb() {
+  Gtk::FileSelection filesel("Find the icon directory");
+  filesel.destroy.connect( Gtk::Main::quit.slot() );
+  filesel.get_ok_button()->clicked.connect( bind( slot( this, &SettingsDialog::icons_ok_cb), &filesel ) );
+  filesel.get_cancel_button()->clicked.connect( filesel.destroy.slot() );
+  filesel.hide_fileop_buttons();
+  filesel.set_modal(true);
+  filesel.set_filename( m_settings->getValueString("icons") );
+  filesel.show();
+  Gtk::Main::run();
+}
+
 void SettingsDialog::trans_ok_cb(Gtk::FileSelection *filesel) {
   icqclient.setTranslationMap(filesel->get_filename());
   trans_l.set_text(icqclient.getTranslationMapName());
+  filesel->destroy();
+}
+
+void SettingsDialog::icons_ok_cb(Gtk::FileSelection *filesel) {
+  cout << filesel->get_filename() << endl;
   filesel->destroy();
 }

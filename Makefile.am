@@ -3,4 +3,4 @@
 ##
 
 SUBDIRS = src ickle examples share
-EXTRA_DIST = icons icons.icq icons.doors scripts
+EXTRA_DIST = scripts

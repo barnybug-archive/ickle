@@ -20,6 +20,11 @@
 
 #include "PromptDialog.h"
 
+#include <gtk--/box.h>
+#include <gtk--/button.h>
+#include <gtk--/label.h>
+#include <gtk--/main.h>
+
 PromptDialog::PromptDialog(PromptType t, const string& msg)
   : Gtk::Dialog(),
     type(t)

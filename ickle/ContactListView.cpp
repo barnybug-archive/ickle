@@ -20,6 +20,13 @@
 
 #include "ContactListView.h"
 
+#include <vector>
+#include <string>
+#include <utility>
+
+using std::string;
+using std::vector;
+
 ContactListView::ContactListView()
   : CList(2) {
   set_column_title(0, "S");
@@ -40,7 +47,7 @@ ContactListView::ContactListView()
 
    // Make a popup window
    {
-     using namespace Menu_Helpers;
+     using namespace Gtk::Menu_Helpers;
      MenuList& ml = rc_popup.items();
      ml.push_back( MenuElem( "Check away message", slot( this, &ContactListView::fetch_away_msg_cb ) ) );
      ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::user_info_cb ) ) );
@@ -159,7 +166,6 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
   unsigned int uin = c->getUIN();
 
   if (ev->getType() == ContactListEvent::UserAdded) {
-
     vector<string> a;
     a.push_back("");
     a.push_back("");

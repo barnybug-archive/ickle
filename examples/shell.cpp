@@ -90,7 +90,7 @@ class PipeExec {
 // Simple Client declaration
 // ------------------------------------------------------------------
 
-class SimpleClient : public Object {
+class SimpleClient : public SigC::Object {
  private:
   ICQ2000::Client icqclient;
   set<int> rfdl, wfdl, efdl;

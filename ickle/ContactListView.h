@@ -37,25 +37,17 @@
 # error "hash_map not defined"
 #endif
 
-#include <vector>
-#include <string>
-#include <utility>
-#include <sstream>
-
 #include "main.h"
 #include "Client.h"
 #include "ContactList.h"
 #include "Contact.h"
 #include "Icons.h"
 
-using namespace Gtk;
 using namespace ICQ2000;
-using namespace SigC;
-using namespace std;
 
 class ContactListView : public Gtk::CList {
  private:
-  typedef CList_Helpers::RowIterator citerator;
+  typedef Gtk::CList_Helpers::RowIterator citerator;
 
   struct RowData {
     unsigned int uin;
@@ -69,7 +61,7 @@ class ContactListView : public Gtk::CList {
    */
   //  hash_map<unsigned int,citerator> m_row_map;
 
-  Menu rc_popup;
+  Gtk::Menu rc_popup;
 
   void UpdateRow(const Contact& c);
 

@@ -25,7 +25,9 @@
 #include <iostream>
 #include <string>
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifdef HAVE_EXT_HASH_MAP
 # include <ext/hash_map>
@@ -48,8 +50,7 @@
 #include "custom_marshal.h"
 #include "Translator.h"
 
-using namespace SigC;
-using namespace std;
+using std::string;
 
 namespace ICQ2000 {
 

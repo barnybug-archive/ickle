@@ -18,15 +18,42 @@
  *
  */
 
+#include <sstream>
 #include <algorithm>
 
 #include "socket.h"
 
+
+__STL_BEGIN_NAMESPACE
+
+
+using std::ostringstream;
+using std::istringstream;
+//using std::copy;
+
+// StringtoIP and IPtoString both work on host order ip address expressed as unsigned int's
+unsigned int StringtoIP(const string& s) {
+  istringstream istr(s);
+  unsigned char d1,d2,d3,d4;
+  unsigned int b1,b2,b3,b4;
+  istr >> b1 >> d1 >> b2 >> d2 >> b3 >> d3 >> b4;
+  if (!istr) return 0;
+  istr >> d4;
+  if (istr) return 0;
+
+  if (d1 == '.' && d2 == '.' && d3 == '.'
+      && b1 < 256 && b2 < 256 && b3 < 256 && b4 < 256) {
+    return (b1 << 24) | (b2 << 16) | (b3 << 8) | (b4 << 0);
+  } else {
+    return 0;
+  }
+};
+
 string IPtoString(unsigned int ip) {
   ostringstream ostr;
   ostr << (ip >> 24) << "."
-       << ((ip >> 16) & 0xff) << "."
        << ((ip >> 8) & 0xff) << "."
+       << ((ip >> 16) & 0xff) << "."
        << (ip & 0xff);
   return ostr.str();
 }
@@ -149,10 +176,14 @@ unsigned int TCPSocket::getLocalIP() const {
   return ntohl( localAddr.sin_addr.s_addr );
 }
 
+
+// returns ip address of host in network byte order
+
 unsigned long TCPSocket::gethostname(const char *hostname) {
 
-  struct in_addr ina;
-  if (inet_aton(hostname, &ina)) return ina.s_addr;
+  unsigned int ip = htonl( StringtoIP(hostname) );
+  if (ip != 0) return ip;
+
 
   // try and resolve hostname
   struct hostent *hostEnt;

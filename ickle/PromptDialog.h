@@ -21,17 +21,11 @@
 #ifndef PROMPTDIALOG_H
 #define PROMPTDIALOG_H
 
-#include <gtk--/main.h>
 #include <gtk--/dialog.h>
-#include <gtk--/box.h>
-#include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/entry.h>
-#include <gtk--/table.h>
 
 #include <string>
 
-using namespace std;
+using std::string;
 
 class PromptDialog : public Gtk::Dialog {
  public:

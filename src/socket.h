@@ -22,6 +22,7 @@
 #ifndef SOCKET_H
 #define SOCKET_H
 
+#include <string>
 #include <exception>
 
 #include <errno.h>
@@ -35,12 +36,11 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#include <string>
-#include <sstream>
-
 #include "buffer.h"
 
-using namespace std;
+using std::string;
+
+unsigned int StringtoIP(const string& ip);
 
 string IPtoString(unsigned int ip);
 

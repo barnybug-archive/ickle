@@ -35,12 +35,11 @@
 
 #include "Contact.h"
 
-using namespace std;
-using namespace SigC;
-
 using ICQ2000::Contact;
 using ICQ2000::MainHomeInfo;
 using ICQ2000::HomepageInfo;
+
+using SigC::Signal0;
 
 class UserInfoDialog : public Gtk::Dialog {
  private:

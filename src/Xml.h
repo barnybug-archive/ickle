@@ -23,12 +23,12 @@
 #ifndef XML_H
 #define XML_H
 
-#include <iostream>
 #include <string>
 #include <list>
 #include <ctype.h>
 
-using namespace std;
+using std::string;
+using std::list;
 
 class XmlNode {
  private:

@@ -21,6 +21,10 @@
 
 #include "DirectClient.h"
 
+#include <sstream>
+
+using std::ostringstream;
+
 namespace ICQ2000 {
 
   unsigned char DirectClient::client_check_data[] = {

@@ -20,7 +20,14 @@
 
 #include "Settings.h"
 
+#include <iostream>
+#include <fstream>
 #include <sstream>
+
+using std::ostringstream;
+using std::istringstream;
+using std::ifstream;
+using std::ofstream;
 
 Settings::Settings() {
   defaultSettings();

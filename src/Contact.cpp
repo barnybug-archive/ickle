@@ -21,8 +21,13 @@
 
 #include "Contact.h"
 
-#include "userinfoconstants.h"
+#include <sstream>
 #include <time.h>
+
+#include "userinfoconstants.h"
+
+using std::ostringstream;
+using std::istringstream;
 
 namespace ICQ2000 {
 

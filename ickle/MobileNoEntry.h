@@ -21,16 +21,12 @@
 #ifndef MOBILENOENTRY_H
 #define MOBILENOENTRY_H
 
-#include <gtk--/widget.h>
 #include <gtk--/entry.h>
-#include <gtk--/label.h>
 #include <gtk--/table.h>
-#include <gtk--/box.h>
 
 #include <string>
-#include <sstream>
 
-using namespace std;
+using std::string;
 
 class MobileNoEntry : public Gtk::Table {
  private:

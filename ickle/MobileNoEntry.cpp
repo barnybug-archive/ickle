@@ -20,6 +20,12 @@
 
 #include "MobileNoEntry.h"
 
+#include <sstream>
+
+#include <gtk--/label.h>
+
+using std::ostringstream;
+
 MobileNoEntry::MobileNoEntry()
   : Gtk::Table( 4, 2 )
 {

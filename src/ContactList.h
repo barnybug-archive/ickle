@@ -22,6 +22,7 @@
 #define CONTACTLIST_H
 
 #include <list>
+#include <string>
 
 #include <config.h>
 
@@ -35,7 +36,9 @@
 
 #include "Contact.h"
 
-using namespace std;
+using std::list;
+using std::string;
+using std::hash_map;
 
 namespace ICQ2000 {
 

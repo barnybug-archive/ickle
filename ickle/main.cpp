@@ -1,10 +1,3 @@
-#include <iostream>
-
-#include <gtk--/main.h>
-
-#include "main.h"
-#include "IckleClient.h"
-
 /*
  * ickle
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
@@ -24,6 +17,13 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+#include <iostream>
+
+#include <gtk--/main.h>
+
+#include "main.h"
+#include "IckleClient.h"
 
 class ICQ2000::Client icqclient;
 

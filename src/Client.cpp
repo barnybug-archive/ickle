@@ -22,10 +22,13 @@
 #include "Client.h"
 
 #include <sstream>
-#include <algorithm>
 
 #include "TLV.h"
 #include "UserInfoBlock.h"
+
+using std::ostringstream;
+using std::cout;
+using std::endl;
 
 namespace ICQ2000 {
 
@@ -1013,7 +1016,7 @@ namespace ICQ2000 {
 	      // spoofing attempt most likely
 	      ostringstream ostr;
 	      ostr << "Refusing direct connection from someone that claims to be UIN "
-		   << dc->getUIN() << " since IPs don't match with what server has told us." << endl;
+		   << dc->getUIN() << " since their IP " << IPtoString( dc->getIP() ) << " != " << IPtoString( c.getExtIP() ) << endl;
 	      SignalLog(LogEvent::WARN, ostr.str() );
 	      DisconnectDirectConn( fd );
 	    }

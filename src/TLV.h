@@ -21,7 +21,6 @@
 #ifndef TLV_H
 #define TLV_H
 
-#include <iostream>
 #include <string>
 
 #include <config.h>
@@ -36,8 +35,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <memory>
-#include <sstream>
 
 #include "Xml.h"
 #include "exceptions.h"
@@ -45,7 +42,8 @@
 #include "constants.h"
 #include "ICQ.h"
 
-using namespace std;
+using std::string;
+using std::hash_map;
 
 namespace ICQ2000 {
  

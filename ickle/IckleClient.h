@@ -24,10 +24,11 @@
 #ifndef ICKLECLIENT_H
 #define ICKLECLIENT_H
 
-#include <gtk--/main.h>
 #include <sigc++/signal_system.h>
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifdef HAVE_EXT_HASH_MAP
 # include <ext/hash_map>
@@ -37,32 +38,20 @@
 # error "hash_map not defined"
 #endif
 
-#include <list>
-#include <sstream>
-
-#include <stdlib.h>
-#include <unistd.h>
-#include <glob.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
-#ifdef HAVE_GETOPT_H
-# include <getopt.h>
-#endif
-
 #include "main.h"
 #include "events.h"
 #include "IckleGUI.h"
 #include "Settings.h"
-#include "SettingsDialog.h"
 #include "constants.h"
 #include "History.h"
-#include "Icons.h"
+
+using std::hash_map;
 
 using SigC::slot;
 
+using Gtk::Connection;
+
 using namespace ICQ2000;
-using namespace std;
 
 class IckleClient : public SigC::Object {
  private:
@@ -108,6 +97,7 @@ class IckleClient : public SigC::Object {
   void add_mobile_user_cb(string,string);
   void settings_cb();
   void fetch_cb(Contact *c);
+  gint close_cb(GdkEventAny*);
 
   // -- Callback for a socket ready --
   void socket_select_cb(int source, GdkInputCondition cond);

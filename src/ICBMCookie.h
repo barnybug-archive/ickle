@@ -24,8 +24,6 @@
 
 #include "buffer.h"
 
-using namespace std;
-
 namespace ICQ2000 {
 
   class ICBMCookie {

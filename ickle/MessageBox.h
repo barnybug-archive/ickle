@@ -22,8 +22,6 @@
 #define MESSAGEBOX_H
 
 #include <gtk--/window.h>
-#include <gtk--/scrolledwindow.h>
-#include <gtk--/scrollbar.h>
 #include <gtk--/table.h>
 #include <gtk--/text.h>
 #include <gtk--/paned.h>
@@ -31,15 +29,11 @@
 #include <gtk--/button.h>
 #include <gtk--/buttonbox.h>
 #include <gtk--/notebook.h>
-#include <gtk--/imageloader.h>
-#include <gtk--/pixmap.h>
 #include <gtk--/entry.h>
 
 #include <time.h>
 
 #include <sigc++/signal_system.h>
-
-#include <sstream>
 
 #include "Contact.h"
 #include "events.h"
@@ -47,9 +41,18 @@
 #include "Icons.h"
 
 using namespace ICQ2000;
-using namespace Gtk;
-using namespace std;
 
+using SigC::Signal1;
+
+using Gtk::VBox;
+using Gtk::HButtonBox;
+using Gtk::Button;
+using Gtk::Table;
+using Gtk::Text;
+using Gtk::Entry;
+using Gtk::Label;
+using Gtk::VPaned;
+using Gtk::Notebook;
 
 class MessageBox : public Gtk::Window {
  private:
@@ -101,10 +104,11 @@ class MessageBox : public Gtk::Window {
   void offline();
 
   void setDisplayTimes(bool d);
+  
+  void raise() const;
 
   // signals
   SigC::Signal1<void,MessageEvent *> send_event;
-  SigC::Signal0<void> close;
 
   void send_clicked_cb();
   void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);

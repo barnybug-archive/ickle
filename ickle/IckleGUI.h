@@ -28,15 +28,11 @@
 #include <gtk--/box.h>
 #include <gtk--/menu.h>
 #include <gtk--/menubar.h>
-#include <gtk--/optionmenu.h>
 #include <gtk--/scrolledwindow.h>
-#include <gtk--/buttonbox.h>
 #include <gtk--/dialog.h>
-#include <gtk--/main.h>
 
 #include <sigc++/signal_system.h>
 
-#include <vector>
 #include <string>
 #include <memory>
 
@@ -68,10 +64,15 @@
 
 #include "constants.h"
 
-using namespace SigC;
-using namespace Gtk;
+using std::string;
+using std::auto_ptr;
+using std::hash_map;
+
+using SigC::Signal0;
+using SigC::Signal1;
+using SigC::Signal2;
+
 using namespace ICQ2000;
-using namespace std;
 
 class IckleGUI : public Gtk::Window {
  private:
@@ -82,18 +83,18 @@ class IckleGUI : public Gtk::Window {
   bool m_display_times;
 
   // gtk widgets
-  VBox m_top_vbox;
-  ScrolledWindow  m_contact_scroll;
+  Gtk::VBox m_top_vbox;
+  Gtk::ScrolledWindow  m_contact_scroll;
   ContactListView m_contact_list;
   
-  MenuBar m_ickle_menubar;
-  Menu m_ickle_menu;
-  Menu m_status_menu;
+  Gtk::MenuBar m_ickle_menubar;
+  Gtk::Menu m_ickle_menu;
+  Gtk::Menu m_status_menu;
 
   auto_ptr<UserInfoDialog> m_userinfodialog;
   // --
 
-  MenuItem* menu_status_widget( Status s );
+  Gtk::MenuItem* menu_status_widget( Status s );
 
  public:
   IckleGUI();
@@ -120,7 +121,6 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
 
   // signals
-  Signal0<void> close;
   Signal1<void,Status> status_changed;
   Signal1<void,MessageEvent*> send_event;
   Signal1<void,unsigned int> add_user;
@@ -129,7 +129,7 @@ class IckleGUI : public Gtk::Window {
   Signal1<void,Contact*> fetch;
 
   // handle wm calls
-  virtual int delete_event_impl(GdkEventAny*);
+  gint delete_event_impl(GdkEventAny*);
 };
 
 #endif

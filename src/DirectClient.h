@@ -22,7 +22,6 @@
 #define DIRECTCLIENT_H
 
 #include <string>
-#include <sstream>
 
 #include <sigc++/signal_system.h>
 
@@ -37,8 +36,8 @@
 
 #include "Translator.h"
 
-using namespace std;
-using namespace SigC;
+using std::string;
+using SigC::Signal1;
 
 namespace ICQ2000 {
 

@@ -41,13 +41,18 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Label trans_l, icons_l;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
+  string icons_d;
 
   bool finished_okay;
 
   void okay_cb();
   void cancel_cb();
   void trans_cb();
+  void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
+  void icons_ok_cb(Gtk::FileSelection *fs);
+
+  Settings *m_settings;
 
  public:
   SettingsDialog(Settings& settings);

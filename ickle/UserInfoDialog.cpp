@@ -24,6 +24,9 @@
 
 #include "socket.h"
 
+using std::ostringstream;
+using SigC::slot;
+
 UserInfoDialog::UserInfoDialog(Contact *c)
        : Gtk::Dialog(),
 	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
