@@ -8,6 +8,7 @@ Standards-Version: 3.5.2
 Package: ickle
 Architecture: any
 Depends: ickle-common (= ${Source-Version}), ${shlibs:Depends}
+Suggests: ickle-control (= ${Source-Version})
 Description: An ICQ2000 client for GTK+
  Ickle is an ICQ client which is able to communicate with ICQ servers
  using the new ICQ2000 protocol. This offers much better reliability
@@ -26,6 +27,7 @@ Description: An ICQ2000 client for GTK+
 Package: ickle-gnome
 Architecture: any
 Depends: ickle-common (= ${Source-Version}), ${shlibs:Depends}
+Suggests: ickle-control (= ${Source-Version})
 Description: An ICQ2000 client for GTK+ with GNOME applet
  Ickle is an ICQ client which is able to communicate with ICQ servers
  using the new ICQ2000 protocol. This offers much better reliability
@@ -40,6 +42,24 @@ Description: An ICQ2000 client for GTK+ with GNOME applet
  .
  This version is compiled with gnome applet support. For the non-gnome
  version install the package `ickle'.
+
+Package: ickle-control
+Architecture: any
+Depends: (ickle (= ${Source-Version}) | ickle-gnome (=${Source-Version})), ${shlibs:Depends}
+Description: An ICQ2000 client for GTK+
+ Ickle is an ICQ client which is able to communicate with ICQ servers
+ using the new ICQ2000 protocol. This offers much better reliability
+ than the older ICQ99 protocol. ickle has a constantly improving
+ interface, now supporting history browsing, and much more.
+ .
+ Ickle currently supports:
+    * Sending/Receiving normal messages
+    * Sending/Receiving URLs
+    * Sending/Receiving SMS messages
+    * Retrieving away messages
+ .
+ This is the external utility to control ickle through the command-line
+ `ickle-control'.
 
 Package: ickle-common
 Architecture: any
