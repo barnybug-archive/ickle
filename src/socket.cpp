@@ -80,8 +80,8 @@ void TCPSocket::Connect() {
   remoteAddr.sin_family = AF_INET;
 
   if (connect(socketDescriptor,(struct sockaddr *)&remoteAddr,sizeof(struct sockaddr)) < 0) {
-    socketDescriptor = -1;
     close(socketDescriptor);
+    socketDescriptor = -1;
     throw SocketException("Couldn't connect socket");
   }
 
