@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.62 2002-04-25 20:31:48 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.63 2002-06-04 20:40:56 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -221,6 +221,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   hbox = manage( new Gtk::HBox() );
   m_send_urgent.set_group( m_send_normal.group() );
   m_send_tocontactlist.set_group( m_send_normal.group() );
+  if (self->getStatus() == ICQ2000::STATUS_DND || ICQ2000::STATUS_OCCUPIED) m_send_tocontactlist.set_active(true);
 
   hbox->pack_end( m_send_normal, false );
   hbox->pack_end( m_send_urgent, false );
@@ -963,5 +964,9 @@ void MessageBox::queue_removed_cb(MessageEvent *ev)
 
 void MessageBox::status_change_cb(ICQ2000::StatusChangeEvent *ev)
 {
+  // automatically change the send as over - a nice touch :-)
+  if ((ev->getStatus() == ICQ2000::STATUS_DND || ev->getStatus() == ICQ2000::STATUS_OCCUPIED)
+      && !m_send_urgent.get_active()) m_send_tocontactlist.set_active(true);
+
   set_contact_title();
 }
