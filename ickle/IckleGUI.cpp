@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.36 2002-01-30 15:35:35 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.37 2002-01-30 22:13:11 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -121,21 +121,17 @@ bool IckleGUI::message_cb(MessageEvent *ev) {
     AuthReqEvent *msg = static_cast<AuthReqEvent*>(ev);
     AuthAckEvent *ack = new AuthAckEvent(c, true);
     icqclient.SendEvent( ack );
+    return true;
   }
 
+  m_contact_list.message_cb(ev);
 
   if (m_message_boxes.count(c->getUIN()) == 0) {
-    if ( g_settings.getValueBool("message_autopopup") ) {
+    if ( g_settings.getValueBool("message_autopopup") )
       user_popup.emit( c->getUIN() ); // popup a new messagebox
-      return true;
-    } else {
-      return m_contact_list.message_cb(ev);
-    }
   } else {
-    if ( g_settings.getValueBool("message_autoraise") ) {
+    if ( g_settings.getValueBool("message_autoraise") )
       user_popup.emit( c->getUIN() );  // raise existing messagebox
-      return true; // history now handles signalling new messages to open messageboxes
-    }
   }
 
   return false;
@@ -158,7 +154,8 @@ void IckleGUI::contactlist_cb(ContactListEvent *ev) {
   if (m_message_boxes.count(uin) != 0) {
     MessageBox *m = m_message_boxes[uin];
 
-    if (et == ContactListEvent::UserInfoChange) {
+    if (et == ContactListEvent::UserInfoChange
+	|| et == ContactListEvent::StatusChange) {
       m->contactlist_cb(ev);
     } else if (et == ContactListEvent::UserRemoved) {
       m->destroy();
@@ -216,17 +213,6 @@ void IckleGUI::messagebox_popup(Contact *c, History *h) {
 
 void IckleGUI::popup_messagebox(Contact *c, History *h) {
   messagebox_popup(c,h);
-
-  if (m_message_boxes.count(c->getUIN()) > 0) {
-    MessageBox *m = m_message_boxes[c->getUIN()];
-
-    // signal all waiting messages
-    while (c->numberPendingMessages() > 0) {
-      MessageEvent *ev = c->getPendingMessage();
-      c->erasePendingMessage(ev);
-    }
-    icqclient.SignalMessageQueueChanged(c);
-  }
 }
 
 void IckleGUI::setGeometry(int x, int y)

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.41 2002-01-25 15:03:23 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.42 2002-01-30 22:13:11 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,7 +29,10 @@
 #include <gtk--/pixmap.h>
 #include <gtk--/scrollbar.h>
 #include <gtk--/toolbar.h>
+#include <gtk--/main.h>
 #include <gdk/gdkkeysyms.h>
+
+#include <libicq2000/Client.h>
 
 #include "gtkspell.h"
 
@@ -56,7 +59,6 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
 {
   Gtk::Box *hbox;
 
-  set_contact_title();
   set_border_width(10);
 
   m_pane.set_handle_size (8);
@@ -115,7 +117,7 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
     m_message_type = MessageEvent::Normal;
     m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
 
-  // -- normal message tab --
+    // -- normal message tab --
     table = manage( new Gtk::Table( 2, 1, false ) );
     table->set_usize(400,100);
     table->attach(m_message_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
@@ -257,6 +259,14 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   size_allocate.connect( slot(this, &MessageBox::resized_cb) );
   /* m_history_table height == pane position */
   m_history_table.size_allocate.connect( slot(this, &MessageBox::pane_position_changed_cb) );
+
+  Gtk::Main::idle.connect( slot( this, &MessageBox::clear_queue_idle_cb ) );
+  /* erk.. this is a kludge if ever I saw one, basically it's not safe
+     after popping up a new dialog to clear out the message queue as
+     it might be popped up inside callback for a message */
+
+  realize();
+  set_contact_title();
 }
 
 MessageBox::~MessageBox() {
@@ -294,7 +304,18 @@ void MessageBox::set_contact_title() {
   } else {
     ostr << m_contact->getMobileNo();
   }
-  ostr << ")";
+  ostr << ") - ";
+  ostr << m_contact->getStatusStr();
+  Gtk::ImageLoader *p;
+  
+  if (m_contact->numberPendingMessages() > 0) {
+    ostr << "*";
+    p = g_icons.IconForEvent( m_contact->getPendingMessage()->getType() );
+  } else {
+    p = g_icons.IconForStatus( m_contact->getStatus(), m_contact->isInvisible() );
+  }
+  
+  gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
   set_title(ostr.str());
 }
 
@@ -302,7 +323,7 @@ void MessageBox::contactlist_cb(ContactListEvent *ev) {
   if (m_contact->isMobileContact()) enable_sms();
   else disable_sms();
 
-  // in case Alias has changed
+  // in case Alias or Status has changed
   set_contact_title();
 }
 
@@ -436,6 +457,11 @@ void MessageBox::new_entry_cb(History::Entry *ev) {
   } else {
     update_scalelabel(m_scaleadj.get_value());
   }
+
+  // connect for focus, to empty message queue
+  m_focusconn = focus_in_event.connect( slot( this, &MessageBox::focus_in_event_cb ) );
+  
+  set_contact_title();
 }
 
 void MessageBox::messageack_cb(MessageEvent *ev) {
@@ -682,4 +708,30 @@ void MessageBox::resized_cb(GtkAllocation *allocation) {
 void MessageBox::pane_position_changed_cb(GtkAllocation *allocation) {
   /* Pane position is the same as m_history_table.height() */
   g_settings.setValue("message_box_pane_position", m_history_table.height());
+}
+
+gint MessageBox::focus_in_event_cb(GdkEventFocus* p0)
+{
+  clear_queue();
+  m_focusconn.disconnect();
+
+  return 0;
+}
+
+gint MessageBox::clear_queue_idle_cb()
+{
+  clear_queue();
+  return 0;
+}
+
+void MessageBox::clear_queue()
+{
+  // clear message queue
+  while (m_contact->numberPendingMessages() > 0) {
+    MessageEvent *ev = m_contact->getPendingMessage();
+    m_contact->erasePendingMessage(ev);
+  }
+  icqclient.SignalMessageQueueChanged(m_contact);
+
+  set_contact_title();
 }
