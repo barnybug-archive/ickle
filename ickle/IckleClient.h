@@ -41,6 +41,7 @@
 #include "IckleGUI.h"
 #include "Settings.h"
 #include "History.h"
+#include "IdleTimer.h"
 
 using std::map;
 
@@ -65,6 +66,8 @@ class IckleClient : public SigC::Object {
   IckleApplet applet;
 #endif
 
+  IdleTimer m_idletimer;
+  
   // setting and history files for each contact, indexed through UINs
   std::map<unsigned int, string> m_settingsmap; 
   std::map<unsigned int, History *> m_histmap;

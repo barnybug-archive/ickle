@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.8 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: Icons.h,v 1.9 2002-01-09 20:20:26 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -54,7 +54,7 @@ class Icons {
   void setDefaultIcons();
   bool setIcons(const string& dir);
   void FreeIcons();
-  ImageLoader* IconForStatus(Status s,bool inv);
+  ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
   ImageLoader* IconForEvent(MessageEvent::MessageType t);
 
   void settings_changed_cb(const string& key);

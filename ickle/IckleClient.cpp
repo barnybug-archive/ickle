@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.54 2002-01-07 21:13:52 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.55 2002-01-09 20:20:26 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -102,7 +102,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.show_all();
 
   Status st = Status(g_settings.getValueUnsignedInt("autoconnect"));
-  if (st != STATUS_OFFLINE) icqclient.setStatus(st);
+  if (st != STATUS_OFFLINE) icqclient.setStatus( st );
 }
 
 IckleClient::~IckleClient() {
@@ -254,6 +254,8 @@ void IckleClient::loadSettings() {
   }
 
   g_settings.defaultValueBool("away_autoposition", true);
+  g_settings.defaultValueUnsignedShort("auto_away", 0, 0, 65535);
+  g_settings.defaultValueUnsignedShort("auto_na", 0, 0, 65535);
   g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 0, 10);
   g_settings.defaultValueBool("log_to_console", true);
   g_settings.defaultValueBool("log_to_file", false);

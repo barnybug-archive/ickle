@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.9 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.10 2002-01-09 20:20:26 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,6 +35,9 @@
 #include "url.xpm"
 #include "sms.xpm"
 #include "file.xpm"
+
+
+using ICQ2000::Status;
 
 /*
   Sets the icons to the default compiled in icons.
@@ -105,25 +108,25 @@ ImageLoader* Icons::IconForStatus(Status s, bool inv) {
     p = Icon_Status_Invisible;
   } else {
     switch(s) {
-    case STATUS_ONLINE:
+    case ICQ2000::STATUS_ONLINE:
       p = Icon_Status_Online;
       break;
-    case STATUS_AWAY:
+    case ICQ2000::STATUS_AWAY:
       p = Icon_Status_Away;
       break;
-    case STATUS_NA:
+    case ICQ2000::STATUS_NA:
       p = Icon_Status_NA;
       break;
-    case STATUS_OCCUPIED:
+    case ICQ2000::STATUS_OCCUPIED:
       p = Icon_Status_Occupied;
       break;
-    case STATUS_DND:
+    case ICQ2000::STATUS_DND:
       p = Icon_Status_DND;
       break;
-    case STATUS_FREEFORCHAT:
+    case ICQ2000::STATUS_FREEFORCHAT:
       p = Icon_Status_FFC;
       break;
-    case STATUS_OFFLINE:
+    case ICQ2000::STATUS_OFFLINE:
       p = Icon_Status_Offline;
       break;
     default:

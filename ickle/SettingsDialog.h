@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.20 2002-01-07 21:13:52 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.21 2002-01-09 20:20:26 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -58,6 +58,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
   Gtk::CheckButton mouse_single_click, mouse_check_away_click;
   Gtk::SpinButton *reconnect_spinner, *network_port, *history_shownr_spinner;
+  Gtk::SpinButton *autoaway_spinner, *autona_spinner;
   Gtk::Label reconnect_label, history_shownr_label;
 
   Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
@@ -65,13 +66,13 @@ class SettingsDialog : public Gtk::Dialog {
 
   string message_header_font, message_text_font;
 
-  Status m_status;
+  ICQ2000::Status m_status;
 
   bool finished_okay;
 
   string getIconsFilename();
   
-  void setStatus(Status s);
+  void setStatus(ICQ2000::Status s);
 
   void reconnect_toggle_cb();
 

@@ -7,7 +7,7 @@ bin_PROGRAMS = @ICKLE_PROGRAM@
 
 AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" -I$(top_srcdir)/share/icons/ickle/  \
               @SIGC_CFLAGS@ @GTKMM_CFLAGS@ @GNOME_INCLUDEDIR@ @LIBICQ2000_CFLAGS@
-LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @LIBICQ2000_LIBFLAGS@
+LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@ @LIBICQ2000_LIBFLAGS@ @XSS_LIBS@
 LDADD = @LIBICQ2000_LIBADD@
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
@@ -15,7 +15,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   Icons.cpp UserInfoDialog.cpp AddMobileUserDialog.cpp			\
   SettingsDialog.cpp PromptDialog.cpp History.cpp MobileNoEntry.cpp	\
   Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
-  SetAutoResponseDialog.cpp
+  SetAutoResponseDialog.cpp IdleTimer.cpp
 
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   ContactListView.h MessageBox.h AddUserDialog.h		\
@@ -23,7 +23,8 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   SettingsDialog.h PromptDialog.h History.h			\
   MobileNoEntry.h Dir.h IckleApplet.h				\
   AwayMessageDialog.h sstream_fix.h				\
-  SetAutoResponseDialog.h EventSubstituter.h
+  SetAutoResponseDialog.h EventSubstituter.h			\
+  IdleTimer.h
 
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp

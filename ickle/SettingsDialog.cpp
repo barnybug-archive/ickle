@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.24 2002-01-07 22:18:40 nordman Exp $
+/* $Id: SettingsDialog.cpp,v 1.25 2002-01-09 20:20:26 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -39,6 +39,7 @@
 
 using SigC::slot;
 using SigC::bind;
+using ICQ2000::Status;
 
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
@@ -104,11 +105,11 @@ SettingsDialog::SettingsDialog()
   {
     using namespace Gtk::Menu_Helpers;
     MenuList& ml = m->items();
-    for (int n = STATUS_ONLINE; n <= STATUS_OFFLINE; n++)
-      ml.push_back( MenuElem( Status_text[n], bind( slot(this, &SettingsDialog::setStatus), Status(n) ) ) );
+    for (int n = ICQ2000::STATUS_ONLINE; n <= ICQ2000::STATUS_OFFLINE; n++)
+      ml.push_back( MenuElem( ICQ2000::Status_text[n], bind( slot(this, &SettingsDialog::setStatus), Status(n) ) ) );
   }
-  m_status = Status(g_settings.getValueUnsignedInt("autoconnect"));
-  m->set_active( m_status - STATUS_ONLINE );
+  m_status = ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect"));
+  m->set_active( m_status - ICQ2000::STATUS_ONLINE );
   autoconnect_om->set_menu(*m);
 
   table->attach( *autoconnect_om, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
@@ -278,22 +279,36 @@ SettingsDialog::SettingsDialog()
 
   // ---------------------------------------------------------
 
-  // ------------------ Away Messages ------------------------
+  // ------------------ Away Status ------------------------
 
-  table = manage( new Gtk::Table( 2, 1, false ) );
+  table = manage( new Gtk::Table( 2, 3, false ) );
   
   away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
-  table->attach( away_autoposition, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+  table->attach( away_autoposition, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Auto-away after this number of minutes (0 disables)", 0 ) );
+  unsigned short time = g_settings.getValueUnsignedShort( "auto_away" );
+  adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
+  autoaway_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *autoaway_spinner, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  label = manage( new Gtk::Label( "Auto-N/A after this number of minutes (0 disables)", 0 ) );
+  time = g_settings.getValueUnsignedShort( "auto_na" );
+  adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
+  autona_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  table->attach( *autona_spinner, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
   table->set_border_width(10);
 
-  frame = manage( new Gtk::Frame("Away Messages") );
+  frame = manage( new Gtk::Frame("Away Status") );
   frame->set_border_width(5);
   frame->add(*table);
 
-  label = manage( new Gtk::Label( "Away Messages" ) );
+  label = manage( new Gtk::Label( "Away Status" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
   // ---------------------------------------------------------
@@ -420,10 +435,8 @@ SettingsDialog::SettingsDialog()
   
   // ---------------------------------------------------------
 
-
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
-
 
   set_border_width(10);
   set_usize(500, 310);
@@ -467,8 +480,10 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );
 
-  // ------------ Away Messages tab ----------------
+  // ------------ Away Status tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );
+  g_settings.setValue("auto_away", (unsigned short)autoaway_spinner->get_value_as_int());
+  g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
 
   // ------------ Logging tab ----------------------
   g_settings.setValue("log_info", log_info.get_active() );
@@ -497,7 +512,6 @@ void SettingsDialog::updateSettings() {
   // ------------ Contact List tab ----------------------
   g_settings.setValue("mouse_single_click", mouse_single_click.get_active());
   g_settings.setValue("mouse_check_away_click", mouse_check_away_click.get_active());
-
 }
 
 unsigned int SettingsDialog::getUIN() const {
