@@ -114,12 +114,26 @@ std::string IckleTranslator::get_contact_encoding(const ICQ2000::ContactRef& c)
 
 void IckleTranslator::set_contact_encoding(const ICQ2000::ContactRef& c, std::string encoding)
 {
-  m_encoding_map[c->getUIN()] = encoding;
+  if (m_encoding_map.count(c->getUIN()) == 0
+      || m_encoding_map[c->getUIN()] != encoding)
+  {
+    m_encoding_map[c->getUIN()] = encoding;
+    m_signal_contact_encoding_changed.emit(c->getUIN());
+  }
 }
 
 void IckleTranslator::unset_contact_encoding(const ICQ2000::ContactRef& c)
 {
-  m_encoding_map.erase( c->getUIN() );
+  if (m_encoding_map.count(c->getUIN()))
+  {
+    m_encoding_map.erase( c->getUIN() );
+    m_signal_contact_encoding_changed.emit(c->getUIN());
+  }
+}
+
+SigC::Signal1<void, unsigned int>& IckleTranslator::signal_contact_encoding_changed()
+{
+  return m_signal_contact_encoding_changed;
 }
 
 // ===========================================================================

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.125 2003-02-09 18:57:49 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.126 2003-02-09 19:15:23 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -120,6 +120,8 @@ void IckleClient::init()
 
   // setup contact list
   loadContactList();
+
+  g_translator.signal_contact_encoding_changed().connect( SigC::slot( *this, &IckleClient::contact_encoding_changed_cb ) );
 
   gui.show_all();
 
@@ -1122,6 +1124,16 @@ void IckleClient::saveContact(ContactRef c, const string& s, bool self)
   user.setValue( "last_message_time", c->get_last_message_time() );
   user.setValue( "last_away_msg_check_time", c->get_last_away_msg_check_time() );
 
+  // Character-set encoding
+  if ( g_translator.is_contact_encoding(c) )
+  {
+    user.setValue( "encoding", g_translator.get_contact_encoding(c) );
+  }
+  else
+  {
+    user.removeValue( "encoding" );
+  }
+
   if (!self) {
     // save history mapping
     user.setValue( "history_file", m_histmap[c->getUIN()]->getFilename() );
@@ -1224,6 +1236,15 @@ void IckleClient::loadContact(const string& s, bool self)
   c->set_last_message_time( cs.getValueUnsignedInt("last_message_time") );
   c->set_last_away_msg_check_time( cs.getValueUnsignedInt("last_away_msg_check_time") );
 
+  // Character set
+  if (!self)
+  {
+    if ( cs.getValueString("encoding").size() )
+    {
+      g_translator.set_contact_encoding(c, cs.getValueString("encoding") );
+    }
+  }
+
   if (!self) {
     m_settingsmap[c->getUIN()] = s;
     m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
@@ -1306,4 +1327,10 @@ bool IckleClient::check_pid_file()
   }
 
   return true;
+}
+
+void IckleClient::contact_encoding_changed_cb(unsigned int uin)
+{
+  ICQ2000::ContactRef c = icqclient.getContactTree().lookup_uin(uin);
+  saveContact( c, m_settingsmap[uin], false );
 }

@@ -135,6 +135,9 @@ class IckleClient : public sigslot::has_slots<>,
   gint close_cb(GdkEventAny*);
   void save_settings_cb();
 
+  // -- Callbacks for translator --
+  void contact_encoding_changed_cb(unsigned int uin);
+
   // -- Callback for a socket ready --
   bool socket_select_cb(Glib::IOCondition cond, int source);
 

@@ -24,12 +24,15 @@
 #include <string>
 #include <map>
 
+#include <sigc++/signal.h>
+
 #include <libicq2000/Translator.h>
 
 class IckleTranslator : public ICQ2000::CRLFTranslator
 {
  private:
   std::map<unsigned int, std::string> m_encoding_map;
+  SigC::Signal1<void, unsigned int> m_signal_contact_encoding_changed;
 
  public:
   IckleTranslator();
@@ -46,6 +49,8 @@ class IckleTranslator : public ICQ2000::CRLFTranslator
   std::string get_contact_encoding(const ICQ2000::ContactRef& c);
   void set_contact_encoding(const ICQ2000::ContactRef& c, std::string encoding);
   void unset_contact_encoding(const ICQ2000::ContactRef& c);
+
+  SigC::Signal1<void, unsigned int>& signal_contact_encoding_changed();
 };
 
 class IckleTranslatorProxy : public ICQ2000::Translator
