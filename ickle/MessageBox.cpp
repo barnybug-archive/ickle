@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.27 2001-12-12 22:43:00 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.28 2001-12-13 23:04:55 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -501,9 +501,15 @@ void MessageBox::send_clicked_cb() {
 }
 
 string MessageBox::format_time(time_t t) {
-  struct tm *tm = localtime(&t);
+  time_t now = time(NULL);
+  struct tm now_tm = * (localtime(&now));
+  struct tm tm = * (localtime(&t));
   char time_str[256];
-  strftime(time_str, 255, "%H:%M:%S", tm);
+  if (now - t > 86400 || now_tm.tm_mday != tm.tm_mday) {
+    strftime(time_str, 255, "%d %b %Y %H:%M:%S", &tm);
+  } else {
+    strftime(time_str, 255, "%H:%M:%S", &tm);
+  }
   return string(time_str);
 }
 
