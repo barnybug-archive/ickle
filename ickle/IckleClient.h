@@ -84,7 +84,7 @@ class IckleClient : public SigC::Object {
   void loadContactList();
 
   void event_system(const string& s, MessageEvent *e);
-  gint idle_reconnect_cb(Status s);
+  gint idle_connect_cb(Status s);
 
   void SignalLog(LogEvent::LogType type, const string& msg);
 

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.57 2002-01-11 01:02:08 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.58 2002-01-13 14:19:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -109,7 +109,10 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.show_all();
 
   Status st = Status(g_settings.getValueUnsignedInt("autoconnect"));
-  if (st != STATUS_OFFLINE) icqclient.setStatus( st );
+  // give gtk some time to breathe before we do an auto connect - dns
+  // lookup will block which would prevent them seeing anything for as
+  // long as that takes
+  if (st != STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st ) );
 }
 
 IckleClient::~IckleClient() {
@@ -460,11 +463,11 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
 
   if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED && c->getReason() != DisconnectedEvent::FAILED_DUALLOGIN) {
     --m_retries;
-    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_reconnect_cb ), icqclient.getStatus() ) );
+    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), icqclient.getStatus() ) );
   }
 }
 
-gint IckleClient::idle_reconnect_cb(Status s) {
+gint IckleClient::idle_connect_cb(Status s) {
   icqclient.setStatus( s );
   return 0;
 }
