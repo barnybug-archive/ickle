@@ -64,6 +64,7 @@ MessageBox::MessageBox(Contact *c)
   m_tab.set_tab_pos(GTK_POS_LEFT);
 
   if ( c->isICQContact() ) {
+    m_message_type = MessageEvent::Normal;
     m_tab.switch_page.connect(slot(this,&MessageBox::switch_page_cb));
 
   // -- normal message tab --
@@ -110,6 +111,8 @@ MessageBox::MessageBox(Contact *c)
 
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
     // -------------------------
+  } else {
+    m_message_type = MessageEvent::SMS;
   }
 
   // -------- sms tab --------
@@ -253,20 +256,16 @@ void MessageBox::sms_count_update_cb() {
 }
 
 void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
-  switch(n) {
-  case 0:
+  if (n == 0 && m_contact->isICQContact() ) {
     m_message_type = MessageEvent::Normal;
     m_message_text.grab_focus();
-    break;
-  case 1:
+  } else if ( n == 1 ) {
     m_message_type = MessageEvent::URL;
     m_url_text.grab_focus();
-    break;
-  case 2:
+  } else if ( n == 2 || ( n == 0 && !m_contact->isICQContact() ) ) {
     m_message_type = MessageEvent::SMS;
     m_sms_text.grab_focus();
     sms_count_update_cb();
-    break;
   }
   send_button_update();
 }
