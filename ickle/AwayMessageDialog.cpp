@@ -111,6 +111,8 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev) {
 
   ICQ2000::ContactRef c = ev->getContact();
 
+  m_awaytext.freeze();
+  
   if (++m_count == 20) {
     m_awaytext.delete_text(0,m_pos);
     m_pos = m_awaytext.get_length();
@@ -138,7 +140,7 @@ void AwayMessageDialog::messageack_cb(ICQ2000::MessageEvent *ev) {
   ostringstream ostr;
   ostr << format_time( ev->getTime() ) << " "
        << c->getAlias() << endl;
-  m_awaytext.freeze();
+
   m_awaytext.insert( header_context, ostr.str());
   if (ev->isDelivered()) {
     m_awaytext.insert( normal_context, aev->getAwayMessage());
