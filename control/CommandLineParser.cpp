@@ -14,12 +14,13 @@
  */
 
 #include <string>
-#include "ickle/sstream_fix.h"
+
+#include "ickle/ickle.h"
+#include "ickle/ucompose.h"
 
 #include "CommandLineParser.h"
 
 using std::string;
-using std::ostringstream;
 using std::vector;
 
 // ============================================================================
@@ -28,13 +29,17 @@ using std::vector;
 
 CommandLineParser::CommandLineParser (int argc, char ** argv)
 {
-  if (argc > 1 && (argv[1])[0] != '-') throw CommandLineException ("Invalid option `" + string(argv[1]) + "'");
+  if (argc > 1 && (argv[1])[0] != '-')
+    throw CommandLineException (String::ucompose(_("Invalid option %1"), string(argv[1])));
 
-  for (int i = 1; i < argc; i++) {
-    if ((argv[i])[0] == '-') {
+  for (int i = 1; i < argc; i++)
+  {
+    if ((argv[i])[0] == '-')
+    {
       string opt = argv[i];
       vector <string> args;
-      while ((i+1 < argc) && ((argv[i+1])[0] != '-')) {
+      while ((i+1 < argc) && ((argv[i+1])[0] != '-'))
+      {
         args.push_back (argv[i+1]);
         i++;
       }
@@ -50,22 +55,20 @@ CommandLineParser::CommandLineParser (int argc, char ** argv)
 
 bool CommandLineOption::isOption (const string & long_opt, const string & short_opt, int min_args, int max_args) const
 {
-  ostringstream s;
-
   if ((m_opt == "--" + long_opt && !long_opt.empty()) ||
       (m_opt == "-" + short_opt && !short_opt.empty()))
   {
-    if (max_args == -1 && int(m_args.size()) != min_args) {
-      s << "Option `" << m_opt << "' requires " << min_args << " arguments";
-      throw CommandLineException (s.str());
+    if (max_args == -1 && int(m_args.size()) != min_args)
+    {
+      throw CommandLineException ( String::ucompose( _("Option %1 requires %2 arguments") , m_opt, min_args ) );
     }
-    if (int(m_args.size()) < min_args) {
-      s << "Option `" << m_opt << "' requires at least " << min_args << " arguments";
-      throw CommandLineException (s.str());
+    if (int(m_args.size()) < min_args)
+    {
+      throw CommandLineException ( String::ucompose( _("Option %1 at least %2 arguments") , m_opt, min_args ) );
     }
-    if (max_args != -1 && int(m_args.size()) > max_args) {
-      s << "Option `" << m_opt << "' doesn't take more than " << max_args << " arguments";
-      throw CommandLineException (s.str());
+    if (max_args != -1 && int(m_args.size()) > max_args)
+    {
+      throw CommandLineException ( String::ucompose( _("Option %1 doesn't take more than %2 arguments") , m_opt, max_args ) );
     }
     return true;
   }
@@ -77,5 +80,5 @@ bool CommandLineOption::isOption (const string & long_opt, const string & short_
 
 void CommandLineOption::invalid () const
 {
-  throw CommandLineException ("Invalid option `" + m_opt + "'");
+  throw CommandLineException ( String::ucompose( _("Invalid option %1"), m_opt) );
 }

@@ -22,6 +22,10 @@
 #include "CommandLineParser.h"
 #include "IckleControl.h"
 
+#include "ickle/ickle.h"
+#include "ickle/ucompose.h"
+#include "ickle/utils.h"
+
 #include <iostream>
 
 using std::cout;
@@ -42,6 +46,14 @@ int IckleControl::main (int argc, char ** argv)
 {
   try
   {
+#ifdef ENABLE_NLS
+    /* initialise gettext */
+    setlocale(LC_ALL, "");
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(PACKAGE, "UTF-8");
+    textdomain(PACKAGE);
+#endif
+
     CommandLineParser p (argc, argv);
     string config_dir;
 
@@ -87,8 +99,9 @@ int IckleControl::main (int argc, char ** argv)
       }
     }
 
-    if (!m_socket.init (config_dir)) {
-      cerr << "Is ickle running?" << endl;
+    if (!m_socket.init (config_dir))
+    {
+      cerr << Utils::console( Glib::ustring( _("Is ickle running?") ) ) << endl;
       return 1;
     }
     bool b = runCommands (p);
@@ -98,7 +111,7 @@ int IckleControl::main (int argc, char ** argv)
   }
   catch (CommandLineException & e)
   {
-    cerr << e.what() << endl;
+    cerr << Utils::console( e.what() ) << endl;
     return 1;
   }
 }
@@ -130,25 +143,25 @@ bool IckleControl::runCommands (CommandLineParser & p)
 
 void IckleControl::printUsage ()
 {
-  cout  << "Usage: ickle_control OPTIONS..." << endl
+  cout  << Utils::console( Glib::ustring( _("Usage: ickle_control OPTIONS...") ) ) << endl
         << endl
-        << "Options:" << endl
-        << "  -r, --running             Determine whether ickle is running" << endl
-        << "  -b, --configdir DIR       Use DIR as the ickle configuration directory." << endl
-        << "                            Default is ~/.ickle/" << endl
-        << "  -t, --timeout [TIMEOUT]   Wait at most TIMEOUT seconds for the next command" << endl
-        << "                            to succeed. Omit TIMEOUT to return immediately" << endl
-        << "  -s, --status [STATUS]     Set/get status. STATUS can be one of: online, away," << endl
-        << "                            na, occupied, dnd, freeforchat, offline" << endl
-        << "  -i, --invisible [BOOL]    Set/get invisibility" << endl
-        << "  -a, --away [\"MESSAGE\"]    Set/get away message" << endl
-        << "  -c, --addcontact UIN      Add a new contact" << endl
-        << "  -m, --send UIN \"MESSAGE\"  Send MESSAGE to user UIN" << endl
-        << "  -o, --sms UIN \"MESSAGE\"   Send SMS to user UIN" << endl
-        << "  -S, --setting KEY [VALUE] Set/get the setting KEY. >>Use with caution!<<" << endl
-        << "  -q, --quit                Terminate ickle" << endl
-        << "  -h, --help                Display this help and exit" << endl
-        << "  -v, --version             Display ickle version and exit" << endl
+        << Utils::console( Glib::ustring( _("Options:\n"
+           "  -r, --running             Determine whether ickle is running\n"
+           "  -b, --configdir DIR       Use DIR as the ickle configuration directory.\n"
+           "                            Default is ~/.ickle/\n"
+           "  -t, --timeout [TIMEOUT]   Wait at most TIMEOUT seconds for the next command\n"
+           "                            to succeed. Omit TIMEOUT to return immediately\n"
+           "  -s, --status [STATUS]     Set/get status. STATUS can be one of: online, away,\n"
+           "                            na, occupied, dnd, freeforchat, offline\n"
+           "  -i, --invisible [BOOL]    Set/get invisibility\n"
+           "  -a, --away [\"MESSAGE\"]    Set/get away message\n"
+           "  -c, --addcontact UIN      Add a new contact\n"
+           "  -m, --send UIN \"MESSAGE\"  Send MESSAGE to user UIN\n"
+           "  -o, --sms UIN \"MESSAGE\"   Send SMS to user UIN\n"
+           "  -S, --setting KEY [VALUE] Set/get the setting KEY. >>Use with caution!<<\n"
+           "  -q, --quit                Terminate ickle\n"
+           "  -h, --help                Display this help and exit\n"
+           "  -v, --version             Display ickle version and exit") ) )
         << endl;
 }
 
@@ -156,7 +169,7 @@ void IckleControl::printUsage ()
 
 void IckleControl::printVersion ()
 {
-  cout  << "ickle " << ICKLE_VERSION << endl;
+  cout  << Utils::console( String::ucompose( _("ickle %1"), ICKLE_VERSION ) ) << endl;
 }
 
 
@@ -167,8 +180,9 @@ bool IckleControl::setTimeout (const string & param)
   if (!param.empty()) {
     char * end;
     m_timeout = strtol (param.c_str(), &end, 10);
-    if (*end != '\0') {
-      cerr << "Invalid timeout value `" << param << "'" << endl;
+    if (*end != '\0')
+    {
+      cerr << Utils::console( String::ucompose( _("Invalid timeout value %1"), param ) ) << endl;
       return false;
     }
   }
@@ -196,7 +210,7 @@ bool IckleControl::cmdStatus (const string & param)
     else if (param == "freeforchat") s = ICQ2000::STATUS_FREEFORCHAT;
     else if (param == "offline")     s = ICQ2000::STATUS_OFFLINE;
     else {
-      cerr << "Invalid status `" << param << "'" << endl;
+      cerr << Utils::console( String::ucompose( _("Invalid status %1"), param ) ) << endl;
       return false;
     }
 
@@ -206,9 +220,16 @@ bool IckleControl::cmdStatus (const string & param)
       bool r;
       string str;
       m_socket >> r >> str;
-      if (!r) {
-        cerr << "Failed setting status to `" << param << "'";
-        if (!str.empty()) cerr << " (" << str << ")";
+      if (!r)
+      {
+	if (str.empty())
+	{
+	  cerr << Utils::console( String::ucompose( _("Failed setting status to %1"), param ) );
+	}
+	else
+	{
+	  cerr << Utils::console( String::ucompose( _("Failed setting status to %1 (%2)"), param, str ) );
+	}
         cerr << endl;
         return false;
       }
@@ -246,7 +267,7 @@ bool IckleControl::cmdInvisible (const string & param)
     if      (param == "true")  inv = true;
     else if (param == "false") inv = false;
     else {
-      cerr << "Invalid boolean value `" << param << "'" << endl;
+      cerr << Utils::console( String::ucompose( _("Invalid boolean value %1"), param ) ) << endl;
       return false;
     }
 
@@ -289,7 +310,7 @@ bool IckleControl::cmdAddContact (const string & param)
   char * end;
   uin = strtol (param.c_str(), &end, 10);
   if (*end != '\0') {
-    cerr << "Invalid UIN `" << param << "'" << endl;
+    cerr << Utils::console( String::ucompose( _("Invalid UIN %1"), param ) ) << endl;
     return false;
   }
   m_socket << CMD_ADD_CONTACT << uin;
@@ -304,7 +325,7 @@ bool IckleControl::cmdSendMessage (const string & param1, const string & param2,
   char * end;
   uin = strtol (param1.c_str(), &end, 10);
   if (*end != '\0') {
-    cerr << "Invalid UIN `" << param1 << "'" << endl;
+    cerr << Utils::console( String::ucompose( _("Invalid UIN %1"), param1 ) ) << endl;
     return false;
   }
   m_socket << CMD_SEND_MESSAGE << uin << type << param2 << m_timeout*1000;
@@ -313,9 +334,13 @@ bool IckleControl::cmdSendMessage (const string & param1, const string & param2,
     bool r;
     string str;
     m_socket >> r >> str;
-    if (!r) {
-      cerr << "Failed sending message to `" << param1 << "'";
-      if (!str.empty()) cerr << " (" << str << ")";
+    if (!r)
+    {
+      if (str.empty())
+	cerr << Utils::console( String::ucompose( _("Failed sending message to %1"), param1 ) );
+      else
+	cerr << Utils::console( String::ucompose( _("Failed sending message to %1 (%2)"), param1, str ) );
+
       cerr << endl;
       return false;
     }
@@ -333,7 +358,7 @@ bool IckleControl::cmdSetting (const string & key, const string & value)
     bool r;
     m_socket >> r;
     if (!r) {
-      cerr << "No such setting `" << key << "'" << endl;
+      cerr << Utils::console( String::ucompose( _("No such setting %1"), key ) ) << endl;
       return false;
     }
   }
@@ -345,9 +370,9 @@ bool IckleControl::cmdSetting (const string & key, const string & value)
     if (r) {
       string v;
       m_socket >> v;
-      cout << v << endl;
+      cout << Utils::console( v ) << endl;
     } else {
-      cerr << "No such setting `" << key << "'" << endl;
+      cerr << Utils::console( String::ucompose( _("No such setting %1"), key ) ) << endl;
       return false;
     }
   }

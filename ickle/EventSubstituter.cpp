@@ -20,8 +20,6 @@
 
 #include "EventSubstituter.h"
 
-#include <libicq2000/socket.h>  // for IPtoString()
-
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -38,6 +36,8 @@
 
 #include <signal.h>
 #include <string.h>
+
+#include "ucompose.h"
 
 using std::string;
 using std::ostringstream;
@@ -124,8 +124,15 @@ EventSubstituter& EventSubstituter::operator<<(char c) {
       // We call the ostringstream << methods and not EventSubstituter's to
       // ensure substitutions aren't processed recursively.
       case 'i':
-	sanecat(IPtoString(co->getExtIP()));
+      {
+	unsigned int ip = co->getExtIP();
+	sanecat( String::ucompose( "%1.%2.%3.%4",
+				   ( ip >> 24 ),
+				   ((ip >> 16) & 0xff),
+				   ((ip >> 8) & 0xff),
+				   ( ip & 0xff ) ) );
 	break;
+      }
       case 'p':
         static_cast<ostringstream&>(*this) << co->getExtPort();
 	break;

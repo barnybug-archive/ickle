@@ -28,7 +28,6 @@
 #include <gtkmm/buttonbox.h>
 
 #include <libicq2000/Client.h>
-#include <libicq2000/socket.h>
 #include <libicq2000/userinfohelpers.h>
 
 #include <vector>

@@ -99,6 +99,12 @@ PKG_CHECK_MODULES(SIGC, sigc++-1.2)
 AC_SUBST(SIGC_CFLAGS)
 AC_SUBST(SIGC_LIBS)
 
+# glibmm separate for the benefit of ickle_control
+# (which doesn't need the whole of gtkmm)
+PKG_CHECK_MODULES(GLIBMM, glibmm-2.0)
+AC_SUBST(GLIBMM_CFLAGS)
+AC_SUBST(GLIBMM_LIBS)
+
 PKG_CHECK_MODULES(GTKMM, gtkmm-2.0)
 AC_SUBST(GTKMM_CFLAGS)
 AC_SUBST(GTKMM_LIBS)

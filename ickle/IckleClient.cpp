@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.118 2003-01-04 19:42:45 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.119 2003-01-09 20:12:40 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
