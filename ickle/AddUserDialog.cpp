@@ -24,6 +24,7 @@
 #include <libicq2000/Client.h>
 
 #include <gtk--/table.h>
+#include <gtk--/buttonbox.h>
 
 AddUserDialog::AddUserDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
@@ -47,9 +48,11 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   m_cancel.clicked.connect( destroy.slot() );
 
   Gtk::HBox *hbox = get_action_area();
-  hbox->pack_start(m_ok, true, true, 0);
-  hbox->pack_start(m_cancel, true, true, 0);
-
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  hbbox->pack_start(m_ok, true, true, 0);
+  hbbox->pack_start(m_cancel, true, true, 0);
+  hbox->pack_start( *hbbox );
+  
   Gtk::VBox *vbox = get_vbox();
   Gtk::VBox *vbox2;
   Gtk::Table *table;

@@ -22,6 +22,7 @@
 
 #include <gtk--/box.h>
 #include <gtk--/radiobutton.h>
+#include <gtk--/buttonbox.h>
 
 #include <libicq2000/Client.h>
 #include "main.h"
@@ -72,9 +73,11 @@ AuthRespDialog::AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& 
   vbox->pack_start( m_text );
 
   Gtk::HBox *hbox = get_action_area();
-  hbox->pack_start(m_ok, true, true, 0);
-  hbox->pack_start(m_cancel, true, true, 0);
-
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  hbbox->pack_start(m_ok, true, true, 0);
+  hbbox->pack_start(m_cancel, true, true, 0);
+  hbox->pack_start( *hbbox );
+  
   set_default_size(250,100);
   set_border_width(10);
   show_all();

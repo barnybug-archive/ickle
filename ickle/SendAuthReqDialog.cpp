@@ -22,6 +22,7 @@
 
 #include <gtk--/box.h>
 #include <gtk--/label.h>
+#include <gtk--/buttonbox.h>
 
 #include <libicq2000/Client.h>
 #include "main.h"
@@ -44,14 +45,16 @@ SendAuthReqDialog::SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::Contac
 
   Gtk::Label *label = manage( new Gtk::Label("Note: Authorisation is not strictly speaking required "
 					     "within the ICQ protocol (there are is no security/privacy behind it). "
-					     "It is generally polite to ask for Authorisation though, if it is required. ", 0));
+					     "It is generally polite to ask for Authorisation though, if it is required. "));
   label->set_justify(GTK_JUSTIFY_FILL);
   label->set_line_wrap(true);
   vbox->pack_start( *label );
 
   Gtk::HBox *hbox = get_action_area();
-  hbox->pack_start(m_ok, true, true, 0);
-  hbox->pack_start(m_cancel, true, true, 0);
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  hbbox->pack_start(m_ok, true, true, 0);
+  hbbox->pack_start(m_cancel, true, true, 0);
+  hbox->pack_start( *hbbox );
 
   set_default_size(250,100);
   set_border_width(10);

@@ -24,6 +24,7 @@
 #include <gtk--/button.h>
 #include <gtk--/label.h>
 #include <gtk--/main.h>
+#include <gtk--/buttonbox.h>
 
 PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal)
   : Gtk::Dialog(),
@@ -38,7 +39,9 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
   if (modal) destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   Gtk::Button *button;
+  hbox->pack_start( *hbbox );
 
   switch(t) {
   case PROMPT_INFO:
@@ -46,7 +49,7 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
     button = manage( new Gtk::Button("OK") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbox->pack_start(*button, true, false);
+    hbbox->pack_start(*button, true, false);
     break;
   case PROMPT_WARNING:
     set_title("ickle warning");
@@ -60,22 +63,22 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
     button = manage( new Gtk::Button("OK") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbox->pack_start(*button, true, false, 0);
+    hbbox->pack_start(*button, true, false, 0);
     button = manage( new Gtk::Button("Cancel") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::false_cb ) );
-    hbox->pack_start(*button, true, false, 0);
+    hbbox->pack_start(*button, true, false, 0);
     break;
   case PROMPT_QUESTION:
     set_title("ickle question");
     button = manage( new Gtk::Button("Yes") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbox->pack_start(*button, true, false, 0);
+    hbbox->pack_start(*button, true, false, 0);
     button = manage( new Gtk::Button("No") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::false_cb ) );
-    hbox->pack_start(*button, true, false, 0);
+    hbbox->pack_start(*button, true, false, 0);
     break;
   }
 

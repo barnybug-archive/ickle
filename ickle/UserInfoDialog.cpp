@@ -23,6 +23,8 @@
 #include "sstream_fix.h"
 #include "main.h"
 
+#include <gtk--/buttonbox.h>
+
 #include <libicq2000/Client.h>
 #include <libicq2000/socket.h>
 #include <libicq2000/userinfohelpers.h>
@@ -72,11 +74,13 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   Gtk::Label *label;
 
   Gtk::HBox *hbox = get_action_area();
-  hbox->pack_start(fetchb, true, true, 0);
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  hbbox->pack_start(fetchb, true, true, 0);
   if (self)
-    hbox->pack_start(uploadb, true, true, 0);
-  hbox->pack_start(okay, true, true, 0);
-  hbox->pack_start(cancel, true, true, 0);
+    hbbox->pack_start(uploadb, true, true, 0);
+  hbbox->pack_start(okay, true, true, 0);
+  hbbox->pack_start(cancel, true, true, 0);
+  hbox->pack_start( *hbbox );
 
   // ******************** General Information ********************
   Gtk::Table *table = manage( new Gtk::Table( 4, 11, false ) );

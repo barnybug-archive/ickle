@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.7 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: AboutDialog.cpp,v 1.8 2002-04-03 23:04:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -26,6 +26,7 @@
 #include <gtk--/text.h>
 #include <gtk--/scrollbar.h>
 #include <gtk--/table.h>
+#include <gtk--/buttonbox.h>
 
 #include <libicq2000/version.h>
 
@@ -47,10 +48,12 @@ AboutDialog::AboutDialog(Gtk::Window * parent)
   destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
-
+  Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
+  
   button = manage( new Gtk::Button("OK") );
   button->clicked.connect( destroy.slot() );
-  hbox->pack_start( *button );
+  hbbox->pack_start( *button );
+  hbox->pack_start( *hbbox );
   
   Gtk::VBox *vbox = get_vbox();
   Gtk::Table *table = manage( new Gtk::Table(2,1) );
