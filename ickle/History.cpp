@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.12 2002-01-20 23:35:04 oizoken Exp $
+/* $Id: History.cpp,v 1.13 2002-01-21 01:45:28 oizoken Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -295,6 +295,7 @@ void History::stream_lock() throw(runtime_error)
     throw runtime_error( string("History::stream_lock: Could not open historyfile for reading: " )
                          + m_filename );
   m_streamlock = true;
+  m_if.clear();
 }
 
 void History::stream_release() throw(runtime_error)
