@@ -20,6 +20,8 @@
 
 #include "IckleClient.h"
 
+#include <time.h>
+
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
     status(STATUS_OFFLINE)
@@ -371,21 +373,95 @@ void IckleClient::socket_cb(SocketEvent *ev) {
 
 bool IckleClient::message_cb(MessageEvent *ev) {
   if (ev->getType() == MessageEvent::Normal) {
-    event_system("event_message");
+    event_system("event_message", ev);
   } else if (ev->getType() == MessageEvent::URL) {
-    event_system("event_url");
+    event_system("event_url", ev);
   } else if (ev->getType() == MessageEvent::SMS) {
-    event_system("event_sms");
+    event_system("event_sms", ev);
   }
   m_histmap[ev->getContact()->getUIN()].log(ev, true);
 
   return false;
 }
 
-void IckleClient::event_system(const string& s) {
+void IckleClient::event_system(const string& s, MessageEvent *ev) {
   if (settings.getValueString(s) != "") {
+    Contact *co = ev->getContact();
+
+    char c;
+    char timebuf[100];
+    time_t ev_time;
+    istringstream istr (settings.getValueString(s), istringstream::in);
     ostringstream ostr;
-    ostr << settings.getValueString(s) << " &";
+
+    while(istr.good()){
+      c = istr.get();
+      if(c == -1)
+        break;
+      if(c=='%'){
+        c = istr.get();
+        switch(c){
+           case 'i':
+             ostr << IPtoString( co->getExtIP() );
+             break;
+           case 'p':
+             ostr << co->getExtPort();
+             break;
+           case 'e':
+             ostr << co->getEmail();
+             break;
+           case 'n':
+             ostr << co->getFirstName()
+                  << " " << co->getLastName();
+             break;
+           case 'f':
+             ostr << co->getFirstName();
+             break;
+           case 'l':
+             ostr << co->getLastName();
+             break;
+           case 'a':
+             ostr << co->getAlias();
+             break;
+           case 'u':
+             ostr << co->getStringUIN();
+             break;
+           // case 'w': would be the web address
+           // case 'h': would be home phone number
+           case 'c':
+             ostr << co->getMobileNo();
+             break;
+           // Should implement a getStatusStr() for these
+           // case 's':
+           // case 'S':
+           //  ostr << co->getStatus();
+           //  break;
+           case 't':
+	     ev_time = ev->getTime();
+             strftime(timebuf, 100, "%b %d %r", localtime(&ev_time));
+             ostr << timebuf;
+             break;
+           case 'T':
+	     ev_time = ev->getTime();
+             strftime(timebuf, 100, "%b %d %R %Z", localtime(&ev_time));
+             ostr << timebuf;
+             break;
+           // case 'o' would be last time they were online
+           case 'm':
+             ostr << co->numberPendingMessages();
+             break;
+           case '%':
+             ostr << "%";
+             break;
+           default:
+	     cout << "Warning: no substitution for %" << c << endl;
+             break;
+        }
+      } else {
+        ostr << c;
+      }
+    }
+    ostr << " &";
     system(ostr.str().c_str());
   }
 }
