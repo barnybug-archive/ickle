@@ -65,7 +65,7 @@ AC_LANG_RESTORE
 # Checks for libraries.
 AM_PATH_SIGC(1.0.0, [], [AC_MSG_ERROR([You need to have the libsigc++ libraries installed - see the README for more information])])
 
-AM_PATH_GTKMM(1.2.2, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.0 preferably 1.2.5 and above - see the README for more information])])
+AM_PATH_GTKMM(1.2.5, [], [AC_MSG_ERROR([You need to have the gtkmm libraries installed of at least version 1.2.5 and above - see the README for more information])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
