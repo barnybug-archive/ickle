@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.2 2002-01-13 13:24:33 barnabygray Exp $
+/* $Id: IdleTimer.cpp,v 1.3 2002-01-25 14:25:54 nordman Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -97,10 +97,10 @@ gint IdleTimer::timer_cb()
 
   if ( lim == auto_na ) {
     if( currstatus != ICQ2000::STATUS_NA )
-      icqclient.setStatus( ICQ2000::STATUS_NA );
+      icqclient.setStatus( ICQ2000::STATUS_NA, icqclient.getInvisible() );
   }
   else if( currstatus != ICQ2000::STATUS_AWAY )
-    icqclient.setStatus( ICQ2000::STATUS_AWAY );
+    icqclient.setStatus( ICQ2000::STATUS_AWAY, icqclient.getInvisible() );
 
   m_autostatus = true;
   return 1;
