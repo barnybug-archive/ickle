@@ -7,7 +7,7 @@ AC_INIT(ickle/main.cpp)
 #
 ICKLE_MAJOR_VERSION=0
 ICKLE_MINOR_VERSION=4
-ICKLE_MICRO_VERSION=pre1
+ICKLE_MICRO_VERSION=pre2
 
 ICKLE_VERSION=$ICKLE_MAJOR_VERSION.$ICKLE_MINOR_VERSION.$ICKLE_MICRO_VERSION
 
@@ -15,7 +15,7 @@ AC_DEFINE_UNQUOTED(ICKLE_MAJOR_VERSION, "$ICKLE_MAJOR_VERSION", [Major version o
 AC_DEFINE_UNQUOTED(ICKLE_MINOR_VERSION, "$ICKLE_MINOR_VERSION", [Minor version of ickle])
 AC_DEFINE_UNQUOTED(ICKLE_MICRO_VERSION, "$ICKLE_MICRO_VERSION", [Micro version of ickle])
 AC_DEFINE_UNQUOTED(ICKLE_VERSION, "$ICKLE_VERSION", [Full version of ickle])
-AM_INIT_AUTOMAKE(ickle,0.4.pre1)
+AM_INIT_AUTOMAKE(ickle,0.4.pre2)
 
 AM_ACLOCAL_INCLUDE(macros)
 AM_ACLOCAL_INCLUDE(m4)
@@ -109,6 +109,18 @@ PKG_CHECK_MODULES(GTKMM, gtkmm-2.0)
 AC_SUBST(GTKMM_CFLAGS)
 AC_SUBST(GTKMM_LIBS)
 
+# gtkspell check
+AC_ARG_ENABLE(gtkspell, [  --disable-gtkspell      compile without gtkspell (default: check for it)],,enable_gtkspell=yes)
+if test "$enable_gtkspell" = yes ; then
+	PKG_CHECK_MODULES(GTKSPELL, gtkspell-2.0,,enable_gtkspell=no)
+	if test "$enable_gtkspell" = yes ; then
+		AC_SUBST(GTKSPELL_CFLAGS)
+		AC_SUBST(GTKSPELL_LIBS)
+		AC_DEFINE(HAVE_GTKSPELL, [1], [Is there a gtkspell?])
+	fi
+fi
+
+
 # libicq2000 check
 PKG_CHECK_MODULES(LIBICQ2000, libicq2000)
 AC_SUBST(LIBICQ2000_CFLAGS)
@@ -196,6 +208,12 @@ if test "x$ac_cv_have_backtrace" = xyes; then
 else
    $ECHO "backtrace debug support:            disabled"
 fi
+if test "x$enable_gtkspell" = xyes; then
+   $ECHO "gtkspell support:                   enabled"
+else
+   $ECHO "gtkspell support:                   disabled"
+fi
+
 $ECHO
 $ECHO "Now type make (or gmake) to build ickle, and then make install to"
 $ECHO "install. After installing, run ickle by typing 'ickle' at the    "

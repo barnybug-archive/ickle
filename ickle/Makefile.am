@@ -9,11 +9,12 @@ datadir = @datadir@
 localedir = $(datadir)/locale
 AM_CPPFLAGS = -I$(top_srcdir)/share/icons/ickle/ -DPKGDATADIR=\"$(pkgdatadir)\"		\
               @GTKMM_CFLAGS@ @LIBICQ2000_CFLAGS@	\
-              -I$(top_srcdir)/ctrlsocket -DLOCALEDIR=\"$(localedir)\"
+              -I$(top_srcdir)/ctrlsocket -DLOCALEDIR=\"$(localedir)\" \
+	      @GTKSPELL_CFLAGS@ 
 
 AM_LDFLAGS = @GTKMM_LIBS@ @LIBICQ2000_LIBS@ @XSS_LIBS@ \
           -L$(top_builddir)/ctrlsocket @LIBICKLE_CTRLSOCKET_FLAG@ \
-          @LIBINTL@
+          @LIBINTL@ @GTKSPELL_LIBS@
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   Settings.cpp ContactListView.cpp MessageBox.cpp			\
@@ -27,7 +28,8 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   AddGroupDialog.cpp RenameGroupDialog.cpp RemoveGroupDialog.cpp	\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.cpp utils.cpp	\
   UserInfoHelpers.cpp Translator.cpp SetEncodingDialog.cpp		\
-  sighandler.cpp ReceiveFileDialog.cpp SendFileDialog.cpp FindTextDialog.cpp
+  sighandler.cpp ReceiveFileDialog.cpp SendFileDialog.cpp 		\
+  FindTextDialog.cpp 
 
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 

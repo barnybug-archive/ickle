@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.80 2004-02-29 16:14:48 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.81 2004-07-03 16:40:25 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -420,9 +420,24 @@ void SettingsDialog::init_look_message_page()
 
   history->add( * table );
 
+  SectionFrame * spellcheck = manage (new SectionFrame( _("Spell Checking") ) );
+  table = manage (new Gtk::Table( 1, 1 ) );
 
+  m_spell_check.set_label(_("Use spell checking") );
+  m_tooltip.set_tip (m_spell_check,_("If checked ickle will spell check all messages"));
+  m_spell_check.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
+  table->attach( m_spell_check, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
+  
+  table->set_spacings(5);
+  table->set_border_width(10);
+
+
+  spellcheck->add(* table);
   vbox->pack_start( *frame, Gtk::PACK_SHRINK );
   vbox->pack_start( *history, Gtk::PACK_SHRINK );
+#ifdef HAVE_GTKSPELL
+  vbox->pack_start( *spellcheck, Gtk::PACK_SHRINK );
+#endif  
   add_page( _("Message window"), vbox, false );
 }
 
@@ -1075,6 +1090,7 @@ void SettingsDialog::load_look_message_page()
   m_message_autopopup.set_active(g_settings.getValueBool("message_autopopup") );
   m_message_autoraise.set_active(g_settings.getValueBool("message_autoraise") );
   m_history_shownr.set_value((double)g_settings.getValueUnsignedInt("history_shownr") );
+  m_spell_check.set_active(g_settings.getValueBool("spell_check") );
 }
 
 void SettingsDialog::load_look_contact_list_page()
@@ -1238,7 +1254,8 @@ void SettingsDialog::save_look_message_page()
   g_settings.setValue("message_autoclose", m_message_autoclose.get_active() );
   g_settings.setValue("message_autopopup", m_message_autopopup.get_active() );
   g_settings.setValue("message_autoraise", m_message_autoraise.get_active() );
-  g_settings.setValue( "history_shownr", (unsigned int) m_history_shownr.get_value() );
+  g_settings.setValue("history_shownr", (unsigned int) m_history_shownr.get_value() );
+  g_settings.setValue("spell_check", m_spell_check.get_active() );
 }
 
 void SettingsDialog::save_look_contact_list_page()

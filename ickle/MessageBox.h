@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.30 2003-11-02 16:31:30 cborni Exp $
+/* $Id: MessageBox.h,v 1.31 2004-07-03 16:40:25 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -17,7 +17,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
+ 
 #ifndef MESSAGEBOX_H
 #define MESSAGEBOX_H
 
@@ -46,9 +46,17 @@
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
 
+#include "config.h"
 #include "Icons.h"
 #include "History.h"
 #include "MessageQueue.h"
+
+#ifdef HAVE_GTKSPELL
+extern "C" {
+#include <gtkspell/gtkspell.h>
+}
+#endif
+
 
 class MessageBox : public Gtk::Window,
                    public sigslot::has_slots<>
@@ -103,6 +111,12 @@ class MessageBox : public Gtk::Window,
   ICQ2000::MessageEvent::MessageType m_message_type;
 
   MessageQueue& m_message_queue;
+
+#ifdef HAVE_GTKSPELL
+  GtkSpell *message_spell;
+  GtkSpell *url_spell;
+  GtkSpell *sms_spell;
+#endif
 
   Glib::RefPtr<Gtk::TextTag> m_tag_header_blue;
   Glib::RefPtr<Gtk::TextTag> m_tag_header_red;

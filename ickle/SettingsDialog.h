@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.61 2004-02-15 21:14:27 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.62 2004-07-03 16:40:25 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -129,6 +129,8 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_message_autoraise;
 
   Gtk::SpinButton m_history_shownr;
+  
+  Gtk::CheckButton m_spell_check;
 
   // Away/Idle page
   Gtk::SpinButton m_auto_away;

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.131 2004-02-08 14:05:05 cborni Exp $
+/* $Id: IckleClient.cpp,v 1.132 2004-07-03 16:40:25 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -309,7 +309,6 @@ void IckleClient::loadSettings()
   g_settings.defaultValueBool("mouse_check_away_click", true);
   g_settings.defaultValueUnsignedInt("sort_contact_list_column", 0, 0, 1000);
   g_settings.defaultValueBool("spell_check", true);
-  g_settings.defaultValueBool("spell_check_aspell", false);
   g_settings.defaultValueString("spell_check_lang","");
   g_settings.defaultValueBool("initial_userinfo_done", false );
 

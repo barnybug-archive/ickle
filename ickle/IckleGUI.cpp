@@ -44,7 +44,6 @@
 #include "ucompose.h"
 #include "main.h"
 
-// TODO #include "gtkspell.h"
 
 using std::string;
 using std::endl;
@@ -161,9 +160,6 @@ IckleGUI::~IckleGUI()
     delete i->second;
   }
 
-  // TODO gtkspell
-  //  if (gtkspell_running())
-  //gtkspell_stop();
   m_signal_destroy.emit();
 }
 
@@ -410,11 +406,9 @@ void IckleGUI::create_messagebox(const ContactRef& c, History *h)
   
   if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
   
-  // TODO gtkspell
-  //  if (gtkspell_running())
-  //    m->spell_attach();
-  
   m->setDisplayTimes(m_display_times);
+  if (g_settings.getValueBool("spell_check"))
+    m->spell_attach();
   m->popup();
 }
 
@@ -752,66 +746,35 @@ void IckleGUI::settings_away_cb(Gtk::Window * w)
   show_settings_dialog(*w, true);
 }
 
+
+/*
+ * called if some global spell settings are changed
+ */
 void IckleGUI::spell_check_setup()
 {
-  /* TODO gtkspell
+#ifdef HAVE_GTKSPELL
   if (g_settings.getValueBool("spell_check")) {
     // start gtkspell
-
-    char spell_language[128];
-
-    char *ispellcmd[] = { "ispell", "-a", "-d","place holder",NULL };
-    char *aspellcmd[] = { "aspell", "pipe", "place holder", NULL };
-    char **spellcmd;
-
-    if (g_settings.getValueString("spell_check_lang").size()>0) {
-    //some language was specified
-    	strncpy (spell_language, g_settings.getValueString("spell_check_lang").c_str(), 100);
-	char language_parm[128];
-        strncpy (language_parm, "--lang=",8);
-        strncat (language_parm,spell_language,100);
-        aspellcmd[2] = language_parm;
-        ispellcmd[3] = spell_language;
-    } else {// no language? then system default
-	aspellcmd[2] = NULL;
-	ispellcmd[2] = NULL;
+    std::map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+    while (i != m_message_boxes.end()) {
+      (*i).second->spell_attach();
+      ++i;
     }
-
-	if (g_settings.getValueBool("spell_check_aspell"))
-	    spellcmd = aspellcmd;
-	else
-            spellcmd = ispellcmd;
-
-    if (gtkspell_running()) gtkspell_stop();
-
-    if (gtkspell_start(NULL, spellcmd) == 0) {
-      map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-      while (i != m_message_boxes.end()) {
-	(*i).second->spell_attach();
-	++i;
-      }
-    }
-
   } else {
     // stop gtkspell
-
-    if (gtkspell_running()) {
-      gtkspell_stop();
-      map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-      while (i != m_message_boxes.end()) {
-	(*i).second->spell_detach();
-	++i;
-      }
+    std::map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+    while (i != m_message_boxes.end()) {
+      (*i).second->spell_detach();
+      ++i;
     }
-
   }
-  */
+#endif
 }
 
 
 void IckleGUI::settings_changed_cb(const string& k)
 {
-  if ((k == "spell_check") || (k == "spell_check_lang") || (k == "spell_check_aspell"))
+  if (k == "spell_check")
     spell_check_setup();
 }
 

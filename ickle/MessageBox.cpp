@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.82 2003-11-02 16:31:30 cborni Exp $
+/* $Id: MessageBox.cpp,v 1.83 2004-07-03 16:40:25 cborni Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -23,9 +23,6 @@
 
 #include <algorithm>
 
-#include "MessageBox.h"
-#include "main.h"
-#include "Settings.h"
 
 #include <gtkmm/toolbar.h>
 #include <gtkmm/image.h>
@@ -37,7 +34,6 @@
 
 #include <libicq2000/Client.h>
 
-// TODO #include "gtkspell.h"
 
 #include "PromptDialog.h"
 #include "FindTextDialog.h"
@@ -45,6 +41,10 @@
 #include "ickle.h"
 #include "ucompose.h"
 #include "utils.h"
+#include "MessageBox.h"
+#include "main.h"
+#include "Settings.h"
+
 
 #include "UserInfoHelpers.h"
 
@@ -80,11 +80,18 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_last_ev(NULL),
     m_message_queue(mq),
     m_text_to_find(""),
+#ifdef HAVE_GTKSPELL 
+    //spell checking
+    message_spell(NULL),
+    url_spell(NULL),
+    sms_spell(NULL),
+#endif
     m_highlight(G_MAXINT)
 {
   Gtk::Box *hbox;
 
   set_border_width(10);
+
 
   // -- top pane --
   m_history_scr_win.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_ALWAYS);
@@ -1129,20 +1136,26 @@ bool MessageBox::text_button_press_cb(GdkEventButton *b, Text *t)
 
 void MessageBox::spell_attach()
 {
-  /* TODO
-  gtkspell_attach(Gtk::TEXT(m_message_text.gtkobj()));
-  gtkspell_attach(Gtk::TEXT(m_url_text.gtkobj()));
-  gtkspell_attach(Gtk::TEXT(m_sms_text.gtkobj()));
-  */
+#ifdef HAVE_GTKSPELL
+  if (!message_spell)
+    message_spell = gtkspell_new_attach(m_message_text.gobj(), NULL, NULL);
+  if (!url_spell)
+    url_spell = gtkspell_new_attach(m_url_text.gobj(), NULL, NULL);
+  if (!sms_spell)
+    sms_spell = gtkspell_new_attach(m_sms_text.gobj(), NULL, NULL);
+#endif
 }
 
 void MessageBox::spell_detach()
 {
-  /* TODO
-  gtkspell_detach(Gtk::TEXT(m_message_text.gtkobj()));
-  gtkspell_detach(Gtk::TEXT(m_url_text.gtkobj()));
-  gtkspell_detach(Gtk::TEXT(m_sms_text.gtkobj()));
-  */
+#ifdef HAVE_GTKSPELL
+  if (message_spell) gtkspell_detach(message_spell);
+  message_spell = NULL;
+  if (url_spell) gtkspell_detach(url_spell);
+  url_spell = NULL;
+  if (sms_spell) gtkspell_detach(sms_spell);
+  sms_spell = NULL;
+#endif    
 }
 
 void MessageBox::on_size_allocate(GtkAllocation *al)
