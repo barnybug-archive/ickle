@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.1 2002-01-27 23:11:45 nordman Exp $
+/* $Id: WizardDialog.cpp,v 1.2 2002-02-12 16:46:04 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -167,7 +167,6 @@ WizardDialog::WizardDialog()
   set_policy(false,false,false);
   set_modal(true);
   set_border_width(10);
-  set_usize(380, 280);
   show_all();
 }
 
