@@ -109,17 +109,17 @@ namespace ICQ2000 {
     try {
       while ( m_socket->RecvNonBlocking(m_recv) ) {
 	ostringstream ostr;
-	ostr << "Received packet from " << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << m_recv << endl;
+	ostr << "Received packet from " << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << m_recv;
 	SignalLog(LogEvent::DIRECTPACKET, ostr.str());
 	Parse();
       }
     } catch(SocketException e) {
       ostringstream ostr;
-      ostr << "Failed on recv: " << e.what() << endl;
+      ostr << "Failed on recv: " << e.what();
       throw DisconnectedException( ostr.str() );
     } catch(ParseException e) {
       ostringstream ostr;
-      ostr << "Failed parsing: " << e.what() << endl;
+      ostr << "Failed parsing: " << e.what();
       throw DisconnectedException( ostr.str() );
     }
   }
@@ -211,7 +211,7 @@ namespace ICQ2000 {
 	 */
 	ostringstream ostr;
 	ostr  << "Buffer pointer not at end after parsing packet was: 0x" << hex << sb.pos()
-	      << " should be: 0x" << sb.size() << endl;
+	      << " should be: 0x" << sb.size();
 	SignalLog(LogEvent::WARN, ostr.str());
       }
       
@@ -232,7 +232,7 @@ namespace ICQ2000 {
 	// spoofing attempt most likely
 	ostringstream ostr;
 	ostr << "Refusing direct connection from someone that claims to be UIN "
-	     << m_remote_uin << " since their IP " << IPtoString( getIP() ) << " != " << IPtoString( c.getExtIP() ) << endl;
+	     << m_remote_uin << " since their IP " << IPtoString( getIP() ) << " != " << IPtoString( c.getExtIP() );
 	throw DisconnectedException( ostr.str() );
       }
       
@@ -469,7 +469,7 @@ namespace ICQ2000 {
 	m_msgcache.remove(seqnum);
 	delete ev;
       } else {
-	SignalLog(LogEvent::WARN, "Received Direct ACK for unknown message\n");
+	SignalLog(LogEvent::WARN, "Received Direct ACK for unknown message");
       }      
       break;
 
@@ -543,7 +543,7 @@ namespace ICQ2000 {
     }
 
     ostringstream ostr;
-    ostr << "Decrypted Direct packet from "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << out << endl;
+    ostr << "Decrypted Direct packet from "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << out;
     SignalLog(LogEvent::DIRECTPACKET, ostr.str());
       
     return true;
@@ -552,7 +552,7 @@ namespace ICQ2000 {
   void DirectClient::Encrypt(Buffer& in, Buffer& out) {
 
     ostringstream ostr;
-    ostr << "Unencrypted packet to "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << in << endl;
+    ostr << "Unencrypted packet to "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << in;
     SignalLog(LogEvent::DIRECTPACKET, ostr.str());
       
     if (m_eff_tcp_version == 6 || m_eff_tcp_version == 7) {
@@ -673,12 +673,12 @@ namespace ICQ2000 {
   void DirectClient::Send(Buffer &b) {
     try {
       ostringstream ostr;
-      ostr << "Sending packet to "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << b << endl;
+      ostr << "Sending packet to "  << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << b;
       SignalLog(LogEvent::DIRECTPACKET, ostr.str());
       m_socket->Send(b);
     } catch(SocketException e) {
       ostringstream ostr;
-      ostr << "Failed to send: " << e.what() << endl;
+      ostr << "Failed to send: " << e.what();
       throw DisconnectedException( ostr.str() );
     }
   }

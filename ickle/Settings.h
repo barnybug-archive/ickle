@@ -54,15 +54,12 @@ class Settings {
   bool load(const string& filename);
   bool save(const string& filename);
   
-  string getValueString(const string& k);
-  int getValueInt(const string& k);
-  unsigned int getValueUnsignedInt(const string& k, unsigned int dflt = 0,
-				 unsigned int lower = 0, unsigned int upper = 0xffffffff);
-  unsigned short getValueUnsignedShort(const string& k, unsigned short dflt = 0,
-				 unsigned short lower = 0, unsigned short upper = 0xffff);
-  unsigned char getValueUnsignedChar(const string& k, unsigned char dflt = 0,
-				 unsigned char lower = 0, unsigned char upper = 0xff);
-  bool getValueBool(const string& k, bool dflt = false);
+  string         getValueString       (const string& k);
+  int            getValueInt          (const string& k);
+  unsigned int   getValueUnsignedInt  (const string& k);
+  unsigned short getValueUnsignedShort(const string& k);
+  unsigned char  getValueUnsignedChar (const string& k);
+  bool           getValueBool         (const string& k);
 
   void setValue(const string& k, const string& v);
   void setValue(const string& k, int v);
@@ -71,10 +68,11 @@ class Settings {
   void setValue(const string& k, unsigned char v);
   void setValue(const string& k, bool v);
 
-  template <typename Value>
-  void defaultValue(const string& k, const Value& v) {
-    if ( !exists(k) ) { setValue(k, v); }
-  }
+  void defaultValueUnsignedInt  (const string& k, unsigned int dflt, unsigned int lower = 0, unsigned int upper = 0xffffffff);
+  void defaultValueUnsignedShort(const string& k, unsigned short dflt, unsigned short lower = 0, unsigned short upper = 0xffff);
+  void defaultValueUnsignedChar (const string& k, unsigned char dflt, unsigned char lower = 0, unsigned char upper = 0xff);
+  void defaultValueBool         (const string& k, bool dflt);
+  void defaultValueString       (const string& k, const string& dflt);
 
   bool exists(const string& k);
 

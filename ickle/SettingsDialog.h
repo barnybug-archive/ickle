@@ -48,13 +48,13 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Label trans_l;
   Gtk::List icons_list;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
+  Gtk::Entry network_host;
   Gtk::Notebook notebook;
-  Gtk::CheckButton away_autoposition, reconnect_checkbox;
-  Gtk::SpinButton *reconnect_spinner;
+  Gtk::CheckButton away_autoposition, reconnect_checkbox, network_override_port;
+  Gtk::SpinButton *reconnect_spinner, *network_port;
   Gtk::Label *reconnect_label;
 
   Gtk::CheckButton log_info, log_warn, log_error, log_packet, log_directpacket;
-
   Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;
 
   Status m_status;

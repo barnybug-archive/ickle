@@ -268,6 +268,9 @@ namespace ICQ2000 {
     if (d != -1) {
       m_server = hp.substr(0,d);
       m_port = atoi(hp.substr(d+1).c_str());
+    } else {
+      m_server = hp;
+      m_port = 0;
     }
   }
 

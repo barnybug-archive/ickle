@@ -50,7 +50,8 @@ SettingsDialog::SettingsDialog()
     log_to_nowhere("The void", 0),
     log_to_console("Console", 0),
     log_to_file("File (~/.ickle/messages.log)", 0),
-    log_to_consolefile("Selected to console, all to file", 0)
+    log_to_consolefile("Selected to console, all to file", 0),
+    network_override_port("Override server redirect port with login port", 0)
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -255,7 +256,7 @@ SettingsDialog::SettingsDialog()
   log_directpacket.set_active( g_settings.getValueBool("log_directpacket") );
   table->attach( log_directpacket, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, 0 );
 
-  table->set_row_spacings(3);
+  table->set_row_spacings(2);
   table->set_col_spacings(5);
   table->set_border_width(10);
 
@@ -298,6 +299,42 @@ SettingsDialog::SettingsDialog()
   label = manage( new Gtk::Label( "Logging" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
+  // ---------------------------------------------------------
+
+
+  // ------------------ Network ------------------------------
+
+  table = manage( new Gtk::Table( 2, 3, false ) );
+
+  label = manage( new Gtk::Label( "Login Host", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
+
+  network_host.set_text( g_settings.getValueString("network_login_host") );
+  table->attach( network_host, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  
+  label = manage( new Gtk::Label( "Login Port", 0 ) );
+  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+
+  unsigned short port = g_settings.getValueUnsignedShort( "network_login_port" );
+  adj = manage( new Gtk::Adjustment( port, 1.0, 65535.0 ) );
+  network_port = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  table->attach( *network_port, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  
+  network_override_port.set_active( g_settings.getValueBool("network_override_port") );
+  table->attach( network_override_port, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+
+  table->set_row_spacings(10);
+  table->set_col_spacings(10);
+  table->set_border_width(10);
+
+  frame = manage( new Gtk::Frame("Network") );
+  frame->set_border_width(5);
+  frame->add(*table);
+
+  label = manage( new Gtk::Label( "Network" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
+
+  // ---------------------------------------------------------
 
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
@@ -352,6 +389,17 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("log_to_console", log_to_console_b);
   g_settings.setValue("log_to_file", log_to_file_b);
 
+  // ------------ Network tab ----------------------
+  g_settings.setValue("network_login_host", network_host.get_text());
+  g_settings.setValue("network_login_port", (unsigned short)network_port->get_value_as_int());
+  g_settings.setValue("network_override_port", network_override_port.get_active());
+
+  icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
+  icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  if (g_settings.getValueBool("network_override_port")) {
+    icqclient.setBOSServerOverridePort(true);
+    icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  }
 }
 
 unsigned int SettingsDialog::getUIN() const {

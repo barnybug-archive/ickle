@@ -40,6 +40,8 @@ MessageBox::MessageBox(Contact *c)
     m_sms_count_over(false),
     m_sms_enabled(true)
 {
+  Gtk::Box *hbox;
+
   set_contact_title();
   set_border_width(10);
   //  set_usize(450,300);
@@ -47,16 +49,6 @@ MessageBox::MessageBox(Contact *c)
   m_pane.set_handle_size (8);
   m_pane.set_gutter_size (12);                       
   
-  Gtk::Toolbar *toolbar = manage( new Gtk::Toolbar() );
-  {
-    using namespace Gtk::Toolbar_Helpers;
-    ToolList& tl = toolbar->tools();
-    tl.push_back( ToggleElem("User Info", slot( this, &MessageBox::userinfo_toggle_cb ), "Popup User Information Dialog" ) );
-    m_userinfo_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
-  }
-
-  m_vbox_top.pack_start(*toolbar,false);
-
   // -- top pane --
 
   Gtk::Scrollbar *scrollbar;
@@ -179,13 +171,27 @@ MessageBox::MessageBox(Contact *c)
   m_send_button.clicked.connect(slot(this,&MessageBox::send_clicked_cb));
   m_close_button.clicked.connect( destroy.slot() );
 
-  Gtk::Box *hbox = manage( new Gtk::HButtonBox() );
+  hbox = manage( new Gtk::HBox() );
+
+  Gtk::Toolbar *toolbar = manage( new Gtk::Toolbar() );
+  {
+    using namespace Gtk::Toolbar_Helpers;
+    ToolList& tl = toolbar->tools();
+    tl.push_back( ToggleElem("User Info", slot( this, &MessageBox::userinfo_toggle_cb ), "Popup User Information Dialog" ) );
+    m_userinfo_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
+  }
+
+  hbox->pack_start(*toolbar, false);
+
+  m_status_context = m_status.get_context_id("messagebox");
+  hbox->pack_start(m_status, true, true, 5);
+
+  m_vbox_top.pack_start(*hbox, false);
+
+  hbox = manage( new Gtk::HButtonBox() );
   hbox->pack_start(m_send_button);
   hbox->pack_end(m_close_button);
   m_vbox_top.pack_start(*hbox,false);
-
-  m_vbox_top.pack_start(m_status, false, false, 0);
-  m_status_context = m_status.get_context_id("messagebox");
 
   add(m_vbox_top);
 

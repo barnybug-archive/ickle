@@ -91,7 +91,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 
   gui.show_all();
 
-  Status st = Status(g_settings.getValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE));
+  Status st = Status(g_settings.getValueUnsignedInt("autoconnect"));
   if (st != STATUS_OFFLINE) icqclient.setStatus(st);
 }
 
@@ -108,10 +108,17 @@ void IckleClient::loadContactList() {
     
     Settings cs;
     if (cs.load(*dirit)) {
+      cs.defaultValueUnsignedInt("uin", 0);
       unsigned int uin = cs.getValueUnsignedInt("uin");
       if (uin != 0) {
 	Contact c(uin);
 	
+	cs.defaultValueUnsignedChar("age", 0, 0, 150);
+	cs.defaultValueUnsignedChar("sex", 0, 0, 2);
+	cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
+	cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
+	cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
+
 	string alias = cs.getValueString("alias");
 	if (!alias.empty()) c.setAlias(alias);
 	c.setMobileNo(cs.getValueString("mobile_no"));
@@ -132,12 +139,12 @@ void IckleClient::loadContactList() {
 	
 	// Homepage Info
 	HomepageInfo& hpi = c.getHomepageInfo();
-	hpi.age = cs.getValueUnsignedChar("age", 0, 0, 150);
-	hpi.sex = cs.getValueUnsignedChar("sex", 0, 0, 2);
+	hpi.age = cs.getValueUnsignedChar("age");
+	hpi.sex = cs.getValueUnsignedChar("sex");
 	hpi.homepage = cs.getValueString("homepage");
 	hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-	hpi.birth_month = cs.getValueUnsignedChar("birth_month", 0, 0, 12);
-	hpi.birth_day = cs.getValueUnsignedChar("birth_day", 0, 0, 31);
+	hpi.birth_month = cs.getValueUnsignedChar("birth_month");
+	hpi.birth_day = cs.getValueUnsignedChar("birth_day");
 	hpi.lang1 = cs.getValueUnsignedChar("lang1");
 	hpi.lang2 = cs.getValueUnsignedChar("lang2");
 	hpi.lang3 = cs.getValueUnsignedChar("lang3");
@@ -195,32 +202,56 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 }
 
 
+void IckleClient::SignalLog(LogEvent::LogType type, const string& msg) {
+  LogEvent ev(type,msg);
+  logger_cb(&ev);
+}
+  
 void IckleClient::loadSettings() {
   // load in settings
   if (!g_settings.load(BASE_DIR + "ickle.conf")) {
-    cout << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
-	 << "This is probably the first time you've run ickle." << endl;
-  } else {
-    icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
-    icqclient.setPassword(g_settings.getValueString("password"));
-    icqclient.setTranslationMap( g_settings.getValueString("translation_map") );
+    ostringstream ostr;
+    ostr << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
+	 << "This is probably the first time you've run ickle.";
+    SignalLog(LogEvent::WARN, ostr.str());
   }
 
+  g_settings.defaultValueBool("away_autoposition", true);
+  g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 1, 10);
+  g_settings.defaultValueBool("log_to_console", true);
+  g_settings.defaultValueBool("log_to_file", false);
+  g_settings.defaultValueUnsignedInt("geometry_width", 130, 30, 1000);
+  g_settings.defaultValueUnsignedInt("geometry_height", 300, 30, 2000);
+  g_settings.defaultValueUnsignedInt("geometry_x", 50);
+  g_settings.defaultValueUnsignedInt("geometry_y", 50);
+  g_settings.defaultValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE);
+  g_settings.defaultValueString("network_login_host", "login.icq.com");
+  g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
+  g_settings.defaultValueBool("network_override_port", false);
+
+  // Set settings in library
+  icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
+  icqclient.setPassword(g_settings.getValueString("password"));
+  icqclient.setTranslationMap( g_settings.getValueString("translation_map") );
+  icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
+  icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  if (g_settings.getValueBool("network_override_port")) {
+    icqclient.setBOSServerOverridePort(true);
+    icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
+  }
+
+  // --
+
   int width, height, x, y;
-  width = g_settings.getValueUnsignedInt("geometry_width", 130, 30, 1000);
-  height = g_settings.getValueUnsignedInt("geometry_height", 300, 30, 2000);
-  x = g_settings.getValueUnsignedInt("geometry_x", 50);
-  y = g_settings.getValueUnsignedInt("geometry_y", 50);
+  width = g_settings.getValueUnsignedInt("geometry_width");
+  height = g_settings.getValueUnsignedInt("geometry_height");
+  x = g_settings.getValueUnsignedInt("geometry_x");
+  y = g_settings.getValueUnsignedInt("geometry_y");
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
 
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
   
-  g_settings.defaultValue("away_autoposition", true);
-  g_settings.defaultValue("reconnect_retries", 2);
-  g_settings.defaultValue("log_to_console", true);
-  g_settings.defaultValue("log_to_file", false);
-
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
 }
 
@@ -234,7 +265,9 @@ void IckleClient::saveSettings() {
   g_settings.setValue( "geometry_height", height );
 
   if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-    cout << "mkdir " << BASE_DIR << " failed: " << strerror(errno) << endl;
+    ostringstream ostr;
+    ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
+    SignalLog(LogEvent::ERROR, ostr.str());
     return;
   }
   
@@ -244,14 +277,18 @@ void IckleClient::saveSettings() {
   mode_t old_umask = umask(0077);
 
   if ( !g_settings.save(ickle_conf) ) {
-    cout << "Couldn't save " << BASE_DIR << "ickle.conf" << endl;
+    ostringstream ostr;
+    ostr << "Couldn't save " << BASE_DIR << "ickle.conf";
+    SignalLog(LogEvent::ERROR, ostr.str());
   }
 
   umask(old_umask);
 
   // ensure permissions on ickle.conf are secure
   if ( chmod( ickle_conf.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
-    cout << "The permissions on " << ickle_conf << " couldn't be set to 0600. Your ICQ password is vulnerable!" << endl;
+    ostringstream ostr;
+    ostr << "The permissions on " << ickle_conf << " couldn't be set to 0600. Your ICQ password is vulnerable!";
+    SignalLog(LogEvent::ERROR, ostr.str());
   }
 
 }
@@ -287,45 +324,46 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   if (c->getReason() == DisconnectedEvent::REQUESTED) {
-    cout << "ickle: Disconnected as requested" << endl;
+    SignalLog(LogEvent::INFO, "Disconnected as requested");
   } else if (c->getReason() == DisconnectedEvent::FAILED_DUALLOGIN) {
-    cout << "ickle: Dual login, disconnected" << endl;
+    SignalLog(LogEvent::ERROR, "Dual login, disconnected");
   } else {
-    cout << "ickle: Problem connecting: ";
+    ostringstream ostr;
+    ostr << "Problem connecting: ";
     switch(c->getReason()) {
     case DisconnectedEvent::FAILED_LOWLEVEL:
-      cout << "Socket problems";
+      ostr << "Socket problems";
       break;
     case DisconnectedEvent::FAILED_BADUSERNAME:
-      cout << "Bad Username";
+      ostr << "Bad Username";
       break;
     case DisconnectedEvent::FAILED_TURBOING:
-      cout << "Turboing";
+      ostr << "Turboing";
       break;
     case DisconnectedEvent::FAILED_BADPASSWORD:
-      cout << "Bad Password";
+      ostr << "Bad Password";
       break;
     case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
-      cout << "Username and Password did not match";
+      ostr << "Username and Password did not match";
       break;
     case DisconnectedEvent::FAILED_UNKNOWN:
-      cout << "Unknown";
+      ostr << "Unknown";
       break;
     }
-    cout << endl;
+    SignalLog(LogEvent::ERROR, ostr.str() );
   }
 
   // disconnect PingServer callback
   poll_server_cnt.disconnect();
   
-  if (m_retries > 0) {
+  if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED) {
     --m_retries;
-    Gtk::Main::idle.connect( slot( this, &IckleClient::idle_reconnect_cb ) );
+    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_reconnect_cb ), icqclient.getStatus() ) );
   }
 }
 
-gint IckleClient::idle_reconnect_cb() {
-  
+gint IckleClient::idle_reconnect_cb(Status s) {
+  icqclient.setStatus( s );
   return 0;
 }
 
@@ -336,9 +374,14 @@ void IckleClient::logger_cb(LogEvent *c) {
 
   string log_file = BASE_DIR + "messages.log";
 
+  time_t t = time(NULL);
+  struct tm *tm = localtime(&t);
+  char time_str[256];
+  strftime(time_str, 255, "[%H:%M:%S] ", tm);
+
   if ( log_to_console && log_to_file ) {
     ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
-    if (of) of << c->getMessage() << endl;
+    if (of) of << time_str << c->getMessage() << endl;
   }
 
   switch(c->getType()) {
@@ -361,25 +404,26 @@ void IckleClient::logger_cb(LogEvent *c) {
 
   if ( !log_to_console && log_to_file ) {
     ofstream of(log_file.c_str(), std::ios::out | std::ios::app );
-    if (of) of << c->getMessage() << endl;
+    if (of) of << time_str << c->getMessage() << endl;
   }
 
   if (log_to_console) {
+    cout << time_str;
     switch(c->getType()) {
     case LogEvent::INFO:
-      cout << "[34m";
+      cout << "[34m (i)  ";
       break;
     case LogEvent::ERROR:
-      cout << "[31m";
+      cout << "[31m :-<  ";
       break;
     case LogEvent::WARN:
-      cout << "[36m";
+      cout << "[36m :-%  ";
       break;
     case LogEvent::PACKET:
-      cout << "[32m";
+      cout << "[32m [+]  ";
       break;
     case LogEvent::DIRECTPACKET:
-      cout << "[32m";
+      cout << "[32m {~}  ";
       break;
     }
     cout << c->getMessage() << endl;
@@ -443,7 +487,7 @@ void IckleClient::socket_cb(SocketEvent *ev) {
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
-      cout << "problem: file descriptor already connected" << endl;
+      SignalLog(LogEvent::ERROR, "Problem: file descriptor already connected");
       m_sockets[fd].disconnect();
       m_sockets.erase(fd);
     }
@@ -552,8 +596,12 @@ void IckleClient::event_system(const string& s, MessageEvent *ev) {
 	  ostr << "%";
 	  break;
 	default:
-	  cout << "Warning: no substitution for %" << c << endl;
-	  break;
+	  {
+	    ostringstream ostr;
+	    ostr << "Warning: no substitution for %" << c;
+	    SignalLog(LogEvent::WARN, ostr.str());
+	    break;
+	  }
         }
       } else {
         ostr << c;
@@ -592,11 +640,15 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-      cout << "mkdir " << BASE_DIR << " failed: " << strerror(errno) << endl;
+      ostringstream ostr;
+      ostr << "mkdir " << BASE_DIR << " failed: " << strerror(errno);
+      SignalLog(LogEvent::ERROR, ostr.str());
       return;
     }
     if ( mkdir( CONTACT_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {
-      cout << "mkdir " << CONTACT_DIR << " failed: " << strerror(errno) << endl;
+      ostringstream ostr;
+      ostr << "mkdir " << CONTACT_DIR << " failed: " << strerror(errno);
+      SignalLog(LogEvent::ERROR, ostr.str());
       return;
     }
     

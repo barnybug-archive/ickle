@@ -119,69 +119,104 @@ string Settings::Unescape(const string& s) {
 }
 
 string Settings::getValueString(const string& k) {
-  return m_map[k];
+  if ( exists(k) ) return m_map[k];
+  else return string();
 }
 
 int Settings::getValueInt(const string& k) {
-  istringstream istr(m_map[k]);
   int ret = 0;
-  istr >> ret;
+  if ( exists(k) ) {
+    istringstream istr(m_map[k]);
+    istr >> ret;
+  }
   return ret;
 }
 
 
-// mmm.. could template a lot of this, oh well.
-unsigned int Settings::getValueUnsignedInt(const string& k, unsigned int dflt,
-					 unsigned int lower, unsigned int upper) {
-  unsigned int v;
+unsigned int Settings::getValueUnsignedInt(const string& k) {
+  unsigned int v = 0;
   if ( exists(k) ) {
     istringstream istr(m_map[k]);
     istr >> v;
-    if (v < lower) v = lower;
-    if (v > upper) v = upper;
-  } else {
-    v = dflt;
-    setValue(k,dflt);
   }
   return v;
 }
 
-unsigned short Settings::getValueUnsignedShort(const string& k, unsigned short dflt,
-					 unsigned short lower, unsigned short upper) {
-  unsigned short v;
+unsigned short Settings::getValueUnsignedShort(const string& k) {
+  unsigned short v = 0;
   if ( exists(k) ) {
     istringstream istr(m_map[k]);
     istr >> v;
-    if (v < lower) v = lower;
-    if (v > upper) v = upper;
-  } else {
-    v = dflt;
-    setValue(k,dflt);
   }
   return v;
 }
 
-unsigned char Settings::getValueUnsignedChar(const string& k, unsigned char dflt,
-					     unsigned char lower, unsigned char upper) {
-  unsigned char v;
+unsigned char Settings::getValueUnsignedChar(const string& k) {
+  unsigned char v = 0;
   if ( exists(k) ) {
+    unsigned int vi = 0;
     istringstream istr(m_map[k]);
-    unsigned int vi;
     istr >> vi;
     v = (unsigned char)vi;
-    if (vi < lower) v = lower;
-    if (vi > upper) v = upper;
-  } else {
-    v = dflt;
-    setValue(k,dflt);
   }
   return v;
 }
 
-bool Settings::getValueBool(const string& k, bool dflt) {
-  bool v;
-  v = (getValueUnsignedShort(k, (dflt ? 1 : 0), 0, 1) == 1);
-  return v;
+
+bool Settings::getValueBool(const string& k) {
+  return !(getValueUnsignedShort(k) == 0);
+}
+
+void Settings::defaultValueUnsignedInt(const string& k, unsigned int dflt,
+				       unsigned int lower, unsigned int upper)
+{
+  unsigned int v;
+  if ( exists(k) ) {
+    v = getValueUnsignedInt(k);
+    if (v < lower) v = lower;
+    if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  setValue(k,v);
+}
+
+void Settings::defaultValueUnsignedShort(const string& k, unsigned short dflt,
+					 unsigned short lower, unsigned short upper)
+{
+  unsigned short v;
+  if ( exists(k) ) {
+    v = getValueUnsignedShort(k);
+    if (v < lower) v = lower;
+    if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  setValue(k,v);
+}
+
+void Settings::defaultValueUnsignedChar(const string& k, unsigned char dflt,
+					unsigned char lower, unsigned char upper)
+{
+  unsigned char v;
+  if ( exists(k) ) {
+    v = getValueUnsignedChar(k);
+    if (v < lower) v = lower;
+    if (v > upper) v = upper;
+  } else {
+    v = dflt;
+  }
+  setValue(k,v);
+}
+
+void Settings::defaultValueBool(const string& k, bool dflt)
+{
+  if ( !exists(k) ) setValue(k, dflt);
+}
+
+void Settings::defaultValueString(const string& k, const string& dflt)
+{
+  if ( !exists(k) ) setValue(k, dflt);
 }
 
 void Settings::setValue(const string& k, const string& v) {

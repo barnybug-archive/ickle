@@ -89,6 +89,7 @@ namespace ICQ2000 {
 
     string m_bosHostname;
     unsigned short m_bosPort;
+    bool m_bosOverridePort;
 
     unsigned short m_client_seq_num;
     unsigned int m_requestid;
@@ -267,10 +268,17 @@ namespace ICQ2000 {
     Contact* getContact(const unsigned int uin);
     void fetchSimpleContactInfo(Contact* c);
 
-    void setServerHostname(const string& host) { m_authorizerHostname = host; }
-    string getServerHostname() const { return m_authorizerHostname; }
-    void setServerPort(const unsigned short& port) { m_authorizerPort = port; }
-    unsigned short getServerPort() const { return m_authorizerPort; }
+    void setLoginServerHost(const string& host) { m_authorizerHostname = host; }
+    string getLoginServerHost() const { return m_authorizerHostname; }
+
+    void setLoginServerPort(const unsigned short& port) { m_authorizerPort = port; }
+    unsigned short getLoginServerPort() const { return m_authorizerPort; }
+
+    void setBOSServerOverridePort(const bool& b) { m_bosOverridePort = b; }
+    bool getBOSServerOverridePort() const { return m_bosOverridePort; }
+
+    void setBOSServerPort(const unsigned short& port) { m_bosPort = port; }
+    unsigned short getBOSServerPort() const { return m_bosPort; }
 
     /*
      *  Poll must be called regularly (at least every 60 seconds)

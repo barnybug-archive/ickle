@@ -50,6 +50,7 @@ namespace ICQ2000 {
   void Client::Init() {
     m_authorizerHostname = "login.icq.com";
     m_authorizerPort = 5190;
+    m_bosOverridePort = false;
 
     m_state = NOT_CONNECTED;
     
@@ -82,7 +83,7 @@ namespace ICQ2000 {
   }
 
   void Client::ConnectAuthorizer(State state) {
-    SignalLog(LogEvent::INFO, "Client connecting\n");
+    SignalLog(LogEvent::INFO, "Client connecting");
     try {
       /*
        * all sorts of SocketExceptions can be thrown
@@ -97,8 +98,8 @@ namespace ICQ2000 {
     } catch(SocketException e) {
       // signal connection failure
       ostringstream ostr;
-      ostr << "Failed to connect to Authorizer: " << e.what() << endl;
-      SignalLog(LogEvent::WARN, ostr.str());
+      ostr << "Failed to connect to Authorizer: " << e.what();
+      SignalLog(LogEvent::ERROR, ostr.str());
       SignalDisconnect(DisconnectedEvent::FAILED_LOWLEVEL);
       return;
     }
@@ -126,8 +127,8 @@ namespace ICQ2000 {
       SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::READ );
     } catch(SocketException e) {
       ostringstream ostr;
-      ostr << "Failed to connect to BOS server: " << e.what() << endl;
-      SignalLog(LogEvent::WARN, ostr.str());
+      ostr << "Failed to connect to BOS server: " << e.what();
+      SignalLog(LogEvent::ERROR, ostr.str());
       SignalDisconnect(DisconnectedEvent::FAILED_LOWLEVEL);
       return;
     }
@@ -313,7 +314,7 @@ namespace ICQ2000 {
 	}
 	m_cookiecache.remove(c);
       } else {
-	SignalLog(LogEvent::WARN, "Received ACK for unknown message\n");
+	SignalLog(LogEvent::WARN, "Received ACK for unknown message");
       }
     } else if (type == MSG_Type_Normal
 	       || type == MSG_Type_URL) {
@@ -327,7 +328,7 @@ namespace ICQ2000 {
 	
 	m_cookiecache.remove(c);
       } else {
-	SignalLog(LogEvent::WARN, "Received ACK for unknown message\n");
+	SignalLog(LogEvent::WARN, "Received ACK for unknown message");
       }
       
     }
@@ -567,7 +568,7 @@ namespace ICQ2000 {
       contactlist.emit(&ev);
     } else {
       ostringstream ostr;
-      ostr << "Received Status change for user not on contact list: " << userinfo.getUIN() << endl;
+      ostr << "Received Status change for user not on contact list: " << userinfo.getUIN();
       SignalLog(LogEvent::WARN, ostr.str());
     }
   }
@@ -582,7 +583,7 @@ namespace ICQ2000 {
       contactlist.emit(&ev);
     } else {
       ostringstream ostr;
-      ostr << "Received Status change for user not on contact list: " << userinfo.getUIN() << endl;
+      ostr << "Received Status change for user not on contact list: " << userinfo.getUIN();
       SignalLog(LogEvent::WARN, ostr.str());
     }
   }
@@ -623,7 +624,7 @@ namespace ICQ2000 {
       << CountryCodeTLV("us");
 
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Authorisation Request\n");
+    SignalLog(LogEvent::INFO, "Sending Authorisation Request");
     Send(b);
   }
 
@@ -640,7 +641,7 @@ namespace ICQ2000 {
     UINRequestSNAC sn(m_password);
     b << sn;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending New UIN Request\n");
+    SignalLog(LogEvent::INFO, "Sending New UIN Request");
     Send(b);
   }
     
@@ -653,7 +654,7 @@ namespace ICQ2000 {
     b << CookieTLV(m_cookie_data, m_cookie_length);
 
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Login Cookie\n");
+    SignalLog(LogEvent::INFO, "Sending Login Cookie");
     Send(b);
   }
     
@@ -663,7 +664,7 @@ namespace ICQ2000 {
     CapabilitiesSNAC cs;
     b << cs;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Capabilities\n");
+    SignalLog(LogEvent::INFO, "Sending Capabilities");
     Send(b);
   }
 
@@ -673,7 +674,7 @@ namespace ICQ2000 {
     SetUserInfoSNAC cs;
     b << cs;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Set User Info\n");
+    SignalLog(LogEvent::INFO, "Sending Set User Info");
     Send(b);
   }
 
@@ -683,7 +684,7 @@ namespace ICQ2000 {
     RequestRateInfoSNAC rs;
     b << rs;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Rate Info Request\n");
+    SignalLog(LogEvent::INFO, "Sending Rate Info Request");
     Send(b);
   }
   
@@ -693,7 +694,7 @@ namespace ICQ2000 {
     RateInfoAckSNAC rs;
     b << rs;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Rate Info Ack\n");
+    SignalLog(LogEvent::INFO, "Sending Rate Info Ack");
     Send(b);
   }
 
@@ -703,7 +704,7 @@ namespace ICQ2000 {
     PersonalInfoRequestSNAC us;
     b << us;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Personal Info Request\n");
+    SignalLog(LogEvent::INFO, "Sending Personal Info Request");
     Send(b);
   }
 
@@ -713,7 +714,7 @@ namespace ICQ2000 {
     MsgAddICBMParameterSNAC ms;
     b << ms;
     FLAPFooter(b,d);
-    SignalLog(LogEvent::INFO, "Sending Add ICBM Parameter\n");
+    SignalLog(LogEvent::INFO, "Sending Add ICBM Parameter");
     Send(b);
   }
 
@@ -726,7 +727,7 @@ namespace ICQ2000 {
     m_listenServer.StartServer();
     SignalAddSocket( m_listenServer.getSocketHandle(), SocketEvent::READ );
     ostringstream ostr;
-    ostr << "Server listening on " << IPtoString( m_serverSocket.getLocalIP() ) << ":" << m_listenServer.getPort() << endl;
+    ostr << "Server listening on " << IPtoString( m_serverSocket.getLocalIP() ) << ":" << m_listenServer.getPort();
     SignalLog(LogEvent::INFO, ostr.str());
 
     if (!m_contact_list.empty()) {
@@ -766,7 +767,7 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
-    SignalLog(LogEvent::INFO, "Sending Contact List, Status, Client Ready and Offline Messages Request\n");
+    SignalLog(LogEvent::INFO, "Sending Contact List, Status, Client Ready and Offline Messages Request");
     Send(b);
 
     SignalConnect();
@@ -782,7 +783,7 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
-    SignalLog(LogEvent::INFO, "Sending Offline Messages Request\n");
+    SignalLog(LogEvent::INFO, "Sending Offline Messages Request");
     Send(b);
   }
 
@@ -796,7 +797,7 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
-    SignalLog(LogEvent::INFO, "Sending Offline Messages ACK\n");
+    SignalLog(LogEvent::INFO, "Sending Offline Messages ACK");
     Send(b);
   }
 
@@ -814,20 +815,20 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
-    SignalLog(LogEvent::INFO, "Sending Advanced ACK\n");
+    SignalLog(LogEvent::INFO, "Sending Advanced Message ACK");
     Send(b);
   }
 
   void Client::Send(Buffer& b) {
     try {
       ostringstream ostr;
-      ostr << "Sending packet to Server" << endl << b << endl;
+      ostr << "Sending packet to Server" << endl << b;
       SignalLog(LogEvent::PACKET, ostr.str());
       m_serverSocket.Send(b);
     } catch(SocketException e) {
       ostringstream ostr;
-      ostr << "Failed to send: " << e.what() << endl;
-      SignalLog(LogEvent::WARN, ostr.str());
+      ostr << "Failed to send: " << e.what();
+      SignalLog(LogEvent::ERROR, ostr.str());
       Disconnect(DisconnectedEvent::FAILED_LOWLEVEL);
     }
   }    
@@ -840,14 +841,14 @@ namespace ICQ2000 {
     try {
       while ( m_serverSocket.RecvNonBlocking(m_recv) ) {
 	ostringstream ostr;
-	ostr << "Received packet from Server" << endl << m_recv << endl;
+	ostr << "Received packet from Server" << endl << m_recv;
 	SignalLog(LogEvent::PACKET, ostr.str());
 	Parse();
       }
     } catch(SocketException e) {
       ostringstream ostr;
-      ostr << "Failed on recv: " << e.what() << endl;
-      SignalLog(LogEvent::WARN, ostr.str());
+      ostr << "Failed on recv: " << e.what();
+      SignalLog(LogEvent::ERROR, ostr.str());
       Disconnect(DisconnectedEvent::FAILED_LOWLEVEL);
     }
   }
@@ -869,7 +870,7 @@ namespace ICQ2000 {
       m_recv >> start_byte;
       if (start_byte != 42) {
 	m_recv.clear();
-	SignalLog(LogEvent::WARN, "Invalid Start Byte on FLAP\n");
+	SignalLog(LogEvent::WARN, "Invalid Start Byte on FLAP");
 	return;
       }
 
@@ -910,7 +911,7 @@ namespace ICQ2000 {
 	ParseCh4(sb,seq_num);
 	break;
       default:
-	ostr << "FLAP on unrecognised channel 0x" << hex << (int)channel << endl;
+	ostr << "FLAP on unrecognised channel 0x" << hex << (int)channel;
 	SignalLog(LogEvent::WARN, ostr.str());
 	break;
       }
@@ -922,7 +923,7 @@ namespace ICQ2000 {
 	 */
 	ostringstream ostr;
 	ostr  << "Buffer pointer not at end after parsing FLAP was: 0x" << hex << sb.pos()
-	      << " should be: 0x" << sb.size() << endl;
+	      << " should be: 0x" << sb.size();
 	SignalLog(LogEvent::WARN, ostr.str());
       }
       
@@ -941,17 +942,17 @@ namespace ICQ2000 {
 
       if (m_state == AUTH_AWAITING_CONN_ACK) {
 	SendAuthReq();
-	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending Authorisation request\n");
+	SignalLog(LogEvent::INFO, "Connection Acknowledge from server");
 	m_state = AUTH_AWAITING_AUTH_REPLY;
       } else if (m_state == UIN_AWAITING_CONN_ACK) {
 	SendNewUINReq();
-	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending New UIN request\n");
+	SignalLog(LogEvent::INFO, "Connection Acknowledge from server");
 	m_state = UIN_AWAITING_UIN_REPLY;
       }
 
     } else if (b.remains() == 4 && m_state == BOS_AWAITING_CONN_ACK) {
 
-      SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending cookie\n");
+      SignalLog(LogEvent::INFO, "Connection Acknowledge from server");
 
       // Connection Ack, send the cookie
       unsigned int unknown;
@@ -961,7 +962,7 @@ namespace ICQ2000 {
       m_state = BOS_AWAITING_LOGIN_REPLY;
 
     } else {
-      SignalLog(LogEvent::WARN, "Unknown packet received on channel 0x01\n");
+      SignalLog(LogEvent::WARN, "Unknown packet received on channel 0x01");
     }
 
   }
@@ -972,7 +973,7 @@ namespace ICQ2000 {
       snac = ParseSNAC(b);
     } catch(ParseException e) {
       ostringstream ostr;
-      ostr << "Problem parsing SNAC: " << e.what() << endl;
+      ostr << "Problem parsing SNAC: " << e.what();
       SignalLog(LogEvent::WARN, ostr.str());
       return;
     }
@@ -982,11 +983,11 @@ namespace ICQ2000 {
     case SNAC_FAM_GEN:
       switch(snac->Subtype()) {
       case SNAC_GEN_ServerReady:
-	SignalLog(LogEvent::INFO, "Received Server Ready from server\n");
+	SignalLog(LogEvent::INFO, "Received Server Ready from server");
 	SendCapabilities();
 	break;
       case SNAC_GEN_RateInfo:
-	SignalLog(LogEvent::INFO, "Received Rate Information from server\n");
+	SignalLog(LogEvent::INFO, "Received Rate Information from server");
 	SendRateInfoAck();
 	SendPersonalInfoRequest();
 	SendAddICBMParameter();
@@ -994,15 +995,15 @@ namespace ICQ2000 {
 	SendLogin();
 	break;
       case SNAC_GEN_CapAck:
-	SignalLog(LogEvent::INFO, "Received Capabilities Ack from server\n");
+	SignalLog(LogEvent::INFO, "Received Capabilities Ack from server");
 	SendRateInfoRequest();
 	break;
       case SNAC_GEN_UserInfo:
-	SignalLog(LogEvent::INFO, "Received User Info from server\n");
+	SignalLog(LogEvent::INFO, "Received User Info from server");
 	HandleUserInfoSNAC(static_cast<UserInfoSNAC*>(snac));
 	break;
       case SNAC_GEN_MOTD:
-	SignalLog(LogEvent::INFO, "Received MOTD from server\n");
+	SignalLog(LogEvent::INFO, "Received MOTD from server");
 	//	SignalConnect();
 	/* take the MOTD as the sign we
 	 * are online proper
@@ -1011,7 +1012,7 @@ namespace ICQ2000 {
 	 */
 	break;
       case SNAC_GEN_RateInfoChange:
-	SignalLog(LogEvent::INFO, "Received Rate Info Change from server\n");
+	SignalLog(LogEvent::INFO, "Received Rate Info Change from server");
 	SignalRateInfoChange(static_cast<RateInfoChangeSNAC*>(snac));
 	break;
       }
@@ -1020,11 +1021,11 @@ namespace ICQ2000 {
     case SNAC_FAM_BUD:
       switch(snac->Subtype()) {
       case SNAC_BUD_Online:
-	SignalLog(LogEvent::INFO, "Received Buddy Online from server\n");
+	SignalLog(LogEvent::INFO, "Received Buddy Online from server");
 	SignalUserOnline(static_cast<BuddyOnlineSNAC*>(snac));
 	break;
       case SNAC_BUD_Offline:
-	SignalLog(LogEvent::INFO, "Received Buddy Offline from server\n");
+	SignalLog(LogEvent::INFO, "Received Buddy Offline from server");
 	SignalUserOffline(static_cast<BuddyOfflineSNAC*>(snac));
       }
       break;
@@ -1032,11 +1033,11 @@ namespace ICQ2000 {
     case SNAC_FAM_MSG:
       switch(snac->Subtype()) {
       case SNAC_MSG_Message:
-	SignalLog(LogEvent::INFO, "Received Message from server\n");
+	SignalLog(LogEvent::INFO, "Received Message from server");
 	SignalMessage(static_cast<MessageSNAC*>(snac));
 	break;
       case SNAC_MSG_MessageACK:
-	SignalLog(LogEvent::INFO, "Received Message ACK from server\n");
+	SignalLog(LogEvent::INFO, "Received Message ACK from server");
 	SignalMessageACK(static_cast<MessageACKSNAC*>(snac));
 	break;
       }
@@ -1045,7 +1046,7 @@ namespace ICQ2000 {
     case SNAC_FAM_SRV:
       switch(snac->Subtype()) {
       case SNAC_SRV_Response:
-	SignalLog(LogEvent::INFO, "Received Server Response from server\n");
+	SignalLog(LogEvent::INFO, "Received Server Response from server");
 	SignalSrvResponse(static_cast<SrvResponseSNAC*>(snac));
 	break;
       }
@@ -1053,11 +1054,11 @@ namespace ICQ2000 {
     case SNAC_FAM_UIN:
       switch(snac->Subtype()) {
       case SNAC_UIN_Response:
-	SignalLog(LogEvent::INFO, "Received UIN Response from server\n");
+	SignalLog(LogEvent::INFO, "Received UIN Response from server");
 	SignalUINResponse(static_cast<UINResponseSNAC*>(snac));
 	break;
       case SNAC_UIN_RequestError:
-	SignalLog(LogEvent::INFO, "Received UIN Request Error from server\n");
+	SignalLog(LogEvent::ERROR, "Received UIN Request Error from server");
 	SignalUINRequestError();
 	break;
       }
@@ -1069,7 +1070,7 @@ namespace ICQ2000 {
     if (dynamic_cast<RawSNAC*>(snac)) {
       ostringstream ostr;
       ostr << "Unknown SNAC packet received - Family: 0x" << hex << snac->Family()
-	   << " Subtype: 0x" << snac->Subtype() << endl;
+	   << " Subtype: 0x" << snac->Subtype();
       SignalLog(LogEvent::WARN, ostr.str());
     }
 
@@ -1078,7 +1079,7 @@ namespace ICQ2000 {
   }
 
   void Client::ParseCh3(Buffer& b, unsigned short seq_num) {
-    SignalLog(LogEvent::INFO, "Received packet on channel 0x03\n");
+    SignalLog(LogEvent::INFO, "Received packet on channel 0x03");
   }
 
   void Client::ParseCh4(Buffer& b, unsigned short seq_num) {
@@ -1091,11 +1092,15 @@ namespace ICQ2000 {
 
 	RedirectTLV *r = static_cast<RedirectTLV*>(tlvlist[TLV_Redirect]);
 	ostringstream ostr;
-	ostr << "Redirected to: " << r->getHost() << " port: " << dec << r->getPort() << endl;
+	ostr << "Redirected to: " << r->getHost();
+	if (r->getPort() != 0) ostr << " port: " << dec << r->getPort();
 	SignalLog(LogEvent::INFO, ostr.str());
 
 	m_bosHostname = r->getHost();
-	m_bosPort = r->getPort();
+	if (!m_bosOverridePort)	{
+	  if (r->getPort() != 0) m_bosPort = r->getPort();
+	  else m_bosPort = m_authorizerPort;
+	}
 
 	// Got our cookie - yum yum :-)
 	CookieTLV *t = static_cast<CookieTLV*>(tlvlist[TLV_Cookie]);
@@ -1106,7 +1111,7 @@ namespace ICQ2000 {
 
 	memcpy(m_cookie_data, t->Value(), m_cookie_length);
 
-	SignalLog(LogEvent::INFO, "Authorisation accepted\n");
+	SignalLog(LogEvent::INFO, "Authorisation accepted");
 	
 	DisconnectAuthorizer();
 	ConnectBOS();
@@ -1118,8 +1123,8 @@ namespace ICQ2000 {
 	if (tlvlist.exists(TLV_ErrorCode)) {
 	  ErrorCodeTLV *t = static_cast<ErrorCodeTLV*>(tlvlist[TLV_ErrorCode]);
 	  ostringstream ostr;
-	  ostr << "Error logging in Error Code: " << t->Value() << endl;
-	  SignalLog(LogEvent::WARN, ostr.str());
+	  ostr << "Error logging in Error Code: " << t->Value();
+	  SignalLog(LogEvent::ERROR, ostr.str());
 	  switch(t->Value()) {
 	  case 0x01:
 	    st = DisconnectedEvent::FAILED_BADUSERNAME;
@@ -1140,7 +1145,7 @@ namespace ICQ2000 {
 	    st = DisconnectedEvent::FAILED_UNKNOWN;
 	  }
 	} else if (m_state == AUTH_AWAITING_AUTH_REPLY) {
-	    SignalLog(LogEvent::WARN, "Error logging in, no error code given(?!)\n");
+	    SignalLog(LogEvent::ERROR, "Error logging in, no error code given(?!)");
 	    st = DisconnectedEvent::FAILED_UNKNOWN;
 	} else {
 	  st = DisconnectedEvent::REQUESTED;
@@ -1167,7 +1172,7 @@ namespace ICQ2000 {
 	  }
 
 	} else {
-	  SignalLog(LogEvent::WARN, "Unknown packet received on channel 4, disconnecting\n");
+	  SignalLog(LogEvent::WARN, "Unknown packet received on channel 4, disconnecting");
 	  st = DisconnectedEvent::FAILED_UNKNOWN;
 	}
 	DisconnectBOS();
@@ -1219,7 +1224,7 @@ namespace ICQ2000 {
       if (m_dccache.exists(fd)) {
 	dc = m_dccache[fd];
       } else {
-	SignalLog(LogEvent::WARN, "Problem: Unassociated socket");
+	SignalLog(LogEvent::ERROR, "Problem: Unassociated socket");
 	return;
       }
 	
@@ -1484,6 +1489,7 @@ namespace ICQ2000 {
       // We'll set this as the initial status upon Connect()
       m_status = st;
       if (st != STATUS_OFFLINE) Connect();
+      if (m_state != NOT_CONNECTED && st == STATUS_OFFLINE) Disconnect(DisconnectedEvent::REQUESTED);
     }
   }
 
@@ -1606,7 +1612,7 @@ namespace ICQ2000 {
   void Client::DisconnectInt() {
     if (m_state == NOT_CONNECTED) return;
 
-    SignalLog(LogEvent::INFO, "Client disconnecting\n");
+    SignalLog(LogEvent::INFO, "Client disconnecting");
 
     if (m_state == AUTH_AWAITING_CONN_ACK || m_state == AUTH_AWAITING_AUTH_REPLY|| 
         m_state == UIN_AWAITING_CONN_ACK || m_state == UIN_AWAITING_UIN_REPLY) {
@@ -1661,9 +1667,7 @@ namespace ICQ2000 {
     try{
       m_translator.setTranslationMap(szMapFileName);
     } catch (TranslatorException e) {
-      ostringstream ostr;
-      ostr << e.what() << endl;
-      SignalLog(LogEvent::WARN, ostr.str());
+      SignalLog(LogEvent::WARN, e.what());
       return false; 
     }
     return true;
