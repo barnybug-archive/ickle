@@ -55,12 +55,17 @@ class UserInfoDialog : public Gtk::Dialog {
   Gtk::Text about_text;
   Gtk::Notebook notebook;
 
+  Gtk::Entry stats_signon_time, stats_last_online, stats_last_status_change;
+  Gtk::Entry stats_last_message, stats_last_away_msg_check;
+
   ICQ2000::ContactRef m_contact;
   bool m_changed;
   bool m_self;
 
   bool update_contact();
   void update_from_userinfo();
+
+  static std::string format_time(time_t t);
 
  public:
   UserInfoDialog(Gtk::Window * parent, const ICQ2000::ContactRef& c, bool self = false);

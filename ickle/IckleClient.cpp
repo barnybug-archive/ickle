@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.93 2002-04-07 15:03:36 bugcreator Exp $
+/* $Id: IckleClient.cpp,v 1.94 2002-04-14 19:09:46 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -977,6 +977,13 @@ void IckleClient::saveContact(ContactRef c, const string& s)
   // About Info
   user.setValue( "about", c->getAboutInfo() );
 
+  // Stats
+  user.setValue( "last_signon_time", c->get_signon_time() );
+  user.setValue( "last_seen_online_time", c->get_last_online_time() );
+  user.setValue( "last_status_change_time", c->get_last_status_change_time() );
+  user.setValue( "last_message_time", c->get_last_message_time() );
+  user.setValue( "last_away_msg_check_time", c->get_last_away_msg_check_time() );
+
   try {
     user.save(s);
   } catch(runtime_error& e) {
@@ -1066,6 +1073,13 @@ void IckleClient::loadContact(const string& s, bool self)
   // About Info
   c->setAboutInfo( cs.getValueString("about") );
 	
+  // Status
+  c->set_signon_time( cs.getValueUnsignedInt("last_signon_time") );
+  c->set_last_online_time( cs.getValueUnsignedInt("last_seen_online_time") );
+  c->set_last_status_change_time( cs.getValueUnsignedInt("last_status_change_time") );
+  c->set_last_message_time( cs.getValueUnsignedInt("last_message_time") );
+  c->set_last_away_msg_check_time( cs.getValueUnsignedInt("last_away_msg_check_time") );
+
   if (!self) {
     m_settingsmap[c->getUIN()] = s;
     m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );

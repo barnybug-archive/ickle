@@ -281,6 +281,35 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   label = manage( new Gtk::Label( "About" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
+  // ------------------------- Stats -------------------------------
+  table = manage( new Gtk::Table( 2, 5, false ) );
+  
+  label = manage( new Gtk::Label( "Signon time:", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  table->attach( stats_signon_time, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Last time seen online:", 0 ) );
+  table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  table->attach( stats_last_online, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Last status change:", 0 ) );
+  table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  table->attach( stats_last_status_change, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Last message:", 0 ) );
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  table->attach( stats_last_message, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
+
+  label = manage( new Gtk::Label( "Last checked your away message:", 0 ) );
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND, GTK_FILL, 10);
+  table->attach( stats_last_away_msg_check, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND, GTK_FILL, 0);
+
+  table->set_border_width(5);
+  label = manage( new Gtk::Label( "Stats" ) );
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
+
+  // ---------------------------------------------------------------
+
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing (10);
   vbox->pack_start( notebook, true, true );
@@ -567,6 +596,32 @@ void UserInfoDialog::update_from_userinfo()
   } else {
     birthday_entry.set_text( m_contact->getHomepageInfo().getBirthDate() );
   }
+
+  // ----------------------- Stats ----------------------
+
+  stats_signon_time.set_text(format_time( m_contact->get_signon_time() ));
+  stats_last_online.set_text(format_time( m_contact->get_last_online_time() ));
+  stats_last_status_change.set_text(format_time( m_contact->get_last_status_change_time() ));
+  stats_last_message.set_text(format_time( m_contact->get_last_message_time() ));
+  stats_last_away_msg_check.set_text(format_time( m_contact->get_last_away_msg_check_time() ));
+
+  // ----------------------------------------------------
+}
+
+string UserInfoDialog::format_time(time_t t)
+{
+  if (t == 0) return string("Unknown");
+  
+  time_t now = time(NULL);
+  struct tm now_tm = * (localtime(&now));
+  struct tm tm = * (localtime(&t));
+  char time_str[256];
+  if (now - t > 86400 || now_tm.tm_mday != tm.tm_mday) {
+    strftime(time_str, 255, "%d %b %Y %H:%M:%S", &tm);
+  } else {
+    strftime(time_str, 255, "%H:%M:%S", &tm);
+  }
+  return string(time_str);
 }
 
 void UserInfoDialog::status_change_cb(StatusChangeEvent *ev)
