@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.64 2002-06-04 22:32:41 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.65 2002-06-08 13:51:26 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -715,6 +715,12 @@ void MessageBox::display_message(History::Entry &e)
     m_history_text.insert( normal_context, e.message);
     break;
       
+  case ICQ2000::MessageEvent::WebPager:
+    ostr << "[pager] ";
+    m_history_text.insert( header_context, ostr.str());
+    m_history_text.insert( normal_context, e.message);
+    break;
+      
   }
 
 }
@@ -938,6 +944,7 @@ void MessageBox::clear_queue()
 	      || t == ICQMessageEvent::URL
 	      || t == ICQMessageEvent::SMS
 	      || t == ICQMessageEvent::SMS_Receipt
+	      || t == ICQMessageEvent::WebPager
 	      || t == ICQMessageEvent::EmailEx))
 	m_message_queue.remove_from_queue(curr);
     }

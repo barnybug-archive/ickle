@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.18 2002-04-01 11:25:50 barnabygray Exp $
+/* $Id: History.cpp,v 1.19 2002-06-08 13:51:26 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -36,6 +36,7 @@ using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
 using ICQ2000::SMSReceiptEvent;
 using ICQ2000::EmailExEvent;
+using ICQ2000::WebPagerEvent;
 using ICQ2000::ContactRef;
 
 using std::string;
@@ -87,7 +88,8 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
 	|| ev->getType() == ICQ2000::MessageEvent::URL
 	|| ev->getType() == ICQ2000::MessageEvent::SMS
 	|| ev->getType() == ICQ2000::MessageEvent::SMS_Receipt
-	|| ev->getType() == ICQ2000::MessageEvent::EmailEx))
+	|| ev->getType() == ICQ2000::MessageEvent::EmailEx
+	|| ev->getType() == ICQ2000::MessageEvent::WebPager))
     return;
 
   of.open( m_filename.c_str(), std::ios::out | std::ios::app );
@@ -176,6 +178,15 @@ void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
     he.message = ee->getMessage();
 
     of << "Type: EmailExpress" << endl
+       << "Message: ";
+    quote_output( of, ee->getMessage() );
+    of << endl;
+  } else if (ev->getType() == ICQ2000::MessageEvent::WebPager) {
+
+    ICQ2000::WebPagerEvent *ee = static_cast<ICQ2000::WebPagerEvent*>(ev);
+    he.message = ee->getMessage();
+
+    of << "Type: WebPager" << endl
        << "Message: ";
     quote_output( of, ee->getMessage() );
     of << endl;
@@ -273,6 +284,8 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
         e.type = ICQ2000::MessageEvent::SMS_Receipt;
       else if( s2 == "EmailExpress" )
         e.type = ICQ2000::MessageEvent::EmailEx;
+      else if( s2 == "WebPager" )
+        e.type = ICQ2000::MessageEvent::WebPager;
       else if( s2 == "URL" )
         e.type = ICQ2000::MessageEvent::URL;
     }

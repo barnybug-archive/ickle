@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.14 2002-04-10 19:57:58 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.15 2002-06-08 13:51:26 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -143,6 +143,7 @@ ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
   case ICQMessageEvent::AuthReq:
   case ICQMessageEvent::AuthAck:
   case ICQMessageEvent::EmailEx:
+  case ICQMessageEvent::WebPager:
   case ICQMessageEvent::UserAdd:
   default:
     p = Icon_Status_SystemMessage.get();

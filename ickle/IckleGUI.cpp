@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.58 2002-05-11 12:29:08 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.59 2002-06-08 13:51:26 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -244,6 +244,7 @@ void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
     case ICQMessageEvent::SMS:
     case ICQMessageEvent::SMS_Receipt:
     case ICQMessageEvent::EmailEx:
+    case ICQMessageEvent::WebPager:
       popup_messagebox(c, h);
       break;
       

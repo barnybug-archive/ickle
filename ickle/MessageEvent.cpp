@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.cpp,v 1.2 2002-03-31 20:35:43 barnabygray Exp $
+/* $Id: MessageEvent.cpp,v 1.3 2002-06-08 13:51:26 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -311,6 +311,24 @@ std::string EmailExICQMessageEvent::getMessage() const
 ICQMessageEvent::ICQMessageType EmailExICQMessageEvent::getICQMessageType() const
 {
   return EmailEx;
+}
+
+// ============================================================================
+//  WebPagerICQMessageEvent
+// ============================================================================
+
+WebPagerICQMessageEvent::WebPagerICQMessageEvent(time_t t, const ContactRef& c, const string& msg)
+  : ICQMessageEvent(t,c), m_message(msg)
+{ }
+
+std::string WebPagerICQMessageEvent::getMessage() const
+{
+  return m_message;
+}
+
+ICQMessageEvent::ICQMessageType WebPagerICQMessageEvent::getICQMessageType() const
+{
+  return WebPager;
 }
 
 // ============================================================================

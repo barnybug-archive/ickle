@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.107 2002-06-08 11:58:36 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.108 2002-06-08 13:51:26 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -862,6 +862,12 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   {
     ICQ2000::EmailExEvent *cev = static_cast<ICQ2000::EmailExEvent*>(ev);
     ret = new EmailExICQMessageEvent( ev->getTime(), c, cev->getMessage() );
+    break;
+  }
+  case ICQ2000::MessageEvent::WebPager:
+  {
+    ICQ2000::WebPagerEvent *cev = static_cast<ICQ2000::WebPagerEvent*>(ev);
+    ret = new WebPagerICQMessageEvent( ev->getTime(), c, cev->getMessage() );
     break;
   }
   case ICQ2000::MessageEvent::UserAdd:

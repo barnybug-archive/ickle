@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.h,v 1.3 2002-04-13 21:21:49 barnabygray Exp $
+/* $Id: MessageEvent.h,v 1.4 2002-06-08 13:51:26 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -73,7 +73,8 @@ class ICQMessageEvent : public MessageEvent {
     AuthReq,
     AuthAck,
     EmailEx,
-    UserAdd
+    UserAdd,
+    WebPager
   };
 
  private:
@@ -225,6 +226,20 @@ class EmailExICQMessageEvent : public ICQMessageEvent {
 
  public:
   EmailExICQMessageEvent(time_t t, const ICQ2000::ContactRef& c, const std::string& msg);
+
+  std::string getMessage() const;
+  ICQMessageType getICQMessageType() const;
+};
+
+/**
+ *  A Web Pager message
+ */
+class WebPagerICQMessageEvent : public ICQMessageEvent {
+ private:
+  std::string m_message;
+
+ public:
+  WebPagerICQMessageEvent(time_t t, const ICQ2000::ContactRef& c, const std::string& msg);
 
   std::string getMessage() const;
   ICQMessageType getICQMessageType() const;
