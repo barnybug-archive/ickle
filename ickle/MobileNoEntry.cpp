@@ -33,12 +33,12 @@ MobileNoEntry::MobileNoEntry()
 {
   Gtk::Label *label;
 
-  label = manage( new Gtk::Label( _("Country") ) );
-  attach( *label, 1, 2, 0, 1, Gtk::SHRINK, Gtk::FILL );
-  label = manage( new Gtk::Label( _("Area Code") ) );
-  attach( *label, 2, 3, 0, 1, Gtk::SHRINK, Gtk::FILL );
-  label = manage( new Gtk::Label( _("Number") ) );
-  attach( *label, 3, 4, 0, 1, Gtk::SHRINK, Gtk::FILL );
+  label = manage( new Gtk::Label( _("C'try"), 1.0, 0.5 ) );
+  attach( *label, 1, 2, 0, 1, Gtk::FILL, Gtk::FILL );
+  label = manage( new Gtk::Label( _("Area"), 0.5, 0.5 ) );
+  attach( *label, 2, 3, 0, 1, Gtk::FILL, Gtk::FILL );
+  label = manage( new Gtk::Label( _("Number"), 0.0, 0.5 ) );
+  attach( *label, 3, 4, 0, 1, Gtk::FILL, Gtk::FILL );
 
   label = manage( new Gtk::Label( "+" ) );
   attach( *label, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL );  
@@ -46,17 +46,17 @@ MobileNoEntry::MobileNoEntry()
   m_country.set_max_length(3);
   m_country.set_width_chars(3);
   m_country.signal_changed().connect( m_signal_changed.slot() );
-  attach( m_country, 1, 2, 1, 2, Gtk::SHRINK, Gtk::FILL );
+  attach( m_country, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
 
   m_areacode.set_max_length(5);
   m_areacode.set_width_chars(5);
   m_areacode.signal_changed().connect( m_signal_changed.slot() );
-  attach( m_areacode, 2, 3, 1, 2, Gtk::SHRINK, Gtk::FILL );
+  attach( m_areacode, 2, 3, 1, 2, Gtk::FILL, Gtk::FILL );
 
   m_number.set_max_length(10);
   m_number.set_width_chars(10);
   m_number.signal_changed().connect( m_signal_changed.slot() );
-  attach( m_number, 3, 4, 1, 2, Gtk::SHRINK, Gtk::FILL );
+  attach( m_number, 3, 4, 1, 2, Gtk::FILL, Gtk::FILL );
 }
 
 Glib::ustring MobileNoEntry::get_text() const

@@ -66,22 +66,35 @@ RemoveGroupDialog::RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::
 
   // group list
   ICQ2000::ContactTree& ct = icqclient.getContactTree();
-  ICQ2000::ContactTree::const_iterator curr = ct.begin();
-  Gtk::ComboDropDown *item_list = m_group_list.get_list();
+  ICQ2000::ContactTree::iterator curr = ct.begin();
+  Gtk::ComboDropDown_Helpers::ComboDropDownList& cl = m_group_list.get_list()->children();
   while (curr != ct.end())
   {
     if ( &(*curr) != gp )
     {
-      //      GroupItem *item = manage( new GroupItem( &(*curr) ) );
-      //      item->show_all();
-      //      item_list->children().push_back( *item );
+      Gtk::ComboDropDownItem * item = Gtk::manage( new Gtk::ComboDropDownItem() );
+      item->add_label( curr->get_label() );
+      item->show_all();
+      item->signal_select().connect( SigC::bind( SigC::slot( *this, &RemoveGroupDialog::selected_group_cb ), &(*curr) ) );
+      cl.push_back( *item );
+      m_group_list.set_item_string( *item, curr->get_label() );
+      m_group_map[ curr->get_id() ] = item;
     }
+    
     ++curr;
   }
+
   m_group_list.set_value_in_list();
 
+  if (cl.empty())
+  {
+    m_remove_all.set_active(true);
+    m_move_all.set_sensitive(false);
+    m_group_list.set_sensitive(false);
+  }
+
   Gtk::HBox *hbox = manage( new Gtk::HBox() );
-  hbox->pack_end( m_group_list );
+  hbox->pack_start( m_group_list, Gtk::PACK_SHRINK );
   vbox->pack_start( *hbox );
 
   set_border_width(10);
@@ -101,6 +114,13 @@ void RemoveGroupDialog::on_response(int response_id)
     else
     {
       // move contacts
+      while (!m_libicq2000_group->empty())
+      {
+	icqclient.getContactTree().relocate_contact( * m_libicq2000_group->begin(),
+						     * m_libicq2000_group,
+						     * m_selected_group );
+      }
+      
     }
     
     // remove the group
@@ -130,22 +150,18 @@ void RemoveGroupDialog::contactlist_cb(ICQ2000::ContactListEvent *ev)
     else
     {
       // remove from list
-      Gtk::ComboDropDown_Helpers::ComboDropDownList il = m_group_list.get_list()->children();
-      Gtk::ComboDropDown_Helpers::ComboDropDownList::iterator curr = il.begin();
-      while (curr != il.end())
+      unsigned int id = cev->get_group().get_id();
+      if ( m_group_map.count(id) )
       {
-	//	Gtk::ComboDropDownItem li = *curr;
-	/*	GroupItem gli;
-	if ((gli = static_cast<GroupItem&>(li)) != NULL)
-	{
-	  if (gli->get_group() == &(cev->get_group()))
-	  {
-	    // remove this one
-	    il.erase(curr);
-	    break;
-	  }
-	  }*/
-	++curr;
+	m_group_list.get_list()->children().remove( * m_group_map[id] );
+	m_group_map.erase(id);
+      }
+
+      if (m_group_list.get_list()->children().empty())
+      {
+	m_remove_all.set_active(true);
+	m_move_all.set_sensitive(false);
+	m_group_list.set_sensitive(false);
       }
     }
   }
@@ -154,7 +170,23 @@ void RemoveGroupDialog::contactlist_cb(ICQ2000::ContactListEvent *ev)
     ICQ2000::GroupChangeEvent *cev = static_cast<ICQ2000::GroupChangeEvent*>(ev);
     if (&(cev->get_group()) != m_libicq2000_group)
     {
-      // update in list
+      unsigned int id = cev->get_group().get_id();
+      if ( m_group_map.count(id) )
+      {
+	// update in list
+	Gtk::ComboDropDownItem * item = m_group_map[id];
+	item->remove();
+	item->add_label( cev->get_group().get_label() );
+	m_group_list.set_item_string( *item, cev->get_group().get_label() );
+      }
     }
   }
+}
+
+void RemoveGroupDialog::selected_group_cb(ICQ2000::ContactTree::Group *gp)
+{
+  m_selected_group = gp;
+
+  // select move to, since that's probably what they want
+  m_move_all.set_active(true);
 }

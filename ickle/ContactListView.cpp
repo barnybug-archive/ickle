@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.59 2003-01-26 16:43:09 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.60 2003-01-26 20:34:15 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -649,7 +649,14 @@ void ContactListView::group_rename_cb()
 void ContactListView::group_remove_cb()
 {
   ICQ2000::ContactTree::Group * gp = get_selected_group();
-  new RemoveGroupDialog(m_parent, gp );
+  if ( ! gp->empty() )
+  {
+    new RemoveGroupDialog(m_parent, gp );
+  }
+  else
+  {
+    icqclient.getContactTree().remove_group( * gp );
+  }
 }
 
 void ContactListView::group_add_cb()

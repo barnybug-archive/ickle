@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.76 2003-01-26 16:15:47 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.77 2003-01-26 20:34:15 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -196,7 +196,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   sms_vbox->pack_start( *scrolled_win, Gtk::PACK_EXPAND_WIDGET );
 
   m_sms_count.set_editable(false);
-  m_sms_count.set_width_chars(3);
+  m_sms_count.set_width_chars(4);
   sms_hbox->pack_start( m_sms_count, Gtk::PACK_SHRINK );
 
   m_sms_count_label.set_justify(Gtk::JUSTIFY_LEFT);

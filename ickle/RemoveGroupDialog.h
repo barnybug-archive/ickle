@@ -28,6 +28,8 @@
 
 #include <libicq2000/ContactTree.h>
 
+#include <map>
+
 namespace ICQ2000
 {
   class ContactListEvent;
@@ -38,13 +40,17 @@ class RemoveGroupDialog : public Gtk::Dialog,
 {
  private:
   ICQ2000::ContactTree::Group *m_libicq2000_group;
+  ICQ2000::ContactTree::Group *m_selected_group;
+  
   Gtk::Button m_ok, m_cancel;
   Gtk::RadioButton m_remove_all, m_move_all;
   Gtk::Combo m_group_list;
+  std::map< unsigned int, Gtk::ComboDropDownItem * > m_group_map;
 
   void on_response(int response_id);
 
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
+  void selected_group_cb(ICQ2000::ContactTree::Group *gp);
 
  public:
   RemoveGroupDialog(Gtk::Window& parent, ICQ2000::ContactTree::Group *gp);
