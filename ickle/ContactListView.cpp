@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.36 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: ContactListView.cpp,v 1.37 2002-04-04 10:40:44 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -410,6 +410,7 @@ void ContactListView::queue_added_cb(MessageEvent *ev)
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
   update_row(icq->getICQContact());
+  sort();
 }
 
 void ContactListView::queue_removed_cb(MessageEvent *ev)
@@ -417,4 +418,5 @@ void ContactListView::queue_removed_cb(MessageEvent *ev)
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
   update_row(icq->getICQContact());
+  sort();
 }
