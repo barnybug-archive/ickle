@@ -27,8 +27,6 @@ AddUserDialog::AddUserDialog()
   set_title("Add User");
   set_modal(true);
 
-  destroy.connect( Gtk::Main::quit.slot() );
-
   okay.clicked.connect(slot(this,&AddUserDialog::okay_cb));
   cancel.clicked.connect(slot(this,&AddUserDialog::cancel_cb));
 
