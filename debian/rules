@@ -11,9 +11,6 @@
 # This is the debhelper compatability version to use.
 export DH_COMPAT=3
 
-# Required for the GNOME Applet to configure the right way
-export ACLOCAL_FLAGS=-I /usr/share/aclocal/gnome
-
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
@@ -53,9 +50,6 @@ install: build
 	# Move files into the correct package directories
 	dh_movefiles
 
-	ln -s ickle-common $(CURDIR)/debian/ickle/usr/share/doc/ickle
-	ln -s ickle-common $(CURDIR)/debian/ickle-gnome/usr/share/doc/ickle-gnome
-
 binary-indep:
 # Nothing to do
 
@@ -63,10 +57,10 @@ binary-arch: build install
 	dh_testdir -a
 	dh_testroot -a
 	dh_installdebconf -a
-	dh_installdocs -a
+	dh_installdocs -p ickle-common
 	dh_installmenu -a
 	dh_installman -a
-	dh_installchangelogs -a ChangeLog
+	dh_installchangelogs -p ickle-common ChangeLog
 	dh_strip -a
 	dh_link -a
 	dh_compress -a

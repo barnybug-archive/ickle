@@ -1,10 +1,11 @@
 ickle for Debian
 ----------------
 
-ickle is now split up into three debian packages:
-* ickle       - plain vanilla ickle
-* ickle-gnome - ickle as a GNOME applet
-* ickle-dev   - development header files for ickle
+ickle is now split up into four debian packages:
+* ickle        - plain vanilla ickle
+* ickle-gnome  - ickle as a GNOME applet
+* ickle-dev    - development header files for ickle
+* ickle-common - common elements between ickle and ickle-gnome
 
 For bugfixes regarding ickle, please join the ickle development list located at:
   http://lists.sourceforge.net/lists/listinfo/ickle-devel
