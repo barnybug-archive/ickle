@@ -177,7 +177,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Homepage:", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  homepage_entry.set_editable(false);
+  if (!m_self) homepage_entry.set_editable(false);
   table->attach( homepage_entry, 1, 4, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
 
   label = manage( new Gtk::Label( "Birthday:", 0 ) );
@@ -235,6 +235,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "About:", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  if (!m_self) about_text.set_editable(false);
   table->attach( about_text, 0, 4, 1, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   table->set_border_width(10);
@@ -328,9 +329,9 @@ bool UserInfoDialog::update_contact()
       ret = true;
       hpi.birth_day = (unsigned char)birth_day_spin.get_value_as_int();
     }
-    string lang1 = lang_entry1.get_text();
-    string lang2 = lang_entry2.get_text();
-    string lang3 = lang_entry3.get_text();
+    string lang1 = lang_combo1.get_entry()->get_text();
+    string lang2 = lang_combo2.get_entry()->get_text();
+    string lang3 = lang_combo3.get_entry()->get_text();
 
     for (int i = 0; i < Language_table_size; i++) {
       if (lang1 == string(Language_table[i])) {
@@ -351,8 +352,14 @@ bool UserInfoDialog::update_contact()
 	  hpi.lang3 = (unsigned char)i;
 	}
       }
-
+      
     }
+
+    if ( contact->getAboutInfo() != about_text.get_chars() ) {
+      contact->setAboutInfo( about_text.get_chars() );
+      ret = true;
+    }
+
   } // self info
 
   if (contact->getAlias() != alias_entry.get_text()) {
@@ -400,7 +407,7 @@ void UserInfoDialog::okay_cb() {
 
 void UserInfoDialog::upload_cb()
 {
-  changed = changed || update_contact();
+  changed = update_contact() || changed;
   upload.emit();
 }
 
@@ -457,7 +464,7 @@ void UserInfoDialog::userinfochange_cb() {
   ip_entry.set_text( ostr.str() );
 
   /* Set the right country in the combo, if we displaying info about ourselves we want to 
-     be able to change coutry. If we're displaying info for another user we do not want to 
+     be able to change country. If we're displaying info for another user we do not want to 
      edit country */
   if (m_self) {
     vector<string> countries;
