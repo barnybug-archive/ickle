@@ -1,3 +1,140 @@
+2002-04-26 14:10  barnabygray
+
+	* ickle/IckleClient.cpp: Oops.. that'll teach me to blindly cut and
+	paste
+
+2002-04-25 21:31  barnabygray
+
+	* ickle/MessageBox.cpp: No need for this now then.
+
+2002-04-25 21:09  bugcreator
+
+	* ickle/MessageBox.cpp: - Make sure we really scroll down to the
+	end of the history initially   (scroll *after* the pane position
+	has been set!) - Call show_all() in c'tor (fixing the display
+	errors with the blueHeart theme)
+
+2002-04-25 20:36  barnabygray
+
+	* ickle/IckleClient.cpp: Missed catching some exceptions on bad
+	history files
+
+2002-04-25 17:21  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleClient.h: Fixes to remember mobile
+	history
+
+2002-04-25 10:26  barnabygray
+
+	* ickle/MessageBox.cpp: Oops.. no even I can't get it right
+
+2002-04-25 10:20  barnabygray
+
+	* ickle/MessageBox.cpp: History table size was incorrect -
+	surprisingly this didn't cause any particularly noticeable
+	problems!
+
+2002-04-23 02:08  barnabygray
+
+	* ickle/IckleClient.cpp: Port binding should be set on startup -
+	thanks Tobias for pointing this out
+
+2002-04-22 10:07  barnabygray
+
+	* ctrlsocket/ControlSocket.h: This header should have been
+	explicitly included. (fixes make error on FreeBSD)
+
+2002-04-22 00:12  barnabygray
+
+	* ickle/MessageBox.cpp: Fix for when sent offline through server
+	(status wouldn't be updated properly)
+
+2002-04-21 15:56  barnabygray
+
+	* ickle/: IckleClient.cpp, SettingsDialog.cpp, SettingsDialog.h:
+	Port binding ranges. For all you poor firewalled people out there.
+
+2002-04-20 17:47  barnabygray
+
+	* ickle/IckleClient.cpp: Don't want to frighten users..
+
+2002-04-20 16:06  barnabygray
+
+	* ickle/: EventSubstituter.cpp, EventSubstituter.h,
+	EventSystem.cpp, EventSystem.h, IckleClient.cpp, MessageBox.cpp,
+	MessageBox.h, SettingsDialog.cpp: Fixed %m pending messages
+	substitution to work again.  Added %o substitution for when contact
+	went online.
+
+2002-04-19 16:52  bugcreator
+
+	* ickle/MessageBox.cpp: Message box fix...  If you moved the pane
+	separator too far up or down, it was hidden by other controls, and
+	there was no way to move it back (short of manually editing
+	ickle.conf)
+
+2002-04-19 16:46  bugcreator
+
+	* ickle/: IckleClient.cpp, IckleGUI.cpp, IckleGUI.h: Also remember
+	the window's size when hiding it. Sawfish sometimes (randomly?)
+	forgot it otherwise.  (It's probably Sawfish's fault, but this
+	workaround shouldn't hurt... hopefully...)
+
+2002-04-18 23:07  bugcreator
+
+	* ickle/: SettingsDialog.cpp, UserInfoDialog.cpp: Yet another
+	cosmetic operation
+
+2002-04-18 23:00  bugcreator
+
+	* ickle/IckleApplet.cpp: Slightly more reasonable behaviour of the
+	applet menu with classic inivisibility.
+
+2002-04-18 18:32  nordman
+
+	* ickle/IdleTimer.h: include Xlib.h as well.
+
+2002-04-18 18:30  nordman
+
+	* ickle/IdleTimer.cpp: The code was getting to hairy, straighten it
+	out somewhat and document it proper.
+
+2002-04-18 17:33  barnabygray
+
+	* ickle/: IdleTimer.cpp, SettingsDialog.cpp, SettingsDialog.h: Fix
+	for auto away/NA when only one is disabled.
+
+2002-04-18 15:00  barnabygray
+
+	* ickle/IckleClient.cpp: Changed defaults to something more
+	sensible hopefully.
+
+2002-04-17 23:17  barnabygray
+
+	* FAQ, Makefile.am, ickle/IckleGUI.cpp: Added FAQ to dist. oops. 
+	Fixed title bar showing pending messages.
+
+2002-04-17 12:49  barnabygray
+
+	* autogen.sh: Fix to use autoconf2.50 preferentially (mostly for my
+	debian system), otherwise it uses the out of date autoconf2.13
+	which doesn't play nicely with gcc 3.0.
+
+2002-04-16 22:17  barnabygray
+
+	* AUTHORS, NEWS, README, TODO, configure.in: Final stuff for the
+	release
+
+2002-04-16 22:05  barnabygray
+
+	* ickle/: ControlHandler.cpp, ControlHandler.h,
+	EventSubstituter.cpp, History.h, IckleClient.cpp, IckleClient.h:
+	gcc 3.0 fixes
+
+2002-04-16 21:46  barnabygray
+
+	* ChangeLog: Changelog updated
+
 2002-04-16 20:58  barnabygray
 
 	* ickle/WizardDialog.cpp: Tweak to Wizard
