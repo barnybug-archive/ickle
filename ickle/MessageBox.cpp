@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.54 2002-04-07 15:03:36 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.55 2002-04-07 23:28:15 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -602,7 +602,18 @@ void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev) {
 	break;
       }
       
-      set_status("Sent message successfully");
+      string method;
+      if (ev->isDirect()) {
+	method = "direct";
+      } else {
+	ICQ2000::ICQMessageEvent *cev = dynamic_cast<ICQ2000::ICQMessageEvent*>(ev);
+	method = "through server";
+	if ( cev != NULL ) {
+	  if (cev->isOfflineMessage()) method = "offline";
+	}
+      }
+
+      set_status(string("Sent message ") + method);
 
       if( g_settings.getValueBool( "message_autoclose" ) )
         destroy.emit();
