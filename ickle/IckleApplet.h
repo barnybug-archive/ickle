@@ -1,5 +1,4 @@
-/* $Id: IckleApplet.h,v 1.3 2001-11-22 20:54:43 nordman Exp $
- * IckleApplet.h
+/* $Id: IckleApplet.h,v 1.4 2001-11-23 19:36:37 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -30,6 +29,7 @@
 #include <gtk--/frame.h>
 #include <gtk--/pixmap.h>
 #include <applet-widget.h>
+#include <list>
 
 #include <Client.h>
 #include "IckleGUI.h"
@@ -45,7 +45,20 @@ class IckleApplet : public SigC::Object {
   Gtk::Pixmap   m_pm;
   IckleGUI *    m_gui;
 
-  gint          m_nrmsg;
+  class msg_entry {
+  public:
+    msg_entry(unsigned int uin, const string &al)
+      : uin(uin), alias(al), nr_msgs(1) {}
+    unsigned int uin;
+    string alias;
+    int nr_msgs;
+  };
+
+  list<msg_entry> m_pending;            /* list of pending msg's */
+
+  gint          m_nr_msgs;              /* nr of messages pending, != m_pending.size() */
+  gint          m_nr_users;             /* nr of users on contactlist */
+  gint          m_nr_online_users;      /* nr of online users on contactlist */
 
   // C-callback to member function converters
   static void   applet_click_converter          (GtkWidget *sender, GdkEventButton *ev, gpointer data);
@@ -58,9 +71,11 @@ class IckleApplet : public SigC::Object {
   static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent  *event, gpointer data);
   bool          icq_messaged_cb         (MessageEvent *ev);
   void          icq_statuschanged_cb    (MyStatusChangeEvent *ev);
+  void          icq_contactlist_cb      (ContactListEvent *ev);
   
   // misc
-  void          update_tooltip          (Status st);
+  void          update_applet_tooltip   ();
+  void          update_applet_number    ();
 
  public:
 
