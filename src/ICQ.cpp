@@ -21,6 +21,12 @@
 
 #include "ICQ.h"
 
+#include <sstream>
+#include <memory>
+
+using std::ostringstream;
+using std::auto_ptr;
+
 namespace ICQ2000 {
 
   // ----------------- ICQSubtypes ----------------

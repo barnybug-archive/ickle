@@ -22,13 +22,13 @@
 #define ICQ_H
 
 #include <string>
-#include <sstream>
-#include <memory>
 
 #include "Xml.h"
 #include "buffer.h"
 #include "exceptions.h"
 #include "constants.h"
+
+using std::string;
 
 namespace ICQ2000 {
 
