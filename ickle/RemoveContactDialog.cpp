@@ -48,7 +48,7 @@ RemoveContactDialog::RemoveContactDialog(Gtk::Window& parent, const ICQ2000::Con
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
 
-  label = manage( new Gtk::Label( String::ucompose( _("Are you sure you want to remove %1?"), c->getAlias() ) ) );
+  label = manage( new Gtk::Label( String::ucompose( _("Are you sure you want to remove %1?"), Glib::ustring(c->getAlias()) ) ) );
   vbox->pack_start( *label );
 
   set_border_width(10);

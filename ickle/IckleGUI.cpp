@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.74 2003-02-09 17:02:29 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.75 2003-02-10 00:43:26 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -178,7 +178,7 @@ void IckleGUI::set_ickle_title()
   else
   {
     set_title( String::ucompose( _("ickle - %1%2"),
-				 c->getNameAlias(),
+				 Glib::ustring(c->getNameAlias()),
 				 ( m_message_queue.get_size() > 0 ? "*" : "" ) ) );
   }
 
@@ -329,7 +329,7 @@ void IckleGUI::remove_from_queue_delayed(MessageEvent *ev)
 void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent *ev)
 {
   Glib::ustring str = String::ucompose( _("%1 has added you to their contact list."),
-				 c->getNameAlias() );
+				 Glib::ustring(c->getNameAlias()) );
 
   new PromptDialog( *this, Gtk::MESSAGE_INFO, str, false );
   remove_from_queue_delayed(ev);
@@ -345,15 +345,15 @@ void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
 {
   Glib::ustring str;
   if (ev->isGranted())
-    str = String::ucompose( _("%1 has granted your request for authorisation."), c->getNameAlias() );
+    str = String::ucompose( _("%1 has granted your request for authorisation."), Glib::ustring(c->getNameAlias()) );
   else
-    str = String::ucompose( _("%1 has refused your request for authorisation."), c->getNameAlias() );
+    str = String::ucompose( _("%1 has refused your request for authorisation."), Glib::ustring(c->getNameAlias()) );
 
   str += "\n";
   
   if (!ev->isGranted() && !ev->getMessage().empty())
   {
-    str += String::ucompose( _("Their refusal message was:\n\n%1\n"), ev->getMessage() );
+    str += String::ucompose( _("Their refusal message was:\n\n%1\n"), Glib::ustring(ev->getMessage()) );
   }
 
   new PromptDialog( *this, Gtk::MESSAGE_INFO, str, false );

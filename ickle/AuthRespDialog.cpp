@@ -45,13 +45,13 @@ AuthRespDialog::AuthRespDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c
   
   str = String::ucompose( _("%1 is requesting authorisation.\n"
 			    "You should grant or refuse the request.\n"),
-			  contact->getNameAlias() );
+			  Glib::ustring(contact->getNameAlias()) );
 
   if (!ev->getMessage().empty())
   {
     str += String::ucompose( _("Their request message is:\n\n"
 			       "%1"),
-			     ev->getMessage() );
+			     Glib::ustring(ev->getMessage()) );
   }
   
   Gtk::Label *label = manage( new Gtk::Label( str, 0 ) );

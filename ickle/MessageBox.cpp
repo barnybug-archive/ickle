@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.77 2003-01-26 20:34:15 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.78 2003-02-10 00:43:26 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -457,13 +457,13 @@ void MessageBox::set_contact_title()
 
   if (m_contact->isICQContact())
     str = String::ucompose( "%1 (%2) - %3",
-			    m_contact->getNameAlias(),
+			    Glib::ustring(m_contact->getNameAlias()),
 			    m_contact->getUIN(),
-			    UserInfoHelpers::getStringFromStatus(m_contact->getStatus()) );
+			    Glib::ustring(UserInfoHelpers::getStringFromStatus(m_contact->getStatus())) );
   else
     str = String::ucompose( "%1 - %2",
-			    m_contact->getNameAlias(),
-			    UserInfoHelpers::getStringFromStatus(m_contact->getStatus()) );
+			    Glib::ustring(m_contact->getNameAlias()),
+			    Glib::ustring(UserInfoHelpers::getStringFromStatus(m_contact->getStatus())) );
 
   Glib::RefPtr<Gdk::Pixbuf> p;
 

@@ -157,7 +157,7 @@ namespace Utils
   }
 
 
-  std::string format_time(time_t t)
+  Glib::ustring format_time(time_t t)
   {
     time_t now = time(NULL);
     struct tm now_tm = * (localtime(&now));
@@ -176,7 +176,7 @@ namespace Utils
     return std::string(time_str);
   }
 
-  std::string format_IP(unsigned int ip)
+  Glib::ustring format_IP(unsigned int ip)
   {
     return String::ucompose( "%1.%2.%3.%4",
 			     ( ip >> 24 ),
@@ -185,7 +185,7 @@ namespace Utils
 			     ( ip & 0xff ) );
   }
 
-  std::string format_date(unsigned char day, unsigned char month, unsigned short year)
+  Glib::ustring format_date(unsigned char day, unsigned char month, unsigned short year)
   {
     struct tm date;
     date.tm_sec = 0;
@@ -201,7 +201,7 @@ namespace Utils
     char bday[255];
     strftime(bday, 255, _("%B %e, %G"), &date);
 
-    return std::string(Glib::locale_to_utf8(bday));
+    return Glib::ustring(Glib::locale_to_utf8(bday));
   }
 
 }

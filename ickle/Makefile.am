@@ -26,7 +26,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   SendAuthReqDialog.cpp AuthRespDialog.cpp ResendDialog.cpp		\
   AddGroupDialog.cpp RenameGroupDialog.cpp RemoveGroupDialog.cpp	\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.cpp utils.cpp	\
-  UserInfoHelpers.cpp Translator.cpp SetEncodingDialog.cpp
+  UserInfoHelpers.cpp Translator.cpp SetEncodingDialog.cpp ucompose.cpp
 
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 

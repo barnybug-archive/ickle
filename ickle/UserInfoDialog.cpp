@@ -64,14 +64,14 @@ UserInfoDialog::UserInfoDialog(Gtk::Window& parent, const ContactRef& c, bool se
     if (c->isICQContact())
     {
       set_title( String::ucompose( _("User Info - %1 (%2)"),
-				   c->getAlias(),
+				   Glib::ustring(c->getAlias()),
 				   c->getUIN() ) );
     }
     else
     {
       set_title( String::ucompose( _("User Info - %1 (%2)"),
-				   c->getAlias(),
-				   c->getMobileNo() ) );
+				   Glib::ustring(c->getAlias()),
+				   Glib::ustring(c->getMobileNo()) ) );
     }
   }
 
@@ -694,18 +694,18 @@ void UserInfoDialog::update_from_userinfo()
   // ----------------------------------------------------
 }
 
-string UserInfoDialog::format_time(time_t t)
+Glib::ustring UserInfoDialog::format_time(time_t t)
 {
   if (t == 0)
-    return string(_("Unknown"));
+    return Glib::ustring(_("Unknown"));
   
   return Utils::format_time(t);
 }
 
-string UserInfoDialog::format_IP_and_port(unsigned int ip, unsigned short port)
+Glib::ustring UserInfoDialog::format_IP_and_port(unsigned int ip, unsigned short port)
 {
   if (ip == 0)
-    return string(_("Unknown"));
+    return Glib::ustring(_("Unknown"));
 
   if (port == 0)
     return String::ucompose( _("%1:?"), Utils::format_IP(ip) );
@@ -713,10 +713,10 @@ string UserInfoDialog::format_IP_and_port(unsigned int ip, unsigned short port)
   return String::ucompose( _("%1:%2"), Utils::format_IP(ip), port );
 }
 
-string UserInfoDialog::format_date(unsigned char day, unsigned char month, unsigned short year)
+Glib::ustring UserInfoDialog::format_date(unsigned char day, unsigned char month, unsigned short year)
 {
   if (day == 0 || year == 0)
-    return string(_("Unspecified"));
+    return Glib::ustring(_("Unspecified"));
 
   return Utils::format_date(day, month, year);
 }

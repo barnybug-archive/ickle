@@ -48,13 +48,13 @@ namespace Utils
   std::string format_string(const char * fmt, ...);
 
   /* format time in ickle-wide standard way */
-  std::string format_time(time_t t);
+  Glib::ustring format_time(time_t t);
 
   /* IP address -> string */
-  std::string format_IP(unsigned int ip);
+  Glib::ustring format_IP(unsigned int ip);
 
   /* date -> string */
-  std::string format_date(unsigned char day, unsigned char month, unsigned short year);
+  Glib::ustring format_date(unsigned char day, unsigned char month, unsigned short year);
 };
 
 #endif /* UTILS_H */

@@ -51,24 +51,26 @@ namespace StringPrivate
   {
   public:
     // initialize and prepare format string on the form "text %1 text %2 etc."
-    explicit Composition(std::string fmt);
+    explicit Composition(Glib::ustring fmt);
 
     // supply an replacement argument starting from %1
     template <typename T>
     Composition &arg(const T &obj);
 
+    template <typename T>
+    Glib::ustring as_ustring(const T &obj);
+
     // compose and return string
-    std::string str() const;
+    Glib::ustring str() const;
 
   private:
-    std::ostringstream os;
     int arg_no;
 
     // we store the output as a list - when the output string is requested, the
     // list is concatenated to a string; this way we can keep iterators into
     // the list instead of into a string where they're possibly invalidated on
     // inserting a specification string
-    typedef std::list<std::string> output_list;
+    typedef std::list<Glib::ustring> output_list;
     output_list output;
 
     // the initial parse of the format string fills in the specification map
@@ -115,14 +117,23 @@ namespace StringPrivate
     }
   }
 
-
+  template <typename T>
+  Glib::ustring
+  Composition::as_ustring(const T& obj)
+  {
+    std::ostringstream os;
+#ifdef HAVE_STD_LOCALE
+    os.imbue(std::locale("")); // use the user's locale for the stream
+#endif
+    os << obj;
+    return Glib::locale_to_utf8(os.str());
+  }
+  
   // implementation of class Composition
   template <typename T>
   inline Composition &Composition::arg(const T &obj)
   {
-    os << obj;
-
-    std::string rep = os.str();
+    Glib::ustring rep = as_ustring(obj);
   
     if (!rep.empty()) {		// manipulators don't produce output
       for (specification_map::const_iterator i = specs.lower_bound(arg_no),
@@ -133,22 +144,16 @@ namespace StringPrivate
 	output.insert(pos, rep);
       }
     
-      os.str(std::string());
-      //os.clear();
       ++arg_no;
     }
   
     return *this;
   }
 
-  inline Composition::Composition(std::string fmt)
+  inline Composition::Composition(Glib::ustring fmt)
     : arg_no(1)
   {
-#ifdef HAVE_STD_LOCALE
-    os.imbue(std::locale("")); // use the user's locale for the stream
-#endif
-    
-    std::string::size_type b = 0, i = 0;
+    Glib::ustring::size_type b = 0, i = 0;
   
     // fill in output with the strings between the %1 %2 %3 etc. and
     // fill in specs with the positions
@@ -192,10 +197,10 @@ namespace StringPrivate
       output.push_back(fmt.substr(b, i - b));
   }
 
-  inline std::string Composition::str() const
+  inline Glib::ustring Composition::str() const
   {
     // assemble string
-    std::string str;
+    Glib::ustring str;
   
     for (output_list::const_iterator i = output.begin(), end = output.end();
 	 i != end; ++i)
@@ -214,27 +219,27 @@ namespace String
   template <typename T1>
   inline Glib::ustring ucompose(const Glib::ustring &fmt, const T1 &o1)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2>
   inline Glib::ustring ucompose(const Glib::ustring &fmt,
 				const T1 &o1, const T2 &o2)
   {
-    StringPrivate::Composition c(locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3>
   inline Glib::ustring ucompose(const Glib::ustring &fmt,
 				const T1 &o1, const T2 &o2, const T3 &o3)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4>
@@ -242,9 +247,9 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5>
@@ -252,9 +257,9 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4, const T5 &o5)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -263,9 +268,9 @@ namespace String
 				const T1 &o1, const T2 &o2, const T3 &o3,
 				const T4 &o4, const T5 &o5, const T6 &o6)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -275,9 +280,9 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -287,9 +292,9 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7, const T8 &o8)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -299,9 +304,9 @@ namespace String
 				const T4 &o4, const T5 &o5, const T6 &o6,
 				const T7 &o7, const T8 &o8, const T9 &o9)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -312,10 +317,10 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
   
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -327,10 +332,10 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10, const T11 &o11)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -342,10 +347,10 @@ namespace String
 				const T7 &o7, const T8 &o8, const T9 &o9,
 				const T10 &o10, const T11 &o11, const T12 &o12)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -358,10 +363,10 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -374,10 +379,10 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13, const T14 &o14)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13).arg(o14);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 
   template <typename T1, typename T2, typename T3, typename T4, typename T5,
@@ -391,10 +396,10 @@ namespace String
 				const T10 &o10, const T11 &o11, const T12 &o12,
 				const T13 &o13, const T14 &o14, const T15 &o15)
   {
-    StringPrivate::Composition c(Glib::locale_from_utf8(fmt));
+    StringPrivate::Composition c(fmt);
     c.arg(o1).arg(o2).arg(o3).arg(o4).arg(o5).arg(o6).arg(o7).arg(o8).arg(o9)
       .arg(o10).arg(o11).arg(o12).arg(o13).arg(o14).arg(o15);
-    return Glib::locale_to_utf8(c.str());
+    return c.str();
   }
 }
 

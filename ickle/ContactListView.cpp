@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.63 2003-02-09 18:57:49 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.64 2003-02-10 00:43:26 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -367,7 +367,7 @@ void ContactListView::popup_contact_menu(guint button, guint32 activate_time, un
   if ( g_translator.is_contact_encoding(c) )
   {
     m_rc_popup_encoding->remove();
-    m_rc_popup_encoding->add_label( String::ucompose( _("Use encoding (%1)"), g_translator.get_contact_encoding(c) ), false, 0.0 );
+    m_rc_popup_encoding->add_label( String::ucompose( _("Use encoding (%1)"), Glib::ustring(g_translator.get_contact_encoding(c)) ), false, 0.0 );
     m_rc_popup_encoding_conn.block();
     m_rc_popup_encoding->set_active(true);
     m_rc_popup_encoding_conn.unblock();

@@ -58,10 +58,10 @@ ResendDialog::ResendDialog(Gtk::Window& parent, ICQ2000::ICQMessageEvent *ev)
 						      "Their away message is:\n"
 						      "%2\n\n"
 						      "You should resend the message as 'Urgent' or 'to Contact List'\n"),
-						    ev->getContact()->getNameAlias(),
-						    (ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
-						     ? _("Occupied") : _("in Do not Disturb")),
-						    ev->getAwayMessage() ),
+						    Glib::ustring(ev->getContact()->getNameAlias()),
+						    Glib::ustring((ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
+						     ? _("Occupied") : _("in Do not Disturb"))),
+						    Glib::ustring(ev->getAwayMessage()) ),
 				  0.0, 0.5 ) );
   label->set_justify(Gtk::JUSTIFY_FILL);
   label->set_line_wrap(true);

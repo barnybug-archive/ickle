@@ -77,9 +77,9 @@ class UserInfoDialog : public Gtk::Dialog,
   bool update_contact();
   void update_from_userinfo();
 
-  static std::string format_time(time_t t);
-  static std::string format_IP_and_port(unsigned int ip, unsigned short port);
-  static std::string format_date(unsigned char day, unsigned char month, unsigned short year);
+  static Glib::ustring format_time(time_t t);
+  static Glib::ustring format_IP_and_port(unsigned int ip, unsigned short port);
+  static Glib::ustring format_date(unsigned char day, unsigned char month, unsigned short year);
 
   // -- library callbacks --
   void status_change_cb(ICQ2000::StatusChangeEvent *ev);
