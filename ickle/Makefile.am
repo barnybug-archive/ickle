@@ -15,11 +15,11 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp \
 		MessageBox.cpp AddUserDialog.cpp \
                 Icons.cpp UserInfoDialog.cpp \
 		AddMobileUserDialog.cpp SettingsDialog.cpp \
-		PromptDialog.cpp
+		PromptDialog.cpp History.cpp
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h \
                  ContactListView.h MessageBox.h AddUserDialog.h \
                  Icons.h UserInfoDialog.h AddMobileUserDialog.h \
-		 SettingsDialog.h PromptDialog.h
+		 SettingsDialog.h PromptDialog.h History.h
 ickle_LDADD = -L$(top_srcdir)/src/ -licq2000
 ickle_DEPENDENCIES = $(top_srcdir)/src/.libs/libicq2000.a
 

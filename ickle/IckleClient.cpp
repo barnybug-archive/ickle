@@ -85,10 +85,12 @@ void IckleClient::loadContactList() {
 	  string mobile_no = cs.getValueString("mobile_no");
 	  if (!mobile_no.empty()) c.setMobileNo(mobile_no);
 	  m_fmap[c.getUIN()] = string(*nextp);
+	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
 	  icqclient.addContact(c);
 	} else {
 	  Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
 	  m_fmap[c.getUIN()] = string(*nextp);
+	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
 	  icqclient.addContact(c);
 	}
       }
@@ -98,6 +100,17 @@ void IckleClient::loadContactList() {
   }
 
   globfree( &gr );
+}
+
+History IckleClient::history_filename(const string& s) {
+  ostringstream ostr;
+  if ( s.find( ".user", s.size() - 5 ) != -1) {
+    ostr << s.substr( 0, s.size() - 5 );
+  } else {
+    ostr << s;
+  }
+  ostr << ".history";
+  return History( ostr.str() );
 }
 
 void IckleClient::processCommandLine(int argc, char* argv[]) {
@@ -272,6 +285,7 @@ void IckleClient::user_info_cb(unsigned int uin) {
 
 void IckleClient::send_event_cb(MessageEvent *ev) {
   icqclient.SendEvent(ev);
+  m_histmap[ev->getContact()->getUIN()].log(ev, false);
 }
 
 void IckleClient::add_user_cb(unsigned int uin) {
@@ -315,6 +329,8 @@ bool IckleClient::message_cb(MessageEvent *ev) {
   } else if (ev->getType() == MessageEvent::SMS) {
     event_system("event_sms");
   }
+  m_histmap[ev->getContact()->getUIN()].log(ev, true);
+
   return false;
 }
 
@@ -347,6 +363,7 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       }
       // ensure uniqueness
       m_fmap[c->getUIN()] = filename.str();
+      m_histmap[c->getUIN()] = history_filename( filename.str() );
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {

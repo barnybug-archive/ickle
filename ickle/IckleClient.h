@@ -50,6 +50,7 @@
 #include "Settings.h"
 #include "SettingsDialog.h"
 #include "constants.h"
+#include "History.h"
 #include "Icons.h"
 
 using SigC::slot;
@@ -64,6 +65,7 @@ class IckleClient : public SigC::Object {
   Status status;
 
   hash_map<unsigned int, string> m_fmap;
+  hash_map<unsigned int, History> m_histmap;
 
   Connection socket_read_cb_cnt, ping_server_cnt;
   int socket_read_cb_fd;
@@ -75,6 +77,7 @@ class IckleClient : public SigC::Object {
   void loadContactList();
 
   void event_system(const string& s);
+  History history_filename(const string& s);
 
  public:
   IckleClient(int argc, char* argv[]);
