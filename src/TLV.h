@@ -23,7 +23,13 @@
 
 #include <iostream>
 #include <string>
+
+#ifdef HAVE_EXT_HASH_MAP
+#include <ext/hash_map>
+#else
 #include <hash_map>
+#endif
+
 #include <string.h>
 #include <stdlib.h>
 #include <memory>

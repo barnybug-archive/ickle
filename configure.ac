@@ -26,8 +26,12 @@ dnl Switch to C++ mode and check for needed C++ headers
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
-AC_CHECK_HEADERS([vector iostream fstream string algorithm list hash_map memory iterator exception utility],,
+AC_CHECK_HEADERS([vector iostream fstream string algorithm list memory iterator exception utility],,
   AC_MSG_ERROR(You need to have the libstdc++ headers installed))
+
+AC_CHECK_HEADERS(ext/hash_map,,
+  AC_CHECK_HEADER(hash_map,, AC_MSG_ERROR(Your libstdc++ installation does not have the extra hash classes)))
+
 AC_CHECK_HEADER(sstream,, AC_MSG_ERROR(Although you appear to have libstdc++ headers installed you will need a newer version such as those which come with gcc 2.95.3 or later))
 
 AC_LANG_RESTORE

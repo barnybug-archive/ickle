@@ -27,7 +27,12 @@
 #include <gtk--/main.h>
 #include <sigc++/signal_system.h>
 
+#ifdef HAVE_EXT_HASH_MAP
+#include <ext/hash_map>
+#else
 #include <hash_map>
+#endif
+
 #include <list>
 #include <sstream>
 

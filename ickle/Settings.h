@@ -25,7 +25,13 @@
 #define SETTINGS_H
 
 #include <string>
+
+#ifdef HAVE_EXT_HASH_MAP
+#include <ext/hash_map>
+#else
 #include <hash_map>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
