@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.14 2002-01-25 18:01:01 nordman Exp $
+/* $Id: History.cpp,v 1.15 2002-03-12 19:43:54 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -35,6 +35,7 @@ using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
 using ICQ2000::SMSMessageEvent;
 using ICQ2000::SMSReceiptEvent;
+using ICQ2000::EmailExEvent;
 using ICQ2000::Contact;
 
 using std::endl;
@@ -149,6 +150,15 @@ void History::log(MessageEvent *ev, bool received) throw(runtime_error) {
     of << "Message: ";
     quote_output( of, srev->getMessage() );
     of << endl;
+  } else if (ev->getType() == MessageEvent::EmailEx) {
+
+    EmailExEvent *ee = static_cast<EmailExEvent*>(ev);
+    he.message = ee->getMessage();
+
+    of << "Type: EmailExpress" << endl
+       << "Message: ";
+    quote_output( of, ee->getMessage() );
+    of << endl;
   }
   of.close();
   new_entry.emit( &he );
@@ -240,6 +250,8 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range,runtime_error) {
         e.type = MessageEvent::SMS;
       else if( s2 == "SMSReceipt" )
         e.type = MessageEvent::SMS_Receipt;
+      else if( s2 == "EmailExpress" )
+        e.type = MessageEvent::EmailEx;
       else if( s2 == "URL" )
         e.type = MessageEvent::URL;
     }

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.76 2002-03-06 22:18:30 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.77 2002-03-12 19:43:54 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -877,72 +877,80 @@ void IckleClient::loadContact(const string& s, bool self)
   
   cs.defaultValueUnsignedInt("uin", 0);
   unsigned int uin = cs.getValueUnsignedInt("uin");
-  if (uin != 0) { // ICQ user
-    Contact *c;
-    if (self) c = icqclient.getSelfContact();
-    else c = new Contact(uin);
+
+  Contact *c;
+  if (self) c = icqclient.getSelfContact();
+  else {
+    if (uin != 0)
+      c = new Contact(uin); // construct a real contact
+    else
+      c = new Contact();    // construct a virtual contact
+  }
       
-    // only needed for backward compatibility
-    // (history_file settingsentry only exists for v >= 0.2.2)
+  // only needed for backward compatibility
+  // (history_file settingsentry only exists for v >= 0.2.2)
+  if (c->isICQContact()) {
+
+    /* for 'real' contacts, we name the history file fixed to something
+       sensible (user might want to grep it, etc..) */
     ostringstream historyfile;
     historyfile << uin << ".history";
     cs.defaultValueString("history_file", historyfile.str() );
 
-    cs.defaultValueUnsignedChar("age", 0, 0, 150);
-    cs.defaultValueUnsignedChar("sex", 0, 0, 2);
-    cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
-    cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
-    cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
+  } else {
 
-    string alias = cs.getValueString("alias");
-    c->setAlias(alias);
-    c->setMobileNo(cs.getValueString("mobile_no"));
-    c->setFirstName(cs.getValueString("firstname"));
-    c->setLastName(cs.getValueString("lastname"));
-    c->setEmail(cs.getValueString("email"));
-	
-    // Main Home Info
-    MainHomeInfo& mhi = c->getMainHomeInfo();
-    mhi.city = cs.getValueString("city");
-    mhi.state = cs.getValueString("state");
-    mhi.phone = cs.getValueString("phone");
-    mhi.fax = cs.getValueString("fax");
-    mhi.street = cs.getValueString("street");
-    mhi.zip = cs.getValueString("zip");
-    mhi.country = cs.getValueUnsignedShort("country");
-    mhi.timezone = cs.getValueUnsignedChar("gmt");
-	
-    // Homepage Info
-    HomepageInfo& hpi = c->getHomepageInfo();
-    hpi.age = cs.getValueUnsignedChar("age");
-    hpi.sex = cs.getValueUnsignedChar("sex");
-    hpi.homepage = cs.getValueString("homepage");
-    hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-    hpi.birth_month = cs.getValueUnsignedChar("birth_month");
-    hpi.birth_day = cs.getValueUnsignedChar("birth_day");
-    hpi.lang1 = cs.getValueUnsignedChar("lang1");
-    hpi.lang2 = cs.getValueUnsignedChar("lang2");
-    hpi.lang3 = cs.getValueUnsignedChar("lang3");
+    /* only make up the default when it actually is defaulting
+       - as the get_unique_historyname uses mkstemp so will create the file
+       no matter what */
+    if ( cs.getValueString("history_file").size() == 0 )
+      cs.defaultValueString("history_file", get_unique_historyname());
 
-    // About Info
-    c->setAboutInfo( cs.getValueString("about") );
-	
-    if (!self) {
-      m_settingsmap[c->getUIN()] = s;
-      m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
-      icqclient.addContact(*c);
-      delete c;
-    }
-      
   }
-  else if (!self) { // mobile-only user
-    Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
-    m_settingsmap[c.getUIN()] = s;
-    string s = cs.getValueString("history_file");
-    if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
-      s = get_unique_historyname();
-    m_histmap[c.getUIN()] = new History( s );
-    icqclient.addContact(c);
+
+  cs.defaultValueUnsignedChar("age", 0, 0, 150);
+  cs.defaultValueUnsignedChar("sex", 0, 0, 2);
+  cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
+  cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
+  cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
+
+  string alias = cs.getValueString("alias");
+  c->setAlias(alias);
+  c->setMobileNo(cs.getValueString("mobile_no"));
+  c->setFirstName(cs.getValueString("firstname"));
+  c->setLastName(cs.getValueString("lastname"));
+  c->setEmail(cs.getValueString("email"));
+	
+  // Main Home Info
+  MainHomeInfo& mhi = c->getMainHomeInfo();
+  mhi.city = cs.getValueString("city");
+  mhi.state = cs.getValueString("state");
+  mhi.phone = cs.getValueString("phone");
+  mhi.fax = cs.getValueString("fax");
+  mhi.street = cs.getValueString("street");
+  mhi.zip = cs.getValueString("zip");
+  mhi.country = cs.getValueUnsignedShort("country");
+  mhi.timezone = cs.getValueUnsignedChar("gmt");
+	
+  // Homepage Info
+  HomepageInfo& hpi = c->getHomepageInfo();
+  hpi.age = cs.getValueUnsignedChar("age");
+  hpi.sex = cs.getValueUnsignedChar("sex");
+  hpi.homepage = cs.getValueString("homepage");
+  hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+  hpi.birth_month = cs.getValueUnsignedChar("birth_month");
+  hpi.birth_day = cs.getValueUnsignedChar("birth_day");
+  hpi.lang1 = cs.getValueUnsignedChar("lang1");
+  hpi.lang2 = cs.getValueUnsignedChar("lang2");
+  hpi.lang3 = cs.getValueUnsignedChar("lang3");
+
+  // About Info
+  c->setAboutInfo( cs.getValueString("about") );
+	
+  if (!self) {
+    m_settingsmap[c->getUIN()] = s;
+    m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
+    icqclient.addContact(*c);
+    delete c;
   }
 }
 

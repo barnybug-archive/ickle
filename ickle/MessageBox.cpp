@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.46 2002-02-26 13:48:47 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.47 2002-03-12 19:43:54 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -573,6 +573,12 @@ void MessageBox::display_message(History::Entry &e)
     }
     ostr << endl;
     m_history_text.insert( header_context, ostr.str());
+  } else if (e.type == MessageEvent::EmailEx) {
+
+    ostr << "[email] ";
+    m_history_text.insert( header_context, ostr.str());
+    m_history_text.insert( normal_context, e.message);
+      
   }
 
 }
