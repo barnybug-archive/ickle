@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.18 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.19 2001-12-21 17:57:40 nordman Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -34,25 +34,15 @@
 #include <sigc++/signal_system.h>
 
 #include <string>
+#include <utility>
+#include <map>
 
 #include <config.h>
 
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
-#endif
-
-#include <utility>
-
 #include "main.h"
 #include "Client.h"
-
 #include "ContactList.h"
 #include "Contact.h"
-
 #include "events.h"
 #include "ContactListView.h"
 #include "MessageBox.h"
@@ -62,11 +52,9 @@
 #include "PromptDialog.h"
 #include "AwayMessageDialog.h"
 #include "History.h"
-
 #include "constants.h"
 
 using std::string;
-using std::hash_map;
 
 using SigC::Signal0;
 using SigC::Signal1;
@@ -76,8 +64,8 @@ using namespace ICQ2000;
 
 class IckleGUI : public Gtk::Window {
  private:
-  hash_map<unsigned int, MessageBox*> m_message_boxes;
-  hash_map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
+  std::map<unsigned int, MessageBox*> m_message_boxes;
+  std::map<unsigned int, UserInfoDialog*> m_userinfo_dialogs;
   Status m_status;
 
   bool m_display_times;

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.45 2001-12-19 13:40:41 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.46 2001-12-21 17:57:40 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -45,6 +45,7 @@ using std::istringstream;
 using std::ofstream;
 using std::cout;
 using std::endl;
+using std::map;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
@@ -102,7 +103,7 @@ IckleClient::~IckleClient() {
   g_icons.FreeIcons();
 
   // free History objects
-  for( hash_map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
+  for( map<unsigned int, History *>::iterator itr = m_histmap.begin(); itr != m_histmap.end(); ++itr )
     delete itr->second;
 }
 

@@ -1,4 +1,4 @@
-/* $Id: Settings.h,v 1.11 2001-12-18 19:45:10 nordman Exp $
+/* $Id: Settings.h,v 1.12 2001-12-21 17:57:40 nordman Exp $
  * 
  * Handle loading/parsing/saving of settings to
  * a configuration file
@@ -26,27 +26,14 @@
 
 #include <config.h>
 #include <string>
+#include <map>
 #include <sigc++/signal_system.h>
 
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
-#endif
-
 using std::string;
-using std::hash_map;
 
-class _HashString {
- public:
-  size_t operator()(string const &str) const { return std::hash<char const *>()(str.c_str()); }
-};
-  
 class Settings : public SigC::Object {
  private:
-  hash_map<const string,string,_HashString> m_map;
+  std::map<const string,string> m_map;
   
  public:
   Settings();

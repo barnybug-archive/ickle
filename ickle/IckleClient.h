@@ -26,16 +26,10 @@
 
 #include <sigc++/signal_system.h>
 
+#include <map>
+
 #ifdef HAVE_CONFIG_H
 # include <config.h>
-#endif
-
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
 #endif
 
 #include "main.h"
@@ -44,8 +38,6 @@
 #include "Settings.h"
 #include "constants.h"
 #include "History.h"
-
-using std::hash_map;
 
 #ifdef GNOME_ICKLE
 # include "IckleApplet.h"
@@ -67,10 +59,10 @@ class IckleClient : public SigC::Object {
   IckleApplet applet;
 #endif
 
-  hash_map<unsigned int, string> m_fmap;
-  hash_map<unsigned int, History *> m_histmap;
+  std::map<unsigned int, string> m_fmap;
+  std::map<unsigned int, History *> m_histmap;
 
-  hash_map<int, Connection> m_sockets;
+  std::map<int, Connection> m_sockets;
   Connection poll_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);

@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.11 2001-12-18 20:02:31 nordman Exp $
+/* $Id: Settings.cpp,v 1.12 2001-12-21 17:57:40 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -29,6 +29,7 @@ using std::istringstream;
 using std::ifstream;
 using std::ofstream;
 using std::endl;
+using std::map;
 
 Settings::Settings() {
   defaultSettings();
@@ -56,7 +57,7 @@ bool Settings::load(const string& filename) {
 bool Settings::save(const string& filename) {
   ofstream of( filename.c_str(), std::ios::out | std::ios::trunc );
   if (!of) return false;
-  hash_map<const string,string,_HashString>::iterator curr = m_map.begin();
+  map<const string,string>::iterator curr = m_map.begin();
   while (curr != m_map.end()) {
     of << (*curr).first << " = " << Escape((*curr).second) << endl;
     ++curr;

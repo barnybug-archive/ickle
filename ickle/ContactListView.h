@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.13 2001-12-18 19:45:10 nordman Exp $
+/* $Id: ContactListView.h,v 1.14 2001-12-21 17:57:40 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -32,14 +32,6 @@
 # include <config.h>
 #endif
 
-#ifdef HAVE_EXT_HASH_MAP
-# include <ext/hash_map>
-#elif HAVE_HASH_MAP
-# include <hash_map>
-#else
-# error "hash_map not defined"
-#endif
-
 #include "main.h"
 #include "ContactList.h"
 #include "Contact.h"
@@ -60,13 +52,6 @@ class ContactListView : public Gtk::CList {
     unsigned int msgs;
     string alias;
   };
-
-  /* The CList in Gtk and RowIterator's have no guarantee they
-   * remain valid between reorderings and insertions/deletions
-   * so I've given up using a hash of UIN to RowIterator and
-   * use a linear lookup each time instead.
-   */
-  //  hash_map<unsigned int,citerator> m_row_map;
 
   Gtk::Menu rc_popup;
 

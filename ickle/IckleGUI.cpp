@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.22 2001-12-18 22:16:52 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.23 2001-12-21 17:57:40 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,6 +21,8 @@
 #include "IckleGUI.h"
 
 #include "SettingsDialog.h"
+
+using std::map;
 
 IckleGUI::IckleGUI()
   : m_top_vbox(false),
@@ -105,11 +107,11 @@ Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
 
 IckleGUI::~IckleGUI() {
   while(!m_message_boxes.empty()) {
-    hash_map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+    map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
     (*i).second->destroy();
   }
   while(!m_userinfo_dialogs.empty()) {
-    hash_map<unsigned int, UserInfoDialog*>::iterator i = m_userinfo_dialogs.begin();
+    map<unsigned int, UserInfoDialog*>::iterator i = m_userinfo_dialogs.begin();
     (*i).second->destroy();
   }
 }
@@ -245,7 +247,7 @@ void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
 
   m_status = st;
 
-  hash_map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+  map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
   while (i != m_message_boxes.end()) {
     if (st == STATUS_OFFLINE) (*i).second->offline();
     else (*i).second->online();
@@ -296,7 +298,7 @@ void IckleGUI::setDisplayTimes(bool d) {
   if (m_display_times != d) {
     m_display_times = d;
     
-    hash_map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+    map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
     while (i != m_message_boxes.end()) {
       (*i).second->setDisplayTimes(d);
       ++i;
