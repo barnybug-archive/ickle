@@ -44,6 +44,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 
   // set up GUI callbacks
   gui.status_changed.connect(slot(this,&IckleClient::status_change_cb));
+  gui.fetch.connect( slot( this, &IckleClient::fetch_cb ) );
   gui.getContactListView()->user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
   gui.getContactListView()->user_info.connect( slot( this, &IckleClient::user_info_cb ) );
 
@@ -367,4 +368,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     // delete
     unlink( m_fmap[c->getUIN()].c_str() );
   }
+}
+
+void IckleClient::fetch_cb(Contact* c) {
+  icqclient.fetchSimpleContactInfo(c);
 }

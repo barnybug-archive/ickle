@@ -38,6 +38,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #ifdef HAVE_EXT_HASH_MAP
 #include <ext/hash_map>
@@ -84,6 +85,8 @@ class IckleGUI : public Gtk::Window {
   MenuBar m_ickle_menubar;
   Menu m_ickle_menu;
   Menu m_status_menu;
+
+  auto_ptr<UserInfoDialog> m_userinfodialog;
   // --
 
  public:
@@ -116,6 +119,7 @@ class IckleGUI : public Gtk::Window {
   Signal1<void,unsigned int> add_user;
   Signal2<void,string,string> add_mobile_user;
   Signal0<void> settings;
+  Signal1<void,Contact*> fetch;
 
   // handle wm calls
   virtual int delete_event_impl(GdkEventAny*);

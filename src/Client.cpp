@@ -238,7 +238,18 @@ namespace ICQ2000 {
       }
       */
 
+    } else if (snac->getType() == SrvResponseSNAC::SimpleUserInfo) {
+
+      // update Contact
+      if ( m_contact_list.exists( snac->getUIN() ) ) {
+	Contact& c = m_contact_list[ snac->getUIN() ];
+	c.setAlias( snac->getAlias() );
+	UserInfoChangeEvent ev(&c);
+	contactlist.emit(&ev);
+      }
+
     }
+
   }
 
   void Client::SignalLog(LogEvent::LogType type, const string& msg) {
@@ -770,6 +781,9 @@ namespace ICQ2000 {
 	FLAPFooter(b,d);
 
 	Send(b);
+
+	// fetch simple userinfo from server
+	fetchSimpleContactInfo(&c);
       }
     }
 
@@ -836,6 +850,20 @@ namespace ICQ2000 {
     } else {
       return NULL;
     }
+  }
+
+  void Client::fetchSimpleContactInfo(Contact *c) {
+    Buffer b;
+    unsigned int d;
+
+    if ( !c->isICQContact() ) return;
+
+    d = FLAPHeader(b,0x02);
+    SrvRequestSimpleUserInfo ssnac( m_uin, c->getUIN() );
+    b << ssnac;
+    FLAPFooter(b,d);
+
+    Send(b);
   }
 
   void Client::Disconnect() {

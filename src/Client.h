@@ -185,6 +185,7 @@ namespace ICQ2000 {
     void addContact(Contact& c);
     void removeContact(const unsigned int uin);
     Contact* getContact(const unsigned int uin);
+    void fetchSimpleContactInfo(Contact* c);
 
     void setServerHostname(const string& host) { m_authorizerHostname = host; }
     string getServerHostname() { return m_authorizerHostname; }

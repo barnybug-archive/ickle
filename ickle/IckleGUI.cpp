@@ -114,6 +114,10 @@ void IckleGUI::contactlist_cb(ContactListEvent *ev) {
     }
       
   }
+
+  if (et == ContactListEvent::UserInfoChange && m_userinfodialog.get() != NULL) {
+    m_userinfodialog->userinfochange_cb();
+  }
 }
 
 ContactListView* IckleGUI::getContactListView() {
@@ -211,6 +215,8 @@ void IckleGUI::setDisplayTimes(bool d) {
 }
 
 void IckleGUI::user_info_edit(Contact *c) {
-  UserInfoDialog dialog(c);
-  if (dialog.run()) icqclient.SignalUserInfoChange(c);
+  m_userinfodialog.reset(new UserInfoDialog(c));
+  m_userinfodialog->fetch.connect( bind( fetch.slot(), c) );
+  if (m_userinfodialog->run()) icqclient.SignalUserInfoChange(c);
+  m_userinfodialog.reset();
 }

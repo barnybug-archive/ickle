@@ -22,7 +22,7 @@
 
 UserInfoDialog::UserInfoDialog(Contact *c)
        : Gtk::Dialog(),
-	 okay("OK"), cancel("Cancel"),
+	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
 	 contact(c)
 {
   ostringstream ostr;
@@ -38,10 +38,12 @@ UserInfoDialog::UserInfoDialog(Contact *c)
 
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
   cancel.clicked.connect(slot(this,&UserInfoDialog::cancel_cb));
+  fetchb.clicked.connect( fetch.slot() );
 
   Gtk::Label *label;
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->pack_start(fetchb, true, true, 0);
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
@@ -70,7 +72,7 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   vbox->pack_start( *table, true, true );
 
   set_border_width(10);
-  set_usize(250,150);
+  set_usize(270,150);
   show_all();
 }
 
@@ -101,5 +103,8 @@ void UserInfoDialog::cancel_cb() {
   Gtk::Main::quit();
 }
 
-
+void UserInfoDialog::userinfochange_cb() {
+  alias_entry.set_text( contact->getAlias() );
+  mobileno_entry.set_text( contact->getMobileNo() );
+}
 

@@ -464,13 +464,26 @@ namespace ICQ2000 {
     unsigned short Subtype() const { return SNAC_SRV_Send; }
   };
 
+  class SrvRequestSimpleUserInfo : public SrvFamilySNAC, public OutSNAC {
+   private:
+    unsigned int m_my_uin, m_user_uin;
+
+   protected:
+    void OutputBody(Buffer& b) const;
+
+   public:
+    SrvRequestSimpleUserInfo(unsigned int my_uin, unsigned int user_uin);
+    unsigned short Subtype() const { return SNAC_SRV_Send; }
+  };
+
   class SrvResponseSNAC : public SrvFamilySNAC, public InSNAC {
    public:
     enum ResponseType {
       OfflineMessage,
       OfflineMessagesComplete,
       SMS_Error,
-      SMS_Response
+      SMS_Response,
+      SimpleUserInfo
     };
 
    protected:
@@ -487,9 +500,18 @@ namespace ICQ2000 {
     unsigned int m_sender_UIN;
     ICQSubType *m_icqsubtype;
 
+    // SimpleUserInfo fields
+    unsigned int m_uin;
+    string m_alias, m_first_name, m_last_name, m_email;
+    bool m_authreq;
+    unsigned char m_status;
+
     void ParseBody(Buffer& b);
-    void ParseSMSResponse(Buffer& b);
+    void ParseICQResponse(Buffer& b);
     void ParseOfflineMessage(Buffer& b);
+    void ParseSMSError(Buffer& b);
+    void ParseSMSResponse(Buffer& b);
+    void ParseSimpleUserInfo(Buffer &b);
     
    public:
     SrvResponseSNAC();
@@ -507,6 +529,12 @@ namespace ICQ2000 {
     ICQSubType *getICQSubType() const { return m_icqsubtype; }
     unsigned int getSenderUIN() const { return m_sender_UIN; }
     time_t getTime() const { return m_time; }
+
+    unsigned int getUIN() const { return m_uin; }
+    string getAlias() const { return m_alias; }
+    string getFirstName() const { return m_first_name; }
+    string getLastName() const { return m_last_name; }
+    string getEmail() const { return m_email; }
 
     unsigned short Subtype() const { return SNAC_SRV_Response; }
   };

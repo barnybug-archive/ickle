@@ -65,12 +65,6 @@ namespace ICQ2000 {
     const Contact& operator*() const { return (*iter).second; }
   };
 
-  // Grr.. I wish they'd included hashing for strings by default 
-  class HashString {
-   public:
-    size_t operator()(string const &str) const { return hash<char const *>()(str.c_str()); }
-  };
-  
   class ContactList {
   private:
     hash_map<unsigned int,Contact> m_cmap;

@@ -29,17 +29,20 @@
 #include <gtk--/entry.h>
 #include <gtk--/table.h>
 
+#include <sigc++/signal_system.h>
+
 #include <sstream>
 
 #include "Contact.h"
 
 using namespace std;
+using namespace SigC;
 
 using ICQ2000::Contact;
 
 class UserInfoDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel;
+  Gtk::Button okay, cancel, fetchb;
   Gtk::Entry uin_entry, alias_entry, mobileno_entry;
 
   Contact *contact;
@@ -52,6 +55,10 @@ class UserInfoDialog : public Gtk::Dialog {
 
   void okay_cb();
   void cancel_cb();
+
+  void userinfochange_cb();
+
+  Signal0<void> fetch;
 };
 
 #endif

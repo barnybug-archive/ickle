@@ -97,6 +97,7 @@ class IckleClient : public SigC::Object {
   void add_user_cb(unsigned int uin);
   void add_mobile_user_cb(string,string);
   void settings_cb();
+  void fetch_cb(Contact *c);
 
   // -- Callback for socket ready for read --
   void socket_read_cb(int source, GdkInputCondition cond);

@@ -530,7 +530,7 @@ namespace ICQ2000 {
 
     b.setEndianness(Buffer::BIG);
 
-    // don't know what this is
+    // SMS send subtype
     b << (unsigned short)0x8214;
 
     // not sure about what this means
@@ -584,6 +584,24 @@ namespace ICQ2000 {
 
   }
 
+  SrvRequestSimpleUserInfo::SrvRequestSimpleUserInfo(unsigned int my_uin, unsigned int user_uin)
+    : m_my_uin(my_uin), m_user_uin(user_uin) { }
+
+  void SrvRequestSimpleUserInfo::OutputBody(Buffer& b) const {
+    b << (unsigned short)0x0001
+      << (unsigned short)0x0010;
+
+    b.setEndianness(Buffer::LITTLE);
+    b << (unsigned short)0x000e;
+    b << m_my_uin;
+
+    b << (unsigned short)2000
+      << (unsigned short)0x0000
+      << (unsigned short)1311
+      << m_user_uin;
+    
+  }
+
   SrvResponseSNAC::SrvResponseSNAC() : m_icqsubtype(NULL) { }
 
   SrvResponseSNAC::~SrvResponseSNAC() {
@@ -631,7 +649,7 @@ namespace ICQ2000 {
       unsigned char waste_char;
       b >> waste_char;
     } else if (command_type == 2010) {
-      ParseSMSResponse(b);
+      ParseICQResponse(b);
     } else {
       throw ParseException("Unknown command type for Server Response SNAC");
     }
@@ -663,22 +681,34 @@ namespace ICQ2000 {
     b.advance(2); // unknown
   }
 
-  void SrvResponseSNAC::ParseSMSResponse(Buffer& b) {
+  void SrvResponseSNAC::ParseICQResponse(Buffer& b) {
 
     /* Subtype
      * 1 = an error
      * 100 = sms response - problem 
      * 150 = sms response - ok ??
+     * 410 = simple user info
      */
     unsigned short subtype;
     b >> subtype;
 
-    if (subtype == 1) {
-      m_type = SMS_Error;
-      return;
-    }
-    if (subtype != 100 && subtype != 150) throw ParseException("Unknown subtype for SMS response SNAC");
+    if (subtype == 1)
+      ParseSMSError(b);
+    else if (subtype == 100 || subtype == 150)
+      ParseSMSResponse(b);
+    else if (subtype == 410)
+      ParseSimpleUserInfo(b);
+    else
+      throw ParseException("Unknown ICQ subtype for Server response SNAC");
 
+  }
+
+  void SrvResponseSNAC::ParseSMSError(Buffer& b) {
+    m_type = SMS_Error;
+    // to do - maybe?
+  }
+
+  void SrvResponseSNAC::ParseSMSResponse(Buffer& b) {
     /* Not sure what the difference between 100 and 150 is
      * when successful it sends the erroneous 100 and then 150
      * otherwise only 150 I think
@@ -759,6 +789,38 @@ namespace ICQ2000 {
 
 
   }
+
+  void SrvResponseSNAC::ParseSimpleUserInfo(Buffer& b) {
+    m_type = SimpleUserInfo;
+
+    unsigned char wb;
+    b >> wb; // status code ?
+
+    unsigned short ws;
+    b >> ws; // unknown
+
+    b >> m_uin;
+
+    b.UnpackUint16StringNull(m_alias);
+    b.UnpackUint16StringNull(m_first_name);
+    b.UnpackUint16StringNull(m_last_name);
+    b.UnpackUint16StringNull(m_email);
+
+    // Auth required
+    b >> wb;
+    if (wb == 0) m_authreq = true;
+    else m_authreq = false;
+
+    // Status
+    b >> m_status;
+
+    b >> wb; // unknown
+
+    unsigned int wi;
+    b >> wi; // end marker ?
+
+  }
+
 
   // -------------- Other Stuff -----------------------------------
 

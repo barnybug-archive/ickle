@@ -77,6 +77,7 @@ class Buffer {
   void Unpack(string& s, int size);
 
   void UnpackUint32String(string& s);
+  void UnpackUint16StringNull(string& s);
 
   unsigned char& operator[](unsigned int p);
 

@@ -61,6 +61,12 @@ void Buffer::UnpackUint32String(string& s) {
   Unpack(s, l);
 }
 
+void Buffer::UnpackUint16StringNull(string& s) {
+  unsigned short sh;
+  (*this) >> sh;
+  Unpack(s, sh-1);
+}
+
 void Buffer::Unpack(string& s, int size) {
   if (size > data.size()-out_pos) size = data.size()-out_pos;
   copy(data.begin()+out_pos, data.begin()+out_pos+size, back_inserter(s));
