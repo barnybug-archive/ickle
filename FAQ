@@ -1,0 +1,189 @@
+
+,--------------------------------------------------------------------,
+|                                                                    |
+|                  ickle - A Gtk-- ICQ2000 Client                    |
+|                                                                    |
+|                    Frequently asked questions                      |
+|                        (and answers too)                           |
+`--------------------------------------------------------------------'
+
+                                      http://ickle.sourceforge.net/
+
+				      
+
+
+
+ --------------------------------------------------------------------
+ - The Questions                                                    -
+ --------------------------------------------------------------------
+
+  -------------------------------------------------------------------
+  - Inquisitive questions                                           -
+  -------------------------------------------------------------------
+
+1. ickle doesn't support feature X that I really want, why not?
+
+2. Will file transfers be implemented?
+
+3. Why the name 'ickle'?
+
+4. Why do my messages very occasionally not get through to contacts
+
+5. I'd like to use your library for my own client.
+
+  -------------------------------------------------------------------
+  - Compile problems                                                -
+  -------------------------------------------------------------------
+
+1. ickle fails to compile with the problem 'libsigc++ sane: no',
+   what does 'sane' mean and how do I fix it?
+
+2. ickle fails right at the end of make in compiling with lots of
+errors about symbols. I'm using gcc 3.0.
+
+3. Why does ickle require all these libraries, I can't do with having
+   that!
+
+ --------------------------------------------------------------------
+ - The Answers                                                      -
+ --------------------------------------------------------------------
+
+  -------------------------------------------------------------------
+  - Inquisitive questions                                           -
+  -------------------------------------------------------------------
+
+Q. ickle doesn't support feature X that I really want, why not?
+
+A. There are lots of parts to the ICQ protocol, and to the user
+interface too, and coding all takes time. By all means send a feature
+request to the author, but bear in mind developers have limited time
+and might be tens of other features all queued up.
+
+Better still, write a patch yourself and contribute! The wonders of
+opensource! Developers are usually very happy to help out people
+wanting to get into their source-code and contribute, so please do
+contact us.
+
+Failing that, bribery and corruption is always an option, sending me
+free beer will often persuade me your feature X is much more important
+than say features D or E. :-)
+
+ --------------------------------------------------------------------
+
+Q. Will file transfers be implemented?
+
+A. As you might have seen in the TODO, file transfers and chat I put
+on the list of things I'll never likely do. I've come around a bit in
+opinion since writing that, and I may well implement file transfers
+soon, even if I believe there are more 'unix' ways of doing these
+things. I can see how for getting along with Windows people it
+matters.
+
+ --------------------------------------------------------------------
+
+Q. Why the name 'ickle'?
+
+A. A long story.. ask me someother time. Needless to say it isn't
+related to the size of ickle any more, since the code has grown ooh,
+at least 10 fold since the first release for sure.
+
+ --------------------------------------------------------------------
+
+Q. Why do my messages very occasionally not get through to contacts?
+
+This is due to the ICQ protocol, not bugs in ickle. Well it shouldn't
+be at least. The protocol has three ways of sending messages - direct,
+through server and offline. Some clients won't accept direct messages
+for whatever reason (behind firewall, etc..), and other clients won't
+accept through server messages (usually those older than 2000
+protocol). So sometimes we have to resort to sending as an offline
+message to a contact. Offline messages (unlike direct/through server)
+don't get acked, so if you see the status in the message box as 'Sent
+message offline', then there isn't particularly any guarantee it has
+been received at the other end. Conversely, both direct and through
+server are acknowledged, so a message indicating 'Sent message direct'
+or 'Sent message through server' does guarantee the other end ack'ed
+it.
+
+ --------------------------------------------------------------------
+
+Q. I'd like to use your library for my own client.
+
+A. Sure, the library libicq2000 is a separate part now, with a
+different development team working on it, check out:
+http://libicq2000.sourceforge.net/
+
+  -------------------------------------------------------------------
+  - Compile problems                                                -
+  -------------------------------------------------------------------
+
+Q. ickle fails to compile with the problem 'libsigc++ sane: no',
+   what does 'sane' mean and how do I fix it?
+
+A. This is one of the configure checks for a library that ickle
+needs. First libsigc++ checks for the 'sigc-config' script located on
+your system, which will indicate whether on sigc++ has been
+installed. If you're getting to the sane check, then you've got this
+far, so it has found some of libsigc++ on your system. Failing the
+sane check means that when it compiled a test program using libsigc++
+the program either failed to compile properly or failed to run.
+
+Now to the solution:
+
+Usually the most common reason is that it can't find the actual
+library (the .so file).
+
+First check that the path you installed the library to is in
+/etc/ld.so.conf. If you compiled and installed without any parameters
+to configure, it will be installed in /usr/local/lib, so open up
+/etc/ld.so.conf in your favourite text editor and check that the line
+'/usr/local/lib' is in it. If you have to add it then rerun the
+program 'ldconfig' as root to update your library cache (just trust
+me on this one).
+
+Otherwise, it probably means you've installed a newer version of
+libsigc++ over an older one.. the best solution is to clear out your
+system of any traces of libsigc++ and then do a complete reinstall of
+libsigc++ from your new version of sources.
+To do this, as root:
+$ find / -name '*sigc++*' 
+and check the list produced really doesn't contain anything essential,
+then do:
+$ rm -Rf `find / -name '*sigc++*'`
+(notice those are single quotes round the *sigc++* and backticks
+around the whole find command)
+$ rm -Rf `find / -name sigc-config`
+
+Hopefully that'll solve it.
+
+ --------------------------------------------------------------------
+
+Q. ickle fails right at the end of make in compiling with lots of
+errors about missing symbols. I'm using gcc 3.0.
+
+A. gcc 3.0 is quite a major change from the 2.9x series, and as such
+breaks binary compatability with libraries. You'd be advised to
+investigate which libraries are failing to link against, and seek down
+updated packages for gcc 3.0 for those libraries, or recompile these
+libraries from source.
+
+ --------------------------------------------------------------------
+
+Q. Why does ickle require all these libraries, I can't do with having
+   that!
+
+A. ickle is programmed in C++ which does seem to demand some more
+libraries than a C application, but this is usually just because there
+are fewer C++ applications around, so people are less likely to have
+the required libraries already installed. I've gone to a lot of
+trouble to keep the requirements down, and I've listed all the
+distributions I know of that include packages for the required
+libraries, so hopefully this'll make your life a little easier. You
+are not alone if you are having compile problems, and it is nor a bad
+sign of sloppy coding, it is a sign of how diverse opensource
+operating systems are. (That's good). Compile problems can be tracked
+down and solved, so don't feel like you're the only one having
+problems, or that you're any denser than the coders.. send me an
+email!
+
+ --------------------------------------------------------------------
