@@ -369,8 +369,8 @@ bool UserInfoDialog::update_contact()
       hpi.lang3 = lang;
     }
 
-    if ( contact->getAboutInfo() != about_text.get_chars() ) {
-      contact->setAboutInfo( about_text.get_chars() );
+    if ( contact->getAboutInfo() != about_text.get_chars(0,-1) ) {
+      contact->setAboutInfo( about_text.get_chars(0,-1) );
       ret = true;
     }
 
