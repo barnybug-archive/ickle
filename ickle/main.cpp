@@ -23,6 +23,8 @@
 
 #include <gtkmm/main.h>
 
+#include <csignal>
+
 #include "ickle.h"
 #include "ucompose.h"
 #include "utils.h"
@@ -35,6 +37,7 @@
 #include <libicq2000/Client.h>
 
 #include "sighandler.h"
+
 
 using std::string;
 using std::cout;
@@ -53,6 +56,14 @@ string TRANSLATIONS_DIR;
 string ICONS_DIR;
 string PID_FILENAME;
 
+IckleClient *client;
+
+void handle_sig (int signum)
+{
+  if (signum == SIGTERM)
+	client->exit_cb();
+}
+
 int main(int argc, char* argv[])
 {
   try
@@ -67,16 +78,19 @@ int main(int argc, char* argv[])
 
     /* handle segfaults */
     sighandler_init();
+    signal (SIGTERM, handle_sig);
 
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();
     UserInfoHelpers::initialize();
     
-    IckleClient client(argc, argv);
-    if (!client.check_pid_file()) return -1;
-    client.init();    // finish initialising
+    client = new IckleClient (argc, argv);
+    if (!client->check_pid_file()) return -1;
+    client->init();    // finish initialising
 
     gtkmain.run();
+    
+    delete client;
 
     return 0;
   }
