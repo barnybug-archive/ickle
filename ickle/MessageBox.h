@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.20 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.21 2002-04-07 11:50:09 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -112,6 +112,9 @@ class MessageBox : public Gtk::Window {
   
   gint focus_in_event_impl(GdkEventFocus* p0);
   gint focus_out_event_impl(GdkEventFocus* p0);
+
+  void history_page_up();
+  void history_page_down();
 
   static bool isBlank(const std::string& s);
 

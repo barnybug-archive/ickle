@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.91 2002-04-04 23:47:49 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.92 2002-04-07 11:50:09 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -626,10 +626,10 @@ string IckleClient::get_unique_historyname() throw (runtime_error)
 }
 
 void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
-  /*
   ostringstream ostr;
-  ostr << "IckleClient::socket_cb " << source << " cond: " << cond;
-  SignalLog(LogEvent::INFO, ostr.str());
+  /*
+    ostr << "IckleClient::socket_cb " << source << " cond: " << cond;
+    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
   */
 
   icqclient.socket_cb(source, (ICQ2000::SocketEvent::Mode)cond);
@@ -690,7 +690,7 @@ void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
     if (cev->isRead()) ostr << " for read";
     if (cev->isWrite()) ostr << " for write";
     if (cev->isException()) ostr << " for exception";
-    SignalLog(LogEvent::INFO, ostr.str());
+    SignalLog(ICQ2000::LogEvent::INFO, ostr.str());
     */
 
     if (m_sockets.count(fd) > 0) {

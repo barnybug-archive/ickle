@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.52 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: MessageBox.cpp,v 1.53 2002-04-07 11:50:09 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -316,13 +316,31 @@ void MessageBox::raise() const {
 }
 
 gint MessageBox::key_press_cb(GdkEventKey* ev) {
+
+  if (ev->state & GDK_CONTROL_MASK) {
+    if (ev->keyval == GDK_Page_Up) {
+      history_page_up();
+      return true;
+    } else if (ev->keyval == GDK_Page_Down) {
+      history_page_down();
+      return true;
+    }
+  }
+
+  // key shortcuts dependant on online/offline
   if (m_online) {
     if (ev->state & GDK_CONTROL_MASK ) {
-      if (ev->keyval == GDK_Return || ev->keyval == GDK_KP_Enter)
+      if (ev->keyval == GDK_Return || ev->keyval == GDK_KP_Enter) {
         m_send_button.clicked();
+	return true;
+      }
+      
     } else if (ev->state & GDK_MOD1_MASK) {
-      if (ev->keyval == GDK_s)
+      if (ev->keyval == GDK_s) {
         m_send_button.clicked();
+	return true;
+      }
+      
     }
   }
 
@@ -331,6 +349,56 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
     destroy.emit();
 
   return false;
+}
+
+void MessageBox::history_page_up()
+{
+  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
+  gfloat p = adj->get_value();
+  
+  if (p <= adj->get_lower()) {
+    // horizontal scroller
+    p = m_scaleadj.get_value();
+    p -= m_scaleadj.get_page_increment();
+    if (p < m_scaleadj.get_lower()) p = m_scaleadj.get_lower();
+
+    if (p != m_scaleadj.get_value()) {
+      m_scaleadj.set_value(p);
+      adj->set_value( adj->get_upper() );
+    }
+    
+  } else {
+    // vertical scroller
+    p -= adj->get_page_increment();
+    if (p < adj->get_lower()) p = adj->get_lower();
+    adj->set_value( p );
+  }
+}
+
+void MessageBox::history_page_down()
+{
+  Gtk::Adjustment *adj = m_history_text.get_vadjustment();
+  gfloat p = adj->get_value();
+  if (p + adj->get_page_size() >= adj->get_upper()) {
+    // horizontal scroller
+    p = m_scaleadj.get_value();
+    p += m_scaleadj.get_page_increment();
+    if (p + m_scaleadj.get_page_size() > m_scaleadj.get_upper())
+      p = m_scaleadj.get_upper() - m_scaleadj.get_page_size();
+    if (p < m_scaleadj.get_lower()) p = m_scaleadj.get_lower();
+
+    if (p != m_scaleadj.get_value()) {
+      m_scaleadj.set_value(p);
+      adj->set_value( adj->get_lower() );
+    }
+    
+  } else {
+    // vertical scroller
+    p += adj->get_page_increment();
+    if (p + adj->get_page_size() >= adj->get_upper()) p = adj->get_upper() - adj->get_page_size();
+    if (p < adj->get_lower()) p = adj->get_lower();
+    adj->set_value( p );
+  }
 }
 
 void MessageBox::set_contact_title() {
