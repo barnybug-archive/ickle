@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.h,v 1.1 2002-01-09 20:20:26 nordman Exp $
+/* $Id: IdleTimer.h,v 1.2 2002-01-10 11:43:10 nordman Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -22,6 +22,10 @@
 
 #ifndef XIDLER_H
 #define XIDLER_H
+
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <time.h>
 #include <sigc++/signal_system.h>
