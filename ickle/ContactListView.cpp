@@ -146,7 +146,8 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
     if (row_iter == rows().end()) row_iter = rows().begin();
   }
 
-  moveto( (*row_iter).get_row_num(), 0 );
+  if (!row_is_visible((*row_iter).get_row_num()))
+    moveto( (*row_iter).get_row_num(), 0 );
 
   return Gtk::CList::key_press_event_impl(ev);
 }
