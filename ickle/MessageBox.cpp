@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.29 2001-12-16 14:38:42 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.30 2001-12-17 18:58:07 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -36,6 +36,7 @@ using SigC::bind;
 using SigC::slot;
 using std::ostringstream;
 using std::endl;
+using std::exception;
 
 MessageBox::MessageBox(Contact *c, History *h)
   : m_contact(c),
