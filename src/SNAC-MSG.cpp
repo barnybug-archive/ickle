@@ -257,10 +257,6 @@ namespace ICQ2000 {
 
       AdvMsgDataTLV *t = static_cast<AdvMsgDataTLV*>(tlvlist[TLV_AdvMsgData]);
       m_icqsubtype = t->grabICQSubType();
-      if (m_icqsubtype != NULL && dynamic_cast<UINRelatedSubType*>(m_icqsubtype) != NULL) {
-	UINRelatedSubType *ust = dynamic_cast<UINRelatedSubType*>(m_icqsubtype);
-	ust->setSource( m_userinfo.getUIN() );
-      }
 
     } else if (channel == 0x0004) {
       TLVList tlvlist;
@@ -286,7 +282,12 @@ namespace ICQ2000 {
       throw ParseException(ostr.str());
 
     }
-    
+
+    if (m_icqsubtype != NULL && dynamic_cast<UINRelatedSubType*>(m_icqsubtype) != NULL) {
+      UINRelatedSubType *ust = dynamic_cast<UINRelatedSubType*>(m_icqsubtype);
+      ust->setSource( m_userinfo.getUIN() );
+    }
+   
   }
 
   MessageACKSNAC::MessageACKSNAC()
