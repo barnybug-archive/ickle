@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.63 2002-06-04 20:40:56 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.64 2002-06-04 22:32:41 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -221,7 +221,8 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   hbox = manage( new Gtk::HBox() );
   m_send_urgent.set_group( m_send_normal.group() );
   m_send_tocontactlist.set_group( m_send_normal.group() );
-  if (self->getStatus() == ICQ2000::STATUS_DND || ICQ2000::STATUS_OCCUPIED) m_send_tocontactlist.set_active(true);
+  if (m_contact->getStatus() == ICQ2000::STATUS_DND
+      || m_contact->getStatus() == ICQ2000::STATUS_OCCUPIED) m_send_tocontactlist.set_active(true);
 
   hbox->pack_end( m_send_normal, false );
   hbox->pack_end( m_send_urgent, false );
