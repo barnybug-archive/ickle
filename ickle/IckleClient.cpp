@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.75 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.76 2002-03-06 22:18:30 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -153,7 +153,11 @@ void IckleClient::loadContactList() {
 
   Dir::iterator dirit = dir.begin();
   while( dirit != dir.end() ) {
-    loadContact( *dirit, false );
+    try {
+      loadContact( *dirit, false );
+    } catch(runtime_error& e) {
+      SignalLog(LogEvent::WARN, e.what());
+    }
     ++dirit;
   }
 
@@ -214,7 +218,9 @@ void IckleClient::SignalLog(LogEvent::LogType type, const string& msg) {
   
 void IckleClient::loadSettings() {
   // load in settings
-  if (!g_settings.load(BASE_DIR + "ickle.conf")) {
+  try {
+    g_settings.load(BASE_DIR + "ickle.conf");
+  } catch (runtime_error& e) {
     ostringstream ostr;
     ostr << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
 	 << "This is probably the first time you've run ickle.";
@@ -223,24 +229,36 @@ void IckleClient::loadSettings() {
 
   /*
    * Default settings & limits to numerical values
-   * 
    */
   g_settings.defaultValueBool("away_autoposition", true);
   g_settings.defaultValueUnsignedShort("auto_away", 0, 0, 65535);
   g_settings.defaultValueUnsignedShort("auto_na", 0, 0, 65535);
   g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 0, 10);
+
+  /* Default log settings */
   g_settings.defaultValueBool("log_to_console", true);
   g_settings.defaultValueBool("log_to_file", false);
+  g_settings.defaultValueBool("log_info", false);
+  g_settings.defaultValueBool("log_error", true);
+  g_settings.defaultValueBool("log_warn", true);
+  g_settings.defaultValueBool("log_packet", false);
+  g_settings.defaultValueBool("log_directpacket", false);
+
+  /* Default geometry for main window */
   g_settings.defaultValueUnsignedInt("geometry_width", 130, 30, 1000);
   g_settings.defaultValueUnsignedInt("geometry_height", 300, 30, 2000);
   g_settings.defaultValueUnsignedInt("geometry_x", 50, 0);
   g_settings.defaultValueUnsignedInt("geometry_y", 50, 0);
+
+  /* Default connection/network settings */
   g_settings.defaultValueUnsignedInt("autoconnect",STATUS_OFFLINE,STATUS_ONLINE,STATUS_OFFLINE);
   g_settings.defaultValueString("network_login_host", "login.icq.com");
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
   g_settings.defaultValueBool("network_override_port", false);
   g_settings.defaultValueBool("network_in_dc", true);
   g_settings.defaultValueBool("network_out_dc", true);
+
+  /* Default message box settings */
   g_settings.defaultValueBool("message_autopopup", false);
   g_settings.defaultValueBool("message_autoraise", true);
   g_settings.defaultValueBool("message_autoclose", false);
@@ -342,7 +360,9 @@ void IckleClient::saveSettings() {
   // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
   mode_t old_umask = umask(0077);
 
-  if ( !g_settings.save(ickle_conf) ) {
+  try {
+    g_settings.save(ickle_conf);
+  } catch(runtime_error& e) {
     ostringstream ostr;
     ostr << "Couldn't save " << BASE_DIR << "ickle.conf";
     SignalLog(LogEvent::ERROR, ostr.str());
@@ -361,9 +381,13 @@ void IckleClient::saveSettings() {
   for( map<unsigned int, string>::iterator itr = m_settingsmap.begin(); itr != m_settingsmap.end(); ++itr ) {
     if( itr->first != icqclient.getUIN() ) {
       Settings st;
-      st.load( itr->second );
-      st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
-      st.save( itr->second );
+      try {
+	st.load( itr->second );
+	st.setValue( "history_file", m_histmap[itr->first]->getFilename() );
+	st.save( itr->second );
+      } catch(runtime_error& e) {
+	SignalLog(LogEvent::ERROR, e.what());
+      }
     }
   }
 }
@@ -832,7 +856,11 @@ void IckleClient::saveContact(Contact *c, const string& s)
   // About Info
   user.setValue( "about", c->getAboutInfo() );
 
-  user.save(s);
+  try {
+    user.save(s);
+  } catch(runtime_error& e) {
+    SignalLog(LogEvent::ERROR, e.what());
+  }
 }
  
 
@@ -844,82 +872,87 @@ void IckleClient::saveSelfContact()
 void IckleClient::loadContact(const string& s, bool self)
 {
   Settings cs;
-  if (cs.load(s)) {
-    cs.defaultValueUnsignedInt("uin", 0);
-    unsigned int uin = cs.getValueUnsignedInt("uin");
-    if (uin != 0) { // ICQ user
-      Contact *c;
-      if (self) c = icqclient.getSelfContact();
-      else c = new Contact(uin);
+  cs.load(s);
+  // don't catch runtime_error here - let it propogate up to next level
+  
+  cs.defaultValueUnsignedInt("uin", 0);
+  unsigned int uin = cs.getValueUnsignedInt("uin");
+  if (uin != 0) { // ICQ user
+    Contact *c;
+    if (self) c = icqclient.getSelfContact();
+    else c = new Contact(uin);
       
-      // only needed for backward compatibility
-      // (history_file settingsentry only exists for v >= 0.2.2)
-      ostringstream historyfile;
-      historyfile << uin << ".history";
-      cs.defaultValueString("history_file", historyfile.str() );
+    // only needed for backward compatibility
+    // (history_file settingsentry only exists for v >= 0.2.2)
+    ostringstream historyfile;
+    historyfile << uin << ".history";
+    cs.defaultValueString("history_file", historyfile.str() );
 
-      cs.defaultValueUnsignedChar("age", 0, 0, 150);
-      cs.defaultValueUnsignedChar("sex", 0, 0, 2);
-      cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
-      cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
-      cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
+    cs.defaultValueUnsignedChar("age", 0, 0, 150);
+    cs.defaultValueUnsignedChar("sex", 0, 0, 2);
+    cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
+    cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
+    cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
 
-      string alias = cs.getValueString("alias");
-      c->setAlias(alias);
-      c->setMobileNo(cs.getValueString("mobile_no"));
-      c->setFirstName(cs.getValueString("firstname"));
-      c->setLastName(cs.getValueString("lastname"));
-      c->setEmail(cs.getValueString("email"));
+    string alias = cs.getValueString("alias");
+    c->setAlias(alias);
+    c->setMobileNo(cs.getValueString("mobile_no"));
+    c->setFirstName(cs.getValueString("firstname"));
+    c->setLastName(cs.getValueString("lastname"));
+    c->setEmail(cs.getValueString("email"));
 	
-      // Main Home Info
-      MainHomeInfo& mhi = c->getMainHomeInfo();
-      mhi.city = cs.getValueString("city");
-      mhi.state = cs.getValueString("state");
-      mhi.phone = cs.getValueString("phone");
-      mhi.fax = cs.getValueString("fax");
-      mhi.street = cs.getValueString("street");
-      mhi.zip = cs.getValueString("zip");
-      mhi.country = cs.getValueUnsignedShort("country");
-      mhi.timezone = cs.getValueUnsignedChar("gmt");
+    // Main Home Info
+    MainHomeInfo& mhi = c->getMainHomeInfo();
+    mhi.city = cs.getValueString("city");
+    mhi.state = cs.getValueString("state");
+    mhi.phone = cs.getValueString("phone");
+    mhi.fax = cs.getValueString("fax");
+    mhi.street = cs.getValueString("street");
+    mhi.zip = cs.getValueString("zip");
+    mhi.country = cs.getValueUnsignedShort("country");
+    mhi.timezone = cs.getValueUnsignedChar("gmt");
 	
-      // Homepage Info
-      HomepageInfo& hpi = c->getHomepageInfo();
-      hpi.age = cs.getValueUnsignedChar("age");
-      hpi.sex = cs.getValueUnsignedChar("sex");
-      hpi.homepage = cs.getValueString("homepage");
-      hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-      hpi.birth_month = cs.getValueUnsignedChar("birth_month");
-      hpi.birth_day = cs.getValueUnsignedChar("birth_day");
-      hpi.lang1 = cs.getValueUnsignedChar("lang1");
-      hpi.lang2 = cs.getValueUnsignedChar("lang2");
-      hpi.lang3 = cs.getValueUnsignedChar("lang3");
+    // Homepage Info
+    HomepageInfo& hpi = c->getHomepageInfo();
+    hpi.age = cs.getValueUnsignedChar("age");
+    hpi.sex = cs.getValueUnsignedChar("sex");
+    hpi.homepage = cs.getValueString("homepage");
+    hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+    hpi.birth_month = cs.getValueUnsignedChar("birth_month");
+    hpi.birth_day = cs.getValueUnsignedChar("birth_day");
+    hpi.lang1 = cs.getValueUnsignedChar("lang1");
+    hpi.lang2 = cs.getValueUnsignedChar("lang2");
+    hpi.lang3 = cs.getValueUnsignedChar("lang3");
 
-      // About Info
-      c->setAboutInfo( cs.getValueString("about") );
+    // About Info
+    c->setAboutInfo( cs.getValueString("about") );
 	
-      if (!self) {
-	m_settingsmap[c->getUIN()] = s;
-	m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
-	icqclient.addContact(*c);
-	delete c;
-      }
+    if (!self) {
+      m_settingsmap[c->getUIN()] = s;
+      m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
+      icqclient.addContact(*c);
+      delete c;
+    }
       
-    }
-    else if (!self) { // mobile-only user
-      Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
-      m_settingsmap[c.getUIN()] = s;
-      string s = cs.getValueString("history_file");
-      if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
-	s = get_unique_historyname();
-      m_histmap[c.getUIN()] = new History( s );
-      icqclient.addContact(c);
-    }
+  }
+  else if (!self) { // mobile-only user
+    Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
+    m_settingsmap[c.getUIN()] = s;
+    string s = cs.getValueString("history_file");
+    if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
+      s = get_unique_historyname();
+    m_histmap[c.getUIN()] = new History( s );
+    icqclient.addContact(c);
   }
 }
 
 void IckleClient::loadSelfContact()
 {
-  loadContact( BASE_DIR + "self.user", true );
+  try {
+    loadContact( BASE_DIR + "self.user", true );
+  } catch(runtime_error& e) {
+    // ignore
+  }
 }
 
 void IckleClient::check_pid_file(){

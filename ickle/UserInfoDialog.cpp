@@ -465,7 +465,7 @@ void UserInfoDialog::userinfochange_cb() {
   
   ostringstream ostr;
   if (contact->getLanIP() == 0 && contact->getExtIP() == 0) {
-    cout << "Unknown";
+    ostr << "Unknown";
   } else {
     ostr << IPtoString( contact->getLanIP() )
 	 << ":"

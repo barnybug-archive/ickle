@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.12 2001-12-21 17:57:40 nordman Exp $
+/* $Id: Settings.cpp,v 1.13 2002-03-06 22:18:30 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -20,6 +20,9 @@
 
 #include "Settings.h"
 
+#include <stdio.h>
+#include <unistd.h>
+
 #include <iostream>
 #include <fstream>
 #include "sstream_fix.h"
@@ -30,15 +33,23 @@ using std::ifstream;
 using std::ofstream;
 using std::endl;
 using std::map;
+using std::runtime_error;
 
 Settings::Settings() {
   defaultSettings();
 }
 
-bool Settings::load(const string& filename) {
+void Settings::load(const string& filename)
+  throw (runtime_error)
+{
 
   ifstream inf(filename.c_str());
-  if (!inf) return false;
+  if (!inf) {
+    ostringstream ostr;
+    ostr << "Settings::load: Could not open file for reading: "
+	 << filename;
+    throw runtime_error( ostr.str() );
+  }
 
   while (inf) {
     string k, t, v;
@@ -50,20 +61,48 @@ bool Settings::load(const string& filename) {
       m_map[k] = Unescape(v);
     }
   }
-
-  return true;
 }
 
-bool Settings::save(const string& filename) {
-  ofstream of( filename.c_str(), std::ios::out | std::ios::trunc );
-  if (!of) return false;
+void Settings::save(const string& filename)
+  throw (runtime_error)
+{
+
+  /* save to a temporary file first, then switch over, that way we
+     should behave better on systems run by muppets have let their
+     filesystem run down to no space left  */
+  string tempfilename = filename + ".temp";
+
+  ofstream of( tempfilename.c_str(), std::ios::out | std::ios::trunc );
+  if (!of) {
+    ostringstream ostr;
+    ostr << "Settings::save: Could not open temporary settings file to save to: "
+	 << tempfilename;
+    throw runtime_error( ostr.str() );
+  }
+  
   map<const string,string>::iterator curr = m_map.begin();
   while (curr != m_map.end()) {
     of << (*curr).first << " = " << Escape((*curr).second) << endl;
+    if (!of) {
+      of.close();
+      unlink( tempfilename.c_str() );
+      ostringstream ostr;
+      ostr << "Settings::save: Failed writing to temporary file: "
+	   << tempfilename;
+      throw runtime_error( ostr.str() );
+    }
     ++curr;
   }
   of.close();
-  return true;
+
+  // swap over temporary file to real file
+  if ( rename( tempfilename.c_str(), filename.c_str() ) == -1 ) {
+    ostringstream ostr;
+    ostr << "Settings::save: Failed renaming temporary file to replace old file: "
+	 << filename;
+    throw runtime_error( ostr.str() );
+  }
+  
 }
 
 string Settings::Escape(const string& s) {

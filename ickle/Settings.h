@@ -1,4 +1,4 @@
-/* $Id: Settings.h,v 1.13 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: Settings.h,v 1.14 2002-03-06 22:18:30 barnabygray Exp $
  * 
  * Handle loading/parsing/saving of settings to
  * a configuration file
@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include <sigc++/signal_system.h>
+#include <stdexcept>
 
 using std::string;
 using std::map;
@@ -38,8 +39,8 @@ class Settings : public SigC::Object {
  public:
   Settings();
   
-  bool load(const string& filename);
-  bool save(const string& filename);
+  void load(const string& filename) throw(std::runtime_error);
+  void save(const string& filename) throw(std::runtime_error);
   
   string         getValueString       (const string& k);
   int            getValueInt          (const string& k);
