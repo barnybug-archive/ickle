@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.27 2003-11-02 16:31:30 cborni Exp $
+/* $Id: History.cpp,v 1.28 2004-02-08 16:42:39 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -616,16 +616,23 @@ throw(std::runtime_error)
 
 /*
  * a search over the index to get the number from the file position
- * the search in quite dumb, a binary search might be better: TODO
-*/
+ * Guess the position and then shift till found.
+ * We are looking for the index before position, therefore, the last
+ * shift goes down.
+ */
 guint History::position_to_index(std::streampos position)
 {
-  for (guint i=0; i <m_size; i++)
-   {
-     if (m_index[i]>position)
-       return i-1;
-   }
-   current_search=0;
-   current_on_line=0;
-   return m_size-1;
+  guint i;
+
+  i = (position / m_index[m_size-1]) * (m_size - 1);
+  if (i >= m_size) {
+    std::cerr << "Thinko at " << __FILE__ << __LINE__ << ". Please report." << std::endl;
+    return m_size-1;
+  }
+  while  (( m_index[i] < position ) && ( i < m_size-1 ) )
+	  i++;
+  while (( m_index[i] > position ) && ( i > 0))
+	  i--;
+  return i;
+	  
 }
