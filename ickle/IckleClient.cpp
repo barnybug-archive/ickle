@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.68 2002-01-26 14:24:24 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.69 2002-01-27 23:11:45 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -41,6 +41,7 @@
 #include "Icons.h"
 #include "Dir.h"
 #include "EventSubstituter.h"
+#include "WizardDialog.h"
 
 #include <libicq2000/Client.h>
 
@@ -114,6 +115,12 @@ IckleClient::IckleClient(int argc, char* argv[])
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
   if (st != STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st ) );
+
+  if( g_settings.getValueUnsignedInt("uin") == 0 ) {
+    WizardDialog wiz;
+    if( wiz.run() ) // if we got an uin, automatically go online to allow the user to set his info
+      Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), ICQ2000::STATUS_ONLINE ) );
+  }
 }
 
 IckleClient::~IckleClient() {
@@ -229,7 +236,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("mouse_check_away_click", true);
   g_settings.defaultValueBool("spell_check", true);
   g_settings.defaultValueBool("spell_check_aspell", false);
-  
+  g_settings.defaultValueBool("initial_userinfo_done", false );
 
 #ifdef GNOME_ICKLE
   g_settings.defaultValueBool("hidegui_onstart", false);
@@ -367,6 +374,12 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
    */
   poll_server_cnt = Gtk::Main::timeout.connect( slot( this, &IckleClient::poll_server_cb ), 5000 );
   m_retries = g_settings.getValueUnsignedChar("reconnect_retries");
+
+  if( !g_settings.getValueBool("initial_userinfo_done") ) {
+    Contact *self = icqclient.getSelfContact();
+    gui.my_user_info_cb();
+    g_settings.setValue("initial_userinfo_done", true );
+  }
 }
 
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
