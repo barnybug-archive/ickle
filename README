@@ -5,8 +5,8 @@
 |                                                                    |
 `--------------------------------------------------------------------'
 
-   Version 0.3.1                     http://ickle.sourceforge.net/
-  (Codename: wookie)
+   Version 0.3.2                     http://ickle.sourceforge.net/
+  (Codename: moo)
 
 
 
@@ -90,7 +90,7 @@ ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
    ------------------------------------------------------------------
 
 You will need:
-- libicq2000 (was once part of ickle)
+- libicq2000 (0.3.2 or greater)
 - libstdc++ library
 - gtkmm version (1.2.5 or above)
 - gtk+ library
@@ -217,7 +217,7 @@ have the directory into which you installed ickle in your
 path. (usually /usr/local/bin)
 
 If you built it as a GNOME applet the executable will instead be named
-'ickle_applet'. You should then run ickle by rightclicking the panel
+'ickle_applet'. You should then run ickle by right-clicking the panel
 and choosing Applets->Network->Ickle ICQ.
 
 
@@ -445,4 +445,4 @@ ickle is released under the GNU GPL license, see COPYING for copying
 conditions.
 
 
-Thank you, and good friday.
+Thank you, and good mornin'.

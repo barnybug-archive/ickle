@@ -1,3 +1,9 @@
+20th July 2002
+
+Another minor bugfix release, fixing problems that have surfaced in
+compiling with gnome support, and compiling with the gcc 3.xx series
+of compilers.
+
 26th April 2002
 
 This is a minor bugfix release, fixing many small bugs that were found

@@ -1,3 +1,169 @@
+2002-07-20 03:41  bugcreator
+
+	* ickle/IckleApplet.cpp: Work around some evil #defines in the
+	gnome headers which caused problems elsewhere.	Yes, in theory the
+	order of the #includes shouldn't matter, but unfortunately this is
+	practice... :/
+
+2002-07-14 16:39  barnabygray
+
+	* ickle/EventSubstituter.cpp: More gcc 3.xx fixes.. thanks
+	Christian for picking these up
+
+2002-07-14 13:57  barnabygray
+
+	* ickle/EventSubstituter.cpp: Fix for g++ 3.xx
+
+2002-07-11 23:06  barnabygray
+
+	* ickle/ResendDialog.cpp: namespace fix
+
+2002-07-10 20:28  bugcreator
+
+	* control/: CommandLineParser.cpp, CommandLineParser.h,
+	IckleControl.cpp: Okay, I'm finally convinced that deriving from
+	STL containers is a bad idea (Although it wasn't really a problem
+	in this case)
+
+2002-07-06 13:16  barnabygray
+
+	* scripts/gnomeicu2ickle.pl: Updated gnomeicu conversion scripts
+	(thanks Leo)
+
+2002-07-03 21:18  bugcreator
+
+	* control/: CommandLineParser.cpp, IckleControl.cpp: Minor fixes
+
+2002-07-03 02:06  bugcreator
+
+	* ickle/MessageBox.cpp: A small nasty fix to avoid resizing of
+	controls (and messing up the position of the history scrollbar)
+	after the window has been shown
+
+2002-07-03 01:58  bugcreator
+
+	* ctrlsocket/ControlCommands.h, control/CommandLineParser.cpp,
+	control/CommandLineParser.h, control/IckleControl.cpp,
+	control/IckleControl.h, ickle/ControlHandler.cpp,
+	ickle/ControlHandler.h: Added an option to ickle_control to let it
+	change any configuration setting
+
+2002-06-25 19:08  barnabygray
+
+	* THANKS, ickle/IckleClient.cpp, ickle/IckleGUI.cpp,
+	ickle/IckleGUI.h, ickle/StatusMenu.cpp, ickle/StatusMenu.h: Nils
+	Björklund <nilbjo-0@student.luth.se> - 'connecting...' status
+	message
+
+2002-06-20 15:37  barnabygray
+
+	* Makefile.am, configure.in, pixmaps/Makefile.am: DIST stuff for
+	new pixmaps
+
+2002-06-20 15:07  barnabygray
+
+	* configure.in: Fix so libtoolize will actually be run.
+
+2002-06-16 01:01  barnabygray
+
+	* ickle/MessageBox.cpp, ickle/MessageBox.h, pixmaps/delivery.xpm,
+	pixmaps/info.xpm: Couple of little icons for message box. Toggling
+	of visibility delivery status part.
+
+2002-06-15 14:44  barnabygray
+
+	* THANKS, ickle/MessageBox.cpp, ickle/MessageBox.h: Nils Bj|rklund
+	<nilbjo-0@student.luth.se> - workaround for gtk+ table bug in
+	message box
+
+2002-06-08 14:51  barnabygray
+
+	* ickle/: History.cpp, IckleClient.cpp, IckleGUI.cpp, Icons.cpp,
+	MessageBox.cpp, MessageEvent.cpp, MessageEvent.h: Support for Web
+	Pager messages (sync with library req.)
+
+2002-06-08 12:58  barnabygray
+
+	* ickle/: IckleClient.cpp, IckleClient.h, SettingsDialog.cpp,
+	main.cpp: Fix duplicate instance check which was *ehum* majorly
+	borked.
+
+2002-06-04 23:32  barnabygray
+
+	* ickle/MessageBox.cpp: Uhem, ignore that last commit :-)
+
+2002-06-04 21:40  barnabygray
+
+	* ickle/MessageBox.cpp: Can't be arsed to revise for finals atm.
+
+2002-06-01 22:03  barnabygray
+
+	* ickle/AwayMessageDialog.cpp: Small away message fix.
+
+2002-05-21 21:52  barnabygray
+
+	* THANKS, ickle/IckleClient.cpp, ickle/IdleTimer.cpp,
+	ickle/SettingsDialog.cpp, ickle/SettingsDialog.h: Vladimir Klebanov
+	<unny@rz.uni-karlsruhe.de> - option to keep the automatically set
+	away status when returning from   idle state.
+
+2002-05-11 13:29  barnabygray
+
+	* ickle/: IckleGUI.cpp, Makefile.am, ResendDialog.cpp,
+	ResendDialog.h: Resend dialog, so messages don't have to be retyped
+	when they need to be redelivered.
+
+2002-05-07 18:48  barnabygray
+
+	* ctrlsocket/: ControlSocket.cpp, ControlSocket.h: Tweaked header
+	includes, couple of code cleanups
+
+2002-05-06 01:15  barnabygray
+
+	* FAQ, ickle/IckleClient.cpp, ickle/IckleClient.h: Retry with same
+	status
+
+2002-04-30 01:02  barnabygray
+
+	* configure.in: By default compile without -g flag, as discussed on
+	mailing list
+
+2002-04-29 00:38  barnabygray
+
+	* ickle/ContactListView.cpp: Keyseeking fix - ignore keypresses
+	only if Ctrl/Alt are pressed, also allow seeking by number too (for
+	weird people)
+
+2002-04-28 23:37  barnabygray
+
+	* Makefile.am, debian/README, debian/changelog, debian/control,
+	debian/copyright, debian/ickle-common.README.Debian,
+	debian/ickle-common.docs, debian/ickle-common.files,
+	debian/ickle-control.dirs, debian/ickle-control.files,
+	debian/ickle-control.links, debian/ickle-control.manpages,
+	debian/ickle-gnome.dirs, debian/ickle-gnome.files,
+	debian/ickle-gnome.links, debian/ickle-gnome.manpages,
+	debian/ickle-gnome.menu, debian/ickle.dirs, debian/ickle.files,
+	debian/ickle.links, debian/ickle.manpages, debian/ickle.menu,
+	debian/rules: Removed debian related stuff
+
+2002-04-27 19:50  barnabygray
+
+	* autogen.sh: Pick up alternate forms of libtool macro
+
+2002-04-27 11:22  bugcreator
+
+	* ickle/IckleGUI.cpp: This works more reliably. hopefully... I hate
+	Sawfish...
+
+2002-04-26 17:01  barnabygray
+
+	* configure.in: Increment version number.
+
+2002-04-26 17:00  barnabygray
+
+	* ChangeLog, NEWS, README: Stuff what need to be done for 0.3.1
+
 2002-04-26 14:10  barnabygray
 
 	* ickle/IckleClient.cpp: Oops.. that'll teach me to blindly cut and
