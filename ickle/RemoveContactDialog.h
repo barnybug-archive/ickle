@@ -1,6 +1,6 @@
 /*
- * AddUserDialog
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * RemoveContactDialog
+ * Copyright (C) 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef ADDUSERDIALOG_H
-#define ADDUSERDIALOG_H
+#ifndef REMOVECONTACTDIALOG_H
+#define REMOVECONTACTDIALOG_H
 
 #include <gtk--/dialog.h>
 #include <gtk--/box.h>
@@ -34,24 +34,20 @@
 
 #include <libicq2000/Contact.h>
 
-class AddUserDialog : public Gtk::Dialog {
+namespace ICQ2000
+{
+  class ContactListEvent;
+}
+
+class RemoveContactDialog : public Gtk::Dialog {
  private:
   Gtk::Button m_ok, m_cancel;
-  Gtk::Label m_uin_label;
-  Gtk::Entry m_uin_entry;
-  Gtk::RadioButton m_icq_user, m_mobile_user;
-  Gtk::CheckButton m_alert_check;
-  Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame;
-  Gtk::Label m_alias_label, m_mobileno_label;
-  Gtk::Entry m_alias_entry;
-  MobileNoEntry m_mobileno_entry;
+  ICQ2000::ContactRef m_contact;
 
-  void update_stuff();
-  void uin_changed_cb();
-  void mobileno_changed_cb();
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
 
  public:
-  AddUserDialog(Gtk::Window * parent);
+  RemoveContactDialog(Gtk::Window * parent, const ICQ2000::ContactRef& c);
 
   void ok_cb();
 };

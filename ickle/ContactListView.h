@@ -1,6 +1,8 @@
-/* $Id: ContactListView.h,v 1.23 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.24 2002-10-30 20:59:40 barnabygray Exp $
  *
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * Well actually it's a tree now.. :-)
+ *
+ * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +23,7 @@
 #ifndef CONTACTLISTVIEW_H
 #define CONTACTLISTVIEW_H
 
-#include <gtk--/clist.h>
+#include <gtk--/ctree.h>
 #include <gtk--/menu.h>
 #include <gtk--/pixmap.h>
 
@@ -29,42 +31,66 @@
 #include <string>
 
 #include "main.h"
-#include <libicq2000/ContactList.h>
+#include <libicq2000/ContactTree.h>
 #include <libicq2000/Contact.h>
 
 #include "Icons.h"
 #include "MessageQueue.h"
 
-class ContactListView : public Gtk::CList {
- private:
-  typedef Gtk::CList_Helpers::RowIterator citerator;
+using SigC::Signal1;
 
-  struct RowData {
+class ContactListView : public Gtk::CTree {
+ private:
+  typedef Gtk::CTree_Helpers::RowIterator citerator;
+
+  struct RowData 
+  {
+    enum { Contact, Group } type;
+
+    unsigned short group_id;
+    
     unsigned int uin;
     ICQ2000::Status status;
     unsigned int msgs;
     std::string alias;
   };
-
-  Gtk::Menu rc_popup;
+  
+  Gtk::Menu rc_popup_contact, rc_popup_group, rc_popup_blank;
   Gtk::MenuItem *rc_popup_away, *rc_popup_auth;
 
   MessageQueue& m_message_queue;
   class IckleGUI& m_gui;
 
+  SigC::Connection contactlist_conn;
+
   void update_row(const ICQ2000::ContactRef& c);
 
-  citerator lookupUIN(unsigned int uin);
+  citerator lookup_uin(unsigned int uin);
+  Gtk::CTree_Helpers::RowIterator get_tree_group( ICQ2000::ContactTree::Group& gp );
 
+  // contact rc callbacks
   void userinfo_cb();
-  void remove_user_cb();
+  void remove_contact_cb();
   void fetch_away_msg_cb();
   void send_auth_req_cb();
-  unsigned int current_selection_uin();
+
+  // group rc callbacks
+  void group_rename_cb();
+  void group_remove_cb();
+
+  // blank rc callbacks
+  void blank_add_group_cb();
+
+  unsigned int get_selection_contact_uin();
+  ICQ2000::ContactTree::Group* get_selection_group();
 
  protected:
-  virtual gint key_press_event_impl(GdkEventKey* ev);
-  virtual void click_column_impl(gint);
+  //  virtual gint key_press_event_impl(GdkEventKey* ev);
+
+  static void tree_move_cfunc(GtkCTree *ctree, GtkCTreeNode *child, GtkCTreeNode *parent,
+			      GtkCTreeNode *sibling, gpointer data);
+  void tree_move_impl(GtkCTree *ctree, GtkCTreeNode *child, GtkCTreeNode *parent,
+		      GtkCTreeNode *sibling, gpointer data);
 
  private:
   bool m_single_click, m_check_away_click;
@@ -97,9 +123,14 @@ class ContactListView : public Gtk::CList {
   void settings_changed_cb(const std::string&);
 
   void load_sort_column ();
-  static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
   static int status_order(ICQ2000::Status);
 
+  //  static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);
+  static gboolean drag_compare_func( GtkCTree *clist,
+				     GtkCTreeNode *source_node,
+				     GtkCTreeNode *new_parent,
+				     GtkCTreeNode *new_sibling);
+  
   // signals
   SigC::Signal1<void,unsigned int> user_popup;
   SigC::Signal1<void,unsigned int> userinfo;

@@ -1,5 +1,5 @@
 /*
- * AddUserDialog
+ * AddContactDialog
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@
  *
  */
 
-#include "AddUserDialog.h"
+#include "AddContactDialog.h"
 
 #include "main.h"
 #include <libicq2000/Client.h>
@@ -26,23 +26,26 @@
 #include <gtk--/table.h>
 #include <gtk--/buttonbox.h>
 
-AddUserDialog::AddUserDialog(Gtk::Window * parent)
+AddContactDialog::AddContactDialog(Gtk::Window * parent)
   : Gtk::Dialog(),
     m_ok("OK"), m_cancel("Cancel"),
-    m_uin_label("User Number (UIN)", 0),
-    m_icq_user("An ICQ contact (has a uin)", 0),
-    m_mobile_user("A Mobile contact (cellular)", 0),
-    m_alert_check("Alert User", 0),
+    m_icq_contact("An ICQ contact (has a uin)", 0),
+    m_alert_check("Alert Contact", 0),
+    m_mobile_contact("A Mobile contact (cellular)", 0),
     m_mode_frame("Type of contact"),
     m_icq_frame("ICQ Contacts"),
     m_mobile_frame("Mobile Contacts"),
+    m_group_frame("Group"),
     m_alias_label("Alias", 0),
-    m_mobileno_label("Mobile Number", 0, 1)
+    m_mobileno_label("Mobile Number", 0, 1),
+    m_uin_label("User Number (UIN)", 0)
 {
+  Gtk::Label *label;
+
   set_title("Add Contact");
   set_transient_for (*parent);
 
-  m_ok.clicked.connect(slot(this,&AddUserDialog::ok_cb));
+  m_ok.clicked.connect(slot(this,&AddContactDialog::ok_cb));
   m_cancel.clicked.connect( destroy.slot() );
 
   Gtk::HBox *hbox = get_action_area();
@@ -60,13 +63,13 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   // -- mode selection frame
 
   vbox2 = manage( new Gtk::VBox() );
-  m_icq_user.clicked.connect( slot( this, &AddUserDialog::update_stuff ) );
-  m_mobile_user.clicked.connect( slot( this, &AddUserDialog::update_stuff ) );
-  m_mobile_user.set_group( m_icq_user.group() );
-  m_icq_user.set_active(true);
+  m_icq_contact.clicked.connect( slot( this, &AddContactDialog::update_stuff ) );
+  m_mobile_contact.clicked.connect( slot( this, &AddContactDialog::update_stuff ) );
+  m_mobile_contact.set_group( m_icq_contact.group() );
+  m_icq_contact.set_active(true);
   vbox2->set_border_width(5);
-  vbox2->pack_start( m_icq_user );
-  vbox2->pack_start( m_mobile_user );
+  vbox2->pack_start( m_icq_contact );
+  vbox2->pack_start( m_mobile_contact );
 
   m_mode_frame.set_border_width(0);
   m_mode_frame.add( *vbox2 );
@@ -76,7 +79,7 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   table = manage( new Gtk::Table( 2, 2, false ) );
   
   table->attach( m_uin_label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 5 );
-  m_uin_entry.changed.connect( slot( this, &AddUserDialog::uin_changed_cb ) );
+  m_uin_entry.changed.connect( slot( this, &AddContactDialog::uin_changed_cb ) );
   m_uin_entry.set_max_length(12);
   table->set_border_width(5);
   table->attach( m_uin_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND );
@@ -92,7 +95,7 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   table->attach( m_alias_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
   table->attach( m_mobileno_label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 5);
-  m_mobileno_entry.changed.connect( slot( this, &AddUserDialog::mobileno_changed_cb ) );
+  m_mobileno_entry.changed.connect( slot( this, &AddContactDialog::mobileno_changed_cb ) );
   table->attach( m_mobileno_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
   m_mobile_frame.set_border_width(0);
@@ -104,9 +107,9 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   show_all();
 }
 
-void AddUserDialog::ok_cb() {
+void AddContactDialog::ok_cb() {
 
-  if (m_icq_user.get_active()) {
+  if (m_icq_contact.get_active()) {
     unsigned int uin = ICQ2000::Contact::StringtoUIN(m_uin_entry.get_text());
     if (uin == 0) return;
     
@@ -139,9 +142,9 @@ void AddUserDialog::ok_cb() {
   destroy.emit();
 }
 
-void AddUserDialog::update_stuff()
+void AddContactDialog::update_stuff()
 {
-  if (m_icq_user.get_active()) {
+  if (m_icq_contact.get_active()) {
     
     // set uin stuff sensitive
     m_uin_label.set_sensitive(true);
@@ -174,15 +177,15 @@ void AddUserDialog::update_stuff()
   }
 }
 
-void AddUserDialog::uin_changed_cb()
+void AddContactDialog::uin_changed_cb()
 {
-  if (!m_icq_user.get_active()) return;
+  if (!m_icq_contact.get_active()) return;
   unsigned int uin = ICQ2000::Contact::StringtoUIN(m_uin_entry.get_text());
   m_ok.set_sensitive( uin != 0 );
 }
 
-void AddUserDialog::mobileno_changed_cb()
+void AddContactDialog::mobileno_changed_cb()
 {
-  if (m_icq_user.get_active()) return;
+  if (m_icq_contact.get_active()) return;
   m_ok.set_sensitive( !m_mobileno_entry.get_text().empty() );
 }

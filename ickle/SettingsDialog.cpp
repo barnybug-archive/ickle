@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.54 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.55 2002-10-30 20:59:54 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -469,8 +469,8 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
     RowList& il = away_response_list.rows();
 
-    int no_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
-    for (int i = 1; i <= no_autoresponses; i++) {
+    unsigned int no_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
+    for (unsigned int i = 1; i <= no_autoresponses; i++) {
       ostringstream fetch_str, fetch_str2;
       fetch_str << "autoresponse_" << i << "_label";
       away_response_label_list.push_back( g_settings.getValueString(fetch_str.str()) );

@@ -1,5 +1,5 @@
 /*
- * AddUserDialog
+ * AddContactDialog
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -18,8 +18,8 @@
  *
  */
 
-#ifndef ADDUSERDIALOG_H
-#define ADDUSERDIALOG_H
+#ifndef ADDCONTACTDIALOG_H
+#define ADDCONTACTDIALOG_H
 
 #include <gtk--/dialog.h>
 #include <gtk--/box.h>
@@ -34,14 +34,14 @@
 
 #include <libicq2000/Contact.h>
 
-class AddUserDialog : public Gtk::Dialog {
+class AddContactDialog : public Gtk::Dialog {
  private:
   Gtk::Button m_ok, m_cancel;
   Gtk::Label m_uin_label;
   Gtk::Entry m_uin_entry;
-  Gtk::RadioButton m_icq_user, m_mobile_user;
+  Gtk::RadioButton m_icq_contact, m_mobile_contact;
   Gtk::CheckButton m_alert_check;
-  Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame;
+  Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame, m_group_frame;
   Gtk::Label m_alias_label, m_mobileno_label;
   Gtk::Entry m_alias_entry;
   MobileNoEntry m_mobileno_entry;
@@ -51,7 +51,7 @@ class AddUserDialog : public Gtk::Dialog {
   void mobileno_changed_cb();
 
  public:
-  AddUserDialog(Gtk::Window * parent);
+  AddContactDialog(Gtk::Window * parent);
 
   void ok_cb();
 };

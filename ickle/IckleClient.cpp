@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.112 2002-10-13 22:39:47 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.113 2002-10-30 20:59:41 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -67,7 +67,8 @@ IckleClient::IckleClient(int argc, char* argv[])
   : m_message_queue(),
     m_event_system(m_message_queue),
     gui( m_message_queue ),
-    status(ICQ2000::STATUS_OFFLINE)
+    status(ICQ2000::STATUS_OFFLINE),
+    m_loading(true)
 #ifdef GNOME_ICKLE
     , applet(m_message_queue)
 #endif
@@ -356,6 +357,9 @@ void IckleClient::loadSettings() {
   icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
   icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
 
+  // enable SBL support
+  icqclient.fetchServerBasedContactList();
+
   // --
 
   // Set contact list stuff
@@ -393,7 +397,24 @@ void IckleClient::loadSettings() {
 
   if (g_settings.getValueBool("spell_check"))
     gui.spell_check_setup();
+
+  // Load in Groups
+  unsigned int no_groups = g_settings.getValueUnsignedInt("no_groups");
+  for (unsigned int i = 1; i <= no_groups; i++) {
+    ostringstream fetch_str, fetch_str2;
+    string label;
+    unsigned short id;
     
+    fetch_str << "group_" << i << "_label";
+    label = g_settings.getValueString(fetch_str.str());
+    
+    fetch_str2 << "group_" << i << "_id";
+    id = g_settings.getValueUnsignedShort(fetch_str2.str());
+    
+    icqclient.getContactTree().add_group( label, id );
+  }
+
+  m_loading = false;
 }
 
 void IckleClient::saveSettings() {
@@ -437,6 +458,7 @@ void IckleClient::saveSettings() {
     ContactRef c = icqclient.getContact( itr->first );
     if (c.get() != NULL) saveContact( c, itr->second, false );
   }
+
 }
 
 void IckleClient::exit_cb() {
@@ -788,8 +810,21 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   ev->setDelivered(true);
 
   // add to contact list if not on list already
-  if (!icqclient.getContactList().exists(ev->getContact()->getUIN())) {
-    icqclient.addContact(ev->getContact());
+  ICQ2000::ContactTree& ct = icqclient.getContactTree();
+  if (!ct.exists(ev->getContact()->getUIN())) {
+    // add into 'New' group, create group if necessarily
+    ICQ2000::ContactTree::Group *gp = NULL;
+    ICQ2000::ContactTree::iterator curr = ct.begin();
+    while (curr != ct.end()) {
+      if ((*curr).get_label() == "New") {
+	gp = &(*curr);
+	break;
+      }
+      ++curr;
+    }
+    if (gp == NULL) gp = &(ct.add_group("New"));
+    
+    gp->add(ev->getContact());
     icqclient.fetchDetailContactInfo(ev->getContact());
   }
 
@@ -923,9 +958,10 @@ bool IckleClient::mkdir_BASE_DIR()
 }
 
 void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
-  ContactRef c = ev->getContact();
-
   if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
+    ICQ2000::UserAddedEvent *cev = static_cast<ICQ2000::UserAddedEvent*>(ev);
+    ContactRef c = cev->getContact();
+  
     if (m_settingsmap.count(c->getUIN()) > 0) return;
     ostringstream ostr;
 
@@ -963,8 +999,10 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
     
     saveContact( c, m_settingsmap[c->getUIN()], false );
     
-  }
-  else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
+  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
+    ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
+    ContactRef c = cev->getContact();
+
     // delete .user file for this contact
     unlink( m_settingsmap[c->getUIN()].c_str() );
 
@@ -976,10 +1014,45 @@ void IckleClient::contactlist_cb(ICQ2000::ContactListEvent *ev) {
     m_histmap.erase(c->getUIN());
     m_settingsmap.erase(c->getUIN());
 
+  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRelocated) {
+    ICQ2000::UserRelocatedEvent *cev = static_cast<ICQ2000::UserRelocatedEvent*>(ev);
+    ContactRef c = cev->getContact();
+    saveContact( c, m_settingsmap[c->getUIN()], false );
+  } else if (!m_loading && (ev->getType() == ICQ2000::ContactListEvent::GroupAdded
+	     || ev->getType() == ICQ2000::ContactListEvent::GroupRemoved
+	     || ev->getType() == ICQ2000::ContactListEvent::GroupChange)) {
+    // update g_settings and save them
+    update_group_settings();
+    //saveSettings();
   }
 }
 
-void IckleClient::settings_changed_cb() {
+void IckleClient::update_group_settings()
+{
+  // save Groups
+  ICQ2000::ContactTree& ct = icqclient.getContactTree();
+  g_settings.setValue("no_groups", ct.group_size() );
+  unsigned int i = 1;
+
+  ICQ2000::ContactTree::iterator curr = ct.begin();
+  while (curr != ct.end()) {
+    ostringstream fetch_str, fetch_str2;
+    string label;
+    unsigned short id;
+    
+    fetch_str << "group_" << i << "_label";
+    g_settings.setValue(fetch_str.str(), (*curr).get_label());
+    
+    fetch_str2 << "group_" << i << "_id";
+    g_settings.setValue(fetch_str2.str(), (*curr).get_id());
+    
+    ++i;
+    ++curr;
+  }
+}
+
+void IckleClient::settings_changed_cb()
+{
   saveSettings();
 }
 
@@ -1031,6 +1104,9 @@ void IckleClient::saveContact(ContactRef c, const string& s, bool self)
     // save history mapping
     user.setValue( "history_file", m_histmap[c->getUIN()]->getFilename() );
   }
+
+  ICQ2000::ContactTree& ct = icqclient.getContactTree();
+  user.setValue( "group_id", ct.lookup_group_containing_contact( c ).get_id() );
   
   try {
     user.save(s);
@@ -1131,7 +1207,27 @@ void IckleClient::loadContact(const string& s, bool self)
   if (!self) {
     m_settingsmap[c->getUIN()] = s;
     m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
-    icqclient.addContact(c);
+
+    ICQ2000::ContactTree& ct = icqclient.getContactTree();
+    ICQ2000::ContactTree::Group *gp = NULL;
+
+    if (cs.exists("group_id") &&
+	ct.exists_group(cs.getValueUnsignedShort("group_id"))) {
+      gp = &(ct.lookup_group(cs.getValueUnsignedShort("group_id")));
+    } else {
+      // add into 'New' group, create group if necessarily
+      ICQ2000::ContactTree::iterator curr = ct.begin();
+      while (curr != ct.end()) {
+	if ((*curr).get_label() == "New") {
+	  gp = &(*curr);
+	  break;
+	}
+	++curr;
+      }
+      if (gp == NULL) gp = &(ct.add_group("New"));
+    }
+    
+    gp->add(c);
   }
 }
 

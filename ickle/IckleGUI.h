@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.43 2002-10-13 22:39:47 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.44 2002-10-30 20:59:43 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -45,7 +45,6 @@
 
 #include "ContactListView.h"
 #include "MessageBox.h"
-#include "AddUserDialog.h"
 #include "UserInfoDialog.h"
 #include "PromptDialog.h"
 #include "AwayMessageDialog.h"
@@ -120,8 +119,8 @@ class IckleGUI : public Gtk::Window {
   void userinfo_dialog_upload_cb(ICQ2000::ContactRef c);
   
   // -- menu callbacks --
-  void add_user_cb();
-  void search_user_cb();
+  void add_contact_cb();
+  void search_contact_cb();
   void about_cb();
   void log_window_cb();
   void my_user_info_cb();

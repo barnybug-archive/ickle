@@ -205,7 +205,9 @@ void ControlHandler::cmdAddContact (ControlSocket & s)
   ICQ2000::ContactRef c = icqclient.getContact (uin);
   if (c.get() == NULL) {
     ICQ2000::ContactRef nc( new ICQ2000::Contact(uin) );
+    /* TODO
     icqclient.addContact(nc);
+    */
   }
 }
 

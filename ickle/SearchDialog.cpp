@@ -452,7 +452,9 @@ void SearchDialog::add_cb()
 
   const Row& row = sl.front();
   ContactRef *c = static_cast<ContactRef*>(row.get_data());
+  /* TODO
   icqclient.addContact( *c );
+  */
 }
 
 void SearchDialog::clist_data_destroy_cb(gpointer data)

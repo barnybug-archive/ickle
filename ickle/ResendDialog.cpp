@@ -30,6 +30,8 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
+using std::ostringstream;
+
 using std::string;
 using std::ostringstream;
 using std::endl;

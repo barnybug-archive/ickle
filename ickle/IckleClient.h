@@ -81,6 +81,8 @@ class IckleClient : public SigC::Object {
   std::map<int, Gtk::Connection> m_sockets;
   Gtk::Connection poll_server_cnt;
 
+  bool m_loading;
+
   void processCommandLine(int argc, char* argv[]);
   void usageInstructions(const char* progname);
 
@@ -104,6 +106,7 @@ class IckleClient : public SigC::Object {
   void logger_file_cb(const std::string& msg);
 
   std::string get_unique_historyname() throw (std::runtime_error);
+  void update_group_settings();
   
   bool mkdir_BASE_DIR();
 

@@ -1,6 +1,6 @@
 /*
- * AddUserDialog
- * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
+ * RemoveGroupDialog
+ * Copyright (C) 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,40 +18,43 @@
  *
  */
 
-#ifndef ADDUSERDIALOG_H
-#define ADDUSERDIALOG_H
+#ifndef REMOVEGROUPDIALOG_H
+#define REMOVEGROUPDIALOG_H
 
 #include <gtk--/dialog.h>
-#include <gtk--/box.h>
 #include <gtk--/button.h>
-#include <gtk--/label.h>
-#include <gtk--/entry.h>
 #include <gtk--/radiobutton.h>
-#include <gtk--/checkbutton.h>
-#include <gtk--/frame.h>
+#include <gtk--/combo.h>
 
-#include "MobileNoEntry.h"
+#include <libicq2000/ContactTree.h>
 
-#include <libicq2000/Contact.h>
+namespace ICQ2000
+{
+  class ContactListEvent;
+}
 
-class AddUserDialog : public Gtk::Dialog {
+class GroupItem : public Gtk::ListItem 
+{
+ private:
+  const ICQ2000::ContactTree::Group *m_libicq2000_group;
+  
+ public:
+  GroupItem(const ICQ2000::ContactTree::Group *gp, gfloat x=0.0, gfloat y=0.5);
+
+  const ICQ2000::ContactTree::Group * get_group();
+};
+
+class RemoveGroupDialog : public Gtk::Dialog {
  private:
   Gtk::Button m_ok, m_cancel;
-  Gtk::Label m_uin_label;
-  Gtk::Entry m_uin_entry;
-  Gtk::RadioButton m_icq_user, m_mobile_user;
-  Gtk::CheckButton m_alert_check;
-  Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame;
-  Gtk::Label m_alias_label, m_mobileno_label;
-  Gtk::Entry m_alias_entry;
-  MobileNoEntry m_mobileno_entry;
+  Gtk::RadioButton m_remove_all, m_move_all;
+  Gtk::Combo m_group_list;
+  ICQ2000::ContactTree::Group *m_libicq2000_group;
 
-  void update_stuff();
-  void uin_changed_cb();
-  void mobileno_changed_cb();
+  void contactlist_cb(ICQ2000::ContactListEvent *ev);
 
  public:
-  AddUserDialog(Gtk::Window * parent);
+  RemoveGroupDialog(Gtk::Window *parent, ICQ2000::ContactTree::Group *gp);
 
   void ok_cb();
 };

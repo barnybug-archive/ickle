@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.64 2002-10-13 22:39:47 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.65 2002-10-30 20:59:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,12 +21,14 @@
 #include "IckleGUI.h"
 
 #include "SettingsDialog.h"
-#include "SearchDialog.h"
 #include "AboutDialog.h"
 #include "PromptDialog.h"
 #include "Icons.h"
 #include "AuthRespDialog.h"
 #include "ResendDialog.h"
+
+#include "AddContactDialog.h"
+#include "SearchDialog.h"
 
 #include <gtk--/checkmenuitem.h>
 
@@ -90,9 +92,9 @@ IckleGUI::IckleGUI(MessageQueue& mq)
     using namespace Gtk::Menu_Helpers;
 
     MenuList& ml = m_ickle_menu.items();
-    ml.push_back( MenuElem("Add Contact", slot(this, &IckleGUI::add_user_cb)) );
+    ml.push_back( MenuElem("Add Contact", slot(this, &IckleGUI::add_contact_cb)) );
     ml.push_back( MenuElem("My User Info", slot(this, &IckleGUI::my_user_info_cb)) );
-    ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
+    ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_contact_cb)) );
     mi_search_for_contacts = ml.back();
     mi_search_for_contacts->set_sensitive(false);
     ml.push_back( MenuElem("Set Auto Response", bind<bool>(slot(this, &IckleGUI::set_auto_response_dialog), false)) );
@@ -227,11 +229,13 @@ void IckleGUI::messageack_cb(ICQ2000::MessageEvent *ev) {
 }
 
 void IckleGUI::contactlist_cb(ICQ2000::ContactListEvent *ev) {
-  ContactRef c = ev->getContact();
-  unsigned int uin = c->getUIN();
   ICQ2000::ContactListEvent::EventType et = ev->getType();
 
   if (et == ICQ2000::ContactListEvent::UserRemoved) {
+    ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
+    ContactRef c = cev->getContact();
+    unsigned int uin = c->getUIN();
+
     if (m_message_boxes.count(uin) != 0) {
       MessageBox *m = m_message_boxes[uin];
       m->destroy();
@@ -489,7 +493,7 @@ void IckleGUI::userinfo_dialog_upload_cb(ContactRef c) {
     icqclient.uploadSelfDetails();
 }
 
-void IckleGUI::search_user_cb() 
+void IckleGUI::search_contact_cb() 
 {
   SearchDialog *sd = new SearchDialog(this);
   manage( sd );
@@ -531,6 +535,10 @@ void IckleGUI::about_cb()
   about.run();
 }
 
+void IckleGUI::add_contact_cb() {
+  manage( new AddContactDialog(this) );
+}
+
 void IckleGUI::log_window_cb()
 {
   if ( m_log_window_mi->is_active() )
@@ -542,11 +550,6 @@ void IckleGUI::log_window_cb()
 void IckleGUI::log_window_hidden_cb()
 {
   if (is_realized()) m_log_window_mi->set_active(false);
-}
-
-void IckleGUI::add_user_cb() {
-  AddUserDialog *dialog = new AddUserDialog(this);
-  manage( dialog );
 }
 
 void IckleGUI::invalid_login_prompt() {
