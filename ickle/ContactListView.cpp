@@ -117,7 +117,7 @@ void ContactListView::clear() {
 gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
   char key = tolower(ev->string[0]);
 
-  if (rows.size() == 0) return Gtk::CList::key_press_event_impl(ev);
+  if (rows().size() == 0) return Gtk::CList::key_press_event_impl(ev);
 
   // Start from the currently selected row
   RowIterator row_iter, start_iter;
