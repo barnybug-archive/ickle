@@ -3,5 +3,3 @@
 ##
 
 SUBDIRS = icons translations
-
-EXTRA_DIST = translations

@@ -3,5 +3,3 @@
 ##
 
 SUBDIRS = ickle doors icq new gnomeicu
-
-EXTRA_DIST = ickle doors icq new gnomeicu
