@@ -64,7 +64,7 @@ SettingsDialog::SettingsDialog(Settings& settings)
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive an event. "
 				  "Leave them blank if you don't want anything to happen. "
-				  "They will be executed by /bin/sh, so echo \"\\a\" will work.", 0 ) );
+				  "They will be executed by /bin/sh, so echo -e \"\\a\" will work.", 0 ) );
   label->set_line_wrap(true);
   table->attach( *label, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
