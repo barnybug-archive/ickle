@@ -334,6 +334,7 @@ bool IckleControl::cmdSetting (const string & key, const string & value)
     m_socket >> r;
     if (!r) {
       cerr << "No such setting `" << key << "'" << endl;
+      return false;
     }
   }
   else {
@@ -347,6 +348,7 @@ bool IckleControl::cmdSetting (const string & key, const string & value)
       cout << v << endl;
     } else {
       cerr << "No such setting `" << key << "'" << endl;
+      return false;
     }
   }
   return true;

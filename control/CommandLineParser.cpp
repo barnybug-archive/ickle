@@ -14,7 +14,7 @@
  */
 
 #include <string>
-#include <sstream>
+#include "ickle/sstream_fix.h"
 
 #include "CommandLineParser.h"
 
@@ -28,7 +28,7 @@ using std::vector;
 
 CommandLineParser::CommandLineParser (int argc, char ** argv)
 {
-  if (argc > 1 && (argv[1])[0] != '-') throw CommandLineException ("Invalid option `" + string(argv[1]) + '\'');
+  if (argc > 1 && (argv[1])[0] != '-') throw CommandLineException ("Invalid option `" + string(argv[1]) + "'");
 
   for (int i = 1; i < argc; i++) {
     if ((argv[i])[0] == '-') {
