@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.h,v 1.1 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: MessageEvent.h,v 1.2 2002-03-31 20:35:43 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -225,6 +225,17 @@ class EmailExICQMessageEvent : public ICQMessageEvent {
   EmailExICQMessageEvent(time_t t, const ICQ2000::ContactRef& c, const std::string& msg);
 
   std::string getMessage() const;
+  ICQMessageType getICQMessageType() const;
+};
+
+/**
+ *  A 'User Added You' message
+ */
+class UserAddICQMessageEvent : public ICQMessageEvent 
+{
+ public:
+  UserAddICQMessageEvent(time_t t, const ICQ2000::ContactRef & c);
+
   ICQMessageType getICQMessageType() const;
 };
 

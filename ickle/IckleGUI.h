@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.35 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.36 2002-03-31 20:35:43 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -46,7 +46,6 @@
 #include "ContactListView.h"
 #include "MessageBox.h"
 #include "AddUserDialog.h"
-#include "AddMobileUserDialog.h"
 #include "UserInfoDialog.h"
 #include "PromptDialog.h"
 #include "AwayMessageDialog.h"
@@ -101,6 +100,7 @@ class IckleGUI : public Gtk::Window {
   void popup_messagebox(const ICQ2000::ContactRef& c, History *h);
   void popup_auth_req(const ICQ2000::ContactRef& c, AuthReqICQMessageEvent *ev);
   void popup_auth_resp(const ICQ2000::ContactRef& c, AuthAckICQMessageEvent *ev);
+  void popup_user_added_you(const ICQ2000::ContactRef& c, UserAddICQMessageEvent *ev);
   void popup_userinfo(const ICQ2000::ContactRef& c);
 
   // important - this are not passed by reference, as otherwise ref
@@ -111,7 +111,6 @@ class IckleGUI : public Gtk::Window {
   
   // -- menu callbacks --
   void add_user_cb();
-  void add_mobile_user_cb();
   void search_user_cb();
   void about_cb();
   void my_user_info_cb();
@@ -154,8 +153,6 @@ class IckleGUI : public Gtk::Window {
   // signals
   SigC::Signal0<void> settings_changed;
   SigC::Signal1<void,ICQ2000::MessageEvent*> send_event;
-  SigC::Signal1<void,unsigned int> add_user;
-  SigC::Signal2<void,std::string,std::string> add_mobile_user;
   SigC::Signal1<void,unsigned int> user_popup;
   SigC::Signal0<void> exit;
 

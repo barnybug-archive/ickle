@@ -36,6 +36,8 @@ class MobileNoEntry : public Gtk::Table {
   MobileNoEntry();
 
   string get_text() const;
+
+  SigC::Signal0<void> changed;
 };
 
 #endif

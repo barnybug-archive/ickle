@@ -14,7 +14,7 @@ LDADD = @LIBICQ2000_LIBADD@
 
 ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   Settings.cpp ContactListView.cpp MessageBox.cpp AddUserDialog.cpp	\
-  Icons.cpp UserInfoDialog.cpp AddMobileUserDialog.cpp			\
+  Icons.cpp UserInfoDialog.cpp						\
   SettingsDialog.cpp PromptDialog.cpp History.cpp MobileNoEntry.cpp	\
   Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
   SetAutoResponseDialog.cpp SearchDialog.cpp AboutDialog.cpp		\
@@ -25,7 +25,7 @@ ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   ContactListView.h MessageBox.h AddUserDialog.h		\
-  Icons.h UserInfoDialog.h AddMobileUserDialog.h		\
+  Icons.h UserInfoDialog.h					\
   SettingsDialog.h PromptDialog.h History.h			\
   MobileNoEntry.h Dir.h IckleApplet.h				\
   AwayMessageDialog.h sstream_fix.h				\

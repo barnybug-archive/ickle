@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.45 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.46 2002-03-31 20:35:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -82,7 +82,6 @@ IckleGUI::IckleGUI(MessageQueue& mq)
 
     MenuList& ml = m_ickle_menu.items();
     ml.push_back( MenuElem("Add Contact", slot(this, &IckleGUI::add_user_cb)) );
-    ml.push_back( MenuElem("Add Mobile Contact", slot(this, &IckleGUI::add_mobile_user_cb)) );
     ml.push_back( MenuElem("My User Info", slot(this, &IckleGUI::my_user_info_cb)) );
     ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
     mi_search_for_contacts = ml.back();
@@ -255,8 +254,22 @@ void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
     case ICQMessageEvent::AuthAck:
       popup_auth_resp(c, static_cast<AuthAckICQMessageEvent*>(icq));
       break;
+
+    case ICQMessageEvent::UserAdd:
+      popup_user_added_you(c, static_cast<UserAddICQMessageEvent*>(icq));
+      break;
     }
   }
+}
+
+void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent *ev)
+{
+  ostringstream ostr;
+  ostr << c->getNameAlias() << " has added you to their contact list." << endl;
+
+  PromptDialog *dialog = new PromptDialog( PromptDialog::PROMPT_INFO, ostr.str(), false );
+  manage( dialog );
+  m_message_queue.remove_from_queue(ev);
 }
 
 void IckleGUI::popup_auth_req(const ContactRef& c, AuthReqICQMessageEvent *ev)
@@ -427,12 +440,6 @@ void IckleGUI::userinfo_dialog_upload_cb(ContactRef c) {
     icqclient.uploadSelfDetails();
 }
 
-void IckleGUI::add_user_cb() {
-  AddUserDialog *dialog = new AddUserDialog();
-  manage( dialog );
-  dialog->add_user.connect( add_user.slot() );
-}
-
 void IckleGUI::search_user_cb() 
 {
   SearchDialog *sd = new SearchDialog();
@@ -475,10 +482,9 @@ void IckleGUI::about_cb()
   about.run();
 }
 
-void IckleGUI::add_mobile_user_cb() {
-  AddMobileUserDialog *dialog = new AddMobileUserDialog();
+void IckleGUI::add_user_cb() {
+  AddUserDialog *dialog = new AddUserDialog();
   manage( dialog );
-  dialog->add_mobile_user.connect( add_mobile_user.slot() );
 }
 
 void IckleGUI::invalid_login_prompt() {

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.83 2002-03-31 17:00:16 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.84 2002-03-31 20:35:42 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -117,8 +117,6 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.getContactListView()->userinfo.connect( slot( this, &IckleClient::userinfo_cb ) );
 
   gui.send_event.connect(slot(this,&IckleClient::send_event_cb));
-  gui.add_user.connect(slot(this,&IckleClient::add_user_cb));
-  gui.add_mobile_user.connect(slot(this,&IckleClient::add_mobile_user_cb));
 
   gui.setDisplayTimes(true);
 
@@ -670,20 +668,6 @@ void IckleClient::status_change_cb(ICQ2000::StatusChangeEvent *ev)
   */
 }
 
-void IckleClient::add_user_cb(unsigned int uin) {
-  ContactRef c = icqclient.getContact(uin);
-  if (c.get() == NULL) {
-    ContactRef nc(new ICQ2000::Contact(uin));
-    icqclient.addContact(nc);
-  }
-}
-
-void IckleClient::add_mobile_user_cb(string alias, string mobile_no) {
-  ContactRef nc(new ICQ2000::Contact(alias));
-  nc->setMobileNo(mobile_no);
-  icqclient.addContact( nc );
-}
-
 void IckleClient::socket_cb(ICQ2000::SocketEvent *ev) {
   
   if (dynamic_cast<ICQ2000::AddSocketHandleEvent*>(ev) != NULL) {
@@ -840,6 +824,12 @@ MessageEvent* IckleClient::convert_libicq2000_event(ICQ2000::MessageEvent *ev)
   {
     ICQ2000::EmailExEvent *cev = static_cast<ICQ2000::EmailExEvent*>(ev);
     ret = new EmailExICQMessageEvent( ev->getTime(), c, cev->getMessage() );
+    break;
+  }
+  case ICQ2000::MessageEvent::UserAdd:
+  {
+    ICQ2000::UserAddEvent *cev = static_cast<ICQ2000::UserAddEvent*>(ev);
+    ret = new UserAddICQMessageEvent( ev->getTime(), c );
     break;
   }
   default:

@@ -138,8 +138,6 @@ class IckleClient : public SigC::Object {
   void user_popup_cb(unsigned int uin);
   void userinfo_cb(unsigned int uin);
   void send_event_cb(ICQ2000::MessageEvent *ev);
-  void add_user_cb(unsigned int uin);
-  void add_mobile_user_cb(std::string, std::string);
   void fetch_cb(ICQ2000::ContactRef c);
   void exit_cb();
   gint close_cb(GdkEventAny*);

@@ -27,21 +27,34 @@
 #include <gtk--/button.h>
 #include <gtk--/label.h>
 #include <gtk--/entry.h>
+#include <gtk--/radiobutton.h>
+#include <gtk--/checkbutton.h>
+#include <gtk--/frame.h>
+
+#include "MobileNoEntry.h"
 
 #include <libicq2000/Contact.h>
 
 class AddUserDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel;
-  Gtk::Entry entry;
+  Gtk::Button m_ok, m_cancel;
+  Gtk::Label m_uin_label;
+  Gtk::Entry m_uin_entry;
+  Gtk::RadioButton m_icq_user, m_mobile_user;
+  Gtk::CheckButton m_alert_check;
+  Gtk::Frame m_mode_frame, m_icq_frame, m_mobile_frame;
+  Gtk::Label m_alias_label, m_mobileno_label;
+  Gtk::Entry m_alias_entry;
+  MobileNoEntry m_mobileno_entry;
+
+  void update_stuff();
+  void uin_changed_cb();
+  void mobileno_changed_cb();
 
  public:
   AddUserDialog();
 
-  void okay_cb();
-  void cancel_cb();
-
-  SigC::Signal1<void, unsigned int> add_user;
+  void ok_cb();
 };
 
 #endif
