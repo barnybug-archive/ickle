@@ -74,6 +74,8 @@ class IckleClient : public SigC::Object {
   Connection poll_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);
+  void usageInstructions(const char* progname);
+
   void loadSettings();
   void saveSettings();
 

@@ -43,6 +43,8 @@
 using std::ostringstream;
 using std::istringstream;
 using std::ofstream;
+using std::cout;
+using std::endl;
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
@@ -180,6 +182,8 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 
     switch(i) {
     case 'h': // help
+      usageInstructions(argv[0]);
+      exit(0);
       break;
     case 'b': // base dir
       BASE_DIR = string(optarg) + "/";
@@ -204,6 +208,14 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   DATA_DIR = string(PKGDATADIR) + "/";
   TRANSLATIONS_DIR = DATA_DIR + "translations/";
   ICONS_DIR = DATA_DIR + "icons/";
+}
+
+void IckleClient::usageInstructions(const char* progname) {
+  cout << "ickle version 0.2.0" << endl
+       << "Usage: " << progname << " [-h] [-b dir]" << endl << endl
+       << " -h : the help screen you are seeing" << endl
+       << " -b : use a different configuration directory (~/.ickle/ is the default)" << endl
+       << endl;
 }
 
 
