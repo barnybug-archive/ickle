@@ -1,30 +1,58 @@
 Source: ickle
 Section: net 
 Priority: optional
-Maintainer: Dominik 'Aeneas' Schnitzer <dominik@schnitzer.at>
-Build-Depends: debhelper (>> 3.0.0)
+Maintainer: Barnaby Gray <barnaby@beedesign.co.uk>
+Build-Depends: debhelper (>= 3), libgnome-dev, libpanel-applet-dev, autoconf (>= 2.52), automake1.5, autotools-dev
 Standards-Version: 3.5.2
 
 Package: ickle
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ickle-common (= ${Source-Version}), ${shlibs:Depends}
 Description: An ICQ2000 client for GTK+
  Ickle is an ICQ client which is able to communicate with ICQ servers
  using the new ICQ2000 protocol. This offers much better reliability
- than the older ICQ99 protocol and enables additional functionality
- such as:
-    * Sending SMS messages
-
-Package: ickle-dev
-Architecture: any
-Depends: ickle 
-Description: The development files for Ickle
- The development files for Ickle. Ickle is an ICQ2000 capable ICQ
- client.
+ than the older ICQ99 protocol. ickle has a constantly improving
+ interface, now supporting history browsing, and much more.
+ .
+ Ickle currently supports:
+    * Sending/Receiving normal messages
+    * Sending/Receiving URLs
+    * Sending/Receiving SMS messages
+    * Retrieving away messages
+ .
+ This version is compiled without gnome support, for gnome support
+ install the package `ickle-gnome'.
 
 Package: ickle-gnome
 Architecture: any
+Depends: ickle-common (= ${Source-Version}), ${shlibs:Depends}
+Description: An ICQ2000 client for GTK+ with GNOME applet
+ Ickle is an ICQ client which is able to communicate with ICQ servers
+ using the new ICQ2000 protocol. This offers much better reliability
+ than the older ICQ99 protocol. ickle has a constantly improving
+ interface, now supporting history browsing, and much more.
+ .
+ Ickle currently supports:
+    * Sending/Receiving normal messages
+    * Sending/Receiving URLs
+    * Sending/Receiving SMS messages
+    * Retrieving away messages
+ .
+ This version is compiled with gnome applet support. For the non-gnome
+ version install the package `ickle'.
+
+Package: ickle-common
+Architecture: any
+Recommends: ickle (= ${Source-Version}) | ickle-gnome (= ${Source-Version})
 Depends: ${shlibs:Depends}
-Description: The Ickle GNOME panel applet
- The GNOME panel applet for Ickle. Ickle is an ICQ2000 capable ICQ
+Description: Common elements between the ickle and ickle-gnome packages
+ This package contains the common elements between the `ickle' package
+ and the `ickle-gnome' package.
+
+Package: ickle-dev
+Architecture: any
+Depends: ickle-common
+Description: The development files for ickle
+ The development files for ickle. ickle is an ICQ2000 capable ICQ
  client.
+

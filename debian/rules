@@ -33,18 +33,31 @@ clean:
 	-$(MAKE) clean
 	dh_clean
 
-install: DH_OPTIONS=
 install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ickle
-	-$(MAKE) -C ickle/ clean
+
+	# Install the non-gnome binaries
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+
+	# Clean out ickle directory, ready for gnome compile
+	-$(MAKE) -C ickle clean
+
+	# Reconfigure for gnome and recompile
 	./configure --prefix=/usr --sysconfdir=/etc --with-gnome=yes
-	$(MAKE)
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/ickle
-	dh_movefiles --sourcedir=debian/ickle
+	$(MAKE) -C ickle
+	$(MAKE) -C ickle install DESTDIR=$(CURDIR)/debian/tmp
+
+	# Move files into the correct package directories
+	dh_movefiles
+
+	ln -s ickle-common $(CURDIR)/debian/ickle/usr/share/doc/ickle
+	ln -s ickle-common $(CURDIR)/debian/ickle-gnome/usr/share/doc/ickle-gnome
+
+binary-indep:
+# Nothing to do
 
 binary-arch: build install
 	dh_testdir -a
@@ -66,4 +79,4 @@ binary-arch: build install
 	dh_builddeb -a
 
 binary: binary-arch
-.PHONY: build clean binary-arch binary install configure
+.PHONY: build clean binary-arch binary-indep binary install configure

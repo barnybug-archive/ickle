@@ -1,3 +1,10 @@
+ickle (0.2.0-2) unstable; urgency=low
+
+  * Changed over maintainer to me
+  * Fixed debian/rules to conform better
+
+ -- Barnaby Gray <barnaby@beedesign.co.uk>  Tue, 11 Dec 2001 20:36:09 +0000
+
 ickle (0.2.0-1) unstable; urgency=low
 
   * The pending 0.2.0 release

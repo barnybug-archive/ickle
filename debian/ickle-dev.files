@@ -1,2 +1,3 @@
-usr/lib/libicq2000.so
+usr/lib/libicq2000.a
+usr/lib/libicq2000.la
 usr/include/ickle

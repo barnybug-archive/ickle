@@ -6,8 +6,12 @@ SUBDIRS = src ickle examples share
 
 EXTRA_DIST = THANKS NEWS \
  scripts/licq2ickle.pl scripts/micq2ickle.pl \
- debian/README.Debian  debian/dirs             debian/postinst  debian/rules \
- debian/changelog      debian/docs             debian/postrm                 \
- debian/control        debian/ickle.substvars  debian/preinst                \
- debian/copyright      debian/menu             debian/prerm                  
-
+ debian/README                      debian/ickle-gnome.files \
+ debian/changelog                   debian/ickle-gnome.manpages \
+ debian/control                     debian/ickle-gnome.menu \
+ debian/copyright                   debian/ickle.dirs \
+ debian/ickle-common.README.Debian  debian/ickle.files \
+ debian/ickle-common.docs           debian/ickle.manpages \
+ debian/ickle-common.files          debian/ickle.menu \
+ debian/ickle-dev.files             debian/ickle.substvars \
+ debian/ickle-gnome.dirs            debian/rules
