@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.55 2002-04-07 23:28:15 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.56 2002-04-19 15:52:46 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -84,7 +84,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
 
   Gtk::Scrollbar *scrollbar;
   
-  m_history_table.set_usize(400,140);
+  m_history_table.set_usize(400,100);
   m_history_table.attach(m_history_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,
 			 GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
   m_history_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
@@ -117,7 +117,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_history_text.set_editable(false);
   m_history_text.set_word_wrap(true);
 
-  m_pane.pack1(m_history_table, true, true);
+  m_pane.pack1(m_history_table, true, false);
 
   // -- bottom pane --
 
@@ -135,7 +135,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
 
     // -- normal message tab --
     table = manage( new Gtk::Table( 2, 1, false ) );
-    table->set_usize(400,100);
+    table->set_usize(400,50);
     table->attach(m_message_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
 		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
     scrollbar = manage( new Gtk::VScrollbar (*(m_message_text.get_vadjustment())) );
@@ -155,7 +155,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     Gtk::Box *url_hbox = manage( new Gtk::HBox() );
     Gtk::Box *url_vbox = manage( new Gtk::VBox() );
     table = manage( new Gtk::Table( 2, 1, false ) );
-    table->set_usize(400,100);
+    table->set_usize(400,50);
     table->attach(m_url_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
 		  GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
     scrollbar = manage( new Gtk::VScrollbar (*(m_url_text.get_vadjustment())) );
@@ -185,7 +185,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   Gtk::Box *sms_hbox = manage( new Gtk::HBox() );
   Gtk::Box *sms_vbox = manage( new Gtk::VBox() );
   table = manage( new Gtk::Table( 2, 1, false ) );
-  table->set_usize(400,100);
+  table->set_usize(400,50);
   table->attach(m_sms_text, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND,
 		GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
   scrollbar = manage( new Gtk::VScrollbar (*(m_sms_text.get_vadjustment())) );
@@ -230,7 +230,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
 
   pane_vbox->pack_start( *hbox, false );
 
-  m_pane.pack2(*pane_vbox, false, true);
+  m_pane.pack2(*pane_vbox, false, false);
 
   m_vbox_top.pack_start(m_pane,true,true);
 
