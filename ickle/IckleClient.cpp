@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.100 2002-04-21 14:56:19 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.101 2002-04-23 01:08:02 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -338,6 +338,13 @@ void IckleClient::loadSettings() {
     icqclient.setSMTPServerPort( 0 );
   }
     
+  if (g_settings.getValueBool("network_use_portrange")) {
+    // use a port range
+    icqclient.setUsePortRange( true );
+    icqclient.setPortRangeLowerBound( g_settings.getValueUnsignedShort("network_lower_bind_port") );
+    icqclient.setPortRangeUpperBound( g_settings.getValueUnsignedShort("network_upper_bind_port") );
+  }
+ 
   icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
   icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
 
