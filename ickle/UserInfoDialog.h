@@ -30,6 +30,8 @@
 #include <gtk--/table.h>
 #include <gtk--/notebook.h>
 #include <gtk--/text.h>
+#include <gtk--/combo.h>
+#include <gtk--/spinbutton.h>
 
 #include <sigc++/signal_system.h>
 
@@ -50,6 +52,8 @@ class UserInfoDialog : public Gtk::Dialog {
     zip_entry, country_entry, age_entry, sex_entry, homepage_entry, birthday_entry,
     lang_entry1, lang_entry2, lang_entry3;
 
+  Gtk::SpinButton birth_year_spin, birth_month_spin, birth_day_spin;
+  Gtk::Combo country_combo, lang_combo1, lang_combo2, lang_combo3, sex_combo;
   Gtk::Text about_text;
   Gtk::Notebook notebook;
 

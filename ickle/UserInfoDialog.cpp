@@ -25,6 +25,8 @@
 #include <libicq2000/socket.h>
 #include <libicq2000/userinfoconstants.h>
 
+#include <vector>
+
 using std::ostringstream;
 using SigC::slot;
 using namespace ICQ2000;
@@ -32,7 +34,8 @@ using namespace ICQ2000;
 UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   : Gtk::Dialog(), m_self(self),
     okay("OK"), cancel("Cancel"), fetchb("Fetch"),
-    contact(c), changed(false)
+    contact(c), changed(false), birth_year_spin((gfloat)1, 0), 
+    birth_month_spin((gfloat)1, 0), birth_day_spin((gfloat)1, 0)
 {
   ostringstream ostr;
   if (m_self) {
@@ -144,8 +147,12 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Country:", 0 ) );
   table->attach( *label, 2, 3, 10, 11, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
-  country_entry.set_editable(false);
-  table->attach( country_entry, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  if (m_self) {
+    table->attach( country_combo, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  } else {
+    country_entry.set_editable(false);
+    table->attach( country_entry, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+  }
 
   table->set_border_width(10);
   label = manage( new Gtk::Label( "General" ) );
@@ -161,8 +168,12 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Gender:", 0 ) );
   table->attach( *label, 2, 3, 0, 1, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  sex_entry.set_editable(false);
-  table->attach( sex_entry, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  if (m_self) {
+    table->attach( sex_combo, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  } else {
+    sex_entry.set_editable(false);
+    table->attach( sex_entry, 3, 4, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
 
   label = manage( new Gtk::Label( "Homepage:", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
@@ -171,23 +182,48 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   label = manage( new Gtk::Label( "Birthday:", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  birthday_entry.set_editable(false);
-  table->attach( birthday_entry, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  if (m_self) {
+    /* Add spinbuttons instead of entry */
+    Gtk::HBox *hbox = manage( new Gtk::HBox() );
+    label = manage( new Gtk::Label( "Year: ", 0 ) );
+    hbox->pack_start( *label );
+    hbox->pack_start( birth_year_spin );
+    label = manage( new Gtk::Label( "   Month: ", 0 ) );
+    hbox->pack_start( *label );
+    hbox->pack_start( birth_month_spin );
+    label = manage( new Gtk::Label( "   Day: ", 0 ) );
+    hbox->pack_start( *label );
+    hbox->pack_start( birth_day_spin );
+    table->attach( *hbox, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  } else {
+    birthday_entry.set_editable(false);
+    table->attach( birthday_entry, 1, 4, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
 
   label = manage( new Gtk::Label( "Language 1:", 0 ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  lang_entry1.set_editable(false);
-  table->attach( lang_entry1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
-
+  if (m_self) {
+    table->attach( lang_combo1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  } else {
+    lang_entry1.set_editable(false);
+    table->attach( lang_entry1, 1, 4, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
   label = manage( new Gtk::Label( "Language 2:", 0 ) );
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  lang_entry2.set_editable(false);
-  table->attach( lang_entry2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
-
+  if (m_self) {
+    table->attach( lang_combo2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  } else {
+    lang_entry2.set_editable(false);
+    table->attach( lang_entry2, 1, 4, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
   label = manage( new Gtk::Label( "Language 3:", 0 ) );
   table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL, 10);
-  lang_entry3.set_editable(false);
-  table->attach( lang_entry3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  if (m_self) {
+    table->attach( lang_combo3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  } else {
+    lang_entry3.set_editable(false);
+    table->attach( lang_entry3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
+  }
 
   table->set_border_width(10);
   table->set_row_spacings(5);
@@ -228,8 +264,96 @@ bool UserInfoDialog::update_contact()
     // self only editable fields
     MainHomeInfo& mhi = contact->getMainHomeInfo();
     
-    //    if (contact->
-  }
+    if (mhi.street != addr_entry.get_text()) {
+      ret = true;
+      mhi.street = addr_entry.get_text();
+    }
+    if (mhi.state != state_entry.get_text()) {
+      ret = true;
+      mhi.state = state_entry.get_text();
+    }
+    if (mhi.city != city_entry.get_text()) {
+      ret = true;
+      mhi.city = city_entry.get_text();
+    }
+    if (mhi.zip != zip_entry.get_text()) {
+      ret = true;
+      mhi.zip = zip_entry.get_text();
+    }
+    /* Have to do some work to get the country */
+    string country = country_combo.get_entry()->get_text();
+    if (mhi.getCountry() != country) {
+      ret = true;
+      for (int i = 0; i < Country_table_size; i++) {
+	if ( country == string(Country_table[i].name)) {
+	  mhi.country = Country_table[i].code;
+	}
+      }
+    }
+    HomepageInfo &hpi = contact->getHomepageInfo();
+    /* Get age from entry */
+    unsigned char age = (unsigned char)atoi(age_entry.get_text().c_str());
+    if (hpi.age != age) {
+      ret = true;
+      hpi.age = age;
+    }
+    /* Get gender from combo */
+    unsigned char sex;
+    if (sex_combo.get_entry()->get_text() == "Male") {
+      sex = SEX_MALE;
+    } else if (sex_combo.get_entry()->get_text() == "Female") {
+      sex = SEX_FEMALE;
+    } else {
+      sex = SEX_UNSPECIFIED;
+    }
+
+    if (hpi.sex != sex) {
+      ret = true;
+      hpi.sex = sex;
+    }
+    
+    if (hpi.homepage != homepage_entry.get_text()) {
+      ret = true;
+      hpi.homepage = homepage_entry.get_text();
+    }
+    if (hpi.birth_year != (unsigned char)birth_year_spin.get_value_as_int()) {
+      ret = true;
+      hpi.birth_year = (unsigned char)birth_year_spin.get_value_as_int();
+    }
+    if (hpi.birth_month != (unsigned char)birth_month_spin.get_value_as_int()) {
+      ret = true;
+      hpi.birth_month = (unsigned char)birth_month_spin.get_value_as_int();
+    }
+    if (hpi.birth_day != (unsigned char)birth_day_spin.get_value_as_int()) {
+      ret = true;
+      hpi.birth_day = (unsigned char)birth_day_spin.get_value_as_int();
+    }
+    string lang1 = lang_entry1.get_text();
+    string lang2 = lang_entry2.get_text();
+    string lang3 = lang_entry3.get_text();
+
+    for (int i = 0; i < Language_table_size; i++) {
+      if (lang1 == string(Language_table[i])) {
+	if (hpi.lang1 != i) {
+	  ret = true;
+	  hpi.lang1 = (unsigned char)i;
+	}
+      }
+      if (lang2 == string(Language_table[i])) {
+	if (hpi.lang2 != i) {
+	  ret = true;
+	  hpi.lang2 = (unsigned char)i;
+	}
+      }
+      if (lang3 == string(Language_table[i])) {
+	if (hpi.lang3 != i) {
+	  ret = true;
+	  hpi.lang3 = (unsigned char)i;
+	}
+      }
+
+    }
+  } // self info
 
   if (contact->getAlias() != alias_entry.get_text()) {
     ret = true;
@@ -300,9 +424,26 @@ void UserInfoDialog::userinfochange_cb() {
   cellular_entry.set_text( contact->getMobileNo() );
   zip_entry.set_text( contact->getMainHomeInfo().zip );
 
-  lang_entry1.set_text( contact->getHomepageInfo().getLanguage(1) );
-  lang_entry2.set_text( contact->getHomepageInfo().getLanguage(2) );
-  lang_entry3.set_text( contact->getHomepageInfo().getLanguage(3) );
+  /* Set language */
+  if (m_self) {
+    vector<string> languages1, languages2, languages3;
+    languages1.push_back( contact->getHomepageInfo().getLanguage(1) );
+    languages2.push_back( contact->getHomepageInfo().getLanguage(2) );
+    languages3.push_back( contact->getHomepageInfo().getLanguage(3) );
+
+    for (int i = 0; i < Language_table_size; i++) {
+      languages1.push_back( string(Language_table[i]) );
+      languages2.push_back( string(Language_table[i]) );
+      languages3.push_back( string(Language_table[i]) );
+    }
+    lang_combo1.set_popdown_strings(languages1);
+    lang_combo2.set_popdown_strings(languages2);
+    lang_combo3.set_popdown_strings(languages3);
+  } else {
+    lang_entry1.set_text( contact->getHomepageInfo().getLanguage(1) );
+    lang_entry2.set_text( contact->getHomepageInfo().getLanguage(2) );
+    lang_entry3.set_text( contact->getHomepageInfo().getLanguage(3) );
+  }
   
   ostringstream ostr;
   ostr << IPtoString( contact->getLanIP() )
@@ -315,7 +456,20 @@ void UserInfoDialog::userinfochange_cb() {
 
   ip_entry.set_text( ostr.str() );
 
-  country_entry.set_text( contact->getMainHomeInfo().getCountry() );
+  /* Set the right country in the combo, if we displaying info about ourselves we want to 
+     be able to change coutry. If we're displaying info for another user we do not want to 
+     edit country */
+  if (m_self) {
+    vector<string> countries;
+    countries.push_back(contact->getMainHomeInfo().getCountry());
+    for (int i = 0; i < Country_table_size; i++) {
+      countries.push_back( string(Country_table[i].name) );
+    }
+    country_combo.set_popdown_strings(countries);
+  } else {
+    country_entry.set_text(contact->getMainHomeInfo().getCountry());
+  }
+
   signed char timezone = contact->getMainHomeInfo().timezone;
   if (timezone == Timezone_unknown) {
     timezone_entry.set_text("Unknown");
@@ -341,19 +495,51 @@ void UserInfoDialog::userinfochange_cb() {
     age_entry.set_text( ostr.str() );
   }
 
-  switch( contact->getHomepageInfo().sex ) {
-  case SEX_FEMALE:
-    sex_entry.set_text("Female");
-    break;
-  case SEX_MALE:
-    sex_entry.set_text("Male");
-    break;
-  default:
-    sex_entry.set_text("Unspecified");
+  if (m_self) {
+    vector<string> gender;
+    switch( contact->getHomepageInfo().sex ) {
+    case SEX_FEMALE:
+      gender.push_back("Female");
+      gender.push_back("Male");
+      gender.push_back("Unspecified");
+      break;
+    case SEX_MALE:
+      gender.push_back("Male");
+      gender.push_back("Female");
+      gender.push_back("Unspecified");
+      break;
+    default:
+      gender.push_back("Unspecified");
+      gender.push_back("Male");
+      gender.push_back("Female");
+    }
+    sex_combo.set_popdown_strings( gender );
+  } else {
+    switch( contact->getHomepageInfo().sex ) {
+    case SEX_FEMALE:
+      sex_entry.set_text("Female");
+      break;
+    case SEX_MALE:
+      sex_entry.set_text("Male");
+      break;
+    default:
+      sex_entry.set_text("Unspecified");
+    }
   }
-
   homepage_entry.set_text( contact->getHomepageInfo().homepage );
 
-  birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
-
+  if (m_self) {
+    Gtk::Adjustment *adj;
+    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)0, (gfloat)10000) );
+    birth_year_spin.set_adjustment(adj);
+    birth_year_spin.set_value( (gfloat)contact->getHomepageInfo().birth_year );
+    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)1, (gfloat)12) );
+    birth_month_spin.set_adjustment(adj);
+    birth_month_spin.set_value( (gfloat)contact->getHomepageInfo().birth_month );
+    adj = manage( new Gtk::Adjustment( (gfloat)0, (gfloat)0, (gfloat)31) );
+    birth_day_spin.set_adjustment(adj);
+    birth_day_spin.set_value( (gfloat)contact->getHomepageInfo().birth_day );
+  } else {
+    birthday_entry.set_text( contact->getHomepageInfo().getBirthDate() );
+  }
 }
