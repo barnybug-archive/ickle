@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.3 2002-03-01 21:53:03 bugcreator Exp $
+/* $Id: StatusMenu.cpp,v 1.4 2002-03-02 15:21:55 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -47,7 +47,8 @@ StatusMenuItem::StatusMenuItem(const string& label, Status st, bool inv)
 
 void StatusMenuItem::add_status(Status st, bool inv)
 {
-  if (inv && g_settings.getValueBool("status_classic_invisibility")) {
+  if (g_settings.getValueBool("status_classic_invisibility") &&
+      inv && st != STATUS_OFFLINE) {
     add_status("Invisible", st, inv);
   } else {
     add_status(Status_text[st], st, inv);
