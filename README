@@ -4,8 +4,8 @@
 
 http://ickle.sourceforge.net/
 
-Version: 0.1
-------------
+Version: 0.1.1
+--------------
 
 This is the first release of ickle, so please be tolerant of bugs, and
 the lack of features. Given time ickle will grow bigger.
@@ -15,6 +15,7 @@ At the moment it supports:
 - URL sending/receiving
 - SMS sending/receiving, including delivery reports
 - Status changes
+- Fetching basic user info off server
 
 ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
 
@@ -62,7 +63,7 @@ SuSE 7.2 - libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm, gtk-devel.rpm,
 
 Debian based distributions (Debian, Progeny, etc..) - you will need
 these packages installed:
-libstdc++2.10
+libstdc++2.10 (stable is not recent enough)
 libstdc++2.10-dev
 libgtkmm1.2
 libgtkmm-dev
