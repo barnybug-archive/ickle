@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.23 2001-12-28 16:19:34 nordman Exp $
+/* $Id: IckleGUI.h,v 1.24 2002-01-11 01:02:08 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -43,8 +43,8 @@
 
 #include <libicq2000/ContactList.h>
 #include <libicq2000/Contact.h>
-
 #include <libicq2000/events.h>
+
 #include "ContactListView.h"
 #include "MessageBox.h"
 #include "AddUserDialog.h"
@@ -59,10 +59,6 @@
 
 using std::string;
 using std::map;
-
-using SigC::Signal0;
-using SigC::Signal1;
-using SigC::Signal2;
 
 using namespace ICQ2000;
 
@@ -106,8 +102,14 @@ class IckleGUI : public Gtk::Window {
   void userinfo_popup(Contact *c);
   void message_box_close_cb(Contact *c);
   void userinfo_dialog_close_cb(Contact *c);
+  
+  // -- menu callbacks --
   void add_user_cb();
   void add_mobile_user_cb();
+  void search_user_cb();
+  void about_cb();
+
+  // -- disconnected callbacks --
   void invalid_login_prompt();
   void turboing_prompt() ;
 
@@ -128,14 +130,14 @@ class IckleGUI : public Gtk::Window {
   void exit_cb();
 
   // signals
-  Signal0<void> settings_changed;
-  Signal1<void,Status> status_changed;
-  Signal1<void,MessageEvent*> send_event;
-  Signal1<void,unsigned int> add_user;
-  Signal2<void,string,string> add_mobile_user;
-  Signal1<void,Contact*> fetch;
-  Signal1<void,unsigned int> user_popup;
-  Signal0<void> exit;
+  SigC::Signal0<void> settings_changed;
+  SigC::Signal1<void,Status> status_changed;
+  SigC::Signal1<void,MessageEvent*> send_event;
+  SigC::Signal1<void,unsigned int> add_user;
+  SigC::Signal2<void,string,string> add_mobile_user;
+  SigC::Signal1<void,Contact*> fetch;
+  SigC::Signal1<void,unsigned int> user_popup;
+  SigC::Signal0<void> exit;
 
   // handle wm calls
   void show_impl();

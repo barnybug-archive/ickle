@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.26 2001-12-28 16:19:34 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.27 2002-01-11 01:02:08 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -21,6 +21,9 @@
 #include "IckleGUI.h"
 
 #include "SettingsDialog.h"
+#include "SearchDialog.h"
+#include "AboutDialog.h"
+
 #include "sstream_fix.h"
 
 using std::map;
@@ -64,9 +67,11 @@ IckleGUI::IckleGUI()
     using namespace Gtk::Menu_Helpers;
 
     MenuList& ml = m_ickle_menu.items();
-    ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
-    ml.push_back( MenuElem("Add Mobile User", slot(this, &IckleGUI::add_mobile_user_cb)) );
+    ml.push_back( MenuElem("Add Contact", slot(this, &IckleGUI::add_user_cb)) );
+    ml.push_back( MenuElem("Add Mobile Contact", slot(this, &IckleGUI::add_mobile_user_cb)) );
+    ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
     ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
+    ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
     MenuList& mbl = m_ickle_menubar.items();
@@ -335,6 +340,18 @@ void IckleGUI::add_user_cb() {
   if (uid != 0) {
     add_user.emit(uid);
   }
+}
+
+void IckleGUI::search_user_cb() 
+{
+  SearchDialog *sd = new SearchDialog();
+  manage( sd );
+}
+
+void IckleGUI::about_cb()
+{
+  AboutDialog about;
+  about.run();
 }
 
 void IckleGUI::add_mobile_user_cb() {

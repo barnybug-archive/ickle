@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.35 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.36 2002-01-11 01:02:09 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -448,7 +448,10 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
   } else {
     if (ev->isDirect()) {
       set_status("Sending direct failed, sending through server");
+    } else {
+      set_status("Server acknowledged message");
     }
+    
   }
 
 

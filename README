@@ -112,6 +112,17 @@ SuSE 7.2       libsigc++.rpm, libsigc++-devel.rpm, gtk.rpm,
                gtk-devel.rpm, gtkmm.rpm, gtkmm-devel.rpm, gpp.rpm,
                gppshare.rpm, libgpp.rpm
 
+Mandrake 8.1   You will need these rpms and their dependancies:
+               libstdc++2.10-devel-2.96-0.62mdk.i586.rpm
+               libgtkmm1.2-devel-1.2.7-2mdk.i586.rpm   
+               libgtk+1.2-devel-1.2.10-14mdk.i586.rpm
+               libsigc++1.0-devel-1.0.3-2mdk.i586.rpm
+               (thanks Meindert Niemeijer for contributing this)
+
+Other          At a guess similar to Mandrake 8.1, some more info is needed
+Mandrakes      here.
+
+
 For RPM distributions (Redhat, SuSE, etc..) - make sure you install
 the 'development' RPMs for all these libraries as well. Usually these
 are called library-devel.rpm or similar. I'm trying to build up a list
@@ -326,6 +337,23 @@ http://sourceforge.net/cvs/?group_id=36654
 The modulename is ickle. Once you have checked out the sources, you
 must run the autogen.sh file to generate configure. You need autoconf
 > 2.5, automake > 1.5  and libtool 1.4.2.
+
+IMPORTANT NOTE: The CVS is provided primarily for developers and
+developers alone. The fact anyone can check it out anonymously I just
+view as a convenience for these developers. If you believe it to be
+'elite' running a CVS version of a program or like running the
+'cutting-edge' then I strongly discourage use of the CVS. Timely
+releases are made of ickle when it is sufficiently stable for the
+general public. If you decide to go against this advice then be sure
+to know I will not support you in any problems you have compiling the
+CVS and I will not answer stupid/repeat questions that have been
+discussed on ickle-devel. I spend enough time supporting people who
+should be using releases on releases let alone supporting people who
+should be using releases on CVS.
+DO NOT POST QUESTIONS ABOUT THE CVS VERSION TO THE SOURCEFORGE FORUMS.
+I want discussion of CVS confined to ickle-devel. Don't let this
+dissuade legitimate developers wanting to get into the project, we are
+happy to welcome you in and help you get into the project. (End of rant).
 
 Beware though - the CVS is often unstable inbetween releases. Please
 subscribe to the ickle-devel mailing list on sourceforge to stay up to

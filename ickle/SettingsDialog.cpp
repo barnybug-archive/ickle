@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.26 2002-01-09 22:37:17 nordman Exp $
+/* $Id: SettingsDialog.cpp,v 1.27 2002-01-11 01:02:09 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -58,6 +58,8 @@ SettingsDialog::SettingsDialog()
     log_to_file("File (~/.ickle/messages.log)", 0),
     log_to_consolefile("Selected to console, all to file", 0),
     network_override_port("Override server redirect port with login port", 0),
+    network_in_dc("Accept incoming direct connections", 0),
+    network_out_dc("Make outgoing direct connections", 0),
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
@@ -200,7 +202,7 @@ SettingsDialog::SettingsDialog()
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive an event. "
 				  "Leave them blank if you don't want anything to happen. "
-                                  "Click the button to the right for a list of available subsitutions.", 0 ) );
+                                  "Click the button to the right for a list of available substitutions.", 0 ) );
   label->set_line_wrap(true);
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
@@ -381,7 +383,7 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Network ------------------------------
 
-  table = manage( new Gtk::Table( 2, 3, false ) );
+  table = manage( new Gtk::Table( 2, 5, false ) );
 
   label = manage( new Gtk::Label( "Login Host", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
@@ -399,6 +401,12 @@ SettingsDialog::SettingsDialog()
   
   network_override_port.set_active( g_settings.getValueBool("network_override_port") );
   table->attach( network_override_port, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
+
+  network_in_dc.set_active( g_settings.getValueBool("network_in_dc") );
+  table->attach( network_in_dc, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0);
+
+  network_out_dc.set_active( g_settings.getValueBool("network_out_dc") );
+  table->attach( network_out_dc, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0);
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -530,6 +538,8 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("network_login_host", network_host.get_text());
   g_settings.setValue("network_login_port", (unsigned short)network_port->get_value_as_int());
   g_settings.setValue("network_override_port", network_override_port.get_active());
+  g_settings.setValue("network_in_dc", network_in_dc.get_active());
+  g_settings.setValue("network_out_dc", network_out_dc.get_active());
 
   icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
   icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
@@ -537,6 +547,8 @@ void SettingsDialog::updateSettings() {
     icqclient.setBOSServerOverridePort(true);
     icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   }
+  icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
+  icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
   
   // ------------ Contact List tab ----------------------
   g_settings.setValue("mouse_single_click", mouse_single_click.get_active());

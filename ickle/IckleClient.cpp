@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.56 2002-01-09 22:37:17 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.57 2002-01-11 01:02:08 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifdef HAVE_GETOPT_H
 # include <getopt.h>
@@ -234,7 +238,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 }
 
 void IckleClient::usageInstructions(const char* progname) {
-  cout << "ickle version 0.2.1" << endl
+  cout << "ickle version " << ICKLE_VERSION << endl
        << "Usage: " << progname << " [-h] [-b dir]" << endl << endl
        << " -h : the help screen you are seeing" << endl
        << " -b : use a different configuration directory (~/.ickle/ is the default)" << endl
@@ -270,6 +274,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueString("network_login_host", "login.icq.com");
   g_settings.defaultValueUnsignedShort("network_login_port", 5190, 1, 65535);
   g_settings.defaultValueBool("network_override_port", false);
+  g_settings.defaultValueBool("network_in_dc", true);
+  g_settings.defaultValueBool("network_out_dc", true);
   g_settings.defaultValueBool("message_autopopup", false);
   g_settings.defaultValueBool("message_autoraise", true);
   g_settings.defaultValueBool("message_autoclose", false);
@@ -295,6 +301,10 @@ void IckleClient::loadSettings() {
     icqclient.setBOSServerOverridePort(true);
     icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   }
+  icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
+  icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
+
+  // --
 
   // Set contact list stuff
   int width, height, x, y;
@@ -448,7 +458,7 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
     return;
   }
 
-  if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED) {
+  if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED && c->getReason() != DisconnectedEvent::FAILED_DUALLOGIN) {
     --m_retries;
     Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_reconnect_cb ), icqclient.getStatus() ) );
   }
