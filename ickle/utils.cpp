@@ -173,7 +173,7 @@ namespace Utils
       strftime(time_str, 255, "%H:%M:%S", &tm);
     }
 
-    return std::string(time_str);
+    return Glib::ustring( Glib::locale_to_utf8(time_str) );
   }
 
   Glib::ustring format_IP(unsigned int ip)
