@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.79 2004-02-15 21:14:27 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.80 2004-02-29 16:14:48 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -611,7 +611,7 @@ void SettingsDialog::init_events_page()
   SectionFrame * repetition = manage( new SectionFrame( _("Repetition") ) );
   table = manage( new Gtk::Table( 2, 2 ) );
 
-  m_event_repetition_threshold.set_range(0, 10000);
+  m_event_repetition_threshold.set_range(0, 65535);
   m_event_repetition_threshold.set_digits(0);
   m_event_repetition_threshold.set_increments(1, 100);
       
