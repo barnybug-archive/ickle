@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.22 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: IckleApplet.cpp,v 1.23 2002-01-20 20:31:40 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -125,15 +125,19 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 }
 
 
-void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
+void IckleApplet::icq_selfevent_cb(SelfEvent *ev)
 {
-  if( !m_applet )
+  if( !m_applet || ev->getType() != SelfEvent::MyStatusChange )
     return;
 
   Gtk::ImageLoader *il;
+  MyStatusChangeEvent *sev = dynamic_cast<MyStatusChangeEvent *>(ev);
+
+  if( !sev )
+    g_error( "Can't cast to MyStatusChangeEvent *" );
 
   if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgs > 0)
-    il = g_icons.IconForStatus( ev->getStatus(), icqclient.getInvisible() );
+    il = g_icons.IconForStatus( sev->getStatus(), icqclient.getInvisible() );
     m_pm.set( il->pix(), il->bit() );
   }
   update_applet_tooltip();
@@ -305,7 +309,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   m_gui = &g;
 
   // setup callbacks
-  icqclient.statuschanged.connect( slot(this, &IckleApplet::icq_statuschanged_cb) );
+  icqclient.self_event.connect( slot(this, &IckleApplet::icq_selfevent_cb) );
   icqclient.messaged.connect(slot(this,&IckleApplet::icq_messaged_cb));
   icqclient.contactlist.connect(slot(this,&IckleApplet::icq_contactlist_cb));
 
