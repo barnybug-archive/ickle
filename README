@@ -29,7 +29,7 @@ You will need:
 - gtk+ library
 
 The last two should be installed if you have gtkmm working and
-installed.
+installed. Read more below for the prerequisites for the GNOME applet.
 
 Note for RPM distributions (Redhat, SuSE, etc..) - make sure you
 install the 'development' RPMs for all these libraries as
@@ -79,6 +79,33 @@ gtk: http://www.gtk.org/
 gtkmm: http://gtkmm.sourceforge.net/
 libsigc++: http://libsigc.sourceforge.net/
 
+GNOME applet:
+
+Additionally, if you want to build the GNOME applet you will also need
+the required GNOME libraries.
+
+For Debian based distributions it should suffice to have the following
+packages installed (and their dependencies as well).
+
+libgnome32
+libgnome-dev
+libpanel-applet-dev
+libpanel-applet0
+
+And for RPM based distributions the corresponding packages should suffice
+(again, along with their dependencies). The names may not be exactly the
+same but there should be a package named libpanel_applet-dev or
+libpanel_applet0-dev, having that installed along with it's dependencies 
+should probably suffice.
+
+If you encounter packages that you had to install besides the ones
+mentioned here, please help out by sending a list over the packages you
+had to install along with some info about your platform (distribution/os,
+version, etc).
+
+Sources for the GNOME libraries can be found at:
+
+http://www.gnome.org
 
 Compiling & Installation
 ------------------------
@@ -94,12 +121,21 @@ brief instructions for ickle:
 Easy as that.
 
 To run ickle you should be able to type simply 'ickle', assuming
-/usr/local/bin is in your path.
+you have the directory into which you installed ickle in (usually
+/usr/local/bin) your path.
+
+If you built it as a GNOME applet the executable will instead be
+name ickle_applet. You should then run ickle by rightclicking
+the panel and choosing Applets->Network->Ickle ICQ.
+
+The configure script will tell you whether the GNOME applet will
+be built or not.
 
 Shortcuts
 ---------
 
-Ctrl-Enter = Send Message from Message window
+Ctrl-Enter or Alt-S = Send Message from Message window
+Alt-C or ESC = Close Message window
 
 Translation (of character sets)
 -------------------------------
