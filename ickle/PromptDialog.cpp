@@ -39,6 +39,7 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
   if (modal) destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   Gtk::Button *button;
   hbox->pack_start( *hbbox );
@@ -87,9 +88,9 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
   label->set_line_wrap(true);
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *label, true, true );
-  vbox->set_border_width(5);
+  vbox->set_spacing(10);
 
-  set_border_width(5);
+  set_border_width(10);
   show_all();
 }
 

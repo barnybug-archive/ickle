@@ -39,7 +39,7 @@ SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string&
   set_title("Set Auto Response");
   set_position(GTK_WIN_POS_MOUSE);
   set_transient_for (*parent);
-  set_usize(300,150);
+  set_usize(350,150);
 
   msg_input.set_word_wrap(true);
   msg_input.insert(prev_msg);
@@ -52,6 +52,7 @@ SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string&
   autoresponse_option.button_press_event.connect( slot(this, &SetAutoResponseDialog::option_button_pressed) );
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   hbox->pack_start(autoresponse_option, true, true, 0);
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
@@ -65,7 +66,8 @@ SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string&
   table->attach (*scrollbar, 1, 2, 0, 1, 0, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
 
   Gtk::VBox *vbox = get_vbox();
-  vbox->pack_start(*table, true, true, 5);
+  vbox->set_spacing(10);
+  vbox->pack_start(*table, true, true);
 
   if (timeout) {
     timeout = g_settings.getValueBool("set_away_response_timeout");
@@ -79,7 +81,7 @@ SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string&
     timeout_connection = Gtk::Main::timeout.connect( slot( this, &SetAutoResponseDialog::auto_timeout ), 1000 );
   }
 
-  set_border_width(5);
+  set_border_width(10);
   show_all();
   msg_input.grab_focus();
 }

@@ -48,15 +48,17 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   m_cancel.clicked.connect( destroy.slot() );
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   hbbox->pack_start(m_ok, true, true, 0);
   hbbox->pack_start(m_cancel, true, true, 0);
   hbox->pack_start( *hbbox );
   
   Gtk::VBox *vbox = get_vbox();
+  vbox->set_spacing(10);
   Gtk::VBox *vbox2;
   Gtk::Table *table;
-  
+
   // -- mode selection frame
 
   vbox2 = manage( new Gtk::VBox() );
@@ -68,7 +70,7 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   vbox2->pack_start( m_icq_user );
   vbox2->pack_start( m_mobile_user );
 
-  m_mode_frame.set_border_width(5);
+  m_mode_frame.set_border_width(0);
   m_mode_frame.add( *vbox2 );
   vbox->pack_start( m_mode_frame );
 
@@ -81,7 +83,7 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   table->set_border_width(5);
   table->attach( m_uin_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND );
   table->attach( m_alert_check, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND );
-  m_icq_frame.set_border_width(5);
+  m_icq_frame.set_border_width(0);
   m_icq_frame.add( *table );
   vbox->pack_start( m_icq_frame );
 
@@ -95,12 +97,12 @@ AddUserDialog::AddUserDialog(Gtk::Window * parent)
   m_mobileno_entry.changed.connect( slot( this, &AddUserDialog::mobileno_changed_cb ) );
   table->attach( m_mobileno_entry, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
-  m_mobile_frame.set_border_width(5);
+  m_mobile_frame.set_border_width(0);
   m_mobile_frame.add( *table );
   table->set_border_width(5);
   vbox->pack_start( m_mobile_frame );
-  
-  set_border_width(5);
+
+  set_border_width(10);
   show_all();
 }
 

@@ -74,6 +74,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   Gtk::Label *label;
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   hbbox->pack_start(fetchb, true, true, 0);
   if (self)
@@ -172,7 +173,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
     table->attach( country_entry, 3, 4, 10, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
   }
 
-  table->set_border_width(10);
+  table->set_border_width(5);
   label = manage( new Gtk::Label( "General" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
@@ -262,7 +263,7 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
     table->attach( lang_entry3, 1, 4, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL, 0);
   }
 
-  table->set_border_width(10);
+  table->set_border_width(5);
   table->set_row_spacings(5);
   label = manage( new Gtk::Label( "More" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
@@ -275,11 +276,12 @@ UserInfoDialog::UserInfoDialog(Gtk::Window * parent, const ContactRef& c, bool s
   about_text.set_editable(m_self);
   table->attach( about_text, 0, 4, 1, 11, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
-  table->set_border_width(10);
+  table->set_border_width(5);
   label = manage( new Gtk::Label( "About" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem(*table, *label));
 
   Gtk::VBox *vbox = get_vbox();
+  vbox->set_spacing (10);
   vbox->pack_start( notebook, true, true );
 
   m_contact->status_change_signal.connect( slot(this, &UserInfoDialog::status_change_cb) );

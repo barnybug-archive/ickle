@@ -43,36 +43,45 @@ AuthRespDialog::AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& 
   m_cancel.clicked.connect( destroy.slot() );
   
   Gtk::VBox *vbox = get_vbox();
+  vbox->set_spacing (10);
+
+  Gtk::VBox *vbox2 = manage( new Gtk::VBox() );
+  vbox2->set_spacing(5);
   
   ostringstream ostr;
   ostr << contact->getNameAlias() << " is requesting authorisation." << endl
-       << "You should grant or refuse the request." << endl
-       << "Their request message is: " << endl
-       << ev->getMessage() << endl;
+       << "You should grant or refuse the request." << endl;
+       
+  if (!ev->getMessage().empty()) {
+    ostr << "Their request message is: " << endl << endl
+         << ev->getMessage() << endl;
+  }
   
   Gtk::Label *label = manage( new Gtk::Label( ostr.str(), 0 ) );
   label->set_justify(GTK_JUSTIFY_FILL);
   label->set_line_wrap(true);
-  vbox->pack_start( *label );
+  vbox2->pack_start( *label );
 
   m_grant.clicked.connect( slot( this, &AuthRespDialog::grant_clicked_cb ) );
-  vbox->pack_start( m_grant );
+  vbox2->pack_start( m_grant );
 
   m_refuse.clicked.connect( slot( this, &AuthRespDialog::refuse_clicked_cb ) );
   m_refuse.set_group( m_grant.group() );
-  vbox->pack_start( m_refuse );
+  vbox2->pack_start( m_refuse );
   m_grant.set_active(true);
   m_text.set_editable(true);
 
   // by default grant is selected - no message for grant
   m_text.set_sensitive(false);
   m_label.set_sensitive(false);
-  vbox->pack_start( m_label );
+  vbox2->pack_start( m_label );
 
+  vbox2->pack_start( m_text );
 
-  vbox->pack_start( m_text );
+  vbox->pack_start(*vbox2);
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   hbbox->pack_start(m_ok, true, true, 0);
   hbbox->pack_start(m_cancel, true, true, 0);

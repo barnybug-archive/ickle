@@ -65,6 +65,7 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
   m_notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   
@@ -156,7 +157,7 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
 
   table->set_spacings(3);
   table->set_col_spacing(1, 10);
-  table->set_border_width(10);
+  table->set_border_width(5);
 
   frame->add(*table);
   frame->set_border_width(5);
@@ -191,7 +192,7 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
 
   table->set_spacings(3);
   table->set_col_spacing(1, 10);
-  table->set_border_width(10);
+  table->set_border_width(5);
 
   frame->add(*table);
   frame->set_border_width(5);
@@ -220,7 +221,7 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
   table->attach( m_department_entry, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
 
   table->set_spacings(3);
-  table->set_border_width(10);
+  table->set_border_width(5);
 
   frame->add(*table);
   frame->set_border_width(5);
@@ -244,14 +245,15 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
   table->attach( m_uin_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
   
-  table->set_border_width(10);
+  table->set_border_width(5);
   label = manage( new Gtk::Label("UIN") );
   m_notebook.pages().push_back( Gtk::Notebook_Helpers::TabElem( *table, *label ) );
 
   Gtk::VBox *vbox = get_vbox();
+  vbox->set_spacing(10);
   vbox->pack_start( m_notebook, false );
 
-  m_clist.set_usize(0, 200);
+  m_clist.set_usize(0, 150);
   m_clist.set_column_title(0, "S");
   m_clist.set_column_title(1, "Alias");
   m_clist.set_column_min_width(1, 90);
@@ -276,7 +278,9 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
   m_status_context = m_status.get_context_id("searchdialog");
   vbox->pack_start( m_status, false );
   set_status( "Enter some information to search on above..." );
-  
+
+  set_border_width(10);
+
   show_all();
 
   // connect to Search Result signal on icqclient

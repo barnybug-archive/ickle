@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.41 2002-04-04 17:59:35 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.42 2002-04-04 20:08:16 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -91,7 +91,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 {
   Gtk::VBox *vbox;
 
-  set_title("Settings Dialog");
+  set_title("ickle Settings");
   set_transient_for (*parent);
   set_modal(true);
 
@@ -103,6 +103,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   notebook.set_tab_pos(GTK_POS_TOP);
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   hbox->set_homogeneous(false);
   hbbox->pack_start(okay, false);
@@ -660,8 +661,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
+  vbox->set_border_width (10);
+  vbox->set_spacing (10);
 
-  notebook.set_border_width(5);
   show_all();
 }
 

@@ -39,18 +39,24 @@ SendAuthReqDialog::SendAuthReqDialog(Gtk::Window * parent, const ICQ2000::Contac
   m_cancel.clicked.connect( destroy.slot() );
   
   Gtk::VBox *vbox = get_vbox();
-  vbox->pack_start( *manage(new Gtk::Label("Enter your authorisation request message:", 0)) );
+  vbox->set_spacing(10);
+
+  Gtk::VBox *vbox2 = manage(new Gtk::VBox());
+  vbox2->pack_start( *manage(new Gtk::Label("Enter your authorisation request message:", 0)) );
   m_text.set_editable(true);
-  vbox->pack_start( m_text, true, true, 10 );
+  vbox2->pack_start( m_text, true, true, 10 );
 
   Gtk::Label *label = manage( new Gtk::Label("Note: Authorisation is not strictly speaking required "
 					     "within the ICQ protocol (there are is no security/privacy behind it). "
 					     "It is generally polite to ask for Authorisation though, if it is required. "));
   label->set_justify(GTK_JUSTIFY_FILL);
   label->set_line_wrap(true);
-  vbox->pack_start( *label );
+  vbox2->pack_start( *label );
+
+  vbox->pack_start (*vbox2, true, true);
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   hbbox->pack_start(m_ok, true, true, 0);
   hbbox->pack_start(m_cancel, true, true, 0);

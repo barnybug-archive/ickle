@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.50 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.51 2002-04-04 20:08:16 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -288,8 +288,8 @@ void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
   ostringstream ostr;
   ostr << c->getNameAlias() << " has " << (ev->isGranted() ? "granted" : "refused")
        << " your request for authorisation." << endl;
-  if (!ev->isGranted()) {
-    ostr << "Their refusal message was:" << endl
+  if (!ev->isGranted() && !ev->getMessage().empty()) {
+    ostr << "Their refusal message was:" << endl << endl
 	 << ev->getMessage() << endl;
   }
 

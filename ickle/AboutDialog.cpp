@@ -1,4 +1,4 @@
-/* $Id: AboutDialog.cpp,v 1.8 2002-04-03 23:04:49 barnabygray Exp $
+/* $Id: AboutDialog.cpp,v 1.9 2002-04-04 20:08:16 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -48,6 +48,7 @@ AboutDialog::AboutDialog(Gtk::Window * parent)
   destroy.connect( Gtk::Main::quit.slot() );
 
   Gtk::HBox *hbox = get_action_area();
+  hbox->set_border_width(0);
   Gtk::HButtonBox *hbbox = manage( new Gtk::HButtonBox() );
   
   button = manage( new Gtk::Button("OK") );
@@ -56,6 +57,7 @@ AboutDialog::AboutDialog(Gtk::Window * parent)
   hbox->pack_start( *hbbox );
   
   Gtk::VBox *vbox = get_vbox();
+  vbox->set_spacing (10);
   Gtk::Table *table = manage( new Gtk::Table(2,1) );
 
   Gtk::Text *text = manage( new Gtk::Text() );
