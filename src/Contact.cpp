@@ -25,17 +25,17 @@ namespace ICQ2000 {
 
   Contact::Contact()
     : m_status(STATUS_OFFLINE), m_invisible(false), m_seqnum(0xffff),
-      m_icqcontact(false), m_mobilecontact(false) {
+      m_icqcontact(false), m_mobilecontact(false), m_tcp_version(0) {
   }
 
   Contact::Contact(unsigned int uin)
     : m_uin(uin), m_status(STATUS_OFFLINE), m_invisible(false),
       m_alias(UINtoString(m_uin)), m_seqnum(0xffff),
-      m_icqcontact(true), m_mobilecontact(false) { }
+      m_icqcontact(true), m_mobilecontact(false), m_tcp_version(0) { }
 
   Contact::Contact(const string& a, const string& m)
     : m_alias(a), m_mobileno(m), m_icqcontact(false), m_status(STATUS_OFFLINE),
-      m_seqnum(0xffff), m_invisible(false),
+      m_seqnum(0xffff), m_invisible(false), m_tcp_version(0),
       m_mobilecontact(true), m_uin(nextImaginaryUIN()) { }
 
   Contact::~Contact() {
