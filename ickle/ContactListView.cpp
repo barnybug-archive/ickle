@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.32 2002-03-08 17:53:28 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.33 2002-03-16 18:10:03 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -156,8 +156,6 @@ void ContactListView::clear() {
 gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
   char key = tolower(ev->string[0]);
 
-  if (!isalpha(key) || ev->state != 0) return Gtk::CList::key_press_event_impl(ev);
-
   if (rows().size() == 0) return Gtk::CList::key_press_event_impl(ev);
 
   // Start from the currently selected row
@@ -176,7 +174,15 @@ gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
   if( ev->keyval == GDK_Return || ev->keyval== GDK_KP_Enter || ev->keyval== GDK_space ) {
     user_popup.emit( ((RowData *) row_iter->get_data() )->uin );
   }
-  else {
+  else if ( ev->keyval == GDK_Home ) {
+    row(0).select();
+    moveto(0, 0);
+  }
+  else if ( ev->keyval == GDK_End ) {
+    row( rows().size()-1 ).select();
+    moveto( rows().size()-1, 0 );
+  }
+  else if ( isalpha(key) && ev->state == 0) {
     start_iter = row_iter;
     ++row_iter;
     if (row_iter == rows().end()) row_iter = rows().begin();
