@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.17 2002-01-30 22:13:11 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.18 2002-02-02 16:26:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -70,6 +70,8 @@ class MessageBox : public Gtk::Window {
 
   Gtk::Notebook m_tab;
 
+  bool m_focus, m_pending;
+
   // normal message tab
   Gtk::Text m_message_text;
 
@@ -94,7 +96,7 @@ class MessageBox : public Gtk::Window {
 
   MessageEvent::MessageType m_message_type;
 
-  SigC::Connection m_settingsconn, m_focusconn;
+  SigC::Connection m_settingsconn;
 
   void send_button_update();
   void set_contact_title();
@@ -105,10 +107,12 @@ class MessageBox : public Gtk::Window {
   guint update_scalelabel(guint i);
   void scaleadj_value_changed_cb();
   gint text_button_press_cb(GdkEventButton *b, Gtk::Text *t);
-  gint focus_in_event_cb(GdkEventFocus* p0);
   void clear_queue();
   gint clear_queue_idle_cb();
   
+  gint focus_in_event_impl(GdkEventFocus* p0);
+  gint focus_out_event_impl(GdkEventFocus* p0);
+
  public:
   MessageBox(Contact *self, Contact *c, History *h);
   ~MessageBox();

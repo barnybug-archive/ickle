@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.42 2002-01-30 22:13:11 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.43 2002-02-02 16:26:43 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -55,7 +55,9 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
     m_sms_count_over(false),
     m_sms_enabled(true),
     m_scaleadj(0, 0, 0),
-    m_scale(m_scaleadj)
+    m_scale(m_scaleadj),
+    m_focus(false),
+    m_pending(false)
 {
   Gtk::Box *hbox;
 
@@ -458,8 +460,12 @@ void MessageBox::new_entry_cb(History::Entry *ev) {
     update_scalelabel(m_scaleadj.get_value());
   }
 
-  // connect for focus, to empty message queue
-  m_focusconn = focus_in_event.connect( slot( this, &MessageBox::focus_in_event_cb ) );
+  if (m_focus) {
+    // already focused, empty the queue
+    Gtk::Main::idle.connect( slot( this, &MessageBox::clear_queue_idle_cb ) );
+  } else {
+    m_pending = true;
+  }
   
   set_contact_title();
 }
@@ -710,11 +716,16 @@ void MessageBox::pane_position_changed_cb(GtkAllocation *allocation) {
   g_settings.setValue("message_box_pane_position", m_history_table.height());
 }
 
-gint MessageBox::focus_in_event_cb(GdkEventFocus* p0)
+gint MessageBox::focus_in_event_impl(GdkEventFocus* p0)
 {
-  clear_queue();
-  m_focusconn.disconnect();
+  m_focus = true;
+  if (m_pending) clear_queue();
+  return 0;
+}
 
+gint MessageBox::focus_out_event_impl(GdkEventFocus* p0)
+{
+  m_focus = false;
   return 0;
 }
 
@@ -734,4 +745,5 @@ void MessageBox::clear_queue()
   icqclient.SignalMessageQueueChanged(m_contact);
 
   set_contact_title();
+  m_pending = false;
 }
