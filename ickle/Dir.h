@@ -24,21 +24,18 @@
 #include <list>
 #include <string>
 
-using std::string;
-using std::list;
-
 class Dir {
  private:
-  list<string> m_list;
+  std::list<std::string> m_list;
   bool m_dironly;
 
  public:
-  typedef list<string>::iterator iterator;
+  typedef std::list<std::string>::iterator iterator;
 
   Dir();
   ~Dir();
 
-  bool list(const string& s);
+  bool list(const std::string& s);
   void free();
   
   void setDirectoriesOnly(bool b);

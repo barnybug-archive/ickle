@@ -1,4 +1,4 @@
-/* $Id: MessageEvent.h,v 1.4 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: MessageEvent.h,v 1.5 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Wrappers for ICQ Message Events.
  *
@@ -141,7 +141,7 @@ class NormalICQMessageEvent : public ICQMessageEvent {
  */
 class URLICQMessageEvent : public ICQMessageEvent {
  private:
-  string m_message, m_url;
+  std::string m_message, m_url;
     
  public:
   URLICQMessageEvent(time_t t, const ICQ2000::ContactRef& c, const std::string& msg, const std::string& url);

@@ -38,8 +38,6 @@
 #include <libicq2000/Contact.h>
 #include <libicq2000/events.h>
 
-using SigC::Signal0;
-
 class UserInfoDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel, fetchb, uploadb;
@@ -85,8 +83,8 @@ class UserInfoDialog : public Gtk::Dialog {
 
   bool isChanged() const;
 
-  Signal0<void> fetch;
-  Signal0<void> upload;
+  SigC::Signal0<void> fetch;
+  SigC::Signal0<void> upload;
 };
 
 #endif

@@ -79,7 +79,7 @@ class SearchDialog : public Gtk::Dialog {
   void select_row_cb(gint x, gint y, GdkEvent *ev);
   void unselect_row_cb(gint x, gint y, GdkEvent *ev);
 
-  void set_status(const string& s);
+  void set_status(const std::string& s);
 
   void set_sex(ICQ2000::Sex s);
   void set_agerange(ICQ2000::AgeRange age);

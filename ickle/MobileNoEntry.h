@@ -26,8 +26,6 @@
 
 #include <string>
 
-using std::string;
-
 class MobileNoEntry : public Gtk::Table {
  private:
   Gtk::Entry m_country, m_areacode, m_number;
@@ -35,7 +33,7 @@ class MobileNoEntry : public Gtk::Table {
  public:
   MobileNoEntry();
 
-  string get_text() const;
+  std::string get_text() const;
 
   SigC::Signal0<void> changed;
 };

@@ -38,6 +38,10 @@
 # include <applet-widget.h>
 #endif
 
+using std::string;
+using std::cout;
+using std::endl;
+
 class ICQ2000::Client icqclient;
 
 class Settings g_settings;
@@ -66,7 +70,7 @@ int main(int argc, char* argv[]) {
 #endif 
     return 0;
   }
-  catch( exception &e ) {
+  catch( std::exception &e ) {
     cout << "Exiting abnormally: " << e.what() << endl;
   }
   catch( ... ) {

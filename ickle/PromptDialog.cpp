@@ -26,6 +26,8 @@
 #include <gtk--/main.h>
 #include <gtk--/buttonbox.h>
 
+using std::string;
+
 PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal)
   : Gtk::Dialog(),
     m_type(t),

@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.19 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: History.cpp,v 1.20 2002-07-20 18:14:13 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -29,7 +29,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-#include <iostream.h>
+
+#include <iostream>
 
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;

@@ -39,7 +39,7 @@ class AwayMessageDialog : public Gtk::Window {
   Gtk::Text m_awaytext;
   unsigned int m_pos, m_count;
 
-  string format_time(time_t t);
+  std::string format_time(time_t t);
  public:
   AwayMessageDialog(Gtk::Window *main_window);
   ~AwayMessageDialog();

@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.5 2002-06-25 18:08:35 barnabygray Exp $
+/* $Id: StatusMenu.cpp,v 1.6 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,8 @@
 #include "main.h"
 
 using namespace ICQ2000;
+
+using std::string;
 
 StatusMenuItem::StatusMenuItem()
 {

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.41 2002-06-25 18:08:35 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.42 2002-07-20 18:14:13 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -131,7 +131,7 @@ class IckleGUI : public Gtk::Window {
   void already_running_prompt(const std::string& pid_file, unsigned int pid);
 
   void setDisplayTimes(bool d);
-  string getAutoResponse() const;
+  std::string getAutoResponse() const;
   void setAutoResponse(const std::string& ar);
   void setGeometry(int x, int y, int w, int h);
 

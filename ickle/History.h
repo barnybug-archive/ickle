@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.12 2002-04-16 21:05:19 barnabygray Exp $
+/* $Id: History.h,v 1.13 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Logging and loading of history.
  *
@@ -47,7 +47,7 @@ class History : public SigC::Object {
   bool                    m_builtindex;
   unsigned int            m_uin;
 
-  void                  quote_output    (ostream& ostr, const std::string& text);
+  void                  quote_output    (std::ostream& ostr, const std::string& text);
   void                  build_index     ();
 
   void                  touch           ();

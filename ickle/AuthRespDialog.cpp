@@ -29,6 +29,7 @@
 #include "sstream_fix.h"
 
 using std::ostringstream;
+using std::endl;
 
 AuthRespDialog::AuthRespDialog(Gtk::Window * parent, const ICQ2000::ContactRef& contact, AuthReqICQMessageEvent *ev)
   : Gtk::Dialog(),

@@ -49,21 +49,21 @@ namespace std
    */
   class ostringstream : public ostrstream {
    public:
-    string str() {
+    std::string str() {
       char *cstr = ostrstream::str();
       freeze(0);
-      if (cstr == 0) return string();
-      return string(cstr,pcount());
+      if (cstr == 0) return std::string();
+      return std::string(cstr,pcount());
     }
   };
 
   /*
-   * Only limited functionality from istringstream
+   * Only limited functionality from istd::stringstream
    * is implemented
    */
-  class istringstream : public istrstream {
+  class istd::stringstream : public istrstream {
    public:
-    istringstream(const string& str)
+    istd::stringstream(const std::string& str)
       : istrstream(str.c_str()) { }
   };
 

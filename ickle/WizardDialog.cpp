@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.6 2002-04-16 19:58:13 barnabygray Exp $
+/* $Id: WizardDialog.cpp,v 1.7 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -30,10 +30,12 @@
 #include <gtk--/frame.h>
 #include <gtk--/buttonbox.h>
 
+using std::string;
+using std::ostringstream;
+
 using SigC::slot;
 using SigC::bind;
 using ICQ2000::Status;
-using std::ostringstream;
 
 WizardDialog::WizardDialog()
   : Gtk::Dialog(),

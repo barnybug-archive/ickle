@@ -36,7 +36,7 @@ class EventSubstituter : public std::ostringstream {
  private:
   bool line_start;
   char got_special;  // % or |
-  string cmd; // command string buffer
+  std::string cmd; // command std::string buffer
   ICQ2000::ContactRef co;
   MessageQueue& m_message_queue;
   time_t event_time;
@@ -66,7 +66,7 @@ class EventSubstituter : public std::ostringstream {
 
   EventSubstituter& operator<<(const std::string& s);
 
-  string str();
+  std::string str();
 };
 
 // This is just an auxiliary class for event substitution, but might

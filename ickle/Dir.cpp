@@ -25,6 +25,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+using std::string;
+
 Dir::Dir()
   : m_dironly(false) { }
 

@@ -24,6 +24,7 @@
 
 #include <gtk--/label.h>
 
+using std::string;
 using std::ostringstream;
 
 MobileNoEntry::MobileNoEntry()

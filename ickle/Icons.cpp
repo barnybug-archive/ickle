@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.15 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.16 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -37,6 +37,8 @@
 #include "file.xpm"
 #include "sysmsg.xpm"
 
+using std::string;
+
 using ICQ2000::Status;
 
 Icons::Icons()
@@ -47,18 +49,18 @@ Icons::Icons()
  * Sets the icons to the default compiled in icons.
  */
 void Icons::setDefaultIcons() {
-  Icon_Status_Online.reset( new ImageLoaderData(online_xpm) );
-  Icon_Status_Away.reset( new ImageLoaderData(away_xpm) );
-  Icon_Status_NA.reset( new ImageLoaderData(na_xpm) );
-  Icon_Status_Occupied.reset( new ImageLoaderData(occ_xpm) );
-  Icon_Status_DND.reset( new ImageLoaderData(dnd_xpm) );
-  Icon_Status_FFC.reset( new ImageLoaderData(ffc_xpm) );
-  Icon_Status_Offline.reset( new ImageLoaderData(offline_xpm) );
-  Icon_Status_Message.reset( new ImageLoaderData(message_xpm) );
-  Icon_Status_URL.reset( new ImageLoaderData(url_xpm) );
-  Icon_Status_SMS.reset( new ImageLoaderData(sms_xpm) );
-  Icon_Status_SystemMessage.reset( new ImageLoaderData(sysmsg_xpm) );
-  Icon_Status_Invisible.reset( new ImageLoaderData(invisible_xpm) );
+  Icon_Status_Online.reset( new Gtk::ImageLoaderData(online_xpm) );
+  Icon_Status_Away.reset( new Gtk::ImageLoaderData(away_xpm) );
+  Icon_Status_NA.reset( new Gtk::ImageLoaderData(na_xpm) );
+  Icon_Status_Occupied.reset( new Gtk::ImageLoaderData(occ_xpm) );
+  Icon_Status_DND.reset( new Gtk::ImageLoaderData(dnd_xpm) );
+  Icon_Status_FFC.reset( new Gtk::ImageLoaderData(ffc_xpm) );
+  Icon_Status_Offline.reset( new Gtk::ImageLoaderData(offline_xpm) );
+  Icon_Status_Message.reset( new Gtk::ImageLoaderData(message_xpm) );
+  Icon_Status_URL.reset( new Gtk::ImageLoaderData(url_xpm) );
+  Icon_Status_SMS.reset( new Gtk::ImageLoaderData(sms_xpm) );
+  Icon_Status_SystemMessage.reset( new Gtk::ImageLoaderData(sysmsg_xpm) );
+  Icon_Status_Invisible.reset( new Gtk::ImageLoaderData(invisible_xpm) );
 }
 
 void Icons::settings_changed_cb(const string& key) {
@@ -75,24 +77,24 @@ bool Icons::setIcons(const string &dir) {
     return true;
   }
 
-  Icon_Status_Online.reset( new ImageLoader( dir + "online.xpm" ) );
-  Icon_Status_Away.reset( new ImageLoader( dir + "away.xpm" ) );
-  Icon_Status_NA.reset( new ImageLoader( dir + "na.xpm" ) );
-  Icon_Status_Occupied.reset( new ImageLoader( dir + "occ.xpm" ) );
-  Icon_Status_DND.reset( new ImageLoader( dir + "dnd.xpm" ) );
-  Icon_Status_FFC.reset( new ImageLoader( dir + "ffc.xpm" ) );
-  Icon_Status_Offline.reset( new ImageLoader( dir + "offline.xpm" ) );
-  Icon_Status_Message.reset( new ImageLoader( dir + "message.xpm" ) );
-  Icon_Status_URL.reset( new ImageLoader( dir + "url.xpm" ) );
-  Icon_Status_SMS.reset( new ImageLoader( dir + "sms.xpm" ) );
-  Icon_Status_SystemMessage.reset( new ImageLoader( dir + "sysmsg.xpm" ) );
-  Icon_Status_Invisible.reset( new ImageLoader( dir + "invisible.xpm" ) );
+  Icon_Status_Online.reset( new Gtk::ImageLoader( dir + "online.xpm" ) );
+  Icon_Status_Away.reset( new Gtk::ImageLoader( dir + "away.xpm" ) );
+  Icon_Status_NA.reset( new Gtk::ImageLoader( dir + "na.xpm" ) );
+  Icon_Status_Occupied.reset( new Gtk::ImageLoader( dir + "occ.xpm" ) );
+  Icon_Status_DND.reset( new Gtk::ImageLoader( dir + "dnd.xpm" ) );
+  Icon_Status_FFC.reset( new Gtk::ImageLoader( dir + "ffc.xpm" ) );
+  Icon_Status_Offline.reset( new Gtk::ImageLoader( dir + "offline.xpm" ) );
+  Icon_Status_Message.reset( new Gtk::ImageLoader( dir + "message.xpm" ) );
+  Icon_Status_URL.reset( new Gtk::ImageLoader( dir + "url.xpm" ) );
+  Icon_Status_SMS.reset( new Gtk::ImageLoader( dir + "sms.xpm" ) );
+  Icon_Status_SystemMessage.reset( new Gtk::ImageLoader( dir + "sysmsg.xpm" ) );
+  Icon_Status_Invisible.reset( new Gtk::ImageLoader( dir + "invisible.xpm" ) );
   icons_changed.emit();
   return true;
 }
 
-ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
-  ImageLoader *p;
+Gtk::ImageLoader* Icons::IconForStatus(Status s, bool inv) { 
+  Gtk::ImageLoader *p;
   if (inv && s != ICQ2000::STATUS_OFFLINE) {
     p = Icon_Status_Invisible.get();
   } else {
@@ -127,8 +129,8 @@ ImageLoader* Icons::IconForStatus(Status s, bool inv) {
   return p;
 }
 
-ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
-  ImageLoader *p;
+Gtk::ImageLoader* Icons::IconForEvent(ICQMessageEvent::ICQMessageType t) {
+  Gtk::ImageLoader *p;
   switch(t) {
   case ICQMessageEvent::Normal:
     p = Icon_Status_Message.get();

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.60 2002-06-25 18:08:35 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.61 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -36,8 +36,10 @@
 
 #include "gtkspell.h"
 
+using std::string;
 using std::map;
 using std::ostringstream;
+using std::endl;
 
 using SigC::bind;
 

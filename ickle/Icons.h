@@ -1,4 +1,4 @@
-/* $Id: Icons.h,v 1.12 2002-04-10 19:57:58 barnabygray Exp $
+/* $Id: Icons.h,v 1.13 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -33,35 +33,30 @@
 
 #include "MessageEvent.h"
 
-using std::string;
-
-using Gtk::ImageLoader;
-using Gtk::ImageLoaderData;
-
 class Icons {
  private:
-  std::auto_ptr<ImageLoader> Icon_Status_Online;
-  std::auto_ptr<ImageLoader> Icon_Status_Away;
-  std::auto_ptr<ImageLoader> Icon_Status_NA;
-  std::auto_ptr<ImageLoader> Icon_Status_Occupied;
-  std::auto_ptr<ImageLoader> Icon_Status_DND;
-  std::auto_ptr<ImageLoader> Icon_Status_FFC;
-  std::auto_ptr<ImageLoader> Icon_Status_Offline;
-  std::auto_ptr<ImageLoader> Icon_Status_Message;
-  std::auto_ptr<ImageLoader> Icon_Status_URL;
-  std::auto_ptr<ImageLoader> Icon_Status_SMS;
-  std::auto_ptr<ImageLoader> Icon_Status_SystemMessage;
-  std::auto_ptr<ImageLoader> Icon_Status_Invisible;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Online;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Away;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_NA;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Occupied;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_DND;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_FFC;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Offline;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Message;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_URL;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_SMS;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_SystemMessage;
+  std::auto_ptr<Gtk::ImageLoader> Icon_Status_Invisible;
 
  public:
   Icons();
 
   void setDefaultIcons();
-  bool setIcons(const string& dir);
-  ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
-  ImageLoader* IconForEvent(ICQMessageEvent::ICQMessageType t);
+  bool setIcons(const std::string& dir);
+  Gtk::ImageLoader* IconForStatus(ICQ2000::Status s,bool inv);
+  Gtk::ImageLoader* IconForEvent(ICQMessageEvent::ICQMessageType t);
 
-  void settings_changed_cb(const string& key);
+  void settings_changed_cb(const std::string& key);
 
   SigC::Signal0<void> icons_changed;
 

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.109 2002-06-25 18:08:35 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.110 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -54,9 +54,12 @@ using std::istringstream;
 using std::fstream;
 using std::ofstream;
 using std::cout;
+using std::cerr;
 using std::endl;
 using std::map;
 using std::runtime_error;
+
+using SigC::slot;
 
 using ICQ2000::ContactRef;
 

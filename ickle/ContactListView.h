@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.22 2002-04-05 15:27:42 bugcreator Exp $
+/* $Id: ContactListView.h,v 1.23 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,8 +35,6 @@
 #include "Icons.h"
 #include "MessageQueue.h"
 
-using SigC::Signal1;
-
 class ContactListView : public Gtk::CList {
  private:
   typedef Gtk::CList_Helpers::RowIterator citerator;
@@ -45,7 +43,7 @@ class ContactListView : public Gtk::CList {
     unsigned int uin;
     ICQ2000::Status status;
     unsigned int msgs;
-    string alias;
+    std::string alias;
   };
 
   Gtk::Menu rc_popup;
@@ -103,8 +101,8 @@ class ContactListView : public Gtk::CList {
   static int status_order(ICQ2000::Status);
 
   // signals
-  Signal1<void,unsigned int> user_popup;
-  Signal1<void,unsigned int> userinfo;
+  SigC::Signal1<void,unsigned int> user_popup;
+  SigC::Signal1<void,unsigned int> userinfo;
 };
 
 #endif

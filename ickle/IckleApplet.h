@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.19 2002-03-30 14:48:09 nordman Exp $
+/* $Id: IckleApplet.h,v 1.20 2002-07-20 18:14:13 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -27,7 +27,7 @@
 #include <gtk--/box.h>
 #include <gtk--/label.h> 
 #include <gtk--/frame.h>
-#include <gtk--/pixmap.h>
+#include <gtk--/pixstd::map.h>
 #include <applet-widget.h>
 
 #include <list>
@@ -44,7 +44,7 @@ class IckleApplet : public SigC::Object {
   Gtk::Frame    m_frame;
   Gtk::Box *    m_box;
   Gtk::Label    m_nr;
-  Gtk::Pixmap   m_pm;
+  Gtk::Pixstd::map   m_pm;
   IckleGUI *    m_gui;
 
   gint          m_nr_users;               /* nr of users on contactlist */

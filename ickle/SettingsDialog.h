@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.41 2002-05-21 20:52:22 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.42 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -48,8 +48,6 @@
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-using std::string;
 
 namespace Gtk {
   class FontSelectionDialog;
@@ -104,7 +102,7 @@ class SettingsDialog : public Gtk::Dialog {
   unsigned int away_current_item_number;
   bool away_response_label_edit_dead;
   
-  string message_header_font, message_text_font;
+  std::string message_header_font, message_text_font;
 
   ICQ2000::Status m_status;
 
@@ -114,7 +112,7 @@ class SettingsDialog : public Gtk::Dialog {
 
   bool finished_okay;
 
-  string getIconsFilename();
+  std::string getIconsFilename();
   
   void setStatus(ICQ2000::Status s);
 
@@ -153,7 +151,7 @@ class SettingsDialog : public Gtk::Dialog {
   bool run();
 
   unsigned int getUIN() const;
-  string getPassword() const;
+  std::string getPassword() const;
 
   void updateSettings();
   void raise_away_status_tab();

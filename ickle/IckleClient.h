@@ -51,10 +51,6 @@
 # include "ControlHandler.h"
 #endif
 
-using SigC::slot;
-
-using Gtk::Connection;
-
 class IckleClient : public SigC::Object {
 #ifdef CONTROL_SOCKET
   friend class ControlHandler;
@@ -82,8 +78,8 @@ class IckleClient : public SigC::Object {
   std::map<unsigned int, std::string> m_settingsmap; 
   std::map<unsigned int, History *> m_histmap;
 
-  std::map<int, Connection> m_sockets;
-  Connection poll_server_cnt;
+  std::map<int, Gtk::Connection> m_sockets;
+  Gtk::Connection poll_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);
   void usageInstructions(const char* progname);

@@ -30,6 +30,7 @@
 #include "sstream_fix.h"
 #include "SettingsDialog.h"
 
+using std::string;
 using std::ostringstream;
 
 SetAutoResponseDialog::SetAutoResponseDialog(Gtk::Window * parent, const string& prev_msg, bool timeout)

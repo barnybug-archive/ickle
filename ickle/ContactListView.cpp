@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.39 2002-04-28 23:38:11 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.40 2002-07-20 18:14:13 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -328,7 +328,7 @@ void ContactListView::update_row(const ContactRef& c) {
   RowData *rp = (RowData*)(*row).get_data();
   rp->status = c->getStatus();
   rp->msgs = 0;
-  ImageLoader *p;
+  Gtk::ImageLoader *p;
 
   rp->msgs = m_message_queue.get_contact_size(c);
 

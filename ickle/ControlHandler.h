@@ -56,7 +56,7 @@ class ControlHandler : public SigC::Object
   void cmdQuit (ControlSocket &);
 
   void addTimeout (int, SigC::Connection, SigC::Connection);
-  void endTimeout (int, bool, const string &);
+  void endTimeout (int, bool, const std::string &);
   void endTimeout (int sd, bool success) { endTimeout (sd, success, ""); }
   int timeout_cb (int);
 
@@ -66,8 +66,8 @@ class ControlHandler : public SigC::Object
   IckleClient & ickle;
   ControlSocketServer m_socket;
 
-  map <int, SigC::Connection> m_connections;
-  map <int, std::pair <SigC::Connection, SigC::Connection> > m_timeouts;
+  std::map <int, SigC::Connection> m_connections;
+  std::map <int, std::pair <SigC::Connection, SigC::Connection> > m_timeouts;
 };
 
 #endif // CONTROL_SOCKET

@@ -23,8 +23,6 @@
 
 #include <string>
 
-using std::string;
-
 namespace ICQ2000 {
   class Client;
 }
@@ -33,11 +31,11 @@ extern class ICQ2000::Client icqclient;
 extern class Settings g_settings;
 extern class Icons g_icons;
 
-extern string BASE_DIR;
-extern string CONTACT_DIR;
-extern string DATA_DIR;
-extern string TRANSLATIONS_DIR;
-extern string ICONS_DIR;
-extern string PID_FILENAME;
+extern std::string BASE_DIR;
+extern std::string CONTACT_DIR;
+extern std::string DATA_DIR;
+extern std::string TRANSLATIONS_DIR;
+extern std::string ICONS_DIR;
+extern std::string PID_FILENAME;
 
 #endif

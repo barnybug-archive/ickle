@@ -25,8 +25,6 @@
 
 #include <string>
 
-using std::string;
-
 class PromptDialog : public Gtk::Dialog {
  public:
   enum PromptType {
@@ -42,7 +40,7 @@ class PromptDialog : public Gtk::Dialog {
   bool m_modal;
 
  public:
-  PromptDialog(Gtk::Window * parent, PromptType t, const string& msg, bool modal = true);
+  PromptDialog(Gtk::Window * parent, PromptType t, const std::string& msg, bool modal = true);
 
   bool run();
 

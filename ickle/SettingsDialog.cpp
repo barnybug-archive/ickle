@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.52 2002-06-08 11:58:36 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.53 2002-07-20 18:14:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -47,6 +47,10 @@
 using SigC::slot;
 using SigC::bind;
 using ICQ2000::Status;
+
+using std::string;
+using std::vector;
+using std::list;
 using std::ostringstream;
 using std::swap;
 

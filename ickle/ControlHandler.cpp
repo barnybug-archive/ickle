@@ -29,7 +29,10 @@
 #include "ControlHandler.h"
 
 using std::make_pair;
+using std::string;
 using std::ostringstream;
+using std::cerr;
+using std::endl;
 
 using namespace SigC;
 

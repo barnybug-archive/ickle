@@ -30,7 +30,9 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
+using std::string;
 using std::ostringstream;
+using std::endl;
 
 ResendDialog::ResendDialog(Gtk::Window *parent, ICQ2000::ICQMessageEvent *ev)
 {

@@ -41,8 +41,11 @@
 
 #include "main.h"
 
-using SigC::slot;
+using std::string;
+using std::vector;
 using std::ostringstream;
+
+using SigC::slot;
 
 using namespace ICQ2000;
 
@@ -392,7 +395,7 @@ void SearchDialog::result_cb(SearchResultEvent *ev)
 	}
 	  
 	Gtk::CList_Helpers::RowIterator r = m_clist.rows().insert( m_clist.rows().end(), row_array );
-	ImageLoader *p = g_icons.IconForStatus(c->getStatus(),false);
+	Gtk::ImageLoader *p = g_icons.IconForStatus(c->getStatus(),false);
 	(*r)[0].set_pixmap( p->pix(), p->bit() );
 
 	/* the ContactRef needs to be dynamically allocated here

@@ -1,4 +1,4 @@
-/* $Id: Settings.h,v 1.14 2002-03-06 22:18:30 barnabygray Exp $
+/* $Id: Settings.h,v 1.15 2002-07-20 18:14:13 barnabygray Exp $
  * 
  * Handle loading/parsing/saving of settings to
  * a configuration file
@@ -29,47 +29,44 @@
 #include <sigc++/signal_system.h>
 #include <stdexcept>
 
-using std::string;
-using std::map;
-
 class Settings : public SigC::Object {
  private:
-  std::map<const string,string> m_map;
+  std::map<const std::string, std::string> m_map;
   
  public:
   Settings();
   
-  void load(const string& filename) throw(std::runtime_error);
-  void save(const string& filename) throw(std::runtime_error);
+  void load(const std::string& filename) throw(std::runtime_error);
+  void save(const std::string& filename) throw(std::runtime_error);
   
-  string         getValueString       (const string& k);
-  int            getValueInt          (const string& k);
-  unsigned int   getValueUnsignedInt  (const string& k);
-  unsigned short getValueUnsignedShort(const string& k);
-  unsigned char  getValueUnsignedChar (const string& k);
-  bool           getValueBool         (const string& k);
+  std::string         getValueString       (const std::string& k);
+  int            getValueInt          (const std::string& k);
+  unsigned int   getValueUnsignedInt  (const std::string& k);
+  unsigned short getValueUnsignedShort(const std::string& k);
+  unsigned char  getValueUnsignedChar (const std::string& k);
+  bool           getValueBool         (const std::string& k);
 
-  void setValue(const string& k, const string& v);
-  void setValue(const string& k, int v);
-  void setValue(const string& k, unsigned int v);
-  void setValue(const string& k, unsigned short v);
-  void setValue(const string& k, unsigned char v);
-  void setValue(const string& k, bool v);
+  void setValue(const std::string& k, const std::string& v);
+  void setValue(const std::string& k, int v);
+  void setValue(const std::string& k, unsigned int v);
+  void setValue(const std::string& k, unsigned short v);
+  void setValue(const std::string& k, unsigned char v);
+  void setValue(const std::string& k, bool v);
 
-  void defaultValueUnsignedInt  (const string& k, unsigned int dflt, unsigned int lower = 0, unsigned int upper = 0xffffffff);
-  void defaultValueUnsignedShort(const string& k, unsigned short dflt, unsigned short lower = 0, unsigned short upper = 0xffff);
-  void defaultValueUnsignedChar (const string& k, unsigned char dflt, unsigned char lower = 0, unsigned char upper = 0xff);
-  void defaultValueBool         (const string& k, bool dflt);
-  void defaultValueString       (const string& k, const string& dflt);
+  void defaultValueUnsignedInt  (const std::string& k, unsigned int dflt, unsigned int lower = 0, unsigned int upper = 0xffffffff);
+  void defaultValueUnsignedShort(const std::string& k, unsigned short dflt, unsigned short lower = 0, unsigned short upper = 0xffff);
+  void defaultValueUnsignedChar (const std::string& k, unsigned char dflt, unsigned char lower = 0, unsigned char upper = 0xff);
+  void defaultValueBool         (const std::string& k, bool dflt);
+  void defaultValueString       (const std::string& k, const std::string& dflt);
 
-  bool exists(const string& k);
+  bool exists(const std::string& k);
 
   virtual void defaultSettings();
 
-  static string Escape(const string& t);
-  static string Unescape(const string& t);
+  static std::string Escape(const std::string& t);
+  static std::string Unescape(const std::string& t);
 
-  SigC::Signal1<void,const string &> settings_changed;
+  SigC::Signal1<void,const std::string&> settings_changed;
 };
 
 #endif

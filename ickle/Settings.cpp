@@ -1,4 +1,4 @@
-/* $Id: Settings.cpp,v 1.13 2002-03-06 22:18:30 barnabygray Exp $
+/* $Id: Settings.cpp,v 1.14 2002-07-20 18:14:13 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -27,6 +27,7 @@
 #include <fstream>
 #include "sstream_fix.h"
 
+using std::string;
 using std::ostringstream;
 using std::istringstream;
 using std::ifstream;

@@ -31,6 +31,7 @@
 #include "main.h"
 #include "Settings.h"
 
+using std::string;
 using std::ostringstream;
 using std::endl;
 
