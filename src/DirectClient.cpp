@@ -391,13 +391,18 @@ namespace ICQ2000 {
     b << (unsigned char) 0x03       // start byte
       << (unsigned int)  0x0000000a // unknown
       << (unsigned int)  0x00000001 // unknown
-      << (unsigned int)  0x00000001 // unknown
+      << (unsigned int)  (m_incoming ? 0x00000001 : 0x00000000) // unknown
       << (unsigned int)  0x00000000 // unknown
-      << (unsigned int)  0x00000000 // unknown
-      << (unsigned short)0x00000001 // unknown
-      << (unsigned short)0x00000004 // unknown
-      << (unsigned int)  0x00000000 // unknown
-      << (unsigned int)  0x00000000;// unknown
+      << (unsigned int)  0x00000000; // unknown
+    if (m_incoming) {
+      b << (unsigned int) 0x00040001 // unknown
+	<< (unsigned int) 0x00000000 // unknown
+	<< (unsigned int) 0x00000000; // unknown
+    } else {
+      b << (unsigned int) 0x00000000 // unknown
+	<< (unsigned int) 0x00000000 // unknown
+	<< (unsigned int) 0x00040001; // unknown
+    }
     Send(b);
   }
 
@@ -420,6 +425,11 @@ namespace ICQ2000 {
     string msg;
     ostringstream ostr;
 
+    if (m_eff_tcp_version == 7) {
+      unsigned char start_byte;
+      b >> start_byte;
+      if (start_byte != 0x02) throw ParseException("Message Packet didn't start with 0x02");
+    }
 
     b >> checksum
       >> command
@@ -509,7 +519,12 @@ namespace ICQ2000 {
       unsigned long hex, key, B1, M1;
       unsigned int i;
       unsigned char X1, X2, X3;
-      unsigned int size = in.size()-2;
+      unsigned int correction;
+
+      if (m_eff_tcp_version == 7) correction = 3;
+      else correction = 2;
+
+      unsigned int size = in.size()-correction;
       
       in.setEndianness(Buffer::LITTLE);
       out.setEndianness(Buffer::LITTLE);
@@ -517,6 +532,12 @@ namespace ICQ2000 {
       unsigned short length;
       in >> length;
       out << length;
+
+      if (m_eff_tcp_version == 7) {
+	unsigned char start_byte;
+	in >> start_byte;
+	out << start_byte;
+      }
 
       unsigned int check;
       in >> check;
@@ -540,7 +561,7 @@ namespace ICQ2000 {
 	out << c;
       }
 
-      B1 = (out[6]<<24) | (out[8]<<16) | (out[6]<<8) | (out[8]<<0);
+      B1 = (out[4+correction]<<24) | (out[6+correction]<<16) | (out[4+correction]<<8) | (out[6+correction]<<0);
       
       // special decryption
       B1 ^= check;
@@ -549,7 +570,7 @@ namespace ICQ2000 {
       M1 = (B1 >> 24) & 0xFF;
       if(M1 < 10 || M1 >= size) return false;
 
-      X1 = out[M1+2] ^ 0xFF;
+      X1 = out[M1+correction] ^ 0xFF;
       if(((B1 >> 16) & 0xFF) != X1) return false;
       
       X2 = ((B1 >> 8) & 0xFF);
@@ -579,11 +600,17 @@ namespace ICQ2000 {
       unsigned int i, check;
       unsigned char X1, X2, X3;
       unsigned int size = in.size();
-      
+
       in.setEndianness(Buffer::LITTLE);
       out.setEndianness(Buffer::LITTLE);
 
-      out << (unsigned short)size;
+      if (m_eff_tcp_version == 7) {
+	// correction for next byte
+	out << (unsigned short)(size + 1);
+	out << (unsigned char)0x02;
+      } else {
+	out << (unsigned short)size;
+      }
 
       // calculate verification data
       M1 = (rand() % ((size < 255 ? size : 255)-10))+10;
