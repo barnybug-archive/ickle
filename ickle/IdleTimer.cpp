@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.cpp,v 1.5 2002-03-01 19:39:25 barnabygray Exp $
+/* $Id: IdleTimer.cpp,v 1.6 2002-04-18 16:33:59 barnabygray Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -82,14 +82,18 @@ gint IdleTimer::timer_cb()
   // if the user wants to set a smaller auto_na than auto_away, fine.
 
   unsigned short lim;
-  if ( (lim = max(auto_away, auto_na)) * 60 > m_idletime )
-    if ( (lim = min(auto_away, auto_na)) * 60 > m_idletime ) {
+  if ( (lim = max(auto_away, auto_na)) * 60 > m_idletime ) {
+    lim = (auto_away == 0 ? auto_na
+	   : auto_na == 0 ? auto_away
+	   : min(auto_away, auto_na)) * 60;
+    if ( lim > m_idletime ) {
       if (m_autostatus) { // back from idling, reset previous status
         icqclient.setStatus( m_prevstatus );
         m_autostatus = false;
       }
       return 1;
     }
+  }
 
   ICQ2000::Status currstatus = icqclient.getStatus();
   

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.38 2002-04-10 13:27:21 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.39 2002-04-18 16:33:59 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -124,6 +124,8 @@ class SettingsDialog : public Gtk::Dialog {
   void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
+
+  void spinner_changed(Gtk::SpinButton *sb);
 
   void network_smtp_toggle_cb();
   void network_smtp_update();

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.46 2002-04-16 19:41:51 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.47 2002-04-18 16:33:59 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -416,17 +416,21 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   popup_away_response.set_active( g_settings.getValueBool("set_away_response_dialog") );
   table->attach( popup_away_response, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
 
-  label = manage( new Gtk::Label( "Auto-away after this number of minutes (0 disables)", 0 ) );
+  label = manage( new Gtk::Label( "Auto-away (minutes)", 0 ) );
   unsigned short time = g_settings.getValueUnsignedShort( "auto_away" );
   adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
   autoaway_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  autoaway_spinner->set_editable(false);
+  autoaway_spinner->changed.connect( bind( slot( this, &SettingsDialog::spinner_changed ), autoaway_spinner ) );
   table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autoaway_spinner, 1, 2, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
-  label = manage( new Gtk::Label( "Auto-N/A after this number of minutes (0 disables)", 0 ) );
+  label = manage( new Gtk::Label( "Auto-N/A (minutes)", 0 ) );
   time = g_settings.getValueUnsignedShort( "auto_na" );
   adj = manage( new Gtk::Adjustment( time, 0.0, 65535.0 ) );
   autona_spinner = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  autona_spinner->set_editable(false);
+  autona_spinner->changed.connect( bind( slot( this, &SettingsDialog::spinner_changed ), autona_spinner ) );
   table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
   table->attach( *autona_spinner, 1, 2, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
 
@@ -1115,3 +1119,8 @@ void SettingsDialog::raise_away_status_tab() {
   notebook.set_page(3);
 }
 
+void SettingsDialog::spinner_changed(Gtk::SpinButton *sb)
+{
+  if (sb->get_text() == "0")
+    sb->set_text("Disabled");
+}
