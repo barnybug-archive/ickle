@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.72 2003-01-04 19:42:46 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.73 2003-01-08 19:35:20 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -220,6 +220,12 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   Gtk::RadioButton::Group gp = m_send_normal.get_group();
   m_send_urgent.set_group(gp);
   m_send_tocontactlist.set_group(gp);
+  if (m_contact->getStatus() == ICQ2000::STATUS_DND
+      || m_contact->getStatus() == ICQ2000::STATUS_OCCUPIED)
+  {
+    m_send_tocontactlist.set_active(true);
+  }
+
   m_delivery_buttons.pack_end( m_send_normal, Gtk::PACK_SHRINK );
   m_delivery_buttons.pack_end( m_send_urgent, Gtk::PACK_SHRINK );
   m_delivery_buttons.pack_end( m_send_tocontactlist, Gtk::PACK_SHRINK );
