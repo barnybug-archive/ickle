@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.67 2002-06-16 00:01:14 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.68 2002-07-03 01:06:34 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -242,6 +242,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   hbox = manage( new Gtk::HBox() );
 
   Gtk::Toolbar *toolbar = manage( new Gtk::Toolbar() );
+  toolbar->set_usize (-1, 22);
   {
     using namespace Gtk::Toolbar_Helpers;
     ToolList& tl = toolbar->tools();
