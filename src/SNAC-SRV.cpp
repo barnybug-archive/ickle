@@ -21,8 +21,14 @@
 
 #include "SNAC-SRV.h"
 
+#include <memory>
+#include <sstream>
+
 #include "TLV.h"
 #include "Xml.h"
+
+using std::auto_ptr;
+using std::istringstream;
 
 namespace ICQ2000 {
 
