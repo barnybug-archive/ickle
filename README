@@ -72,8 +72,13 @@ libgtk1.2-dev
 libsigc++0
 libsigc++-dev
 
-Sources for these libraries can be found on or linked from:
-http://gtkmm.sourceforge.net/
+Sources for these libraries can be found at the following addresses:
+libstdc++: http://www.gnu.org/software/gcc/libstdc++/ (should have
+come with your version of gcc really)
+gtk: http://www.gtk.org/
+gtkmm: http://gtkmm.sourceforge.net/
+libsigc++: http://libsigc.sourceforge.net/
+
 
 Compiling & Installation
 ------------------------
@@ -111,6 +116,16 @@ now fetch the basic user info off the server after you've added the user.
 I've written a simple perl script in scripts/licq2ickle.pl that you can
 run and will convert your licq contacts over to ickle. I might write
 something similar for windows if I get any requests for it.
+
+The ickle Library
+-----------------
+ickle is actually split into two parts, the ickle GUI and the
+libicq2000 library. If you are interested in developing your own
+client you can use just the libicq2000 on it's own. I have an example
+use of it like this as a simple command-line autoresponder in the
+examples/ directory. There's no proper documentation for the library
+yet, looking through the header files and source code is your best bet
+at the moment.
 
 Comments, bug reports, etc..
 ----------------------------
