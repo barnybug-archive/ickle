@@ -75,7 +75,8 @@ void TCPSocket::RecvBlocking(Buffer& b) {
   unsigned char buffer[max_receive_size];
 
   int ret = recv(socketDescriptor, buffer, max_receive_size, 0);
-  if (ret == -1) throw SocketException("Reading from socket");
+  if (ret == 0) throw SocketException("Socket closed at other end");
+  if (ret < 0) throw SocketException( strerror(errno) );
 
   b.Pack(buffer,ret);
 }
@@ -90,9 +91,10 @@ bool TCPSocket::RecvNonBlocking(Buffer& b) {
   int ret = recv(socketDescriptor, buffer, max_receive_size, 0);
   fcntl(socketDescriptor, F_SETFL, f & ~O_NONBLOCK);
 
+  if (ret == 0) throw SocketException("Socket closed at other end");
   if (ret == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) return false;
-    else throw SocketException("Reading from socket");
+    else throw SocketException( strerror(errno) );
   }
 
   b.Pack(buffer,ret);

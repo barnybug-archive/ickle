@@ -46,6 +46,7 @@ namespace ICQ2000 {
     m_cookie_length = 0;
 
     m_status = STATUS_ONLINE;
+    m_invisible = false;
   }
 
   unsigned short Client::NextSeqNum() {
@@ -259,6 +260,12 @@ namespace ICQ2000 {
 
   }
 
+  void Client::SignalUINResponse(UINResponseSNAC *snac) {
+      unsigned int uin = snac->getUIN();
+      NewUINEvent e(uin);
+      newuin.emit(&e);
+  }
+
   void Client::SignalLog(LogEvent::LogType type, const string& msg) {
     LogEvent ev(type,msg);
     logger.emit(&ev);
@@ -268,7 +275,8 @@ namespace ICQ2000 {
     const UserInfoBlock& userinfo = snac->getUserInfo();
     if (m_contact_list.exists(userinfo.getUIN())) {
       Contact& c = m_contact_list[userinfo.getUIN()];
-      c.setStatus(MapICQStatusToStatus(userinfo.getStatus()));
+      c.setStatus( MapICQStatusToStatus(userinfo.getStatus()) );
+      c.setInvisible( MapICQStatusToInvisible(userinfo.getStatus()) );
       StatusChangeEvent ev(&c, c.getStatus());
       contactlist.emit(&ev);
     } else {
@@ -330,6 +338,22 @@ namespace ICQ2000 {
     FLAPFooter(b,d);
     Send(b);
   }
+
+  void Client::SendNewUINReq() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x01);
+
+    b << (unsigned int)0x00000001;
+    FLAPFooter(b,d);
+    Send(b);
+    b.clear();
+
+    d = FLAPHeader(b,0x02);
+    UINRequestSNAC sn(m_password);
+    b << sn;
+    FLAPFooter(b,d);
+    Send(b);
+  }
     
   void Client::SendCookie() {
     Buffer b;
@@ -364,7 +388,7 @@ namespace ICQ2000 {
     }
 
     d = FLAPHeader(b,0x02);
-    SetStatusSNAC sss(MapStatusToICQStatus(m_status));
+    SetStatusSNAC sss(MapStatusToICQStatus(m_status, m_invisible));
     b << sss;
     FLAPFooter(b,d);
 
@@ -532,9 +556,14 @@ namespace ICQ2000 {
       // Connection Acknowledge - first packet from server on connection
       unsigned int unknown;
       b >> unknown; // always 0x0001
-      SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending Authorisation request\n");
 
-      SendAuthReq();
+      if (m_uin) {
+	SendAuthReq();
+	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending Authorisation request\n");
+      } else {
+	SendNewUINReq();
+	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending New UIN request\n");
+      }
       m_state = AUTH_AWAITING_AUTH_REPLY;
 
     } else if (b.remains() == 4 && m_state == BOS_AWAITING_CONN_ACK) {
@@ -608,6 +637,13 @@ namespace ICQ2000 {
 	break;
       }
       break;
+    case SNAC_FAM_UIN:
+      switch(snac->Subtype()) {
+      case SNAC_UIN_Response:
+	SignalUINResponse((UINResponseSNAC*)snac);
+	break;
+      }
+      break;
 	
 	
     } // switch(Family)
@@ -631,11 +667,11 @@ namespace ICQ2000 {
     if (m_state == AUTH_AWAITING_AUTH_REPLY) {
       // An Authorisation Reply / Error
       TLVList tlvlist;
-      tlvlist.Parse(b, TLV_ParseMode_Channel04, -1);
+      tlvlist.Parse(b, TLV_ParseMode_Channel04, (short unsigned int)-1);
 
       if (tlvlist.exists(TLV_Cookie) && tlvlist.exists(TLV_Redirect)) {
 
-	RedirectTLV *r = (RedirectTLV*)tlvlist[TLV_Redirect];
+	RedirectTLV *r = static_cast<RedirectTLV*>(tlvlist[TLV_Redirect]);
 	ostringstream ostr;
 	ostr << "Redirected to: " << r->getHost() << " port: " << dec << r->getPort() << endl;
 	SignalLog(LogEvent::INFO, ostr.str());
@@ -644,7 +680,7 @@ namespace ICQ2000 {
 	m_bosPort = r->getPort();
 
 	// Got our cookie - yum yum :-)
-	CookieTLV *t = (CookieTLV*)tlvlist[TLV_Cookie];
+	CookieTLV *t = static_cast<CookieTLV*>(tlvlist[TLV_Cookie]);
 	m_cookie_length = t->Length();
 
 	if (m_cookie_data) delete [] m_cookie_data;
@@ -662,7 +698,7 @@ namespace ICQ2000 {
 	DisconnectedEvent::Reason st;
 
 	if (tlvlist.exists(TLV_ErrorCode)) {
-	  ErrorCodeTLV *t = (ErrorCodeTLV*)tlvlist[TLV_ErrorCode];
+	  ErrorCodeTLV *t = static_cast<ErrorCodeTLV*>(tlvlist[TLV_ErrorCode]);
 	  ostringstream ostr;
 	  ostr << "Error logging in Error Code: " << t->Value() << endl;
 	  SignalLog(LogEvent::WARN, ostr.str());
@@ -686,15 +722,40 @@ namespace ICQ2000 {
 	    st = DisconnectedEvent::FAILED_UNKNOWN;
 	  }
 	} else {
-	  SignalLog(LogEvent::WARN, "Error logging in, no error code given(?!)\n");
-	  st = DisconnectedEvent::FAILED_UNKNOWN;
+	  if (m_uin) {
+	    SignalLog(LogEvent::WARN, "Error logging in, no error code given(?!)\n");
+	    st = DisconnectedEvent::FAILED_UNKNOWN;
+	  } else {
+	    Disconnect();
+	  }
 	}
 	DisconnectAuthorizer();
 	SignalDisconnect(st); // signal client (error)
       }
 
     } else {
-      SignalLog(LogEvent::WARN, "Unexpected packet received on channel 0x04\n");
+
+      TLVList tlvlist;
+      tlvlist.Parse(b, TLV_ParseMode_Channel04, (short unsigned int)-1);
+
+      DisconnectedEvent::Reason st;
+      
+      if (tlvlist.exists(TLV_DisconnectReason)) {
+	DisconnectReasonTLV *t = static_cast<DisconnectReasonTLV*>(tlvlist[TLV_DisconnectReason]);
+	  switch(t->Value()) {
+	  case 0x0001:
+	    st = DisconnectedEvent::FAILED_DUALLOGIN;
+	    break;
+	  default:
+	    st = DisconnectedEvent::FAILED_UNKNOWN;
+	  }
+
+	} else {
+	  SignalLog(LogEvent::WARN, "Unknown packet received on channel 4, disconnecting\n");
+	  st = DisconnectedEvent::FAILED_UNKNOWN;
+	}
+	DisconnectBOS();
+	SignalDisconnect(st); // signal client (error)
     }
 
   }
@@ -713,6 +774,10 @@ namespace ICQ2000 {
     if (m_state == NOT_CONNECTED)
       ConnectAuthorizer();
     return getSocketHandle();
+  }
+  int Client::RegisterUIN() {
+    m_uin = 0;
+    return Connect();
   }
 
   bool Client::isConnected() {
@@ -760,7 +825,7 @@ namespace ICQ2000 {
       unsigned int d;
       
       d = FLAPHeader(b,0x02);
-      SetStatusSNAC sss(MapStatusToICQStatus(m_status));
+      SetStatusSNAC sss(MapStatusToICQStatus(m_status, m_invisible));
       b << sss;
       FLAPFooter(b,d);
       
@@ -893,23 +958,32 @@ namespace ICQ2000 {
     }
   }
 
-  unsigned short Client::MapStatusToICQStatus(Status st) {
+  unsigned short Client::MapStatusToICQStatus(Status st, bool inv) {
+    unsigned short s;
+
     switch(st) {
     case STATUS_ONLINE:
-      return 0x0000;
+      s = 0x0000;
+      break;
     case STATUS_AWAY:
-      return 0x0001;
+      s = 0x0001;
+      break;
     case STATUS_NA:
-      return 0x0005;
+      s = 0x0005;
+      break;
     case STATUS_OCCUPIED:
-      return 0x0011;
+      s = 0x0011;
+      break;
     case STATUS_DND:
-      return 0x0013;
+      s = 0x0013;
+      break;
     case STATUS_FREEFORCHAT:
-      return 0x0020;
-      //    case STATUS_INVISIBLE:
-      //      return 0x0100;
+      s = 0x0020;
+      break;
     }
+
+    if (inv) s |= STATUS_FLAG_INVISIBLE;
+    return s;
   }
 
   Status Client::MapICQStatusToStatus(unsigned short st) {
@@ -921,4 +995,8 @@ namespace ICQ2000 {
     else return STATUS_ONLINE;
   }
 
+  bool Client::MapICQStatusToInvisible(unsigned short st) {
+    return (st & STATUS_FLAG_INVISIBLE);
+  }
+  
 }

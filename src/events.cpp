@@ -36,6 +36,18 @@ namespace ICQ2000 {
 
   void Event::setTime(time_t t) { m_time = t; }
 
+  // --------------- Socket Event --------------------
+
+  SocketEvent::SocketEvent(int fd) : m_fd(fd) { }
+
+  int SocketEvent::getSocketHandle() const { return m_fd; }
+
+  AddSocketHandleEvent::AddSocketHandleEvent(int fd)
+    : SocketEvent(fd) { }
+
+  RemoveSocketHandleEvent::RemoveSocketHandleEvent(int fd)
+    : SocketEvent(fd) { }
+
   // --------------- Connnected Event ----------------
 
   ConnectedEvent::ConnectedEvent() { }
@@ -194,5 +206,13 @@ namespace ICQ2000 {
   string SMSReceiptEvent::getSubmissionTime() const { return m_submission_time; }
   string SMSReceiptEvent::getDeliveryTime() const { return m_delivery_time; }
   bool SMSReceiptEvent::delivered() const { return m_delivered; }
+
+
+  // ---------------- New UIN ----------------------------
+
+  NewUINEvent::NewUINEvent(unsigned int uin) : m_uin(uin) { }
+
+  unsigned int NewUINEvent::getUIN() const { return m_uin; }
+
 
 }

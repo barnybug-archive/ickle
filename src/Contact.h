@@ -48,6 +48,7 @@ namespace ICQ2000 {
     // dynamic fields - updated when they come online
     unsigned char m_tcp_version;
     Status m_status;
+    bool m_invisible;
 
     static unsigned int imag_uin;
     
@@ -63,10 +64,12 @@ namespace ICQ2000 {
     string getAlias() const;
     Status getStatus() const;
     string getMobileNo() const;
+    bool isInvisible() const;
 
     void setMobileNo(const string& mn);
     void setAlias(const string& al);
     void setStatus(Status st);
+    void setInvisible(bool i);
 
     bool isICQContact() const;
     bool isMobileContact() const;

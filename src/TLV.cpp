@@ -106,6 +106,12 @@ namespace ICQ2000 {
       case TLV_ErrorCode:
 	tlv = new ErrorCodeTLV();
 	break;
+      case TLV_DisconnectReason:
+	tlv = new DisconnectReasonTLV();
+	break;
+      case TLV_DisconnectMessage:
+	tlv = new DisconnectMessageTLV();
+	break;
       }
       break;
 
@@ -334,7 +340,7 @@ namespace ICQ2000 {
      * guys are craaazy..
      */
     TLVList tlvlist;
-    tlvlist.Parse(b, TLV_ParseMode_InMessageData, -1);
+    tlvlist.Parse(b, TLV_ParseMode_InMessageData, (short unsigned int)-1);
 
     if (tlvlist.exists(TLV_MessageText))
       mttlv = *((MessageTextTLV*)tlvlist[TLV_MessageText]);
@@ -542,7 +548,7 @@ namespace ICQ2000 {
       m_type = SMS;
     }
 
-    /* Next 14 bytes
+    /*
      * A Tag for the type, can be:
      * - "ICQSMS" NULL (?)
      * - "IrCQ-Net Invitation"

@@ -50,6 +50,28 @@ namespace ICQ2000 {
     void setTime(time_t t);
   };
 
+  // ----------------- SocketEvent ---------------------
+
+  class SocketEvent : public Event {
+   private:
+    int m_fd;
+
+   public:
+    SocketEvent::SocketEvent(int fd);
+
+    int getSocketHandle() const;
+  };
+
+  class AddSocketHandleEvent : public SocketEvent {
+   public:
+    AddSocketHandleEvent(int fd);
+  };
+
+  class RemoveSocketHandleEvent : public SocketEvent {
+   public:
+    RemoveSocketHandleEvent(int fd);
+  };
+
   // ----------------- ConnectedEvent ------------------
 
   class ConnectedEvent : public Event {
@@ -68,6 +90,7 @@ namespace ICQ2000 {
       FAILED_TURBOING,
       FAILED_BADPASSWORD,
       FAILED_MISMATCH_PASSWD,
+      FAILED_DUALLOGIN,
       FAILED_UNKNOWN
     };
 
@@ -269,6 +292,17 @@ namespace ICQ2000 {
     string getSubmissionTime() const;
     string getDeliveryTime() const;
     bool delivered() const;
+  };
+
+  // --------------------- NewUIN Event -----------------------------
+
+  class NewUINEvent : public Event {
+   private:
+    unsigned int m_uin;
+
+   public:
+    NewUINEvent(unsigned int uin);
+    unsigned int getUIN() const;
   };
 
 }

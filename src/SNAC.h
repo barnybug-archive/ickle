@@ -58,6 +58,7 @@ namespace ICQ2000 {
   const unsigned short SNAC_FAM_CHT = 0x000e;
 
   const unsigned short SNAC_FAM_SRV = 0x0015; // Server messages
+  const unsigned short SNAC_FAM_UIN = 0x0017; // UIN registration
 
   // Generic (Family 0x0001)
   const unsigned short SNAC_GEN_Error = 0x0001;
@@ -104,11 +105,15 @@ namespace ICQ2000 {
   const unsigned short SNAC_MSG_Error = 0x0001;
   const unsigned short SNAC_MSG_Send = 0x0006;
   const unsigned short SNAC_MSG_Message = 0x0007;
+  const unsigned short SNAC_MSG_SentOffline = 0x000c;
 
   // Server Messages (Family 0x0015) - messages through the server
   const unsigned short SNAC_SRV_Error = 0x0001;
   const unsigned short SNAC_SRV_Send = 0x0002;
   const unsigned short SNAC_SRV_Response = 0x0003;
+  // UIN Registration
+  const unsigned short SNAC_UIN_Request = 0x0004;
+  const unsigned short SNAC_UIN_Response = 0x0005;
   /*
    * SRV_Response is very generic - ICQ have hacked all the extra ICQ
    * functionality into this one
@@ -415,6 +420,17 @@ namespace ICQ2000 {
 
     unsigned short Subtype() const { return SNAC_MSG_Message; }
   };
+  class MessageSentOfflineSNAC : public MsgFamilySNAC, public InSNAC {
+   protected:
+    unsigned int m_uin;
+
+    void ParseBody(Buffer& b);
+
+   public:
+
+    unsigned short Subtype() const { return SNAC_MSG_SentOffline; }
+    unsigned int getUIN() const { return m_uin; }  
+  };
 
   // --------------------- Server (Family 0x0015) SNACs ---------
 
@@ -537,6 +553,37 @@ namespace ICQ2000 {
     string getEmail() const { return m_email; }
 
     unsigned short Subtype() const { return SNAC_SRV_Response; }
+  };
+  // --------------------- UIN Registration (Family 0x0017) SNACs ---------
+
+  class UINFamilySNAC : virtual public SNAC {
+   public:
+    unsigned short Family() const { return SNAC_FAM_UIN; }
+  };
+
+  class UINRequestSNAC : public UINFamilySNAC, public OutSNAC {
+   protected:
+    string m_password;
+    
+    void OutputBody(Buffer& b) const;
+
+   public:
+    UINRequestSNAC(const string& p);
+
+    unsigned short Subtype() const { return SNAC_UIN_Request; }
+  };
+
+  class UINResponseSNAC : public UINFamilySNAC, public InSNAC {
+   protected:
+    unsigned int m_uin;
+    
+    void ParseBody(Buffer& b);
+    
+   public:
+    UINResponseSNAC();
+
+    unsigned short Subtype() const { return SNAC_UIN_Response; }
+    unsigned int getUIN() const { return m_uin; }
   };
 
 }

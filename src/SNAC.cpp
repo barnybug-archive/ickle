@@ -68,6 +68,9 @@ namespace ICQ2000 {
       case SNAC_MSG_Message:
 	snac = new MessageSNAC();
 	break;
+      case SNAC_MSG_SentOffline:
+	snac = new MessageSentOfflineSNAC();
+	break;
       }
       break;
 
@@ -77,6 +80,14 @@ namespace ICQ2000 {
 	snac = new SrvResponseSNAC();
 	break;
       }
+      break;
+    case SNAC_FAM_UIN:
+      switch(subtype) {
+      case SNAC_UIN_Response:
+	snac = new UINResponseSNAC();
+	break;
+      }
+         
       break;
 
     }
@@ -223,7 +234,7 @@ namespace ICQ2000 {
      * but we'll treat it as a list
      */
     TLVList tlvlist;
-    tlvlist.Parse(b, TLV_ParseMode_Channel02, -1);
+    tlvlist.Parse(b, TLV_ParseMode_Channel02, (short unsigned int)-1);
     if (tlvlist.exists(TLV_WebAddress)) {
       WebAddressTLV *t = (WebAddressTLV*)tlvlist[TLV_WebAddress];
       m_url = t->Value();
@@ -435,7 +446,7 @@ namespace ICQ2000 {
      * up inside
      */
     TLVList tlvlist;
-    tlvlist.Parse(b, TLV_ParseMode_MessageBlock, -1);
+    tlvlist.Parse(b, TLV_ParseMode_MessageBlock, (short unsigned int)-1);
     
     if (channel == 0x0001) {
       // Normal message
@@ -475,6 +486,16 @@ namespace ICQ2000 {
 
     }
     
+  }
+
+  void MessageSentOfflineSNAC::ParseBody(Buffer& b) {
+    b.advance(10);
+
+    unsigned char len;
+    string sn;
+    b >> len;
+    b.Unpack(sn, len);
+    m_uin = Contact::StringtoUIN(sn);
   }
 
 
@@ -825,6 +846,40 @@ namespace ICQ2000 {
 
   }
 
+
+  // -------------- New UIN (0x0017) Family -----------------------
+
+  UINRequestSNAC::UINRequestSNAC(const string& p)
+    : m_password(p) { }
+
+  void UINRequestSNAC::OutputBody(Buffer& b) const{
+    b<<(unsigned int)0x00010039;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x28000300;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x624e0000;
+    b<<(unsigned int)0x624e0000;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x0;
+    b<<(unsigned int)0x0;
+    b.setEndianness(Buffer::LITTLE);
+    b<<(unsigned short)m_password.length();
+    b<<m_password.c_str();
+    b.setEndianness(Buffer::BIG);
+    b<<(unsigned int)0x624e0000;
+    b<<(unsigned int)0x0000d601;
+  }
+
+  UINResponseSNAC::UINResponseSNAC() { }
+
+  void UINResponseSNAC::ParseBody(Buffer& b){
+    b.advance(46);
+    b.setEndianness(Buffer::LITTLE);
+    b >> m_uin;
+    b.advance(10);
+  }
 
   // -------------- Other Stuff -----------------------------------
 

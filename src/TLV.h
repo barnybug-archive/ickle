@@ -24,10 +24,14 @@
 #include <iostream>
 #include <string>
 
+#include <config.h>
+
 #ifdef HAVE_EXT_HASH_MAP
-#include <ext/hash_map>
+# include <ext/hash_map>
+#elif HAVE_HASH_MAP
+# include <hash_map>
 #else
-#include <hash_map>
+# error "hash_map not defined"
 #endif
 
 #include <string.h>
@@ -107,7 +111,8 @@ namespace ICQ2000 {
   const unsigned short TLV_Redirect = 0x0005;
   // const unsigned short TLV_Cookie = 0x0006;
   const unsigned short TLV_ErrorCode = 0x0008;
-  const unsigned short TLV_DualUserOnline = 0x0009; // ??
+  const unsigned short TLV_DisconnectReason = 0x0009;
+  const unsigned short TLV_DisconnectMessage = 0x000b;
   const unsigned short TLV_Unknown3 = 0x000c;
   const unsigned short TLV_EmailAddress = 0x0011;
   const unsigned short TLV_RegStatus = 0x0013;
@@ -215,6 +220,18 @@ namespace ICQ2000 {
    public:
     ErrorCodeTLV() { }
     unsigned short Type() const { return TLV_ErrorCode; }
+  };
+
+  class DisconnectReasonTLV : public ShortTLV {
+   public:
+    DisconnectReasonTLV() { }
+    unsigned short Type() const { return TLV_DisconnectReason; }
+  };
+
+  class DisconnectMessageTLV : public StringTLV {
+   public:
+    DisconnectMessageTLV() { }
+    unsigned short Type() const { return TLV_DisconnectMessage; }
   };
 
   class ScreenNameTLV : public StringTLV {

@@ -94,7 +94,7 @@ void ContactListView::remove_user_cb() {
 gint ContactListView::button_press_cb(GdkEventButton *ev) {
   int rw = -1, col;
 
-  get_selection_info(ev->x, ev->y, &rw, &col);
+  get_selection_info((int)ev->x, (int)ev->y, &rw, &col);
   if (rw != -1) {
     RowData *p = (RowData*)get_row_data(rw);
     if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {

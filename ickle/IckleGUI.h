@@ -40,10 +40,14 @@
 #include <string>
 #include <memory>
 
+#include <config.h>
+
 #ifdef HAVE_EXT_HASH_MAP
-#include <ext/hash_map>
+# include <ext/hash_map>
+#elif HAVE_HASH_MAP
+# include <hash_map>
 #else
-#include <hash_map>
+# error "hash_map not defined"
 #endif
 
 #include <utility>

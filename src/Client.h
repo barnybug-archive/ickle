@@ -75,6 +75,7 @@ namespace ICQ2000 {
 
     unsigned short m_client_seq_num;
     Status m_status;
+    bool m_invisible;
     
     ContactList m_contact_list;
 
@@ -99,6 +100,7 @@ namespace ICQ2000 {
     void SignalDisconnect(DisconnectedEvent::Reason r);
     void SignalMessage(MessageSNAC *snac);
     void SignalSrvResponse(SrvResponseSNAC *snac);
+    void SignalUINResponse(UINResponseSNAC *snac);
     void SignalLog(LogEvent::LogType type, const string& msg);
     void SignalUserOnline(BuddyOnlineSNAC *snac);
     void SignalUserOffline(BuddyOfflineSNAC *snac);
@@ -107,6 +109,7 @@ namespace ICQ2000 {
     // ------------------ Outgoing packets -------------------
 
     void SendAuthReq();
+    void SendNewUINReq();
     void SendCookie();
     void SendCapabilities();
     void SendLogin();
@@ -141,14 +144,17 @@ namespace ICQ2000 {
     /* Maps the Status enum code to the real uint16
      * value ICQ sends and vice versa
      */
-    unsigned short MapStatusToICQStatus(Status st);
+    unsigned short MapStatusToICQStatus(Status st, bool inv);
     Status MapICQStatusToStatus(unsigned short st);
+    bool MapICQStatusToInvisible(unsigned short st);
 
    public:
     Client();
     Client(const unsigned int uin, const string& password);
     ~Client();
-    
+   
+    bool getInvisible() { return m_invisible; }
+    void setInvisible(bool i) { m_invisible = i; }
     void setUIN(unsigned int uin) { m_uin = uin; }
     unsigned int getUIN() { return m_uin; }
     void setPassword(const string& password) { m_password = password; }
@@ -159,7 +165,9 @@ namespace ICQ2000 {
     Signal1<void,DisconnectedEvent*> disconnected;
     Signal1<bool,MessageEvent*,StopOnTrueMarshal> messaged;
     Signal1<void,ContactListEvent*> contactlist;
+    Signal1<void,NewUINEvent*> newuin;
     Signal1<void,LogEvent*> logger;
+    Signal1<void,SocketEvent*> socket;
     // -------------
 
     // -- Signal Dispatchers --
@@ -206,6 +214,7 @@ namespace ICQ2000 {
      * so the client can select() on it
      */
     int Connect();
+    int RegisterUIN();
 
     /*
      * Likewise for Disconnect()

@@ -200,6 +200,8 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   if (c->getReason() == DisconnectedEvent::REQUESTED) {
     cout << "ickle: Disconnected as requested" << endl;
+  } else if (c->getReason() == DisconnectedEvent::FAILED_DUALLOGIN) {
+    cout << "ickle: Dual login, disconnected" << endl;
   } else {
     cout << "ickle: Problem connecting: ";
     switch(c->getReason()) {

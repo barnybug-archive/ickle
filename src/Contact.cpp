@@ -24,17 +24,17 @@
 namespace ICQ2000 {
 
   Contact::Contact()
-    : m_status(STATUS_OFFLINE),
+    : m_status(STATUS_OFFLINE), m_invisible(false),
       m_icqcontact(false), m_mobilecontact(false) {
   }
 
   Contact::Contact(unsigned int uin)
-    : m_uin(uin), m_status(STATUS_OFFLINE),
+    : m_uin(uin), m_status(STATUS_OFFLINE), m_invisible(false),
       m_alias(UINtoString(m_uin)),
       m_icqcontact(true), m_mobilecontact(false) { }
 
   Contact::Contact(const string& a, const string& m)
-    : m_alias(a), m_mobileno(m), m_icqcontact(false),
+    : m_alias(a), m_mobileno(m), m_icqcontact(false), m_status(STATUS_OFFLINE), m_invisible(false),
       m_mobilecontact(true), m_uin(nextImaginaryUIN()) { }
 
   Contact::~Contact() {
@@ -55,6 +55,8 @@ namespace ICQ2000 {
 
   string Contact::getMobileNo() const { return m_mobileno; }
 
+  bool Contact::isInvisible() const { return m_invisible; }
+
   void Contact::setMobileNo(const string& mn) {
     m_mobileno = mn;
     if (!mn.empty()) m_mobilecontact = true;
@@ -64,6 +66,8 @@ namespace ICQ2000 {
   void Contact::setAlias(const string& al) { m_alias = al; }
 
   void Contact::setStatus(Status st) { m_status = st; }
+
+  void Contact::setInvisible(bool inv) { m_invisible = inv; }
 
   bool Contact::isICQContact() const { return m_icqcontact; }
 

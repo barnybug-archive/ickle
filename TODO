@@ -1,7 +1,9 @@
 Stuff to do:
 (This are in rough order of when they will get done, most pressing first)
 
-* Recording History
+* Limit message length
+
+* Parse Message too long error responses
 
 * More User info (only does simple userinfo atm)
 
