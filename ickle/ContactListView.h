@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.32 2003-01-12 17:42:17 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.33 2003-01-18 12:00:17 nordman Exp $
  *
  * ContactList(Tree)View
  *
@@ -145,7 +145,7 @@ class ContactListView : public Gtk::TreeView,
 
   // signals
   SigC::Signal1<void, unsigned int> m_signal_messagebox_popup;
-  SigC::Signal1<void, unsigned int> m_signal_userinfo_popup;
+  SigC::Signal1<void, const ICQ2000::ContactRef&> m_signal_userinfo_popup;
   
  public:
   ContactListView(Gtk::Window& parent, MessageQueue& mq);
@@ -155,7 +155,7 @@ class ContactListView : public Gtk::TreeView,
 
   // signal accessors
   SigC::Signal1<void, unsigned int>& signal_messagebox_popup();
-  SigC::Signal1<void, unsigned int>& signal_userinfo_popup();
+  SigC::Signal1<void, const ICQ2000::ContactRef&>& signal_userinfo_popup();
 };
 
 #endif /* CONTACTLISTVIEW_H */

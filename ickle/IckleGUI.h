@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.48 2003-01-12 16:55:06 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.49 2003-01-18 12:00:19 nordman Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -187,7 +187,6 @@ class IckleGUI : public Gtk::Window,
 
   // -- contactlist callbacks --
   void messagebox_popup_cb(unsigned int uin);
-  void userinfo_popup_cb(unsigned int uin);
 
   void spell_check_setup();
 

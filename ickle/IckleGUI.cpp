@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.70 2003-01-12 16:55:06 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.71 2003-01-18 12:00:18 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -134,7 +134,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
   m_log_window.signal_hide().connect( SigC::slot( *this, &IckleGUI::log_window_hidden_cb ) );
 
   m_contact_list->signal_messagebox_popup().connect( SigC::slot( *this, &IckleGUI::messagebox_popup_cb ) );
-  m_contact_list->signal_userinfo_popup().connect( SigC::slot( *this, &IckleGUI::userinfo_popup_cb ) );
+  m_contact_list->signal_userinfo_popup().connect( SigC::slot( *this, &IckleGUI::popup_userinfo ) );
   m_contact_list->grab_focus();
 
   g_settings.settings_changed.connect( SigC::slot( *this, &IckleGUI::settings_changed_cb ) );
@@ -530,7 +530,7 @@ void IckleGUI::my_user_info_cb()
   
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
     UserInfoDialog *d = new UserInfoDialog(*this, self, true);
-    d->signal_destroy().connect(SigC::bind(SigC::slot(*this,&IckleGUI::userinfo_dialog_destroy_cb), self));
+    d->signal_closed().connect(SigC::bind(SigC::slot(*this,&IckleGUI::userinfo_dialog_destroy_cb), self));
     d->signal_fetch().connect( SigC::slot( *this, &IckleGUI::my_userinfo_fetch_cb ) );
     d->signal_upload().connect( SigC::bind( SigC::slot( *this, &IckleGUI::userinfo_dialog_upload_cb ), self));
     m_userinfo_dialogs[ uin ] = d;
@@ -693,7 +693,7 @@ void IckleGUI::popup_userinfo(const ContactRef& c) {
   unsigned int uin = c->getUIN();
   if ( m_userinfo_dialogs.count(uin) == 0 ) {
     UserInfoDialog *d = new UserInfoDialog(*this, c, false);
-    d->signal_destroy().connect(SigC::bind(SigC::slot(*this,&IckleGUI::userinfo_dialog_destroy_cb), c));
+    d->signal_closed().connect(SigC::bind(SigC::slot(*this,&IckleGUI::userinfo_dialog_destroy_cb), c));
     d->signal_fetch().connect( SigC::bind( SigC::slot(*this, &IckleGUI::userinfo_fetch_cb), c) );
     m_userinfo_dialogs[ uin ] = d;
     if (m_message_boxes.count(uin) != 0) {
@@ -842,12 +842,6 @@ void IckleGUI::messagebox_popup_cb(unsigned int uin)
     popup_messagebox(c, m_histmap[c->getUIN()]);
   else
     popup_next_event(c, m_histmap[c->getUIN()]);
-}
-
-void IckleGUI::userinfo_popup_cb(unsigned int uin)
-{
-  ICQ2000::ContactRef c = icqclient.getContact(uin);
-  popup_userinfo(c);
 }
 
 SigC::Signal0<void>& IckleGUI::signal_exit()

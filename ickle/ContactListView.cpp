@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.54 2003-01-12 17:42:17 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.55 2003-01-18 12:00:15 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -78,7 +78,7 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     
     Gtk::CellRendererPixbuf* pPixbufRenderer = Gtk::manage( new Gtk::CellRendererPixbuf() );
     Gtk::CellRendererText* pTextRenderer = Gtk::manage( new Gtk::CellRendererText() );
-    pColumn = Gtk::manage( new Gtk::TreeView::Column( _("Nick") ) );
+    pColumn = Gtk::manage( new Gtk::TreeView::Column( _("Contacts") ) );
 
     pColumn->pack_start( *pPixbufRenderer, false );
     pColumn->pack_start( *pTextRenderer );
@@ -545,6 +545,8 @@ void ContactListView::contact_fetch_away_msg_cb()
 
 void ContactListView::contact_userinfo_cb()
 {
+  ICQ2000::ContactRef c = get_selected_contact();
+  signal_userinfo_popup().emit(c);
 }
 
 void ContactListView::contact_send_auth_req_cb()
@@ -627,7 +629,7 @@ SigC::Signal1<void, unsigned int>& ContactListView::signal_messagebox_popup()
   return m_signal_messagebox_popup;
 }
 
-SigC::Signal1<void, unsigned int>& ContactListView::signal_userinfo_popup()
+SigC::Signal1<void, const ICQ2000::ContactRef&>& ContactListView::signal_userinfo_popup()
 {
   return m_signal_userinfo_popup;
 }
