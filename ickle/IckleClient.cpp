@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.98 2002-04-20 15:06:42 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.99 2002-04-20 16:47:14 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -758,7 +758,6 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
 
   // add to contact list if not on list already
   if (!icqclient.getContactList().exists(ev->getContact()->getUIN())) {
-    cout << "boo" << endl;
     icqclient.addContact(ev->getContact());
     icqclient.fetchDetailContactInfo(ev->getContact());
   }
