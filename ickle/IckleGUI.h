@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.24 2002-01-11 01:02:08 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.25 2002-01-13 20:33:53 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -128,6 +128,9 @@ class IckleGUI : public Gtk::Window {
   void userinfo_toggle_cb(bool b, Contact *c);
   void status_change_cb(MyStatusChangeEvent *ev);
   void exit_cb();
+  void settings_changed_cb(const string& k);
+
+  void spell_check_setup();
 
   // signals
   SigC::Signal0<void> settings_changed;

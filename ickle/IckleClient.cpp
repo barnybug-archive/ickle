@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.58 2002-01-13 14:19:35 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.59 2002-01-13 20:33:53 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -289,6 +289,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("set_away_response_timeout", true);
   g_settings.defaultValueBool("mouse_single_click", false);
   g_settings.defaultValueBool("mouse_check_away_click", true);
+  g_settings.defaultValueBool("spell_check", true);
+  
 
 #ifdef GNOME_ICKLE
   g_settings.defaultValueBool("hidegui_onstart", false);
@@ -342,6 +344,10 @@ void IckleClient::loadSettings() {
   // Load up auto response in case autoconnect = away/na/etc.
   string auto_response = g_settings.getValueString("last_auto_response");
   gui.setAutoResponse(auto_response);
+
+  if (g_settings.getValueBool("spell_check"))
+    gui.spell_check_setup();
+    
 }
 
 void IckleClient::saveSettings() {

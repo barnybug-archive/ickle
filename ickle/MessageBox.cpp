@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.36 2002-01-11 01:02:09 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.37 2002-01-13 20:33:53 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,8 @@
 #include <gtk--/scrollbar.h>
 #include <gtk--/toolbar.h>
 #include <gdk/gdkkeysyms.h>
+
+#include "gtkspell.h"
 
 using Gtk::Text;
 using SigC::bind;
@@ -640,4 +642,18 @@ gint MessageBox::text_button_press_cb(GdkEventButton *b, Text *t) {
   }
   adj->set_value( val );
   return TRUE;
+}
+
+void MessageBox::spell_attach()
+{
+  gtkspell_attach(GTK_TEXT(m_message_text.gtkobj()));
+  gtkspell_attach(GTK_TEXT(m_url_text.gtkobj()));
+  gtkspell_attach(GTK_TEXT(m_sms_text.gtkobj()));
+}
+
+void MessageBox::spell_detach()
+{
+  gtkspell_detach(GTK_TEXT(m_message_text.gtkobj()));
+  gtkspell_detach(GTK_TEXT(m_url_text.gtkobj()));
+  gtkspell_detach(GTK_TEXT(m_sms_text.gtkobj()));
 }

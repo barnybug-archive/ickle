@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.13 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.14 2002-01-13 20:33:53 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -128,6 +128,9 @@ class MessageBox : public Gtk::Window {
   void setDisplayTimes(bool d);
   
   void raise() const;
+
+  void spell_attach();
+  void spell_detach();
 
   // signals
   SigC::Signal1<void,MessageEvent *> send_event;

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.27 2002-01-11 01:02:09 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.28 2002-01-13 20:33:53 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -63,11 +63,11 @@ SettingsDialog::SettingsDialog()
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
+    spell_check("Spell check messages (you need ispell installed)", 0),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0)
 {
-  int dlg_width = 500;
   
   set_title("Settings Dialog");
   set_modal(true);
@@ -185,7 +185,6 @@ SettingsDialog::SettingsDialog()
   icons_list.selection_changed.connect( slot( this, &SettingsDialog::icons_cb ) );
 
   Gtk::ScrolledWindow *scrolled_window = manage(new Gtk::ScrolledWindow());
-  scrolled_window->set_usize(300, 200);
   scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   scrolled_window->add_with_viewport(icons_list);
   frame->add(*scrolled_window);
@@ -239,7 +238,7 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 5, false ) );
+  table = manage( new Gtk::Table( 2, 6, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
   message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
@@ -269,6 +268,9 @@ SettingsDialog::SettingsDialog()
   hbox->pack_end( *button, false );
 
   table->attach( *hbox, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0 );
+
+  spell_check.set_active( g_settings.getValueBool("spell_check") );
+  table->attach( spell_check, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -467,7 +469,6 @@ SettingsDialog::SettingsDialog()
   label = manage( new Gtk::Label( "Applet" ) );
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
-  dlg_width += 25;
 #endif
   
   // ---------------------------------------------------------
@@ -476,7 +477,6 @@ SettingsDialog::SettingsDialog()
   vbox->pack_start( notebook, true, true );
 
   set_border_width(10);
-  set_usize(dlg_width, 310);
   show_all();
 }
 
@@ -516,6 +516,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("history_shownr", (unsigned char)history_shownr_spinner->get_value_as_int() );
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );
+  g_settings.setValue("spell_check", spell_check.get_active() );
 
   // ------------ Away Status tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );

@@ -16,7 +16,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   SettingsDialog.cpp PromptDialog.cpp History.cpp MobileNoEntry.cpp	\
   Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
   SetAutoResponseDialog.cpp SearchDialog.cpp AboutDialog.cpp		\
-  IdleTimer.cpp
+  IdleTimer.cpp gtkspell.cpp
 
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   ContactListView.h MessageBox.h AddUserDialog.h		\
@@ -25,7 +25,7 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   MobileNoEntry.h Dir.h IckleApplet.h				\
   AwayMessageDialog.h sstream_fix.h				\
   SetAutoResponseDialog.h EventSubstituter.h SearchDialog.h     \
-  AboutDialog.h IdleTimer.h
+  AboutDialog.h IdleTimer.h gtkspell.h
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
 ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.27 2002-01-11 01:02:08 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.28 2002-01-13 20:33:53 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -25,6 +25,8 @@
 #include "AboutDialog.h"
 
 #include "sstream_fix.h"
+
+#include "gtkspell.h"
 
 using std::map;
 
@@ -85,6 +87,8 @@ IckleGUI::IckleGUI()
   add(m_top_vbox);
 
   m_contact_list.setupAccelerators();
+
+  g_settings.settings_changed.connect( slot( this, &IckleGUI::settings_changed_cb ) );
 }
 
 void IckleGUI::menu_status_update() {
@@ -138,6 +142,10 @@ IckleGUI::~IckleGUI() {
     map<unsigned int, UserInfoDialog*>::iterator i = m_userinfo_dialogs.begin();
     (*i).second->destroy();
   }
+
+  if (gtkspell_running())
+    gtkspell_stop();
+  
 }
 
 bool IckleGUI::message_cb(MessageEvent *ev) {
@@ -230,6 +238,9 @@ void IckleGUI::messagebox_popup(Contact *c, History *h) {
     else m->online();
 
     if (m_userinfo_dialogs.count(c->getUIN()) > 0) m->userinfo_dialog_cb(true);
+
+    if (gtkspell_running())
+      m->spell_attach();
 
     m->setDisplayTimes(m_display_times);
     m->popup();
@@ -445,6 +456,42 @@ void IckleGUI::settings_cb() {
     settings_changed.emit();
   }
 
+}
+
+void IckleGUI::spell_check_setup()
+{
+  if (g_settings.getValueBool("spell_check")) {
+    // start gtkspell
+
+    char *spellcmd[] = { "ispell", "-a", NULL };
+    if (!gtkspell_running())
+      if (gtkspell_start(NULL, spellcmd) == 0) {
+	map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+	while (i != m_message_boxes.end()) {
+	  (*i).second->spell_attach();
+	  ++i;
+	}
+      }
+  } else {
+    // stop gtkspell
+
+    if (gtkspell_running()) {
+      gtkspell_stop();
+      map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+      while (i != m_message_boxes.end()) {
+	(*i).second->spell_detach();
+	++i;
+      }
+    }
+      
+  }
+}
+
+
+void IckleGUI::settings_changed_cb(const string& k)
+{
+  if (k == "spell_check")
+    spell_check_setup();
 }
 
 void IckleGUI::icons_changed_cb() {

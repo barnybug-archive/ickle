@@ -51,6 +51,7 @@ int main(int argc, char* argv[]) {
   try {
     Gtk::Main gtkmain(argc,argv,true);
     IckleClient client(argc,argv);
+
 #ifdef GNOME_ICKLE
     applet_widget_gtk_main();
 #else
