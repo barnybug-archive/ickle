@@ -496,6 +496,21 @@ vector<string> UserInfoHelpers::getSexAllStrings()
   return vectorOfValues(sex_map);
 }
     
+string UserInfoHelpers::getStringFromAgeRange(ICQ2000::AgeRange id)
+{
+  return valueFromKey(age_map, id, ICQ2000::RANGE_NORANGE);
+}
+
+ICQ2000::AgeRange UserInfoHelpers::getAgeRangeFromString(const std::string& s)
+{
+  return keyFromValue(age_map, s, ICQ2000::RANGE_NORANGE);
+}
+
+vector<string> UserInfoHelpers::getAgeRangeAllStrings()
+{
+  return vectorOfValues(age_map);
+}
+
 /*
   TODO: Redo the timezone stuff as well to be backed up by maps.
   As it currently stands the conversions back and forth from enums

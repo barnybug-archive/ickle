@@ -61,9 +61,8 @@ class AddContactDialog : public Gtk::Dialog,
   ICQ2000::ContactTree::Group * m_selected_group;
   
   Gtk::Button& m_ok_button;
-  
-  static ICQ2000::ContactTree::Group * create_new_group();
- 
+
+
   void update_stuff();
   void uin_changed_cb();
   void mobileno_changed_cb();
@@ -75,6 +74,7 @@ class AddContactDialog : public Gtk::Dialog,
 
  public:
   AddContactDialog(Gtk::Window& parent);
+  static ICQ2000::ContactTree::Group * create_new_group();
 };
 
 #endif

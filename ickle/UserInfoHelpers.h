@@ -53,6 +53,10 @@ public:
     static std::string getStringFromSex(ICQ2000::Sex id);
     static ICQ2000::Sex getSexFromString(const std::string& s);
     static std::vector<std::string> getSexAllStrings();
+
+    static std::string getStringFromAgeRange(ICQ2000::AgeRange id);
+    static ICQ2000::AgeRange getAgeRangeFromString(const std::string& s);
+    static std::vector<std::string> getAgeRangeAllStrings();
     
     static std::string getStringFromTimezone(ICQ2000::Timezone tz);
     static ICQ2000::Timezone getTimezoneFromString(const std::string& s);
