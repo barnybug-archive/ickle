@@ -1,27 +1,42 @@
 Stuff to do:
 (This are in rough order of when they will get done, most pressing first)
 
-* TCP Client-Client connections (a lot of work)
+L = work required library side
+G = work required GUI side
 
-* Limit message length
+* (L) TCP Client-Client connections (a lot of work)
 
-* Parse Message too long error responses
+* (G/L) Setting away messages
 
-* Authorisation request/responses
+* (G/L) Setting status to invisible
 
-* Reviewing History
+* (G/L) Limit message length
 
-* Non-blocking DNS lookup
+* (L) Parse Message too long error responses
 
-* Even More User info (some of the extended info isn't handled)
+* (G) Authorisation request/responses
 
-* Autoconnect on start up
+* (G) History Viewing support
 
-* Moving contacts to top on message
+* (G) Setting debug level in settings for the log messages that are
+      printed - also logging to a file
 
-* Better way of indicating messaged
+* (L) Non-blocking DNS lookup at startup
 
-* Web presence enable/disable
+* (G/ L?) Foreground/background colour support for sending/receiving messages
+      there is some support library side for this
+
+* (G/L) Even More User info (some of the extended info isn't handled)
+
+* (G) Better way of indicating messaged
+
+* (G/L) Web presence enable/disable
+
+* (G/L) Support for emailexpress messages ICQ sub type
+
+* (L) Implement all of the login procedure - Requesting rights
+      information, advert servers, etc..
+
 
 Things that are likely never to be included:
 
