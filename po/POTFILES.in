@@ -34,6 +34,7 @@ ickle/UserInfoDialog.cpp
 ickle/UserInfoHelpers.cpp
 ickle/utils.cpp
 ickle/WizardDialog.cpp
+ickle/FindTextDialog.cpp
 control/CommandLineParser.cpp
 control/IckleControl.cpp
 control/main.cpp
