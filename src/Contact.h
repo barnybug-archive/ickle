@@ -43,7 +43,7 @@ namespace ICQ2000 {
     // static fields
     unsigned int m_uin;
     string m_alias;
-    string m_mobileno;
+    string m_mobileno, m_firstname, m_lastname, m_email;
 
     // dynamic fields - updated when they come online
     unsigned char m_tcp_version;
@@ -66,9 +66,13 @@ namespace ICQ2000 {
 
     unsigned int getUIN() const;
     string getStringUIN() const;
-    string getAlias() const;
-    Status getStatus() const;
     string getMobileNo() const;
+    string getAlias() const;
+    string getFirstName() const;
+    string getLastName() const;
+    string getEmail() const;
+
+    Status getStatus() const;
     bool isInvisible() const;
     unsigned int getExtIP() const;
     unsigned int getLanIP() const;
@@ -79,6 +83,10 @@ namespace ICQ2000 {
 
     void setMobileNo(const string& mn);
     void setAlias(const string& al);
+    void setFirstName(const string& fn);
+    void setLastName(const string& ln);
+    void setEmail(const string& em);
+
     void setStatus(Status st);
     void setInvisible(bool i);
     void setExtIP(unsigned int ip);

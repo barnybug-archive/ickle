@@ -76,6 +76,7 @@ void Buffer::UnpackUint16StringNull(string& s) {
   unsigned short sh;
   (*this) >> sh;
   Unpack(s, sh-1);
+  (*this).advance(1);
 }
 
 void Buffer::Unpack(string& s, int size) {

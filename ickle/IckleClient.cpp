@@ -81,10 +81,14 @@ void IckleClient::loadContactList() {
 	unsigned int uin = cs.getValueUnsignedInt("uin");
 	if (uin != 0) {
 	  Contact c(uin);
+
 	  string alias = cs.getValueString("alias");
 	  if (!alias.empty()) c.setAlias(alias);
-	  string mobile_no = cs.getValueString("mobile_no");
-	  if (!mobile_no.empty()) c.setMobileNo(mobile_no);
+	  c.setMobileNo(cs.getValueString("mobile_no"));
+	  c.setFirstName(cs.getValueString("firstname"));
+	  c.setLastName(cs.getValueString("lastname"));
+	  c.setEmail(cs.getValueString("email"));
+
 	  m_fmap[c.getUIN()] = string(*nextp);
 	  m_histmap[c.getUIN()] = history_filename( string(*nextp) );
 	  icqclient.addContact(c);
@@ -423,6 +427,9 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     user.setValue( "alias", c->getAlias() );
     if (c->isICQContact()) user.setValue( "uin", c->getUIN() );
     user.setValue( "mobile_no", c->getMobileNo() );
+    user.setValue( "firstname", c->getFirstName() );
+    user.setValue( "lastname", c->getLastName() );
+    user.setValue( "email", c->getEmail() );
     user.save(m_fmap[c->getUIN()]);
 
   } else if (ev->getType() == ContactListEvent::UserRemoved) {

@@ -56,6 +56,12 @@ namespace ICQ2000 {
 
   string Contact::getMobileNo() const { return m_mobileno; }
 
+  string Contact::getFirstName() const { return m_firstname; }
+
+  string Contact::getLastName() const { return m_lastname; }
+
+  string Contact::getEmail() const { return m_email; }
+
   unsigned int Contact::getExtIP() const { return m_ext_ip; }
 
   unsigned int Contact::getLanIP() const { return m_lan_ip; }
@@ -79,6 +85,12 @@ namespace ICQ2000 {
   }
 
   void Contact::setAlias(const string& al) { m_alias = al; }
+
+  void Contact::setFirstName(const string& fn) { m_firstname = fn; }
+
+  void Contact::setLastName(const string& ln) { m_lastname = ln; }
+
+  void Contact::setEmail(const string& em) { m_email = em; }
 
   void Contact::setStatus(Status st) { m_status = st; }
 

@@ -31,8 +31,6 @@
 
 #include <sigc++/signal_system.h>
 
-#include <sstream>
-
 #include "Contact.h"
 
 using namespace std;
@@ -43,7 +41,7 @@ using ICQ2000::Contact;
 class UserInfoDialog : public Gtk::Dialog {
  private:
   Gtk::Button okay, cancel, fetchb;
-  Gtk::Entry uin_entry, alias_entry, mobileno_entry;
+  Gtk::Entry uin_entry, alias_entry, mobileno_entry, firstname_entry, lastname_entry, email_entry;
 
   Contact *contact;
   bool finished_okay;

@@ -20,6 +20,8 @@
 
 #include "UserInfoDialog.h"
 
+#include <sstream>
+
 UserInfoDialog::UserInfoDialog(Contact *c)
        : Gtk::Dialog(),
 	 okay("OK"), cancel("Cancel"), fetchb("Fetch"),
@@ -47,7 +49,7 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
-  Gtk::Table *table = manage( new Gtk::Table( 3, 3, false ) );
+  Gtk::Table *table = manage( new Gtk::Table( 3, 6, false ) );
 
   label = manage( new Gtk::Label( "UIN", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 10);
@@ -64,15 +66,30 @@ UserInfoDialog::UserInfoDialog(Contact *c)
   label = manage( new Gtk::Label( "Mobile No", 0 ) );
   table->attach( *label, 0, 1, 2, 3, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
   label = manage( new Gtk::Label( "+", 0) );
-  table->attach( *label, 1, 2, 2, 3, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 3);
+  table->attach( *label, 1, 2, 2, 3, 0, GTK_FILL | GTK_EXPAND, 3);
   mobileno_entry.set_text( c->getMobileNo() );
   table->attach( mobileno_entry, 2, 3, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "First Name", 0 ) );
+  table->attach( *label, 0, 1, 3, 4, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  firstname_entry.set_text( c->getFirstName() );
+  table->attach( firstname_entry, 1, 3, 3, 4, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Last Name", 0 ) );
+  table->attach( *label, 0, 1, 4, 5, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  lastname_entry.set_text( c->getLastName() );
+  table->attach( lastname_entry, 1, 3, 4, 5, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Email", 0 ) );
+  table->attach( *label, 0, 1, 5, 6, GTK_FILL | GTK_EXPAND,GTK_FILL | GTK_EXPAND, 10);
+  email_entry.set_text( c->getEmail() );
+  table->attach( email_entry, 1, 3, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK,GTK_FILL | GTK_EXPAND, 0);
 
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( *table, true, true );
 
   set_border_width(10);
-  set_usize(270,150);
+  set_usize(400,300);
   show_all();
 }
 
@@ -88,6 +105,18 @@ bool UserInfoDialog::run() {
     if (contact->getMobileNo() != mobileno_entry.get_text()) {
       finished_okay = true;
       contact->setMobileNo(mobileno_entry.get_text());
+    }
+    if (contact->getFirstName() != firstname_entry.get_text()) {
+      finished_okay = true;
+      contact->setFirstName(firstname_entry.get_text());
+    }
+    if (contact->getLastName() != lastname_entry.get_text()) {
+      finished_okay = true;
+      contact->setLastName(lastname_entry.get_text());
+    }
+    if (contact->getEmail() != email_entry.get_text()) {
+      finished_okay = true;
+      contact->setEmail(email_entry.get_text());
     }
     return finished_okay;
   }
@@ -106,5 +135,8 @@ void UserInfoDialog::cancel_cb() {
 void UserInfoDialog::userinfochange_cb() {
   alias_entry.set_text( contact->getAlias() );
   mobileno_entry.set_text( contact->getMobileNo() );
+  firstname_entry.set_text( contact->getFirstName() );
+  lastname_entry.set_text( contact->getLastName() );
+  email_entry.set_text( contact->getEmail() );
 }
 

@@ -301,6 +301,9 @@ namespace ICQ2000 {
       if ( m_contact_list.exists( snac->getUIN() ) ) {
 	Contact& c = m_contact_list[ snac->getUIN() ];
 	c.setAlias( snac->getAlias() );
+	c.setEmail( snac->getEmail() );
+	c.setFirstName( snac->getFirstName() );
+	c.setLastName( snac->getLastName() );
 	UserInfoChangeEvent ev(&c);
 	contactlist.emit(&ev);
       }
