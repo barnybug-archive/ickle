@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.49 2003-01-04 19:42:45 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.50 2003-01-05 19:43:55 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -64,9 +64,9 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
 
   // setup Tree store
   m_reftreestore = Gtk::TreeStore::create(m_columns);
-  m_reftreestore->set_default_sort_func(SigC::slot(*this, &ContactListView::sort_func));
-  m_reftreestore->set_sort_column_id(0, Gtk::SORT_ASCENDING);
-  m_reftreestore->set_sort_func(0, SigC::slot(*this, &ContactListView::sort_func));
+  m_reftreestore->set_sort_func( m_columns.icon.index(), SigC::slot(*this, &ContactListView::sort_func));
+  m_reftreestore->set_sort_func( m_columns.nick.index(), SigC::slot(*this, &ContactListView::sort_func));
+  m_reftreestore->set_sort_column_id( m_columns.nick.index(), Gtk::SORT_ASCENDING);
   
   // setup Tree view
   set_model( m_reftreestore );
@@ -363,8 +363,6 @@ void ContactListView::update_list()
     
     ++curr;
   }
-
-  // TODO sort
 }
 
 void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
@@ -411,7 +409,7 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
     }
   }
 
-  // TODO sort();
+  sort();
 }
 
 void ContactListView::queue_added_cb(MessageEvent *ev)
@@ -432,7 +430,7 @@ void ContactListView::queue_added_cb(MessageEvent *ev)
     update_contact(icq->getICQContact());
   }
 
-  // TODO sort();
+  sort();
 }
 
 void ContactListView::queue_removed_cb(MessageEvent *ev)
@@ -455,7 +453,7 @@ void ContactListView::queue_removed_cb(MessageEvent *ev)
     update_contact(icq->getICQContact());
   }
       
-  // TODO sort();
+  sort();
 }
 
   
@@ -603,3 +601,17 @@ int ContactListView::status_order (ICQ2000::Status s)
   return 0;
 }
 
+void ContactListView::sort()
+{
+  /* this is a dirrty hack - gtk+ doesn't have any way of explicitly
+   * resorting, and doesn't reorder rows when their contents are changed
+   * (an acknowledged bug), so I hack an explicit resort function, which
+   * just switches sort columns to force gtk to resort
+   */
+  int sort_column_id;
+  Gtk::SortType order;
+  
+  m_reftreestore->get_sort_column_id( sort_column_id, order );
+  m_reftreestore->set_sort_column_id( (sort_column_id == m_columns.nick.index()
+		       ? m_columns.icon.index() : m_columns.nick.index() ), order );
+}

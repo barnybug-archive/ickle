@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.29 2003-01-02 16:39:53 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.30 2003-01-05 19:43:55 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -80,6 +80,9 @@ class ContactListView : public Gtk::TreeView,
   void group_remove_cb();
   void group_add_cb();
 
+
+  void sort();
+  
   gint sort_func(const Gtk::TreeModel::iterator& iter1, const Gtk::TreeModel::iterator& iter2);
   int status_order (ICQ2000::Status s);
 
