@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.17 2002-02-20 23:48:58 nordman Exp $
+/* $Id: IckleApplet.h,v 1.18 2002-03-28 21:51:49 barnabygray Exp $
  *
  * GNOME applet for ickle.
  *
@@ -34,9 +34,12 @@
 
 #include "IckleGUI.h"
 
+#include "MessageQueue.h"
+
 class IckleApplet : public SigC::Object {
   
  private:
+  MessageQueue& m_message_queue;
 
   GtkWidget *   m_applet;
   Gtk::Frame    m_frame;
@@ -44,16 +47,6 @@ class IckleApplet : public SigC::Object {
   Gtk::Label    m_nr;
   Gtk::Pixmap   m_pm;
   IckleGUI *    m_gui;
-
-  class msg_entry {
-  public:
-    msg_entry(Contact *c, MessageEvent::MessageType t) : contact(c), nr_msgs(1), type(t) {}
-    Contact *contact;
-    int nr_msgs;
-    MessageEvent::MessageType type;
-  };
-
-  std::list<msg_entry> m_pending;       /* list of pending msg's */
 
   gint          m_nr_msgs;              /* nr of messages pending, != m_pending.size() */
   gint          m_nr_users;             /* nr of users on contactlist */
@@ -65,16 +58,19 @@ class IckleApplet : public SigC::Object {
   static void   applet_orientchange_converter   (AppletWidget *applet, GNOME_Panel_OrientType orient, gpointer data);
 
   // callbacks
-  void          applet_click_cb         (GdkEventButton *ev);
-  static void   applet_status_menu_cb   (AppletWidget *applet, gpointer data);
-  static void   applet_toogle_menu_cb   (AppletWidget *applet, gpointer data);
-  static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent *event, gpointer data);
-  void          applet_orientchange_cb  (PanelOrientType orient);
-  bool          icq_messaged_cb         (MessageEvent *ev);
-  void          icq_selfevent_cb        (SelfEvent *ev);
-  void          icq_contactlist_cb      (ContactListEvent *ev);
-  void          icons_changed_cb        ();
+  void          applet_click_cb          (GdkEventButton *ev);
+  static void   applet_status_menu_cb    (AppletWidget *applet, gpointer data);
+  static void   applet_toogle_menu_cb    (AppletWidget *applet, gpointer data);
+  static gint   applet_delete_cb         (GtkWidget *widget, GdkEvent *event, gpointer data);
+  void          applet_orientchange_cb   (PanelOrientType orient);
+  void          icq_self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
+  void          icq_status_change_cb     (ICQ2000::StatusChangeEvent *ev);
+  void          icq_contactlist_cb       (ICQ2000::ContactListEvent *ev);
+  void          icons_changed_cb         ();
   
+  void          queue_added_cb           (MessageEvent *ev);
+  void          queue_removed_cb           (MessageEvent *ev);
+
   // misc
   void          set_applet_size         (int size, PanelOrientType orient);
   void          update_applet_icon      ();
@@ -85,7 +81,7 @@ class IckleApplet : public SigC::Object {
 
  public:
 
-  IckleApplet();
+  IckleApplet(MessageQueue& mq);
   ~IckleApplet() {}
 
   void          init            (int argc, char* argv[], IckleGUI &gui);

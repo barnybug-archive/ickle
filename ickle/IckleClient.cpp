@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.79 2002-03-28 18:29:02 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.80 2002-03-28 21:51:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -62,6 +62,9 @@ using ICQ2000::ContactRef;
 IckleClient::IckleClient(int argc, char* argv[])
   : m_message_queue(),
     gui( m_message_queue ),
+#ifdef GNOME_ICKLE
+    applet(m_message_queue),
+#endif
 #ifdef CONTROL_SOCKET
     ctrl(*this),
 #endif
