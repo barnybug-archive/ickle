@@ -227,6 +227,9 @@ namespace ICQ2000 {
       if (messaged.emit(e)) contact->erasePendingMessage(e);
     }
 
+
+    // should ACK the message if it was an advanced one
+    if (snac->isAdvanced()) SendAdvancedACK(snac);
   }
 
   void Client::SignalMessageEvent_cb(MessageEvent *ev) {
@@ -576,6 +579,24 @@ namespace ICQ2000 {
     FLAPFooter(b,d);
 
     SignalLog(LogEvent::INFO, "Sending Offline Messages ACK\n");
+    Send(b);
+  }
+
+  void Client::SendAdvancedACK(MessageSNAC *snac) {
+    ICQSubType *st = snac->getICQSubType();
+    if (st == NULL || dynamic_cast<UINRelatedSubType*>(st) == NULL ) return;
+
+    Buffer b;
+    unsigned int d;
+    
+    d = FLAPHeader(b,0x02);
+
+    const UserInfoBlock &userinfo = snac->getUserInfo();
+    MessageACKSNAC ssnac( snac->getICBMCookie(), userinfo.getUIN(), st->getSeqNum(), st->getType(), st->getFlags() );
+    b << ssnac;
+    FLAPFooter(b,d);
+
+    SignalLog(LogEvent::INFO, "Sending Advanced ACK\n");
     Send(b);
   }
 

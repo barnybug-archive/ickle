@@ -433,7 +433,6 @@ namespace ICQ2000 {
     
     AdvMsgBodyTLV *t = static_cast<AdvMsgBodyTLV*>(tlvlist[TLV_AdvMsgBody]);
     m_icqsubtype = t->grabICQSubType();
-
   }
 
   AdvMsgBodyTLV::AdvMsgBodyTLV() : m_icqsubtype(NULL) { }
@@ -456,13 +455,15 @@ namespace ICQ2000 {
     b.advance(27); // unknown
 
     b.setEndianness(Buffer::LITTLE);
-    b >> m_seqnum
+    unsigned short seqnum;
+    b >> seqnum
       >> unknown
-      >> m_seqnum; // again
+      >> seqnum; // again
 
     b.advance(12); // unknown - all zeroes
 
     m_icqsubtype = ICQSubType::ParseICQSubType(b, true);
+    if (m_icqsubtype != NULL) m_icqsubtype->setSeqNum(seqnum);
 
   }
 

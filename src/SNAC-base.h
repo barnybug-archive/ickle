@@ -49,29 +49,28 @@ namespace ICQ2000 {
   // ------------- abstract SNAC classes ---------------
 
   class SNAC {
+   protected:
+    unsigned short m_flags;
+    unsigned int m_requestID;
+    
    public:
+    SNAC();
     virtual ~SNAC() { }
     
     virtual unsigned short Family() const = 0;
     virtual unsigned short Subtype() const = 0;
-    virtual unsigned short Flags() const = 0;
-    virtual unsigned int RequestID() const = 0;
+
+    virtual unsigned short Flags() const;
+    virtual unsigned int RequestID() const;
   };
 
   // -- Inbound SNAC --
   class InSNAC : virtual public SNAC {
    protected:
-    unsigned short m_flags;
-    unsigned int m_requestID;
-    
     virtual void ParseBody(Buffer& b) = 0;
 
    public:
     virtual void Parse(Buffer& b);
-
-    virtual unsigned short Flags() const;
-    virtual unsigned int RequestID() const;
-
   };
 
   // -- Outbound SNAC --
@@ -81,9 +80,6 @@ namespace ICQ2000 {
     virtual void OutputBody(Buffer& b) const = 0;
 
    public:
-    unsigned short Flags() const { return 0x0000; }
-    unsigned int RequestID() const { return 0x00000000; }
-
     virtual void Output(Buffer& b) const;
   };
 

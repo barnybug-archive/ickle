@@ -25,18 +25,21 @@ namespace ICQ2000 {
 
   // ------------------ Abstract SNACs ---------------
 
+  SNAC::SNAC()
+    : m_flags(0x0000), m_requestID(0x00000000) { }
+
+  unsigned short SNAC::Flags() const {
+    return m_flags;
+  }
+
+  unsigned int SNAC::RequestID() const {
+    return m_requestID;
+  }
+
   void InSNAC::Parse(Buffer& b) {
     b >> m_flags
       >> m_requestID;
     ParseBody(b);
-  }
-
-  unsigned short InSNAC::Flags() const {
-    return m_flags;
-  }
-
-  unsigned int InSNAC::RequestID() const {
-    return m_requestID;
   }
 
   void OutSNAC::Output(Buffer& b) const {

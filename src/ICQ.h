@@ -65,8 +65,11 @@ namespace ICQ2000 {
   class ICQSubType {
    protected:
     unsigned short m_seqnum;
+
+    unsigned char m_flags;
     
    public:
+    ICQSubType();
     virtual ~ICQSubType() { }
 
     static ICQSubType* ParseICQSubType(Buffer& b, bool adv);
@@ -77,16 +80,33 @@ namespace ICQ2000 {
     virtual unsigned short Length() const = 0;
 
     virtual unsigned char getType() const = 0;
-    unsigned char getFlags() const { return 0x00; }
+    virtual unsigned char getFlags() const { return m_flags; }
+    virtual void setFlags(unsigned char f) { m_flags = f; }
+
+    unsigned short getSeqNum() const { return m_seqnum; }
+    void setSeqNum(unsigned short s)  { m_seqnum = s; }
 
     static void CRLFtoLF(string& s);
     static void LFtoCRLF(string& s);
   };
 
-  class NormalICQSubType : public ICQSubType {
+  class UINRelatedSubType : public ICQSubType {
+   protected:
+    unsigned int m_source, m_destination;
+
+   public:
+    UINRelatedSubType();
+    UINRelatedSubType(unsigned int s, unsigned int d);
+
+    void setDestination(unsigned int uin);
+    void setSource(unsigned int uin);
+    unsigned int getSource() const;
+    unsigned int getDestination() const;
+  };
+
+  class NormalICQSubType : public UINRelatedSubType {
    private:
     string m_message;
-    unsigned int m_destination;
     bool m_multi;
     unsigned int m_foreground, m_background;
     
@@ -97,8 +117,6 @@ namespace ICQ2000 {
     string getMessage() const;
     bool isMultiParty() const;
     void setMessage(const string& message);
-    unsigned int getDestination() const;
-    void setDestination(unsigned int uin);
     
     void setForeground(unsigned int f);
     void setBackground(unsigned int f);
@@ -111,11 +129,10 @@ namespace ICQ2000 {
     unsigned char getType() const;
   };
 
-  class URLICQSubType : public ICQSubType {
+  class URLICQSubType : public UINRelatedSubType {
    private:
     string m_message;
     string m_url;
-    unsigned int m_destination, m_source;
     
    public:
     URLICQSubType();
@@ -125,10 +142,6 @@ namespace ICQ2000 {
     void setMessage(const string& msg);
     string getURL() const;
     void setURL(const string& url);
-    unsigned int getSource() const;
-    void setSource(unsigned int uin);
-    unsigned int getDestination() const;
-    void setDestination(unsigned int uin);
     
     void Parse(Buffer& b, bool adv);
     void OutputBody(Buffer& b, bool adv) const;

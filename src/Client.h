@@ -144,6 +144,8 @@ namespace ICQ2000 {
     void SendOfflineMessagesRequest();
     void SendOfflineMessagesACK();
 
+    void SendAdvancedACK(MessageSNAC *snac);
+
     void Send(Buffer& b);
 
     void HandleUserInfoSNAC(UserInfoSNAC *snac);

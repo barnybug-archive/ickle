@@ -25,6 +25,9 @@ namespace ICQ2000 {
 
   // ----------------- ICQSubtypes ----------------
 
+  ICQSubType::ICQSubType()
+    : m_flags(0x0000) { }
+
   ICQSubType* ICQSubType::ParseICQSubType(Buffer& b, bool adv) {
     unsigned char type, flags;
     b >> type
@@ -53,6 +56,7 @@ namespace ICQ2000 {
       throw ParseException("Unknown ICQ Subtype");
     }
 
+    ist->setFlags(flags);
     ist->Parse(b, adv);
 
     return ist;
@@ -86,23 +90,33 @@ namespace ICQ2000 {
     }
   }
 
+  UINRelatedSubType::UINRelatedSubType()
+    : m_source(0), m_destination(0) { }
+
+  UINRelatedSubType::UINRelatedSubType(unsigned int s, unsigned int d)
+    : m_source(s), m_destination(d) { }
+
+  unsigned int UINRelatedSubType::getSource() const { return m_source; }
+
+  unsigned int UINRelatedSubType::getDestination() const { return m_destination; }
+
+  void UINRelatedSubType::setDestination(unsigned int d) { m_destination = d; }
+
+  void UINRelatedSubType::setSource(unsigned int s) { m_source = s; }
+
   NormalICQSubType::NormalICQSubType(bool multi)
     : m_multi(multi), m_foreground(0x00000000),
       m_background(0x00ffffff) { }
 
   NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin)
-    : m_message(msg), m_destination(uin), m_foreground(0x00000000),
-      m_background(0x00ffffff) { }
+    : m_message(msg), m_foreground(0x00000000),
+      m_background(0x00ffffff), UINRelatedSubType(0, uin) { }
 
   string NormalICQSubType::getMessage() const { return m_message; }
   
   bool NormalICQSubType::isMultiParty() const { return m_multi; }
 
   void NormalICQSubType::setMessage(const string& msg) { m_message = msg; }
-
-  unsigned int NormalICQSubType::getDestination() const { return m_destination; }
-
-  void NormalICQSubType::setDestination(unsigned int uin) { m_destination = uin; }
 
   void NormalICQSubType::Parse(Buffer& b, bool adv) {
     unsigned short length;
@@ -145,23 +159,15 @@ namespace ICQ2000 {
   URLICQSubType::URLICQSubType() { }
 
   URLICQSubType::URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination)
-    : m_message(msg), m_url(url), m_source(source), m_destination(destination) { }
+    : m_message(msg), m_url(url), UINRelatedSubType(source, destination) { }
 
   string URLICQSubType::getMessage() const { return m_message; }
 
   string URLICQSubType::getURL() const { return m_url; }
 
-  unsigned int URLICQSubType::getSource() const { return m_source; }
-
-  unsigned int URLICQSubType::getDestination() const { return m_destination; }
-
   void URLICQSubType::setMessage(const string& msg) { m_message = msg; }
 
   void URLICQSubType::setURL(const string& url) { m_url = url; }
-
-  void URLICQSubType::setSource(unsigned int uin) { m_source = uin; }
-
-  void URLICQSubType::setDestination(unsigned int uin) { m_destination = uin; }
 
   void URLICQSubType::Parse(Buffer& b, bool adv) {
     string text;

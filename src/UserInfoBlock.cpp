@@ -43,9 +43,7 @@ namespace ICQ2000 {
 
   void UserInfoBlock::Parse(Buffer& b) {
     // (byte)length, string screenname
-    unsigned char len;
-    b >> len;
-    b.Unpack(m_screenname, len);
+    b.UnpackByteString(m_screenname);
 
     b >> m_warninglevel;
     unsigned short no_tlvs;

@@ -62,21 +62,12 @@ namespace ICQ2000 {
     if (m_advanced) {
       b << (unsigned short)0x0002;
       
-      if (m_icqsubtype->getType() == MSG_Type_Normal) {
-	NormalICQSubType *nst = static_cast<NormalICQSubType*>(m_icqsubtype);
-
-	// Destination UIN (screenname)
-	string sn = Contact::UINtoString(nst->getDestination());
-	b << (unsigned char)sn.size();
-	b.Pack(sn);
-      } else if (m_icqsubtype->getType() == MSG_Type_URL) {
-	URLICQSubType *ust = static_cast<URLICQSubType*>(m_icqsubtype);
-
-	// Destination UIN (screenname)
-	string sn = Contact::UINtoString(ust->getDestination());
-	b << (unsigned char)sn.size();
-	b.Pack(sn);
-      }
+      UINRelatedSubType *ust = dynamic_cast<UINRelatedSubType*>(m_icqsubtype);
+      if (ust == NULL) return;
+      // should fix
+      
+      // Destination UIN (screenname)
+      b.PackByteString( Contact::UINtoString(ust->getDestination()) );
       
       b << (unsigned short)0x0005;
       b << (unsigned short)(m_icqsubtype->Length() + 91);
@@ -138,9 +129,7 @@ namespace ICQ2000 {
       b << (unsigned short)0x0001;
 
       // Destination UIN (screenname)
-      string sn = Contact::UINtoString(nst->getDestination());
-      b << (unsigned char)sn.size();
-      b.Pack(sn);
+      b.PackByteString( Contact::UINtoString(nst->getDestination()) );
       
       string m_text = nst->getMessage();
       ICQSubType::LFtoCRLF(m_text);
@@ -176,10 +165,8 @@ namespace ICQ2000 {
       b << (unsigned short)0x0004;
 
       // Destination UIN (screenname)
-      string sn = Contact::UINtoString(ust->getDestination());
-      b << (unsigned char)sn.size();
-      b.Pack(sn);
-
+      b.PackByteString( Contact::UINtoString(ust->getDestination()) );
+      
       string m_text, m_url;
       m_text = ust->getMessage();
       m_url = ust->getURL();
@@ -218,12 +205,8 @@ namespace ICQ2000 {
   }
 
   void MessageSNAC::ParseBody(Buffer& b) {
-    /*
-     * ICBM Cookie - (we ignore it)
-     */
-    unsigned char cookie[8];
-    for (int i = 0; i < 8; i++)
-      b >> cookie[i];
+    // ICBM Cookie
+    b >> m_cookie;
 
     /*
      * Channel 0x0001 = Normal message
@@ -259,6 +242,7 @@ namespace ICQ2000 {
       NormalICQSubType *nst = new NormalICQSubType(false);
       nst->setMessage( t->getMessage() );
       m_icqsubtype = nst;
+      m_advanced = false;
 
     } else if (channel == 0x0002) {
       TLVList tlvlist;
@@ -269,6 +253,7 @@ namespace ICQ2000 {
 
       AdvMsgDataTLV *t = static_cast<AdvMsgDataTLV*>(tlvlist[TLV_AdvMsgData]);
       m_icqsubtype = t->grabICQSubType();
+      m_advanced = true;
 
     } else if (channel == 0x0004) {
       TLVList tlvlist;
@@ -286,6 +271,7 @@ namespace ICQ2000 {
       
       ICQDataTLV *t = static_cast<ICQDataTLV*>(tlvlist[TLV_ICQData]);
       m_icqsubtype = t->grabICQSubType();
+      m_advanced = false;
 
     } else {
 
@@ -299,16 +285,62 @@ namespace ICQ2000 {
 
   MessageACKSNAC::MessageACKSNAC() { }
 
+  MessageACKSNAC::MessageACKSNAC(ICBMCookie c, unsigned int uin, unsigned short sn, unsigned char type, unsigned char flags)
+    : m_cookie(c), m_uin(uin), m_seqnum(sn), m_icqsubtype(type), m_icqflags(flags) { }
+
+  void MessageACKSNAC::OutputBody(Buffer& b) const {
+    b << m_cookie
+      << (unsigned short)0x0002;
+
+    b.PackByteString( Contact::UINtoString(m_uin) );
+
+    b << (unsigned short)0x0003;
+
+    // unknown..
+    b << (unsigned int)  0x1B000700
+      << (unsigned int)  0x00000000
+      << (unsigned int)  0x00000000
+      << (unsigned int)  0x00000000
+      << (unsigned int)  0x00000000
+      << (unsigned int)  0x00000300
+      << (unsigned short)0x0000;
+    
+    b << (unsigned char)0x00; // unknown 0 for normal 4 for away message request
+    
+    b.setEndianness(Buffer::LITTLE);
+    b << m_seqnum
+      << (unsigned short)0x000e
+      << m_seqnum;
+    
+    // unknown
+    b << (unsigned int)0x00000000
+      << (unsigned int)0x00000000
+      << (unsigned int)0x00000000;
+    
+    b << m_icqsubtype
+      << m_icqflags;
+    
+    b << (unsigned char) 0x00; // accept-status
+
+    b << (unsigned short)0x0000
+      << (unsigned char) 0x00; // unknown
+
+    string msg;
+    b.setEndianness(Buffer::LITTLE);
+    b.PackUint16StringNull(msg);
+    b << (unsigned int)0x00000000
+      << (unsigned int)0xffffffff;
+  }
+
   void MessageACKSNAC::ParseBody(Buffer& b) {
-    b.advance(8); // ICBM cookie
+    b >> m_cookie;
 
     unsigned short channel;
     b >> channel;
 
-    unsigned char len;
     string sn;
-    b >> len;
-    b.Unpack(sn, len);
+    b.UnpackByteString(sn);
+    m_uin = Contact::StringtoUIN(sn);
 
     b.advance(2); // 0x0003 unknown
     b.advance(47); // unknown
@@ -322,8 +354,6 @@ namespace ICQ2000 {
     b.UnpackUint16StringNull(msg);
 
     b.advance(8); // unknown
-
-    m_uin = Contact::StringtoUIN(sn);
   }
 
   void MessageSentOfflineSNAC::ParseBody(Buffer& b) {

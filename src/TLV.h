@@ -513,14 +513,12 @@ namespace ICQ2000 {
 
   class AdvMsgBodyTLV : public InTLV {
    protected:
-    unsigned short m_seqnum;
     ICQSubType *m_icqsubtype;
     
    public:
     AdvMsgBodyTLV();
     ~AdvMsgBodyTLV();
 
-    unsigned short getSeqNum() const { return m_seqnum; }
     ICQSubType* grabICQSubType();
 
     void ParseValue(Buffer& b);
@@ -529,14 +527,12 @@ namespace ICQ2000 {
   };
 
   class AdvMsgDataTLV : public InTLV {
-    unsigned short m_seqnum;
     ICQSubType *m_icqsubtype;
 
    public:
     AdvMsgDataTLV();
     ~AdvMsgDataTLV();
 
-    unsigned short getSeqNum() const { return m_seqnum; }
     ICQSubType* grabICQSubType();
 
     void ParseValue(Buffer& b);
