@@ -186,6 +186,11 @@ if test "x$USE_NLS" = xyes; then
 else
    $ECHO "gettext support:                    disabled"
 fi
+if test "$ickle_use_debug" = no; then
+   $ECHO "debug support:                      disabled"
+else
+   $ECHO "debug support:                      enabled"
+fi
 if test "x$ac_cv_have_backtrace" = xyes; then
    $ECHO "backtrace debug support:            enabled"
 else

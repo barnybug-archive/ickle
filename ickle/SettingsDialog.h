@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.55 2003-04-10 08:28:13 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.56 2003-04-12 16:29:28 barnabygray Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -82,9 +82,39 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::CheckButton m_mouse_check_away_click;
   Gtk::CheckButton m_mouse_single_click;
 
-  //lookn'n''feel - icons
+  // look 'n''feel - icons
   std::string m_icons_dir;
 
+  struct IconsModelColumns : public Gtk::TreeModel::ColumnRecord
+  {
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_online;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_away;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_na;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_occupied;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_dnd;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_ffc;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_offline;
+    Gtk::TreeModelColumn< Glib::RefPtr<Gdk::Pixbuf> >  icon_invisible;
+    Gtk::TreeModelColumn<Glib::ustring>                name;
+
+    IconsModelColumns()
+    {
+      add(icon_online);
+      add(icon_away);
+      add(icon_na);
+      add(icon_occupied);
+      add(icon_dnd);
+      add(icon_ffc);
+      add(icon_offline);
+      add(icon_invisible);
+      add(name);
+    }
+  };
+
+  const IconsModelColumns m_icons_columns;
+
+  Glib::RefPtr<Gtk::TreeModel> m_reftreemodel;
+  Gtk::TreeView m_icons_treeview;
 
   // message window
   Gtk::CheckButton m_message_autoclose;
@@ -199,8 +229,7 @@ class SettingsDialog : public Gtk::Dialog
   void on_ok_clicked();
 
   void choose_autoconnect (unsigned int s);
-  void choose_icons_dir (const std::string dir);
-
+  void icons_changed();
 
   void lnf_charset_validate_cb();
 

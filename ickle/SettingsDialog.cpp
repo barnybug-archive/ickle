@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.73 2003-04-12 12:04:56 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.74 2003-04-12 16:29:28 barnabygray Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -28,6 +28,9 @@
 #include <gtkmm/optionmenu.h>
 #include <gtkmm/imagemenuitem.h>
 #include <gtkmm/menushell.h>
+#include <gtkmm/scrolledwindow.h>
+#include <gtkmm/liststore.h>
+#include <gtkmm/treeview.h>
 
 #include "main.h"
 #include "Settings.h"
@@ -38,8 +41,8 @@
 #include "utils.h"
 #include "Icons.h"
 
-#include "iostream"
-#include "vector"
+#include <iostream>
+#include <vector>
 
 class SectionFrame : public Gtk::Frame
 {
@@ -465,43 +468,59 @@ void SettingsDialog::init_look_icons_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * icons = manage( new SectionFrame( _("Icons") ) );
-  Gtk::Table * table = manage(new Gtk::Table( 2, 9 ) );
-  Gtk::OptionMenu * icons_om = manage (new Gtk::OptionMenu() );
-  m_tooltip.set_tip (* icons_om,_("Specifies the icon set"));
-  //todo: list of icon sets, set window icon
+
+  Gtk::ScrolledWindow * scr_win = manage( new Gtk::ScrolledWindow() );
+  scr_win->set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
+  scr_win->set_shadow_type(Gtk::SHADOW_IN);
+  scr_win->set_border_width(10);
+
+  m_icons_treeview.set_headers_visible(false);
+  
+  std::vector<std::string> iconsets = g_icons.get_icon_sets();
+  Glib::RefPtr< Gtk::ListStore > liststore = Gtk::ListStore::create( m_icons_columns );
+  m_reftreemodel = liststore;
+  m_icons_treeview.set_model( m_reftreemodel );
+  m_icons_treeview.get_selection()->signal_changed().connect( SigC::slot( *this, &SettingsDialog::icons_changed) );
+
+  scr_win->add( m_icons_treeview );
+
+  Gtk::TreeView::Column* pColumn = Gtk::manage( new Gtk::TreeView::Column("") );
+  pColumn->pack_start( m_icons_columns.icon_online, false );
+  pColumn->pack_start( m_icons_columns.icon_away, false );
+  pColumn->pack_start( m_icons_columns.icon_na, false );
+  pColumn->pack_start( m_icons_columns.icon_occupied, false );
+  pColumn->pack_start( m_icons_columns.icon_dnd, false );
+  pColumn->pack_start( m_icons_columns.icon_ffc, false );
+  pColumn->pack_start( m_icons_columns.icon_offline, false );
+  pColumn->pack_start( m_icons_columns.icon_invisible, false );
+  m_icons_treeview.append_column(*pColumn);
+
+  m_icons_treeview.append_column("", m_icons_columns.name);
+
+  /* now add the rows */
+  for ( std::vector< std::string >::const_iterator curr = iconsets.begin();
+	curr != iconsets.end() ;
+	++curr )
   {
-    using namespace Gtk::Menu_Helpers;
-    Gtk::Menu *menu = Gtk::manage( new Gtk::Menu() );
-    MenuList menu_list = menu->items();
-    std::vector<std::string> iconsets = g_icons.get_icon_sets();
-    for (int i = 0; i < iconsets.size(); i++)
-    {
-      std::string::size_type n = iconsets[i].rfind('/');
-      if (n != std::string::npos) ++n;
+    Gtk::TreeModel::Row row = *(liststore->append());
+    std::string dir = *curr + "/";
+    std::string::size_type n = curr->rfind('/');
+    if (n != std::string::npos) ++n;
+    std::string name = curr->substr(n);
 
-      Gtk::Label * label = manage (new Gtk::Label (iconsets[i].substr(n)) );
-      Gtk::HBox * hbox = new Gtk::HBox();
-      for (int n = ICQ2000::STATUS_ONLINE; n <= ICQ2000::STATUS_OFFLINE; n++)
-      {
-        Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( (ICQ2000::Status) n, iconsets[i] + "/", false );
-	Gtk::Image * img = manage( new Gtk::Image( p ) );
-	hbox->pack_start(*img);
-      }
-      Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE, iconsets[i] + "/", true );
-      Gtk::Image * img = manage( new Gtk::Image( p ) );
-      hbox->pack_start(*img);
-      menu_list.push_back( ImageMenuElem( label->get_text(), * hbox,
-      		SigC::bind<std::string>( SigC::slot(*this, &SettingsDialog::choose_icons_dir), label->get_text()) ) );
-    }
-    menu->set_active(5); //TODO choose the current icon set
-    icons_om->set_menu( *menu );
+    row[m_icons_columns.icon_online]    = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE,      dir, false );
+    row[m_icons_columns.icon_away]      = g_icons.get_icon_for_status( ICQ2000::STATUS_AWAY,        dir, false );
+    row[m_icons_columns.icon_na]        = g_icons.get_icon_for_status( ICQ2000::STATUS_NA,          dir, false );
+    row[m_icons_columns.icon_occupied]  = g_icons.get_icon_for_status( ICQ2000::STATUS_OCCUPIED,    dir, false );
+    row[m_icons_columns.icon_dnd]       = g_icons.get_icon_for_status( ICQ2000::STATUS_DND,         dir, false );
+    row[m_icons_columns.icon_ffc]       = g_icons.get_icon_for_status( ICQ2000::STATUS_FREEFORCHAT, dir, false );
+    row[m_icons_columns.icon_offline]   = g_icons.get_icon_for_status( ICQ2000::STATUS_OFFLINE,     dir, false );
+    row[m_icons_columns.icon_invisible] = g_icons.get_icon_for_status( ICQ2000::STATUS_ONLINE,      dir, true );
+
+    row[m_icons_columns.name] = name;
   }
-  table->attach( * icons_om, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-
-  table->set_spacings(5);
-  table->set_border_width(10);
-
-  icons->add( * table );
+  
+  icons->add( * scr_win );
 
   vbox->pack_start( *icons );
   add_page( _("Icons"), vbox, false );
@@ -883,8 +902,25 @@ void SettingsDialog::load_look_contact_list_page()
 
 void SettingsDialog::load_look_icons_page()
 {
-  m_icons_dir=g_settings.getValueString("icons_dir");
-  //todo choose the appropriate entry in the menu
+  m_icons_dir = g_settings.getValueString("icons_dir");
+  
+  std::string::size_type fin = m_icons_dir.size();
+  if ( fin > 0 && m_icons_dir[fin-1] == '/' ) --fin;
+
+  std::string::size_type n = std::string::npos;
+  if ( fin > 0 ) n = m_icons_dir.rfind('/', fin-1);
+
+  std::string name;
+  if (n != std::string::npos)
+    name = m_icons_dir.substr(n+1, fin-n-1);
+
+  for (Gtk::TreeModel::Children::iterator curr = m_reftreemodel->children().begin() ;
+       curr != m_reftreemodel->children().end() ;
+       ++curr )
+  {
+    if ( (*curr)[m_icons_columns.name] == name )
+      m_icons_treeview.get_selection()->select(curr);
+  }
 }
 
 void SettingsDialog::load_look_charset_page()
@@ -1130,13 +1166,18 @@ void SettingsDialog::choose_autoconnect (unsigned int s)
   changed_cb();
 }
 
-
-void SettingsDialog::choose_icons_dir (const std::string dir)
+void SettingsDialog::icons_changed()
 {
-  m_icons_dir = ICONS_DIR + dir + "/";
-  m_icons_changed=true;
-  changed_cb();
+  // hmmm is this gtkmm 2.2 only ?
+  Gtk::TreeModel::iterator iter = m_icons_treeview.get_selection()->get_selected();
+  if ( iter )
+  {
+    m_icons_dir = ICONS_DIR + (*iter)[ m_icons_columns.name ] + "/";
+    m_icons_changed = true;
+    changed_cb();
+  }
 }
+  
 
 //ensures that SMTP setings can only be set if SMTP is activated
 void SettingsDialog::toggle_smtp()

@@ -1,4 +1,4 @@
-/* $Id: Icons.cpp,v 1.22 2003-04-10 22:39:55 barnabygray Exp $
+/* $Id: Icons.cpp,v 1.23 2003-04-12 16:29:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -53,7 +53,8 @@ Icons::Icons()
 /*
  * Sets the icons to the default compiled in icons.
  */
-void Icons::setDefaultIcons() {
+void Icons::setDefaultIcons()
+{
   Icon_Status_Online = Gdk::Pixbuf::create_from_xpm_data( (online_xpm) );
   Icon_Status_Away = Gdk::Pixbuf::create_from_xpm_data( (away_xpm) );
   Icon_Status_NA = Gdk::Pixbuf::create_from_xpm_data( (na_xpm) );
@@ -77,28 +78,43 @@ void Icons::settings_changed_cb(const string& key)
 
 bool Icons::setIcons(const string &dir)
 {
+  setDefaultIcons();
 
   if (dir == "" || dir == "Default")
   {
-    setDefaultIcons();
     icons_changed.emit();
     return true;
   }
 
-  Icon_Status_Online = Gdk::Pixbuf::create_from_file(dir + "online.xpm");
-  Icon_Status_Away = Gdk::Pixbuf::create_from_file(dir + "away.xpm");
-  Icon_Status_NA = Gdk::Pixbuf::create_from_file(dir + "na.xpm");
-  Icon_Status_Occupied = Gdk::Pixbuf::create_from_file(dir + "occ.xpm");
-  Icon_Status_DND = Gdk::Pixbuf::create_from_file(dir + "dnd.xpm");
-  Icon_Status_FFC = Gdk::Pixbuf::create_from_file(dir + "ffc.xpm");
-  Icon_Status_Offline = Gdk::Pixbuf::create_from_file(dir + "offline.xpm");
-  Icon_Status_Message = Gdk::Pixbuf::create_from_file(dir + "message.xpm");
-  Icon_Status_URL = Gdk::Pixbuf::create_from_file(dir + "url.xpm");
-  Icon_Status_SMS = Gdk::Pixbuf::create_from_file(dir + "sms.xpm");
-  Icon_Status_SystemMessage = Gdk::Pixbuf::create_from_file(dir + "sysmsg.xpm");
-  Icon_Status_Invisible = Gdk::Pixbuf::create_from_file(dir + "invisible.xpm");
+  /* We don't want missing icon files to cause the whole lot to fail,
+   * so quietly trap the exceptions individually */
+  create_from_file_no_exceptions( Icon_Status_Online,        dir + "online.xpm" );
+  create_from_file_no_exceptions( Icon_Status_Away,          dir + "away.xpm" );
+  create_from_file_no_exceptions( Icon_Status_NA,            dir + "na.xpm" );
+  create_from_file_no_exceptions( Icon_Status_Occupied,      dir + "occ.xpm" );
+  create_from_file_no_exceptions( Icon_Status_DND,           dir + "dnd.xpm" );
+  create_from_file_no_exceptions( Icon_Status_FFC,           dir + "ffc.xpm" );
+  create_from_file_no_exceptions( Icon_Status_Offline,       dir + "offline.xpm" );
+  create_from_file_no_exceptions( Icon_Status_Message,       dir + "message.xpm" );
+  create_from_file_no_exceptions( Icon_Status_URL,           dir + "url.xpm" );
+  create_from_file_no_exceptions( Icon_Status_SMS,           dir + "sms.xpm" );
+  create_from_file_no_exceptions( Icon_Status_SystemMessage, dir + "sysmsg.xpm" );
+  create_from_file_no_exceptions( Icon_Status_Invisible,     dir + "invisible.xpm" );
+  
   icons_changed.emit();
+
   return true;
+}
+
+void Icons::create_from_file_no_exceptions( Glib::RefPtr<Gdk::Pixbuf>& refptr, const std::string& file )
+{
+  try
+  {
+    refptr = Gdk::Pixbuf::create_from_file(file);
+  }
+  catch(Glib::FileError)
+  {
+  }
 }
 
 Glib::RefPtr<Gdk::Pixbuf> Icons::get_icon_for_status(Status s, bool inv)
