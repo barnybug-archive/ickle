@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.29 2002-02-26 13:48:47 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.30 2002-02-26 17:30:38 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -319,6 +319,7 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     RowData *p = (RowData*)(*cr).get_data();
     delete p;
     rows().erase(cr);
+    columns_autosize();
     sort();
 
   } else if (ev->getType() == ContactListEvent::MessageQueueChanged
@@ -326,6 +327,7 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
 	     || ev->getType() == ContactListEvent::UserInfoChange) {
 
     UpdateRow(*c);
+    columns_autosize();
     sort();
   }
 }
