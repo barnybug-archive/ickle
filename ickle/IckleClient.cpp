@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.47 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.48 2001-12-27 14:27:37 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -185,6 +185,9 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 
     switch(i) {
     case '?':
+#ifdef GNOME_ICKLE
+      break;  // We'll ignore any unknown options when run as an applet
+#endif      
     case 'h': // help
       usageInstructions(argv[0]);
       exit(0);
