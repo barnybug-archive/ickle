@@ -40,7 +40,7 @@ SendFileDialog::SendFileDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c
   : Gtk::Dialog(),
     m_contact(contact),
     m_ev(NULL),
-    m_send("Send"), m_close("Close")
+    m_send( _("Send") ), m_close( _("Close") )
 {
   icqclient.filetransfer_update_signal.connect( this, &SendFileDialog::icq_filetransfer_update_cb);
 
@@ -78,8 +78,8 @@ SendFileDialog::SendFileDialog(Gtk::Window& parent, const ICQ2000::ContactRef& c
   vbox2->pack_start( m_progressbar_file, true, true, 0 );
   vbox2->pack_start( *manage( new Gtk::Label(_("Total:"), Gtk::ALIGN_LEFT )), Gtk::PACK_SHRINK);
   vbox2->pack_start( m_progressbar_batch, true, true, 0 );
-  m_progressbar_file.set_text("0%");
-  m_progressbar_batch.set_text("0%");
+  m_progressbar_file.set_text( String::ucompose( _("%1%%"), 0 ) );
+  m_progressbar_batch.set_text( String::ucompose( _("%1%%"), 0 ) );
   vbox->pack_start (*vbox2, true, true);
 
   m_send.signal_clicked().connect( SigC::bind<int>(SigC::slot(*this,&Gtk::Dialog::response) , Gtk::RESPONSE_OK));
@@ -108,24 +108,30 @@ void SendFileDialog::on_response(int response_id)
     m_send.set_sensitive(false);
     
     m_ev = new ICQ2000::FileTransferEvent(m_contact,
-								  m_msg_text.get_buffer()->get_text(),
-								  m_filename.get_text(),100, 0);
+					  m_msg_text.get_buffer()->get_text(),
+					  m_filename.get_text(),100, 0);
     m_speed = 100;
         
     icqclient.SendFileTransfer(m_ev);
   }
-  else {
-	  if (m_ev != NULL) {
-		if (m_ev->getState() == ICQ2000::FileTransferEvent::SEND) {
-		   m_ev->setState(ICQ2000::FileTransferEvent::CLOSE);
-		   icqclient.CancelFileTransfer(m_ev);
-		} else if (m_ev->getState() == ICQ2000::FileTransferEvent::WAIT_RESPONS) {
-		   icqclient.CancelFileTransfer(m_ev);
-		}
-	  }
+  else
+  {
+    if (m_ev != NULL)
+    {
+      if (m_ev->getState() == ICQ2000::FileTransferEvent::SEND)
+      {
+	m_ev->setState(ICQ2000::FileTransferEvent::CLOSE);
+	icqclient.CancelFileTransfer(m_ev);
+      }
+      else if (m_ev->getState() == ICQ2000::FileTransferEvent::WAIT_RESPONS)
+      {
+	icqclient.CancelFileTransfer(m_ev);
+      }
+    }
 	  
     if (m_ev != NULL)
-	  delete m_ev;
+      delete m_ev;
+
     m_ev = NULL;
     delete this;
   }
@@ -133,35 +139,31 @@ void SendFileDialog::on_response(int response_id)
 
 void SendFileDialog::on_button_file_cb()
 {
-  Gtk::FileSelection fs_dialog("Please choose a file");
+  Gtk::FileSelection fs_dialog( _("Please choose a file") );
   fs_dialog.set_transient_for(*this);
   
-  if (m_filename.get_text() != "")
-	fs_dialog.set_filename(m_filename.get_text());
+  if (!m_filename.get_text().empty())
+    fs_dialog.set_filename(m_filename.get_text());
+  
   int result = fs_dialog.run();
 
-  //Handle the response:
+  // Handle the response:
   switch(result)
   {
-    case(Gtk::RESPONSE_OK):
-    {
-      std::cout << "OK clicked." << std::endl;
-	
-      std::string filename = fs_dialog.get_filename(); //Notice that it is a std::string, not a Glib::ustring.
-      std::cout << "File selected: " <<  filename << std::endl;
-	 m_filename.set_text(filename);
-	 break;
-    }
-    case(Gtk::RESPONSE_CANCEL):
-    {
-      std::cout << "Cancel clicked." << std::endl;
-      break;
-    }
-    default:
-    {
-      std::cout << "Unexpected button clicked." << std::endl;
-      break;
-    }
+  case(Gtk::RESPONSE_OK):
+  {
+    std::string filename = fs_dialog.get_filename();
+    m_filename.set_text(filename);
+    break;
+  }
+  case(Gtk::RESPONSE_CANCEL):
+  {
+    break;
+  }
+  default:
+  {
+    break;
+  }
   }    
 }
 
@@ -206,7 +208,7 @@ void SendFileDialog::icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev)
       m_connection_id_timeout.disconnect();
     progressbar_update_cb();
     
-    cancelled("FileTransfer completed correctly");
+    cancelled( _("File transfer completed successfully") );
     break;
   case ICQ2000::FileTransferEvent::CANCELLED:
     if (m_connection_id_timeout)
@@ -214,7 +216,7 @@ void SendFileDialog::icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev)
     progressbar_update_cb();
 
     icqclient.CancelFileTransfer(ev);
-    cancelled("File Transfer was cancelled by other side.");
+    cancelled( _("File transfer was cancelled by other side") );
     break;
   case ICQ2000::FileTransferEvent::WAIT_RESPONS:
     break;
@@ -224,16 +226,16 @@ void SendFileDialog::icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev)
     icqclient.CancelFileTransfer(ev);
 
     if (ev->isDirect())
-      cancelled("Trying to send direct timed out");
+      cancelled( _("Trying to send direct timed out") );
     else
-      cancelled("Trying to send through server timed out");
+      cancelled( _("Trying to send through server timed out") );
     break;
   case ICQ2000::FileTransferEvent::CLOSE:
     if (m_connection_id_timeout)
       m_connection_id_timeout.disconnect();
     progressbar_update_cb();
     
-    cancelled("File Transfer was cancelled.");
+    cancelled( _("File transfer was cancelled") );
     break;
   default:
     break;
@@ -241,10 +243,10 @@ void SendFileDialog::icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev)
   
 }
 
-  bool SendFileDialog::progressbar_update_cb()
-  {
-
+bool SendFileDialog::progressbar_update_cb()
+{
   double val1, val2;
+
   if (m_ev->getTotalSize() > 0)
   {
     val1 = double(m_ev->getPos())/m_ev->getSize();
@@ -258,8 +260,8 @@ void SendFileDialog::icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev)
   
   m_progressbar_file.set_fraction(val1);
   m_progressbar_batch.set_fraction(val2);
-  m_progressbar_file.set_text( String::ucompose( "%1%%", int(val1*100) ) );
-  m_progressbar_batch.set_text( String::ucompose( "%1%%", int(val2*100) ) );
+  m_progressbar_file.set_text( String::ucompose( _("%1%%"), int(val1*100) ) );
+  m_progressbar_batch.set_text( String::ucompose( _("%1%%"), int(val2*100) ) );
 
   // returns true so it will be called again.
   return true;

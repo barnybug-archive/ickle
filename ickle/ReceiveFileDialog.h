@@ -36,7 +36,8 @@
 #include <MessageEvent.h>
 
 class ReceiveFileDialog : public Gtk::Dialog,
-	public sigslot::has_slots<> {
+	public sigslot::has_slots<>
+{
  private:
   ICQ2000::ContactRef m_contact;
   ICQ2000::FileTransferEvent *m_ev;
@@ -47,7 +48,7 @@ class ReceiveFileDialog : public Gtk::Dialog,
   Gtk::Frame m_msg_label_frame, m_filename_label_frame;
   Gtk::TextView m_text;
   Gtk::ScrolledWindow m_text_scr_win;
-  Gtk::ProgressBar m_ProgressBar_file, m_ProgressBar_batch;  
+  Gtk::ProgressBar m_progressbar_file, m_progressbar_batch;  
   SigC::Connection m_connection_id_timeout;
   
   bool m_recvcancel;
@@ -57,7 +58,7 @@ class ReceiveFileDialog : public Gtk::Dialog,
 
   void send_event();
   
-  void cancelled(std::string str);
+  void cancelled(const Glib::ustring& str);
 
   void icq_filetransfer_update_cb(ICQ2000::FileTransferEvent *ev);
 
