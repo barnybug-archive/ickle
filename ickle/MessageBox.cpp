@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.60 2002-04-25 09:26:44 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.61 2002-04-25 20:09:31 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -103,9 +103,6 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scaleadj.set_step_increment(1);
   m_scaleadj.set_page_increment(m_nr_shown);
   m_scaleadj.set_page_size(m_nr_shown);
-  gfloat upper =  m_scaleadj.get_upper() - m_nr_shown;
-  if (upper < 0) upper = 0;
-  m_scaleadj.set_value( upper );
   m_scaleadj.value_changed.connect( slot(this, &MessageBox::scaleadj_value_changed_cb) );
 
   // scale
@@ -305,6 +302,12 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
      after popping up a new dialog to clear out the message queue as
      it might be popped up inside callback for a message */
 
+  // scroll down to the end of the history
+  gfloat upper =  m_scaleadj.get_upper() - m_nr_shown;
+  if (upper < 0) upper = 0;
+  m_scaleadj.set_value( upper );
+
+  show_all();
   realize();
   set_contact_title();
 }
