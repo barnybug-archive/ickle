@@ -267,7 +267,10 @@ namespace ICQ2000 {
 
     if (e != NULL) {
       contact->addPendingMessage(e);
-      if (messaged.emit(e)) contact->erasePendingMessage(e);
+      if (messaged.emit(e)) {
+        contact->erasePendingMessage(e);
+        SignalMessageQueueChanged(contact);
+      }
     }
 
   }
@@ -310,7 +313,10 @@ namespace ICQ2000 {
   void Client::SignalMessageEvent_cb(MessageEvent *ev) {
     Contact *contact = ev->getContact();
     contact->addPendingMessage(ev);
-    if (messaged.emit(ev)) contact->erasePendingMessage(ev);
+    if (messaged.emit(ev)) {
+      contact->erasePendingMessage(ev);
+      SignalMessageQueueChanged(contact);
+    }
   }
 
   void Client::SignalSrvResponse(SrvResponseSNAC *snac) {
@@ -357,7 +363,10 @@ namespace ICQ2000 {
       
       if (e != NULL) {
 	contact->addPendingMessage(e);
-	if (messaged.emit(e)) contact->erasePendingMessage(e);
+        if (messaged.emit(e)) {
+          contact->erasePendingMessage(e);
+          SignalMessageQueueChanged(contact);
+        }
       }
       
     } else if (snac->getType() == SrvResponseSNAC::SMS_Error) {
@@ -379,7 +388,10 @@ namespace ICQ2000 {
 
       if (e != NULL) {
 	contact->addPendingMessage(e);
-	if (messaged.emit(e)) contact->erasePendingMessage(e);
+        if (messaged.emit(e)) {
+        contact->erasePendingMessage(e);
+        SignalMessageQueueChanged(contact);
+        }
 	}
 
        *
