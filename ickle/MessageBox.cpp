@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.78 2003-02-10 00:43:26 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.79 2003-03-16 16:21:30 barnabygray Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -127,7 +127,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   if ( c->isICQContact() )
   {
     m_message_type = ICQ2000::MessageEvent::Normal;
-    m_tab.signal_change_current_page().connect(SigC::slot(*this,&MessageBox::change_current_page_cb));
+    m_tab.signal_switch_page().connect(SigC::slot(*this,&MessageBox::change_current_page_cb));
 
     // -- normal message tab --
     scrolled_win = manage( new Gtk::ScrolledWindow() );
@@ -634,7 +634,7 @@ void MessageBox::delivery_toggle_cb()
     m_delivery_buttons.hide_all();
 }
 
-void MessageBox::change_current_page_cb(int n)
+void MessageBox::change_current_page_cb(GtkNotebookPage*, guint n)
 {
   if (n == 0 && m_contact->isICQContact() )
   {
