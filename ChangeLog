@@ -1,3 +1,136 @@
+2001-12-24 14:10  barnabygray
+
+	* src/: Client.cpp, Contact.cpp, Contact.h, TLV.cpp, TLV.h,
+	UserInfoBlock.cpp, UserInfoBlock.h: Sending advanced message to
+	ICQLite fix.
+
+2001-12-24 13:58  barnabygray
+
+	* ickle/: MessageBox.cpp, MessageBox.h: Fixes to behaviour of
+	history
+
+2001-12-21 18:44  nordman
+
+	* ickle/MessageBox.cpp: 
+	Change the functionality of the historyview, it now provides one
+	tick for every message instead of one for every historypage. This
+	also means there's always history_shownr messages shown, provided
+	that the historysize >= history_shownr.
+
+2001-12-19 14:07  barnabygray
+
+	* README, configure.ac, debian/changelog: Updated version numbers
+	for 0.2.1 release
+
+2001-12-19 13:40  nordman
+
+	* ickle/: IckleApplet.cpp, IckleClient.cpp: Fix bug where
+	ickle_applet couldn't handle ickles commandline option.
+
+2001-12-19 12:50  barnabygray
+
+	* share/translations/Makefile.am: Ukrainian entry in Makefile.am
+
+2001-12-19 12:32  barnabygray
+
+	* ickle/IckleClient.cpp: More intelligent positioning of window
+
+2001-12-19 12:28  barnabygray
+
+	* ickle/: ContactListView.cpp, PromptDialog.cpp: Added prompt for
+	removing users
+
+2001-12-18 22:51  barnabygray
+
+	* ickle/: MessageBox.cpp, MessageBox.h: Icons in messageboxes will
+	update when icons are changed now
+
+2001-12-18 22:16  barnabygray
+
+	* ickle/: IckleApplet.cpp, IckleApplet.h, IckleGUI.cpp, IckleGUI.h,
+	Icons.cpp, Icons.h, SettingsDialog.cpp, SettingsDialog.h: Reverted
+	some of Nils' changes, so icons_changed are still signalled
+	separately from settings_changed. Now we can do it the proper way
+	having both signals.
+
+2001-12-18 20:02  nordman
+
+	* ickle/: Icons.h, Settings.cpp: Some minor stuff part of the
+	Settings interface change.
+
+2001-12-18 19:45  nordman
+
+	* ickle/: ContactListView.h, IckleApplet.cpp, IckleApplet.h,
+	IckleGUI.cpp, IckleGUI.h, Icons.cpp, Icons.h, MessageBox.cpp,
+	MessageBox.h, Settings.cpp, Settings.h, SettingsDialog.cpp,
+	SettingsDialog.h: Fix problem that would arise upon having a
+	messagebox open and at the same time increasing the number of
+	messages shown in the history.
+	
+	Revamp the Settings interface at the same time. It now features one
+	signal, "settings_changed", that passes along the key that have
+	been changed.  Callbacks listening to this signal should then use
+	the key to determine whether this is the key that they're
+	interested in and check for the new value if that's the case.
+
+2001-12-18 18:01  barnabygray
+
+	* TODO, debian/ickle-common.files, debian/ickle-dev.files,
+	debian/rules: Adding back in DNS lookups to TODO, adding
+	sending/removing contact list support to TODO.	Debian files
+	updates
+
+2001-12-18 17:21  nordman
+
+	* TODO: Some items done.
+
+2001-12-18 16:56  nordman
+
+	* THANKS, share/translations/UKRAINIAN_WIN: translation file for
+	wincp1251 - koi8-u (UKRAINIAN_WIN), thanks to Serhiy Brytskyy.
+
+2001-12-17 22:46  nordman
+
+	* ickle/History.cpp: gcc 3.*
+
+2001-12-17 18:58  nordman
+
+	* ickle/MessageBox.cpp: gcc 3.* fix
+
+2001-12-17 18:24  barnabygray
+
+	* ickle/IckleClient.cpp: gcc 3.0 compatibility fix
+
+2001-12-17 15:16  nordman
+
+	* ickle/History.h: gcc 3.* compability fix.
+
+2001-12-16 15:56  nordman
+
+	* ickle/ContactListView.cpp: Enter/return/space on a contact in the
+	contactlist now pops up the messagebox for that contact.
+
+2001-12-16 14:38  nordman
+
+	* ickle/MessageBox.cpp: shortcuts should be available even if
+	history is focused.
+
+2001-12-16 13:33  nordman
+
+	* configure.ac: window manager -> desktop enviroment.
+
+2001-12-15 13:15  barnabygray
+
+	* Makefile.am, NEWS, debian/changelog: Updated debian stuff
+
+2001-12-15 13:07  barnabygray
+
+	* NEWS: Nils got a bit enthuistic with the version number there :-)
+
+2001-12-15 13:00  barnabygray
+
+	* ChangeLog, NEWS: Put date in NEWS, updated ChangeLog
+
 2001-12-15 12:23  nordman
 
 	* NEWS: Add initial release information.

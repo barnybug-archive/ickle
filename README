@@ -304,7 +304,11 @@ yet, looking through the header files and source code is your best bet
 at the moment. I will at some point split off the library into a
 separate project and change the licensing to LGPL for that component.
 
-
+Note: splitting the library off from ickle is complete now, you should
+look at the libicq2000 project on sourceforge:
+ http://libicq2000.sourceforge.net/
+The next major release of ickle will be distributed with the library
+separately.
 
  --------------------------------------------------------------------
  - Comments, bug reports, etc..                                     -
