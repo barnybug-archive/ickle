@@ -12,4 +12,5 @@ debian/ickle-gnome.dirs debian/ickle-gnome.files			\
 debian/ickle-gnome.links debian/ickle-gnome.manpages			\
 debian/ickle-gnome.menu debian/ickle.dirs debian/ickle.files		\
 debian/ickle.links debian/ickle.manpages debian/ickle.menu		\
-debian/rules
+debian/rules debian/ickle-control.manpages debian/ickle-control.dirs    \
+debian/ickle-control.files debian/ickle-control.links
