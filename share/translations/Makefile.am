@@ -12,4 +12,4 @@ translations_DATA = \
  DEC_MCS  IRV              NORWEGIAN_1   RUSSIAN_WIN                        \
  DG_MCS   ITALIAN          NORWEGIAN_2   SPANISH                            \
  DUTCH    JIS              POLISH        SWEDISH     UKRAINIAN_WIN
-EXTRA_DIST = translations_DATA
+EXTRA_DIST = $(translations_DATA)
