@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.79 2003-03-16 16:21:30 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.80 2003-06-30 06:09:35 cborni Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -31,6 +31,7 @@
 #include <gtkmm/image.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/main.h>
+#include <gtkmm/inputdialog.h>
 #include <gtkmm/separator.h>
 #include <gdk/gdkkeysyms.h>
 
@@ -39,6 +40,7 @@
 // TODO #include "gtkspell.h"
 
 #include "PromptDialog.h"
+#include "FindTextDialog.h"
 
 #include "ickle.h"
 #include "ucompose.h"
@@ -48,6 +50,7 @@
 
 #include "pixmaps/info.xpm"
 #include "pixmaps/delivery.xpm"
+
 
 using Gtk::TextView;
 
@@ -75,7 +78,9 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_send_urgent( _("Urgent"), 0 ),
     m_send_tocontactlist( _("To Contact List"), 0 ),
     m_last_ev(NULL),
-    m_message_queue(mq)
+    m_message_queue(mq),
+    m_text_to_find(""),
+    m_highlight(History::NOT_FOUND)
 {
   Gtk::Box *hbox;
 
@@ -257,9 +262,16 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_delivery_button.signal_toggled().connect( SigC::slot( *this, &MessageBox::delivery_toggle_cb ) );
   m_tooltips.set_tip(m_delivery_button, _("Show/Hide Delivery urgency options") );
 
+  m_find_button.add( * manage( new Gtk::Image(Gtk::Stock::FIND, Gtk::ICON_SIZE_MENU) ) );
+  m_find_button.signal_clicked().connect( SigC::slot( *this, &MessageBox::find_clicked_cb ) );
+  m_tooltips.set_tip(m_find_button, _("Find Text in History\nShortcut: Ctrl-F ") );
+
   hbox->pack_start( m_status, Gtk::PACK_EXPAND_WIDGET );
   hbox->pack_start( m_userinfo_button, Gtk::PACK_SHRINK);
   hbox->pack_start( m_delivery_button, Gtk::PACK_SHRINK);
+  hbox->pack_start( m_find_button, Gtk::PACK_SHRINK);
+
+
 
   Glib::RefPtr<Gdk::Pixbuf> send_pixbuf = g_icons.get_icon_for_event(ICQMessageEvent::Normal);
   m_send_button.add( * manage( new Gtk::Image( send_pixbuf ) ) );
@@ -326,10 +338,14 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
   m_tag_header_blue = buffer->create_tag("heading_blue");
   m_tag_header_red  = buffer->create_tag("heading_red");
+  m_tag_highlight = buffer->create_tag("highlight");
   m_tag_normal      = buffer->create_tag("normal");
 
   m_tag_header_blue->property_foreground().set_value( "blue" );
   m_tag_header_red->property_foreground().set_value( "red" );
+  m_tag_highlight->property_foreground().set_value( "yellow" );
+  m_tag_highlight->property_background().set_value( "blue" );
+
 
   // scroll down to the end of the history
   gfloat upper =  m_scaleadj.get_upper() - m_nr_shown;
@@ -365,6 +381,17 @@ bool MessageBox::key_press_cb(GdkEventKey* ev)
       history_page_down();
       return true;
     }
+    else if (ev->keyval == GDK_f)
+      {
+        m_find_button.clicked();
+	return true;
+      }
+  }
+
+  if ((ev->keyval == GDK_F3 )&&(m_text_to_find != "") )
+  {
+      search_again();
+      return true;
   }
 
   // key shortcuts dependent on online/offline
@@ -423,6 +450,17 @@ void MessageBox::history_page_up()
     if (p < adj->get_lower()) p = adj->get_lower();
     adj->set_value( p );
   }
+}
+
+
+void MessageBox::history_goto(guint position)
+{
+  if (position>=m_history->size() ) {
+    m_highlight=History::NOT_FOUND;
+    return;
+  }
+  m_highlight=position;
+  m_scaleadj.set_value(position);
 }
 
 void MessageBox::history_page_down()
@@ -634,6 +672,48 @@ void MessageBox::delivery_toggle_cb()
     m_delivery_buttons.hide_all();
 }
 
+void MessageBox::find_clicked_cb()
+{
+      FindTextDialog ftd(*this,_("Full Text Search"), _("Please enter your search text"), m_text_to_find  );
+
+      ftd.signal_textsubmit.connect( SigC::slot(*this, &MessageBox::findtext_cb) );
+      ftd.run();
+}
+
+void MessageBox::findtext_cb(Glib::ustring text, bool case_sensitive) {
+  m_case_sensitive=case_sensitive;
+  if (text.empty())
+    return;
+  if (m_text_to_find.compare(text))
+     {
+       //search from beginning
+       guint position=m_history->find_msg(text,true,m_case_sensitive);
+       if ( position != History::NOT_FOUND )
+       {
+         m_text_to_find=text;
+         history_goto(position);
+       }
+       else
+       {
+         PromptDialog pd(*this, Gtk::MESSAGE_INFO, _("Your search was not found!"),true );
+	 pd.run();
+       }
+     }
+  else
+    {
+      search_again();
+    }
+}
+
+void MessageBox::search_again()
+{
+  guint position=m_history->find_msg(m_text_to_find,false,m_case_sensitive);
+  if ( position == History::NOT_FOUND )
+    position=m_history->find_msg(m_text_to_find,true,m_case_sensitive);
+  history_goto(position);
+}
+
+
 void MessageBox::change_current_page_cb(GtkNotebookPage*, guint n)
 {
   if (n == 0 && m_contact->isICQContact() )
@@ -765,6 +845,7 @@ void MessageBox::display_message(History::Entry &e)
 
   string nick;
 
+
   if( e.dir == History::Entry::SENT )
   {
     tag_header = m_tag_header_blue;
@@ -800,19 +881,15 @@ void MessageBox::display_message(History::Entry &e)
   case ICQ2000::MessageEvent::Normal:
     if ( e.multiparty )
       buffer->insert_with_tag( buffer->end(), _("[multiparty] "), tag_header);
-
-    buffer->insert_with_tag( buffer->end(), e.message,  m_tag_normal);
     break;
     
   case ICQ2000::MessageEvent::URL:
     buffer->insert_with_tag( buffer->end(), e.URL,      m_tag_normal);
     buffer->insert_with_tag( buffer->end(), "\n",       m_tag_normal);
-    buffer->insert_with_tag( buffer->end(), e.message,  m_tag_normal);
     break;
     
   case ICQ2000::MessageEvent::SMS:
     buffer->insert_with_tag( buffer->end(), _("[sms] "), tag_header);
-    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   case ICQ2000::MessageEvent::SMS_Receipt:
@@ -820,22 +897,27 @@ void MessageBox::display_message(History::Entry &e)
       buffer->insert_with_tag( buffer->end(), _("[sms delivered]\n"), tag_header);
     else
       buffer->insert_with_tag( buffer->end(), _("[sms not delivered] \n"), tag_header);
-
-    break;
+    return;
     
   case ICQ2000::MessageEvent::EmailEx:
     buffer->insert_with_tag( buffer->end(), _("[email] "), tag_header);
-    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   case ICQ2000::MessageEvent::WebPager:
     buffer->insert_with_tag( buffer->end(), _("[pager] "), tag_header);
-    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
     break;
       
   default:
     break;
   }
+  //deal with possible search results
+  if ( m_highlight != History::NOT_FOUND )
+  {
+    buffer->insert_with_tag( buffer->end(), e.message, m_tag_highlight);
+    m_highlight = History::SEARCH_DONE;
+
+  }  else
+    buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
 
 }
 

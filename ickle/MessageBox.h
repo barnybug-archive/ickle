@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.27 2003-03-16 16:21:31 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.28 2003-06-30 06:09:35 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -63,7 +63,7 @@ class MessageBox : public Gtk::Window,
   Gtk::Label m_scalelabel;
 
   Gtk::VBox m_vbox_top;
-  Gtk::Button m_send_button, m_close_button;
+  Gtk::Button m_send_button, m_close_button, m_find_button;
 
   Gtk::VBox m_history_vbox;
   Gtk::ScrolledWindow m_history_scr_win;
@@ -106,8 +106,14 @@ class MessageBox : public Gtk::Window,
 
   Glib::RefPtr<Gtk::TextTag> m_tag_header_blue;
   Glib::RefPtr<Gtk::TextTag> m_tag_header_red;
+  Glib::RefPtr<Gtk::TextTag> m_tag_highlight;
   Glib::RefPtr<Gtk::TextTag> m_tag_normal;
+  Glib::ustring m_text_to_find;
+  bool m_case_sensitive;
+  guint m_highlight;
 
+
+  void search_again ();
   void send_button_update();
   void set_contact_title();
   void display_message(History::Entry &he);
@@ -124,6 +130,7 @@ class MessageBox : public Gtk::Window,
 
   void history_page_up();
   void history_page_down();
+  void history_goto(guint position);
 
   static bool is_blank(const Glib::ustring& s);
 
@@ -174,6 +181,8 @@ class MessageBox : public Gtk::Window,
 
   void pane_position_changed_cb(GtkAllocation*);
   void send_clicked_cb();
+  void find_clicked_cb();
+  void findtext_cb(Glib::ustring, bool case_sensitive);
   void close_clicked_cb();
   void change_current_page_cb(GtkNotebookPage *, guint n);
   void userinfo_toggle_cb();

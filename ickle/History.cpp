@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.24 2003-01-06 19:35:36 barnabygray Exp $
+/* $Id: History.cpp,v 1.25 2003-06-30 06:09:35 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -65,6 +65,7 @@ History::History(const string &historyfile)
   m_size = 0;
   m_streamlock = false;
   m_utf8 = true;
+  current_search=0;
 
   touch();
 }
@@ -466,4 +467,68 @@ guint History::size()
 string History::getFilename() const
 {
   return m_filename.substr( CONTACT_DIR.size() );
+}
+/*
+* Finds a string in the full message history. THe functions return the number of the entry
+*/
+guint History::find_msg (const std::string searchtext, bool fromstart, bool m_case_sensitive)
+throw(std::runtime_error)
+{
+  Glib::ustring uline;
+  std::string line;
+  guint ret=0;
+  if (fromstart)
+    current_search=0;
+  else
+    current_search=(long) current_search + 1;
+
+  if( !m_builtindex )
+    build_index();
+  if( current_search >= m_size )
+  {
+    current_search=0;
+  }
+  if( !m_streamlock )
+    m_if.open( m_filename.c_str() );
+  if( !m_if.is_open() )
+    throw runtime_error( String::ucompose( _("History::find_msg: Could not open historyfile for reading: %1"), m_filename ) );
+  m_if.clear();
+  m_if.seekg( m_index[ current_search ],std::ios::beg );
+  ret=NOT_FOUND;
+  current_search=0;
+
+  while (true) {
+
+    if (!getline( m_if, line ) )
+      break;
+    if (!m_utf8)
+	uline = Utils::locale_to_utf8(line);
+    else
+        uline=line;
+    if (uline.find (searchtext)!=Glib::ustring::npos )
+    {
+      ret=position_to_index(m_if.tellg() );
+      current_search=ret;
+      break;
+    }
+  }
+  if( !m_streamlock )
+    m_if.close();
+
+  return ret;
+}
+
+/*
+* a search over the index to get the number from the file position
+* the search in quite dumb, a binary search might be better: TODO
+*/
+guint History::position_to_index(std::streampos position)
+{
+  for (int i=0; i <m_size; i++)
+   {
+     if (m_index[i]>position)
+       return i-1;
+   }
+   current_search=0;
+   return m_size-1;
 }

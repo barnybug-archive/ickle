@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.14 2003-01-02 16:39:55 barnabygray Exp $
+/* $Id: History.h,v 1.15 2003-06-30 06:09:35 cborni Exp $
  *
  * Logging and loading of history.
  *
@@ -50,13 +50,20 @@ class History : public SigC::Object
   bool                    m_builtindex;
   unsigned int            m_uin;
   bool                    m_utf8;
+  std::streampos	  current_search;
 
   void                  quote_output    (std::ostream& ostr, const std::string& text);
   void                  build_index     ();
 
   void                  touch           ();
+  guint                 position_to_index (std::streampos position );
+
 
  public:
+    enum SearchResults {
+      NOT_FOUND=G_MAXINT,
+      SEARCH_DONE=G_MAXINT
+    };
 
   struct Entry {
     enum Direction {
@@ -82,7 +89,7 @@ class History : public SigC::Object
   void                  log             (ICQ2000::MessageEvent *ev, bool received) throw (std::runtime_error);
   void                  get_msg         (guint index, Entry &he)
     throw(std::out_of_range, std::runtime_error);
-
+  guint                 find_msg         (const std::string searchtext, bool fromstart, bool case_sensitive) 	       throw(std::runtime_error);
   void                  stream_lock     () throw (std::runtime_error);
   void                  stream_release  () throw (std::runtime_error);
   std::string           getFilename     () const;

@@ -27,7 +27,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   AddGroupDialog.cpp RenameGroupDialog.cpp RemoveGroupDialog.cpp	\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.cpp utils.cpp	\
   UserInfoHelpers.cpp Translator.cpp SetEncodingDialog.cpp		\
-  sighandler.cpp ReceiveFileDialog.cpp SendFileDialog.cpp
+  sighandler.cpp ReceiveFileDialog.cpp SendFileDialog.cpp FindTextDialog.cpp
 
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
@@ -44,7 +44,7 @@ noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h		\
   AddGroupDialog.h RenameGroupDialog.h RemoveGroupDialog.h		\
   AddContactDialog.cpp RemoveContactDialog.cpp LogWindow.h utils.h	\
   UserInfoHelpers.h Translator.h SetEncodingDialog.h sighandler.h       \
-  ReceiveFileDialog.h SendFileDialog.h
+  ReceiveFileDialog.h SendFileDialog.h FindTextDialog.h
 
 man_MANS = ickle.1
 EXTRA_DIST = ickle.1
