@@ -30,15 +30,9 @@ AC_CHECK_FUNC(gethostbyname, ,
   AC_CHECK_LIB(nsl, gethostbyname,, AC_MSG_ERROR([You do not have gethostbyname - check you have libc installed properly])) )
 
 dnl optional GNOME support
-dnl The GNOME_INIT_HOOK macro is broken so we check for the additional
-dnl applets libraries ourselves.    
-dnl GNOME_INIT()
+ICKLE_GNOME_INIT(applets)
 
-if test -n "$GNOME_CONFIG"; then
-   AC_MSG_CHECKING(extra library \"applets\")
-   GNOME_APPLETS_LIBS=`$GNOME_CONFIG --libs-only-l applets`
-   AC_MSG_RESULT($GNOME_APPLETS_LIBS)
-
+if test "x$want_gnome" = xyes; then
    ICKLE_PROGRAM=ickle_applet
    CORBA_FILES=ickle_applet.gnorba
    DESKTOP_FILES=ickle_applet.desktop
@@ -47,7 +41,6 @@ else
    ICKLE_PROGRAM=ickle
 fi
 
-AC_SUBST(GNOME_APPLETS_LIBS)
 AC_SUBST(ICKLE_PROGRAM)
 AC_SUBST(CORBA_FILES)
 AC_SUBST(DESKTOP_FILES)
