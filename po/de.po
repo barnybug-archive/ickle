@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ickle 0.3.2\n"
-"POT-Creation-Date: 2003-02-09 19:02+0100\n"
+"POT-Creation-Date: 2003-02-10 08:17+0100\n"
 "PO-Revision-Date: 2003-02-05 23:55+0100\n"
 "Last-Translator: Christian Borntraeger <christian@borntraeger.net>\n"
 "Language-Team: Christian Borntraeger <christian@borntraeger.net>\n"
@@ -92,8 +92,8 @@ msgstr ""
 "Datei README beachten. Deutsche Übersetzung von Christian Bornträger "
 "<linux@borntraeger.net> ICQ: 113774556\n"
 
-#: ickle/AddContactDialog.cpp:34 ickle/ContactListView.cpp:163
-#: ickle/ContactListView.cpp:184 ickle/ContactListView.cpp:193
+#: ickle/AddContactDialog.cpp:34 ickle/ContactListView.cpp:170
+#: ickle/ContactListView.cpp:191 ickle/ContactListView.cpp:200
 #: ickle/IckleGUI.cpp:96
 msgid "Add Contact"
 msgstr "Kontakt hinzufügen"
@@ -140,8 +140,8 @@ msgstr "Handynummer"
 
 #: ickle/AddContactDialog.cpp:143 ickle/AddContactDialog.cpp:215
 #: ickle/AddContactDialog.cpp:225 ickle/AddContactDialog.cpp:300
-#: ickle/IckleClient.cpp:784 ickle/IckleClient.cpp:790
-#: ickle/IckleClient.cpp:1241 ickle/IckleClient.cpp:1248
+#: ickle/IckleClient.cpp:786 ickle/IckleClient.cpp:792
+#: ickle/IckleClient.cpp:1262 ickle/IckleClient.cpp:1269
 msgid "New"
 msgstr "Neu"
 
@@ -149,8 +149,8 @@ msgstr "Neu"
 msgid "Add to group"
 msgstr "Der Gruppe hinzufügen"
 
-#: ickle/AddGroupDialog.cpp:35 ickle/ContactListView.cpp:166
-#: ickle/ContactListView.cpp:187 ickle/ContactListView.cpp:196
+#: ickle/AddGroupDialog.cpp:35 ickle/ContactListView.cpp:173
+#: ickle/ContactListView.cpp:194 ickle/ContactListView.cpp:203
 msgid "Add Group"
 msgstr "Gruppe hinzufügen"
 
@@ -208,43 +208,51 @@ msgstr "Abwesenheits-Nachrichten"
 msgid "Couldn't fetch away message"
 msgstr "Konnte keine Abwesenheits-Nachricht erhalten."
 
-#: ickle/ContactListView.cpp:105
+#: ickle/ContactListView.cpp:107
 msgid "Contacts"
 msgstr "Kontakte"
 
-#: ickle/ContactListView.cpp:150
+#: ickle/ContactListView.cpp:152
 msgid "Check away message"
 msgstr "Abwesenheits-Nachricht abfragen"
 
-#: ickle/ContactListView.cpp:154
+#: ickle/ContactListView.cpp:156
 msgid "User Info"
 msgstr "Kontaktinformationen"
 
-#: ickle/ContactListView.cpp:157
+#: ickle/ContactListView.cpp:159
 msgid "Send Auth Request"
 msgstr "Authorisierungsanfrage stellen"
 
-#: ickle/ContactListView.cpp:159 ickle/RemoveContactDialog.cpp:34
+#: ickle/ContactListView.cpp:162 ickle/ContactListView.cpp:378
+msgid "Use encoding"
+msgstr ""
+
+#: ickle/ContactListView.cpp:166 ickle/RemoveContactDialog.cpp:34
 msgid "Remove Contact"
 msgstr "Kontakt entfernen"
 
-#: ickle/ContactListView.cpp:169
+#: ickle/ContactListView.cpp:176
 msgid "Move to Group"
 msgstr "verschieben in Gruppe"
 
-#: ickle/ContactListView.cpp:176 ickle/RenameGroupDialog.cpp:35
+#: ickle/ContactListView.cpp:183 ickle/RenameGroupDialog.cpp:35
 msgid "Rename Group"
 msgstr "Gruppe umbenennen"
 
-#: ickle/ContactListView.cpp:177 ickle/RemoveGroupDialog.cpp:43
+#: ickle/ContactListView.cpp:184 ickle/RemoveGroupDialog.cpp:43
 msgid "Remove Group"
 msgstr "Gruppe entfernen"
 
-#: ickle/ContactListView.cpp:180
+#: ickle/ContactListView.cpp:187
 msgid "Check all away messages"
 msgstr "Alle Abwesenheits-Nachrichten abfragen"
 
-#: ickle/ContactListView.cpp:518
+#: ickle/ContactListView.cpp:370
+msgid "Use encoding (%1)"
+msgstr ""
+
+#: ickle/ContactListView.cpp:543
 msgid "%1/%2"
 msgstr "%1/%2"
 
@@ -297,25 +305,25 @@ msgstr "History::stream_lock: Konnte Verlaufsdatei %1 nicht lesend öffnen"
 msgid "History::stream_release: stream is not locked!"
 msgstr "History::stream_release: Stream ist nicht gesperrt!"
 
-#: ickle/IckleClient.cpp:204
+#: ickle/IckleClient.cpp:206
 msgid "ickle version %1"
 msgstr "ickle Version %1"
 
-#: ickle/IckleClient.cpp:205
+#: ickle/IckleClient.cpp:207
 msgid "Usage: %1 [-h] [-b dir]"
 msgstr "Bedienung: %1 [-h] [-b dir]"
 
-#: ickle/IckleClient.cpp:206
+#: ickle/IckleClient.cpp:208
 msgid " -h : the help screen you are seeing"
 msgstr " -h : diesen Hilfetext anzeigen"
 
-#: ickle/IckleClient.cpp:207
+#: ickle/IckleClient.cpp:209
 msgid ""
 " -b : use a different configuration directory (~/.ickle/ is the default)"
 msgstr ""
 " -b : eine andere Konfigurationsdatei verwenden (~/.ickle/ als Standard)"
 
-#: ickle/IckleClient.cpp:228
+#: ickle/IckleClient.cpp:230
 #, c-format
 msgid ""
 "Couldn't open %1ickle.conf, using default settings\n"
@@ -324,7 +332,7 @@ msgstr ""
 "Konnte %1ickle.conf nicht öffnen. Die Standardeinstellungen werden benutzt.\n"
 "Dies ist wahrscheinlich der erste Start von ickle\n"
 
-#: ickle/IckleClient.cpp:299
+#: ickle/IckleClient.cpp:301
 msgid ""
 "User is currently not available\n"
 "You can leave him/her a message"
@@ -332,22 +340,22 @@ msgstr ""
 "Der Kontakt im Moment nicht verfügbar.\n"
 "Sie können ihm/ihr eine Nachricht hinterlassen."
 
-#: ickle/IckleClient.cpp:311 ickle/SettingsDialog.cpp:312
+#: ickle/IckleClient.cpp:313 ickle/SettingsDialog.cpp:312
 #: ickle/UserInfoHelpers.cpp:55
 msgid "Away"
 msgstr "Abwesend"
 
-#: ickle/IckleClient.cpp:312
+#: ickle/IckleClient.cpp:314
 #, c-format
 msgid "Hello %a, I'm away at the moment."
 msgstr "Hallo %a, Ich bin gerade nicht da."
 
-#: ickle/IckleClient.cpp:434
+#: ickle/IckleClient.cpp:436
 #, c-format
 msgid "Couldn't save %1ickle.conf"
 msgstr "Konnte %1ickle.conf nicht speichern"
 
-#: ickle/IckleClient.cpp:443
+#: ickle/IckleClient.cpp:445
 msgid ""
 "The permissions on %1 couldn't be set to 0600. Your ICQ password is "
 "vulnerable!"
@@ -355,45 +363,45 @@ msgstr ""
 "Die Rechte von %1 konnten nicht auf 0600 gesetzt werden. Ihr ICQ-Passwort "
 "ist von anderen Nutzern auslesbar!"
 
-#: ickle/IckleClient.cpp:498
+#: ickle/IckleClient.cpp:500
 msgid "Disconnected as requested"
 msgstr "Trennung auf Verlangen"
 
-#: ickle/IckleClient.cpp:503
+#: ickle/IckleClient.cpp:505
 msgid "Socket problems"
 msgstr "Socket-Probleme"
 
-#: ickle/IckleClient.cpp:506
+#: ickle/IckleClient.cpp:508
 msgid "Bad Username"
 msgstr "Falscher Nutzername"
 
-#: ickle/IckleClient.cpp:509
+#: ickle/IckleClient.cpp:511
 msgid "Turboing"
 msgstr "Turboing"
 
-#: ickle/IckleClient.cpp:512
+#: ickle/IckleClient.cpp:514
 msgid "Bad Password"
 msgstr "Falsches Passwort"
 
-#: ickle/IckleClient.cpp:515
+#: ickle/IckleClient.cpp:517
 msgid "Username and Password did not match"
 msgstr "Nutzername und Passwort passen nicht"
 
-#: ickle/IckleClient.cpp:518 ickle/IckleClient.cpp:524
+#: ickle/IckleClient.cpp:520 ickle/IckleClient.cpp:526
 #: ickle/UserInfoDialog.cpp:594 ickle/UserInfoDialog.cpp:700
 #: ickle/UserInfoDialog.cpp:708
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: ickle/IckleClient.cpp:521
+#: ickle/IckleClient.cpp:523
 msgid "Dual login, disconnected"
 msgstr "Doppeltes Login, Trennung"
 
-#: ickle/IckleClient.cpp:528
+#: ickle/IckleClient.cpp:530
 msgid "Problem connecting: %1"
 msgstr "Problem beim Verbinden: %1"
 
-#: ickle/IckleClient.cpp:592
+#: ickle/IckleClient.cpp:594
 msgid ""
 "The permissions on %1 couldn't be set to 0600. Your ICQ password may be "
 "logged in this file, so it could be vulnerable!"
@@ -401,35 +409,35 @@ msgstr ""
 "Die Rechte von %1 konnten nicht auf 0600 gesetzt werden. Ihr ICQ-Passwort "
 "ist von anderen Nutzern auslesbar!"
 
-#: ickle/IckleClient.cpp:670
+#: ickle/IckleClient.cpp:672
 msgid "Could not generate temporary filename for history"
 msgstr "Konnte keine temporäre Verlaufsdatei anlegen"
 
-#: ickle/IckleClient.cpp:704 ickle/IckleClient.cpp:809
+#: ickle/IckleClient.cpp:706 ickle/IckleClient.cpp:811
 msgid "No history object for contact: %1"
 msgstr "Kein Verlaufsobjekt for den Kontakt: %1"
 
-#: ickle/IckleClient.cpp:727
+#: ickle/IckleClient.cpp:729
 msgid "Problem: file descriptor already connected"
 msgstr "Problem: Dateideskriptor bereits verbunden"
 
-#: ickle/IckleClient.cpp:742
+#: ickle/IckleClient.cpp:744
 msgid "Problem: file descriptor not connected"
 msgstr "Problem: Dateideskriptornicht verbunden"
 
-#: ickle/IckleClient.cpp:799
+#: ickle/IckleClient.cpp:801
 msgid "Unhandled libicq2000 event"
 msgstr "Unbehandeltes libicq2000-Ereignis"
 
-#: ickle/IckleClient.cpp:920 ickle/IckleClient.cpp:977
+#: ickle/IckleClient.cpp:922 ickle/IckleClient.cpp:979
 msgid "mkdir %1 failed: %2"
 msgstr "Verzeichnis %1 konnte nicht erstellt werden: %2"
 
-#: ickle/IckleClient.cpp:1281
+#: ickle/IckleClient.cpp:1302
 msgid "ickle left behind a stale lockfile (%1)"
 msgstr "ickle hat eine alte Sperrdatei hinterlassen(%1)"
 
-#: ickle/IckleClient.cpp:1298
+#: ickle/IckleClient.cpp:1319
 msgid "Could not create pid_file (%1)"
 msgstr "Konnte pid-Datei nicht erstellen (%1)"
 
@@ -576,11 +584,11 @@ msgstr "Pakete"
 msgid "Direct Packet"
 msgstr "Direkte Pakete"
 
-#: ickle/main.cpp:78
+#: ickle/main.cpp:80
 msgid "Exiting abnormally: %1"
 msgstr "Abnormer Abbruch: %1"
 
-#: ickle/main.cpp:82
+#: ickle/main.cpp:84
 msgid "Exiting abnormally"
 msgstr "Abnomer Abbruch"
 
@@ -1006,19 +1014,39 @@ msgstr "Ruheschaltung"
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: ickle/SettingsDialog.cpp:385
+#: ickle/SettingsDialog.cpp:386
 msgid "Security"
 msgstr "Sicherheit"
 
-#: ickle/SettingsDialog.cpp:390
+#: ickle/SettingsDialog.cpp:393 ickle/SettingsDialog.cpp:419
+msgid "Server"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:397
+msgid "Server name"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:401
+msgid "Specifies the name of the login server"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:404
+msgid "Server port"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:410
+msgid "Specifies the port of the login server. Default is 5190"
+msgstr ""
+
+#: ickle/SettingsDialog.cpp:424
 msgid "SMTP"
 msgstr "SMTP"
 
-#: ickle/SettingsDialog.cpp:395
+#: ickle/SettingsDialog.cpp:429
 msgid "Logging"
 msgstr "Logging"
 
-#: ickle/SettingsDialog.cpp:576
+#: ickle/SettingsDialog.cpp:633
 msgid "\"%1\" is not a valid encoding on your system."
 msgstr "\"%1\" ist kein gültiger Zeichensatz auf Ihrem System."
 
@@ -2346,7 +2374,7 @@ msgstr "Tonga"
 
 #: ickle/UserInfoHelpers.cpp:343
 msgid "Trinidad and Tobago"
-msgstr ""
+msgstr "Trinidad und Tobago"
 
 #: ickle/UserInfoHelpers.cpp:344
 msgid "Tunisia"
@@ -2510,7 +2538,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:386
 msgid "Pets and Animals"
-msgstr ""
+msgstr "(Haus)Tiere"
 
 #: ickle/UserInfoHelpers.cpp:387
 msgid "Religion"
@@ -2542,7 +2570,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:394
 msgid "Government"
-msgstr ""
+msgstr "Regierung"
 
 #: ickle/UserInfoHelpers.cpp:395
 msgid "Business"
@@ -2566,11 +2594,11 @@ msgstr "Weltraum"
 
 #: ickle/UserInfoHelpers.cpp:400
 msgid "Clothing"
-msgstr ""
+msgstr "Kleidung"
 
 #: ickle/UserInfoHelpers.cpp:401
 msgid "Parties"
-msgstr ""
+msgstr "Feiern"
 
 #: ickle/UserInfoHelpers.cpp:402
 msgid "Women"
@@ -2598,7 +2626,7 @@ msgstr "50er"
 
 #: ickle/UserInfoHelpers.cpp:408
 msgid "Finance and Corporate"
-msgstr ""
+msgstr "Finanzen und Wirtschaft"
 
 #: ickle/UserInfoHelpers.cpp:409
 msgid "Entertainment"
@@ -2614,15 +2642,15 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:412
 msgid "Health and Beauty"
-msgstr ""
+msgstr "Schönheit und Gesundheit"
 
 #: ickle/UserInfoHelpers.cpp:413
 msgid "Media"
-msgstr ""
+msgstr "Medien"
 
 #: ickle/UserInfoHelpers.cpp:414
 msgid "Household Products"
-msgstr ""
+msgstr "Haushaltsprodukte"
 
 #: ickle/UserInfoHelpers.cpp:415
 msgid "Mail Order Catalog"
@@ -2638,7 +2666,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:418
 msgid "Sporting and Athletics"
-msgstr ""
+msgstr "Sport"
 
 #: ickle/UserInfoHelpers.cpp:419
 msgid "Publishing"
@@ -2674,11 +2702,11 @@ msgstr "Anderes"
 
 #: ickle/UserInfoHelpers.cpp:429
 msgid "Past Organization"
-msgstr ""
+msgstr "Ehemalige Organisationen"
 
 #: ickle/UserInfoHelpers.cpp:430
 msgid "Past Work Place"
-msgstr ""
+msgstr "Ehemalige Arbeitstätten"
 
 #: ickle/UserInfoHelpers.cpp:433
 msgid "none"
@@ -2804,6 +2832,17 @@ msgid ""
 "\n"
 "Your UIN:"
 msgstr ""
+"Glückwunsch!\n"
+"\n"
+"Sie haben ickle erfolgreich konfiguriert. Unten können Sie Ihre zugewiesene "
+"Nutzernummer (UNI) sehen. Sie ist später auch in den Einstellungen einsehbar. "
+"Wenn sie sich das erste Mal mit dem ICQ-Netzwerk verbinden, weren Sie "
+"aufgefordert, Ihre persönlichen Informationen einzugeben.\n "
+"Ickle wird jetzt versuchen, sich  mit diesem Nutzerkonto am ICQ-Netzwerk "
+"anzumelden. Drücken Sie auf Weiter um fortzufahren.\n"
+"\n"
+"Ihre UIN:"
+
 
 #: ickle/WizardDialog.cpp:220 ickle/WizardDialog.cpp:350
 msgid "Are you sure you want to exit the wizard?"
@@ -2820,7 +2859,7 @@ msgstr ""
 
 #: ickle/WizardDialog.cpp:252
 msgid "Process:"
-msgstr ""
+msgstr "Vorgang:"
 
 #: ickle/WizardDialog.cpp:253
 msgid "Registering new account..."
