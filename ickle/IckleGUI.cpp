@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.39 2002-02-12 17:09:13 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.40 2002-02-23 20:06:24 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -35,6 +35,7 @@
 
 using std::map;
 using std::ostringstream;
+using SigC::bind;
 
 IckleGUI::IckleGUI()
   : m_top_vbox(false),
@@ -74,7 +75,7 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Search for Contacts", slot(this, &IckleGUI::search_user_cb)) );
     mi_search_for_contacts = ml.back();
     mi_search_for_contacts->set_sensitive(false);
-    ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
+    ml.push_back( MenuElem("Settings", bind<bool>( slot(this, &IckleGUI::settings_cb), false ) ) );
     ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
@@ -248,6 +249,7 @@ void IckleGUI::status_menu_status_changed_cb(Status st) {
     SetAutoResponseDialog *d = new SetAutoResponseDialog(auto_response);
     manage(d);
     d->save_new_msg.connect(slot(this, &IckleGUI::setAutoResponse));
+    d->settings_dialog.connect(bind<bool>( slot(this, &IckleGUI::settings_cb), true ));
   }
   icqclient.setStatus(m_status_wanted, m_invisible_wanted);
 }
@@ -466,8 +468,9 @@ void IckleGUI::userinfo_popup(Contact *c) {
 
 }
 
-void IckleGUI::settings_cb() {
+void IckleGUI::settings_cb(bool away) {
   SettingsDialog dialog;
+  if (away) dialog.raise_away_status_tab();
 
   if (dialog.run()) {
     bool reconnect = false;

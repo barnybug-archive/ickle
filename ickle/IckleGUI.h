@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.31 2002-01-30 15:35:35 nordman Exp $
+/* $Id: IckleGUI.h,v 1.32 2002-02-23 20:06:24 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -129,7 +129,7 @@ class IckleGUI : public Gtk::Window {
   void self_event_cb(SelfEvent *ev);
 
   // -- other callbacks --
-  void settings_cb();
+  void settings_cb(bool away);
   void userinfo_toggle_cb(bool b, Contact *c);
   void exit_cb();
   void userinfo_fetch_cb(Contact *c);

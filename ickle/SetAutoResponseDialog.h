@@ -41,6 +41,8 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   unsigned int m_timeout;
   SigC::Connection timeout_connection;
 
+  void build_optionmenu();
+
  public:
   SetAutoResponseDialog(const std::string& prev_msg);
 
@@ -57,6 +59,7 @@ class SetAutoResponseDialog : public Gtk::Dialog {
   gint option_button_pressed(GdkEventButton *);
 
   SigC::Signal1<void, const std::string&> save_new_msg;
+  SigC::Signal0<void> settings_dialog;
 };
 
 #endif
