@@ -22,6 +22,7 @@ ickle is in no way affiliated with 'ICQ' or 'Mirabilis'.
 Prerequisites
 -------------
 You will need:
+- libstdc++
 - gtkmm version 1.2.0 or above (preferably 1.2.5 or above)
 - the sigc library
 - gtk+ library
@@ -35,6 +36,9 @@ well. Usually these are called library-devel.rpm or similar.
 
 Debian based distributions (Debian, Progeny, etc..) - you will need
 these packages installed:
+libstdc++2.10
+libstdc++2.10-dev
+(or I think libstdc++3 and libstdc++3-dev should do)
 libgtkmm1.2
 libgtkmm-dev
 libgtk1.2
@@ -72,6 +76,15 @@ do (before compiling):
 mv icons icons.old
 mv icons.icq icons
 Then compile.
+
+Contacts
+--------
+At the moment you have to add the contact numbers by hand and set the
+Alias for them as well. Fetching info off the server will be in the next
+version hopefully.
+I've written a simple perl script in scripts/licq2ickle.pl that you can
+run and will convert your licq contacts over to ickle. I might write
+something similar for windows if I get any requests for it.
 
 Comments, bug reports, etc..
 ----------------------------
