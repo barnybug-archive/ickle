@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.25 2003-06-30 06:09:35 cborni Exp $
+/* $Id: History.cpp,v 1.26 2003-07-05 21:39:51 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -24,7 +24,7 @@
 #include "utils.h"
 
 #include "ickle.h"
-#include "ucompose.h"
+
 
 #include <libicq2000/Contact.h>
 
@@ -471,7 +471,7 @@ string History::getFilename() const
 /*
 * Finds a string in the full message history. THe functions return the number of the entry
 */
-guint History::find_msg (const std::string searchtext, bool fromstart, bool m_case_sensitive)
+guint History::find_msg (const Glib::ustring searchtext, bool fromstart, bool m_case_sensitive)
 throw(std::runtime_error)
 {
   Glib::ustring uline;
@@ -505,7 +505,8 @@ throw(std::runtime_error)
 	uline = Utils::locale_to_utf8(line);
     else
         uline=line;
-    if (uline.find (searchtext)!=Glib::ustring::npos )
+    if ( (( uline.find (searchtext)!=Glib::ustring::npos )&&(m_case_sensitive) )  ||
+         (( uline.uppercase().find (searchtext.uppercase())!=Glib::ustring::npos )&&(!m_case_sensitive) ) )
     {
       ret=position_to_index(m_if.tellg() );
       current_search=ret;
@@ -524,7 +525,7 @@ throw(std::runtime_error)
 */
 guint History::position_to_index(std::streampos position)
 {
-  for (int i=0; i <m_size; i++)
+  for (guint i=0; i <m_size; i++)
    {
      if (m_index[i]>position)
        return i-1;

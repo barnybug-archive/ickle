@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.15 2003-06-30 06:09:35 cborni Exp $
+/* $Id: History.h,v 1.16 2003-07-05 21:39:51 cborni Exp $
  *
  * Logging and loading of history.
  *
@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include <time.h>
 
+#include "ucompose.h"
+
 #include <sigc++/object.h>
 #include <sigc++/signal.h>
 
@@ -50,7 +52,7 @@ class History : public SigC::Object
   bool                    m_builtindex;
   unsigned int            m_uin;
   bool                    m_utf8;
-  std::streampos	  current_search;
+  guint                   current_search;
 
   void                  quote_output    (std::ostream& ostr, const std::string& text);
   void                  build_index     ();
@@ -89,7 +91,7 @@ class History : public SigC::Object
   void                  log             (ICQ2000::MessageEvent *ev, bool received) throw (std::runtime_error);
   void                  get_msg         (guint index, Entry &he)
     throw(std::out_of_range, std::runtime_error);
-  guint                 find_msg         (const std::string searchtext, bool fromstart, bool case_sensitive) 	       throw(std::runtime_error);
+  guint                 find_msg         (const Glib::ustring searchtext, bool fromstart, bool case_sensitive) 	       throw(std::runtime_error);
   void                  stream_lock     () throw (std::runtime_error);
   void                  stream_release  () throw (std::runtime_error);
   std::string           getFilename     () const;
