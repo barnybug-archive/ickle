@@ -231,6 +231,21 @@ namespace ICQ2000 {
   bool SMSReceiptEvent::delivered() const { return m_delivered; }
 
 
+  // ---------------- Away Message -----------------------
+
+  AwayMsgEvent::AwayMsgEvent(Contact *c, const string& msg)
+    : m_contact(c), m_message(msg) { }
+
+  string AwayMsgEvent::getMessage() const { return m_message; }
+  Contact *AwayMsgEvent::getContact() const { return m_contact; }
+
+  // ---------------- My Status Change -------------------
+
+  MyStatusChangeEvent::MyStatusChangeEvent(Status s)
+    : m_status(s) { }
+
+  Status MyStatusChangeEvent::getStatus() const { return m_status; }
+
   // ---------------- New UIN ----------------------------
 
   NewUINEvent::NewUINEvent(unsigned int uin, bool success) 

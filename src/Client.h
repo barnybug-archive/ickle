@@ -124,6 +124,7 @@ namespace ICQ2000 {
     void SignalConnect();
     void SignalDisconnect(DisconnectedEvent::Reason r);
     void SignalMessage(MessageSNAC *snac);
+    void SignalMessageACK(MessageACKSNAC *snac);
     void SignalMessageEvent_cb(MessageEvent *ev);
     void SignalSrvResponse(SrvResponseSNAC *snac);
     void SignalUINResponse(UINResponseSNAC *snac);
@@ -210,6 +211,7 @@ namespace ICQ2000 {
     Signal1<void,ConnectedEvent*> connected;
     Signal1<void,DisconnectedEvent*> disconnected;
     Signal1<bool,MessageEvent*,StopOnTrueMarshal> messaged;
+    Signal1<void,AwayMsgEvent*> away_message;
     Signal1<void,ContactListEvent*> contactlist;
     Signal1<void,NewUINEvent*> newuin;
     Signal1<void,RateInfoChangeEvent*> rate;

@@ -155,14 +155,14 @@ namespace ICQ2000 {
     unsigned char getType() const;
   };
 
-  class ReqAwayICQSubType : public UINRelatedSubType {
+  class AwayMsgSubType : public UINRelatedSubType {
    private:
     unsigned char m_type;
     string m_message;
 
    public:
-    ReqAwayICQSubType(Status s, unsigned int destination);
-    ReqAwayICQSubType(unsigned char m_type);
+    AwayMsgSubType(Status s, unsigned int destination);
+    AwayMsgSubType(unsigned char m_type);
 
     void Parse(Buffer& b);
     void OutputBody(Buffer& b) const;

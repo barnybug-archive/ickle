@@ -57,7 +57,7 @@ namespace ICQ2000 {
     case MSG_Type_AutoReq_NA:
     case MSG_Type_AutoReq_DND:
     case MSG_Type_AutoReq_FFC:
-      ist = new ReqAwayICQSubType(type);
+      ist = new AwayMsgSubType(type);
       break;
     default:
       throw ParseException("Unknown ICQ Subtype");
@@ -228,10 +228,10 @@ namespace ICQ2000 {
 
   unsigned char URLICQSubType::getType() const { return MSG_Type_URL; }
 
-  ReqAwayICQSubType::ReqAwayICQSubType(unsigned char type)
+  AwayMsgSubType::AwayMsgSubType(unsigned char type)
    : UINRelatedSubType(true), m_type(type) { }
 
-  ReqAwayICQSubType::ReqAwayICQSubType(Status s, unsigned int uin)
+  AwayMsgSubType::AwayMsgSubType(Status s, unsigned int uin)
     : UINRelatedSubType(0, uin, true) {
 
     switch(s) {
@@ -256,12 +256,12 @@ namespace ICQ2000 {
 
   }
 
-  void ReqAwayICQSubType::Parse(Buffer& b) {
+  void AwayMsgSubType::Parse(Buffer& b) {
     b.UnpackUint16StringNull(m_message);
     b.ServerToClient(m_message);
   }
 
-  void ReqAwayICQSubType::OutputBody(Buffer& b) const {
+  void AwayMsgSubType::OutputBody(Buffer& b) const {
     b << (unsigned short)0x0000
       << (unsigned short)0x0001;
 
@@ -270,17 +270,17 @@ namespace ICQ2000 {
       << (unsigned char)0x00;
   }
 
-  unsigned short ReqAwayICQSubType::Length() const {
+  unsigned short AwayMsgSubType::Length() const {
     return 9;
   }
 
-  unsigned char ReqAwayICQSubType::getType() const { return m_type; }
+  unsigned char AwayMsgSubType::getType() const { return m_type; }
 
-  unsigned char ReqAwayICQSubType::getFlags() const { return 0x03; }
+  unsigned char AwayMsgSubType::getFlags() const { return 0x03; }
 
-  string ReqAwayICQSubType::getMessage() const { return m_message; }
+  string AwayMsgSubType::getMessage() const { return m_message; }
 
-  void ReqAwayICQSubType::setMessage(const string& msg) { m_message = msg; }
+  void AwayMsgSubType::setMessage(const string& msg) { m_message = msg; }
 
   SMSICQSubType::SMSICQSubType() { }
 

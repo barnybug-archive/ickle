@@ -316,6 +316,32 @@ namespace ICQ2000 {
     bool delivered() const;
   };
 
+  // --------------------- Away Message Event -----------------------
+
+  class AwayMsgEvent : public Event {
+   private:
+    Contact *m_contact;
+    string m_message;
+
+   public:
+    AwayMsgEvent(Contact *c, const string& msg);
+
+    string getMessage() const;
+    Contact *getContact() const;
+  };
+
+  // --------------------- Status Change Event ----------------------
+
+  class MyStatusChangeEvent : public Event {
+   private:
+    Status m_status;
+
+   public:
+    MyStatusChangeEvent(Status s);
+
+    Status getStatus() const;
+  };
+
   // --------------------- NewUIN Event -----------------------------
 
   class NewUINEvent : public Event {

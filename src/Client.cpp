@@ -241,6 +241,28 @@ namespace ICQ2000 {
 
   }
 
+
+  void Client::SignalMessageACK(MessageACKSNAC *snac) {
+    UINRelatedSubType *st = snac->getICQSubType();
+    if (st == NULL) return;
+    Contact *contact = lookupICQ( st->getSource() );
+
+    unsigned char type = st->getType();
+    if (type == MSG_Type_AutoReq_Away
+	|| type == MSG_Type_AutoReq_Occ
+	|| type == MSG_Type_AutoReq_NA
+	|| type == MSG_Type_AutoReq_DND
+	|| type == MSG_Type_AutoReq_FFC) {
+      AwayMsgSubType *ast = static_cast<AwayMsgSubType*>(st);
+
+      AwayMsgEvent ae( contact, ast->getMessage() );
+      away_message.emit(&ae);
+    }
+
+
+  }
+
+
   void Client::SignalMessageEvent_cb(MessageEvent *ev) {
     Contact *contact = ev->getContact();
     contact->addPendingMessage(ev);
@@ -878,6 +900,10 @@ namespace ICQ2000 {
 	SignalLog(LogEvent::INFO, "Received Message from server\n");
 	SignalMessage(static_cast<MessageSNAC*>(snac));
 	break;
+      case SNAC_MSG_MessageACK:
+	SignalLog(LogEvent::INFO, "Received Message ACK from server\n");
+	SignalMessageACK(static_cast<MessageACKSNAC*>(snac));
+	break;
       }
       break;
 
@@ -1280,7 +1306,7 @@ namespace ICQ2000 {
     if ( c->acceptAdvancedMsgs() ) {
       
       d = FLAPHeader(b,0x02);
-      ReqAwayICQSubType ra( c->getStatus(), c->getUIN() );
+      AwayMsgSubType ra( c->getStatus(), c->getUIN() );
       MsgSendSNAC msg( &ra, true );
       b << msg;
       FLAPFooter(b,d);
