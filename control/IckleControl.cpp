@@ -51,7 +51,7 @@ int IckleControl::main (int argc, char ** argv)
     }
 
     // first handle options which don't require ickle to be running...
-    for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
+    for (CommandLineParser::Options::const_iterator o = p.opts().begin(); o != p.opts().end(); ++o) {
       if (o->isOption ("help", "h")) {
         printUsage ();
         return 0;
@@ -76,7 +76,7 @@ int IckleControl::main (int argc, char ** argv)
       }
     }
 
-    for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
+    for (CommandLineParser::Options::const_iterator o = p.opts().begin(); o != p.opts().end(); ++o) {
       if (o->isOption ("running", "r")) {
         if (m_socket.init (config_dir, true)) {
           m_socket.quit ();
@@ -106,7 +106,7 @@ int IckleControl::main (int argc, char ** argv)
 
 bool IckleControl::runCommands (CommandLineParser & p)
 {
-  for (CommandLineParser::iterator o = p.begin(); o != p.end(); ++o) {
+  for (CommandLineParser::Options::const_iterator o = p.opts().begin(); o != p.opts().end(); ++o) {
     if      (o->isOption ("timeout",    "t", 0, 1)) { setTimeout (o->argument()); }
     else if (o->isOption ("status",     "s", 0, 1)) { if (!cmdStatus (o->argument())) return false; }
     else if (o->isOption ("invisible",  "i", 0, 1)) { if (!cmdInvisible (o->argument())) return false; }

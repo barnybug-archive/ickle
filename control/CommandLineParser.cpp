@@ -38,7 +38,7 @@ CommandLineParser::CommandLineParser (int argc, char ** argv)
         args.push_back (argv[i+1]);
         i++;
       }
-      push_back (CommandLineOption (opt, args));
+      m_opts.push_back (CommandLineOption (opt, args));
     }
   }
 }
@@ -48,7 +48,7 @@ CommandLineParser::CommandLineParser (int argc, char ** argv)
 //  CommandLineOption
 // ============================================================================
 
-bool CommandLineOption::isOption (const string & long_opt, const string & short_opt, int min_args, int max_args)
+bool CommandLineOption::isOption (const string & long_opt, const string & short_opt, int min_args, int max_args) const
 {
   ostringstream s;
 
@@ -75,7 +75,7 @@ bool CommandLineOption::isOption (const string & long_opt, const string & short_
   }
 }
 
-void CommandLineOption::invalid ()
+void CommandLineOption::invalid () const
 {
   throw CommandLineException ("Invalid option `" + m_opt + "'");
 }

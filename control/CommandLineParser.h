@@ -23,10 +23,14 @@
 //  CommandLineParser
 // ============================================================================
 
-class CommandLineParser : public std::vector <class CommandLineOption>
+class CommandLineParser
 {
  public:
   CommandLineParser (int, char **);
+  typedef std::vector <class CommandLineOption> Options;
+  const Options & opts() { return m_opts; }
+ private:
+  Options m_opts;
 };
 
 
@@ -40,9 +44,9 @@ class CommandLineOption
   CommandLineOption (const std::string & o, const std::vector<std::string> & a)
     : m_opt (o), m_args (a) { }
 
-  bool isOption (const std::string & long_opt, const std::string & short_opt, int min_args = 0, int max_args = -1);
+  bool isOption (const std::string & long_opt, const std::string & short_opt, int min_args = 0, int max_args = -1) const;
   std::string argument (int n = 0) const { return (m_args.size() > n) ? m_args[n] : ""; }
-  void invalid ();
+  void invalid () const;
 
  private:
   std::string m_opt;
