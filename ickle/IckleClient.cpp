@@ -393,9 +393,14 @@ gint IckleClient::idle_reconnect_cb(Status s) {
 void IckleClient::logger_file_cb(const string& msg) {
   string log_file = BASE_DIR + "messages.log";
   
-  ofstream of(log_file.c_str(), std::ios::out | std::ios::app, 0600 );
+  // set umask to secure value, so that if ickle.conf doesn't exist, and is created it will be safe.
+  mode_t old_umask = umask(0077);
+
+  ofstream of(log_file.c_str(), std::ios::out | std::ios::app);
   if (of) of << msg;
   of.close();
+
+  umask(old_umask);
 
   // ensure permissions on log file are secure
   if ( chmod( log_file.c_str(), S_IRUSR | S_IWUSR ) == -1 ) {
