@@ -79,9 +79,10 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
   Status s2 = d2->status;
   unsigned int m1 = d1->msgs;
   unsigned int m2 = d2->msgs;
+  int aComp = d1->alias.compare(d2->alias);
 
-  /* contacts are sorted by status, then by
-   * number of messages - this is just my personal
+  /* contacts are sorted by number of messages,
+   * then by status, then by alias - this is just my
    * preference, maybe at some date make it more
    * customisable
    */
@@ -94,7 +95,7 @@ gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpoin
 	  ? -1
 	  : (s1 > s2)
 	  ? 1
-	  : 0 // s1 == s2
+	  : aComp
 	  );
 }
 
@@ -106,6 +107,40 @@ void ContactListView::clear() {
     rows().remove(row(0));
   }
   Gtk::CList::clear();
+}
+
+// Try to move selection to the next keypress that starts with the letter
+// on a keypress event.
+gint ContactListView::key_press_event_impl(GdkEventKey *ev) {
+  char key = tolower(ev->string[0]);
+
+  // Start from the currently selected row
+  RowIterator row_iter, start_iter;
+
+  Gtk::CList_Helpers::SelectionList& sl = selection();
+  if (sl.begin() != sl.end()) {
+    row_iter = rows().begin();
+    int n = sl.front().get_row_num();
+    while (--n >= 0) { ++row_iter; }
+    // there's no better way to covert a SelectionIterator -> RowIterator :-(
+  } else {
+    row_iter = rows().begin();
+  }
+
+  start_iter = row_iter;
+  ++row_iter;
+
+  while (row_iter != start_iter) {
+    if (row_iter == rows().end()) row_iter = rows().begin();
+    Row &row = *row_iter;
+    if (key == ((RowData *) row.get_data() )->alias[0]) {
+      row.select();
+      break;
+    }
+    ++row_iter;
+  }
+
+  return Gtk::CList::key_press_event_impl(ev);
 }
 
 void ContactListView::userinfo_cb() {
@@ -197,6 +232,10 @@ void ContactListView::UpdateRow(const Contact& c) {
       else alias = c.getMobileNo();
     }
   }
+  rp->alias = alias;
+  // Doi. Why can't string have case-insensitive comparison :(
+  for (int i = 0; i < rp->alias.length(); i++)
+    rp->alias[i] = tolower(alias[i]);
   (*row)[1].set_text( alias );
 }
 
@@ -210,7 +249,6 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     a.push_back("");
 
     citerator cr = rows().insert(rows().end(),a);
-    //    m_row_map.insert(  pair<unsigned int, citerator>( c->getUIN() , cr )  );
 
     RowData *p = new RowData;
     p->uin = c->getUIN();
@@ -227,7 +265,6 @@ void ContactListView::contactlist_cb(ContactListEvent *ev) {
     RowData *p = (RowData*)(*cr).get_data();
     delete p;
     rows().erase(cr);
-    //    m_row_map.erase(uin);
     sort();
 
   } else if (ev->getType() == ContactListEvent::MessageQueueChanged

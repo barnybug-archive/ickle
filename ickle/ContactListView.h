@@ -26,6 +26,7 @@
 #include <gtk--/pixmap.h>
 
 #include <sigc++/signal_system.h>
+#include <string>
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
@@ -44,6 +45,7 @@
 #include "Contact.h"
 #include "Icons.h"
 
+using std::string;
 using SigC::Signal1;
 
 using namespace ICQ2000;
@@ -56,6 +58,7 @@ class ContactListView : public Gtk::CList {
     unsigned int uin;
     Status status;
     unsigned int msgs;
+    string alias;
   };
 
   /* The CList in Gtk and RowIterator's have no guarantee they
@@ -75,6 +78,9 @@ class ContactListView : public Gtk::CList {
   void remove_user_cb();
   void fetch_away_msg_cb();
   unsigned int current_selection_uin();
+
+ protected:
+  virtual gint key_press_event_impl(GdkEventKey* ev);
 
  public:
   ContactListView();
