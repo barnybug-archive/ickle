@@ -45,7 +45,7 @@ using SigC::Signal0;
 
 class UserInfoDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel, fetchb;
+  Gtk::Button okay, cancel, fetchb, uploadb;
   Gtk::Entry uin_entry, alias_entry, firstname_entry, lastname_entry,
     email_entry1, email_entry2, email_entry3, ip_entry, status_entry, timezone_entry,
     addr_entry, phone_entry, state_entry, fax_entry, city_entry, cellular_entry,

@@ -21,7 +21,9 @@
 #include "UserInfoDialog.h"
 
 #include "sstream_fix.h"
+#include "main.h"
 
+#include <libicq2000/Client.h>
 #include <libicq2000/socket.h>
 #include <libicq2000/userinfohelpers.h>
 
@@ -34,7 +36,7 @@ using namespace ICQ2000;
 
 UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   : Gtk::Dialog(), m_self(self),
-    okay("OK"), cancel("Cancel"), fetchb("Fetch"),
+    okay("OK"), cancel("Cancel"), fetchb("Fetch"), uploadb("Upload"),
     contact(c), changed(false), birth_year_spin((gfloat)1, 0), 
     birth_month_spin((gfloat)1, 0), birth_day_spin((gfloat)1, 0)
 {
@@ -56,6 +58,7 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   okay.clicked.connect(slot(this,&UserInfoDialog::okay_cb));
   cancel.clicked.connect( destroy.slot() );
   fetchb.clicked.connect( fetch.slot() );
+  uploadb.clicked.connect( slot(this,&UserInfoDialog::upload_cb) );
 
   notebook.set_tab_pos(GTK_POS_TOP);
 
@@ -63,11 +66,8 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
 
   Gtk::HBox *hbox = get_action_area();
   hbox->pack_start(fetchb, true, true, 0);
-  if (self) {
-    Gtk::Button *uploadb = new Gtk::Button("Upload");
-    uploadb->clicked.connect( slot(this,&UserInfoDialog::upload_cb) );
-    hbox->pack_start(*uploadb, true, true, 0);
-  }
+  if (self)
+    hbox->pack_start(uploadb, true, true, 0);
   hbox->pack_start(okay, true, true, 0);
   hbox->pack_start(cancel, true, true, 0);
 
@@ -271,6 +271,12 @@ UserInfoDialog::UserInfoDialog(Contact *c, bool self)
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
+  // disable widgets not available when disconnected
+  if( icqclient.getStatus() == ICQ2000::STATUS_OFFLINE ) {
+    fetchb.set_sensitive(false);
+    uploadb.set_sensitive(false);
+  }
+  
   userinfochange_cb(); // fill in values
 
   set_border_width(10);
