@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.32 2002-02-13 14:50:49 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.33 2002-02-20 02:17:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -38,6 +38,7 @@
 #include <gtk--/fontselection.h>
 #include <gtk--/fileselection.h>
 #include <gtk--/menuitem.h>
+#include <gtk--/listitem.h>
 
 using SigC::slot;
 using SigC::bind;
@@ -72,13 +73,11 @@ SettingsDialog::SettingsDialog()
     mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0),
     finished_okay(false),
-    append_msg_button("Append"),
-    save_msg_button("Replace"),
-    remove_msg_button("Remove"),
-    autoresponse_msg(),
-    autoresponse_option(),
-    response_label_entry(15),
-    autoresponse_menu()
+    away_remove_button("Remove"),
+    away_up_button("Up"),
+    away_down_button("Down"),
+    away_response_label_entry(15),
+    away_response_list(1)
 {
   
   set_title("Settings Dialog");
@@ -173,6 +172,7 @@ SettingsDialog::SettingsDialog()
 
     using namespace Gtk::List_Helpers;
     using Gtk::ListItem;
+
     ItemList& il = icons_list.items();
     il.push_back( * manage( new ListItem("Default") ) );
     Dir dir;
@@ -340,43 +340,65 @@ SettingsDialog::SettingsDialog()
   label = manage( new Gtk::Label( "Away Status" ) );
 
   /* Edit away-messages */
-  /* Fix optionmenu */
-  autoresponse_msg.set_editable(true);
+  away_response_msg.set_editable(true);
+
   {
-    using namespace Gtk::Menu_Helpers;
-    using SigC::bind;
-    /* Insert element in option menu */
-    MenuList& menu_list     = autoresponse_menu.items();
-    int n_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
-    for (int i = 1; i <= n_autoresponses; i++) {
-      
-      ostringstream fetch_str;
+    using namespace Gtk::CList_Helpers;
+
+    RowList& il = away_response_list.rows();
+
+    int no_autoresponses = g_settings.getValueUnsignedInt("no_autoresponses");
+    for (int i = 1; i <= no_autoresponses; i++) {
+      ostringstream fetch_str, fetch_str2;
       fetch_str << "autoresponse_" << i << "_label";
-      menu_list.push_back( MenuElem( g_settings.getValueString(fetch_str.str()),
-				     bind<int>( slot(this, 
-						     &SettingsDialog::activate_autoresponsemenu_item_cb), i) )
-			   );
-      labels_list.push_back( g_settings.getValueString(fetch_str.str()) );
-      ostringstream fetch_str2;
+      away_response_label_list.push_back( g_settings.getValueString(fetch_str.str()) );
+
       fetch_str2 << "autoresponse_" << i << "_text";
-      msgs_list.push_back( g_settings.getValueString(fetch_str2.str()) );
+      away_response_msg_list.push_back( g_settings.getValueString(fetch_str2.str()) );
+
+      vector<string> a;
+      a.push_back(g_settings.getValueString(fetch_str.str()));
+      RowList::iterator ri = il.insert( il.end(), a );
     }
-    autoresponse_option.set_menu( autoresponse_menu );
+
+    vector<string> a;
+    a.push_back( "[new]" );
+    RowList::iterator ri = il.insert( il.end(), a );
   }
-  current_menu_position = 0;
-  response_label_entry.set_text(g_settings.getValueString("autoresponse_1_label"));
-  hbox = manage(new Gtk::HBox());
-  hbox->pack_start(autoresponse_option);
-  hbox->pack_start(response_label_entry);
-  append_msg_button.clicked.connect( slot(this, &SettingsDialog::append_autoresponse_cb ) );
-  hbox->pack_start(append_msg_button);
-  hbox->pack_start(save_msg_button);
-  save_msg_button.clicked.connect( slot(this, &SettingsDialog::replace_autoresponse_cb ) );
-  hbox->pack_start(remove_msg_button);
-  remove_msg_button.clicked.connect( slot(this, &SettingsDialog::remove_autoresponse_cb ) );
+
+  away_current_item_number = 0;
+
+  hbox = manage( new Gtk::HBox(true) );
+
+  hbox->pack_start( away_response_list );
+
+  Gtk::VBox *vbox2;
+
+  vbox2 = manage( new Gtk::VBox() );
+
+  vbox2->pack_start( away_up_button );
+
+  vbox2->pack_start( away_remove_button );
+  away_remove_button.clicked.connect( slot(this, &SettingsDialog::away_remove_button_cb ) );
+
+  vbox2->pack_start( away_down_button );
+
+  hbox->pack_start( *vbox2, false );
+
+  away_response_list.set_selection_mode(GTK_SELECTION_BROWSE);
+  away_response_list.select_row.connect( slot( this, &SettingsDialog::away_response_list_select_row_cb ) );
+  away_response_list.row(0).select();
+
+  vbox2 = manage( new Gtk::VBox() );
+
+  away_response_label_edit_cnt
+    = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
+
+  vbox2->pack_start( away_response_label_entry );
+  vbox2->pack_start( away_response_msg );
+
+  hbox->pack_start(*vbox2);
   vbox->pack_start(*hbox);
-  vbox->pack_start(autoresponse_msg);
-  autoresponse_msg.insert(g_settings.getValueString("autoresponse_1_text"));
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *frame, *label )  );
 
   // ---------------------------------------------------------
@@ -588,6 +610,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("auto_na", (unsigned short)autona_spinner->get_value_as_int());
 
   /* Predefined away-messages */
+  /*
   g_settings.setValue("no_autoresponses", (unsigned short)labels_list.size());
   for (int i = 0; i < labels_list.size(); i++) {
     ostringstream fetch_str;
@@ -597,6 +620,7 @@ void SettingsDialog::updateSettings() {
     fetch_str << "autoresponse_" << i + 1 << "_text";
     g_settings.setValue(fetch_str2.str(), msgs_list[i]);
   }
+  */
 
   // ------------ Logging tab ----------------------
   g_settings.setValue("log_info", log_info.get_active() );
@@ -756,82 +780,87 @@ string SettingsDialog::getIconsFilename() {
   return filename;
 }
 
-/* Set currently selected autoresponse */
-void SettingsDialog::activate_autoresponsemenu_item_cb(int id) {
-  autoresponse_msg.delete_text(0,-1);
-  autoresponse_msg.insert( msgs_list[id-1] );  
-  response_label_entry.set_text( labels_list[id-1] );
-  current_menu_position = id - 1;
+void SettingsDialog::away_remove_button_cb()
+{
+  if (away_current_item_number < away_response_msg_list.size()) {
+    away_response_msg_list.erase( away_response_msg_list.begin() + away_current_item_number );
+    away_response_label_list.erase( away_response_label_list.begin() + away_current_item_number );
+
+    away_response_list.remove_row(away_current_item_number);
+
+    away_current_item_number = 0;
+    away_response_list.row(0).select();
+    away_response_select_row(0);
+
+
+  }
 }
 
-/* append a new autoresponse to the menu */
-void SettingsDialog::append_autoresponse_cb() {
-  using namespace Gtk::Menu_Helpers;
-  using SigC::bind;
+void SettingsDialog::away_response_label_edit()
+{
+  if (away_current_item_number >= away_response_msg_list.size()) {
+    // add as new
+    away_response_label_list.push_back( away_response_label_entry.get_text() );
+    away_response_msg_list.push_back( away_response_msg.get_chars(0, -1) );
+
+    using namespace Gtk::CList_Helpers;
+
+    RowList& il = away_response_list.rows();
+    RowList::iterator ri = il.end();
+    --ri;
+    vector<string> a;
+    a.push_back( away_response_label_entry.get_text() );
+    il.insert( ri, a );
+  } else {
+
+    // update label
+    away_response_list.row( away_current_item_number )[0].set_text( away_response_label_entry.get_text() );
+
+  }
+}
+
+void SettingsDialog::away_response_select_row(unsigned int row)
+{
+  if (row >= away_response_msg_list.size()) {
+    // new selected
+    away_response_msg.delete_text(0,-1);
+
+    away_response_label_edit_cnt.disconnect();
+
+    away_response_label_entry.delete_text(0,-1);
+
+    away_response_label_edit_cnt
+      = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
+
+    away_remove_button.set_sensitive(false);
+  } else {
+    away_response_msg.freeze();
+    away_response_msg.delete_text(0,-1);
+    away_response_msg.insert( away_response_msg_list[row] );
+    away_response_msg.thaw();    
+
+    away_response_label_edit_cnt.disconnect();
+
+    away_response_label_entry.set_text( away_response_label_list[row] );
+
+    away_response_label_edit_cnt
+      = away_response_label_entry.changed.connect( slot( this, &SettingsDialog::away_response_label_edit ) );
+
+    away_remove_button.set_sensitive(true);
+  }
+}
+
+void SettingsDialog::away_response_list_select_row_cb(gint p0, gint p1, GdkEvent *ev)
+{
   
-  labels_list.push_back( response_label_entry.get_text() );
-  msgs_list.push_back( autoresponse_msg.get_chars(0, -1) );
-
-  MenuList& menu_list = autoresponse_menu.items();
-  menu_list.push_back( MenuElem( response_label_entry.get_text(), bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), labels_list.size()) ));
-  autoresponse_option.set_menu(autoresponse_menu);
-  autoresponse_option.set_history(labels_list.size()-1);
-}
-
-/* Replace autoresponse */
-void SettingsDialog::replace_autoresponse_cb() {
-  labels_list[current_menu_position] = response_label_entry.get_text();
-  msgs_list[current_menu_position] = autoresponse_msg.get_chars(0, -1);
-
-  /* Rebuild the menu */
-  {
-    using namespace Gtk::Menu_Helpers;
-    
-    MenuList& menu_list = autoresponse_menu.items();
-    menu_list.clear();
-    
-    for (int i = 0; i < labels_list.size(); i++) {
-      menu_list.push_back(MenuElem( labels_list[i], bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), i + 1) ) );
-    }
-  }
-}
-
-/* Remove currently selected autoresponse */
-void SettingsDialog::remove_autoresponse_cb() {
-  labels_list[current_menu_position];
-  msgs_list[current_menu_position];
-  for (
-       vector<string>::iterator from = labels_list.begin(); 
-       from != labels_list.end(); 
-       ++from
-       ) {
-    if ( *from == labels_list[current_menu_position] ) {
-      labels_list.erase( from );
-      break;
-    }
-  }
-  for (
-       vector<string>::iterator from = msgs_list.begin(); 
-       from != msgs_list.end(); 
-       ++from
-       ) {
-    if ( *from == msgs_list[current_menu_position] ) {
-      msgs_list.erase( from );
-      break;
-    }
+  if (away_current_item_number < away_response_msg_list.size()) {
+    // save old
+    away_response_msg_list[away_current_item_number] = away_response_msg.get_chars(0, -1);
+    away_response_label_list[away_current_item_number] = away_response_label_entry.get_text();
   }
 
-  /* Rebuild the menu using the modified vectors */
-  {
-    using namespace Gtk::Menu_Helpers;
-    
-    MenuList& menu_list = autoresponse_menu.items();
-    menu_list.clear();
-    
-    for (int i = 0; i < labels_list.size(); i++) {
-      menu_list.push_back(MenuElem( labels_list[i], bind<int>( slot(this, &SettingsDialog::activate_autoresponsemenu_item_cb), i + 1) ) );
-    }
-  }
+  away_response_select_row(p0);
+  away_current_item_number = p0;
 }
 
 gint SettingsDialog::delete_event_impl(GdkEventAny*)

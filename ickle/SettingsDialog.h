@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.28 2002-02-13 14:50:49 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.29 2002-02-20 02:17:13 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,6 +34,7 @@
 #include <gtk--/text.h>
 #include <gtk--/optionmenu.h>
 #include <gtk--/menu.h>
+#include <gtk--/clist.h>
 #include <string>
 #include <vector>
 
@@ -75,17 +76,16 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::RadioButton log_to_nowhere, log_to_console, log_to_file, log_to_consolefile;
 
   /* Added widgets for away-msg editable */
-  Gtk::Button append_msg_button;
-  Gtk::Button save_msg_button;
-  Gtk::Button remove_msg_button;
-  Gtk::Text autoresponse_msg;
-  Gtk::OptionMenu autoresponse_option;
-  Gtk::Entry response_label_entry;
-  Gtk::Menu autoresponse_menu;
-  int current_menu_position;
-  vector<string> msgs_list;
-  vector<string> labels_list;
-
+  Gtk::Button away_remove_button;
+  Gtk::Button away_up_button, away_down_button;
+  Gtk::Text away_response_msg;
+  Gtk::CList away_response_list;
+  Gtk::Entry away_response_label_entry;
+  std::vector<std::string> away_response_msg_list;
+  std::vector<std::string> away_response_label_list;
+  unsigned int away_current_item_number;
+  Gtk::Connection away_response_label_edit_cnt;
+  
   string message_header_font, message_text_font;
 
   ICQ2000::Status m_status;
@@ -110,10 +110,12 @@ class SettingsDialog : public Gtk::Dialog {
   void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
-  void activate_autoresponsemenu_item_cb(int id);
-  void append_autoresponse_cb();
-  void replace_autoresponse_cb();
-  void remove_autoresponse_cb();
+
+  void away_remove_button_cb();
+  void away_response_list_select_row_cb(gint p0, gint p1, GdkEvent *ev);
+  void away_response_select_row(unsigned int row);
+  void away_response_label_edit();
+
  public:
   SettingsDialog();
 
