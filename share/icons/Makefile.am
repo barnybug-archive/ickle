@@ -3,3 +3,4 @@
 ##
 
 SUBDIRS = ickle doors icq new gnomeicu eureka
+EXTRA_DIST = icons.conf
