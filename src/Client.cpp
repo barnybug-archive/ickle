@@ -1620,6 +1620,20 @@ namespace ICQ2000 {
     if ( !c->isICQContact() ) return;
 
     d = FLAPHeader(b,0x02);
+    SrvRequestSimpleUserInfo ssnac( m_uin, c->getUIN() );
+    b << ssnac;
+    FLAPFooter(b,d);
+
+    Send(b);
+  }
+
+  void Client::fetchDetailContactInfo(Contact *c) {
+    Buffer b(&m_translator);
+    unsigned int d;
+
+    if ( !c->isICQContact() ) return;
+
+    d = FLAPHeader(b,0x02);
     unsigned int reqid = NextRequestID();
     m_reqidcache.insert( reqid, new UserInfoCacheValue(c) );
     SrvRequestDetailUserInfo ssnac( m_uin, c->getUIN() );

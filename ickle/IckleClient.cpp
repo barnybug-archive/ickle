@@ -125,7 +125,7 @@ void IckleClient::loadContactList() {
 	cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
 
 	string alias = cs.getValueString("alias");
-	if (!alias.empty()) c.setAlias(alias);
+	c.setAlias(alias);
 	c.setMobileNo(cs.getValueString("mobile_no"));
 	c.setFirstName(cs.getValueString("firstname"));
 	c.setLastName(cs.getValueString("lastname"));
@@ -722,5 +722,5 @@ void IckleClient::settings_changed_cb() {
 }
 
 void IckleClient::fetch_cb(Contact* c) {
-  icqclient.fetchSimpleContactInfo(c);
+  icqclient.fetchDetailContactInfo(c);
 }
