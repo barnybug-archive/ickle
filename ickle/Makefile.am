@@ -30,6 +30,7 @@ ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@
 
 corbadir = $(sysconfdir)/CORBA/servers
 desktopdir = $(datadir)/applets/Network
-EXTRA_DIST = ickle_applet.gnorba ickle_applet.desktop
+EXTRA_DIST = ickle_applet.gnorba ickle_applet.desktop ickle.1 ickle_applet.1
 corba_DATA= @CORBA_FILES@
 desktop_DATA= @DESKTOP_FILES@
+man_MANS = @ICKLE_MANPAGES@

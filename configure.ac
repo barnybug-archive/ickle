@@ -34,14 +34,17 @@ ICKLE_GNOME_INIT(applets)
 
 if test "x$want_gnome" = xyes; then
    ICKLE_PROGRAM=ickle_applet
+   ICKLE_MANPAGES=ickle_applet.1
    CORBA_FILES=ickle_applet.gnorba
    DESKTOP_FILES=ickle_applet.desktop
    AC_DEFINE(GNOME_ICKLE,,[Define if GNOME applet should be built])
 else
    ICKLE_PROGRAM=ickle
+   ICKLE_MANPAGES=ickle.1
 fi
 
 AC_SUBST(ICKLE_PROGRAM)
+AC_SUBST(ICKLE_MANPAGES)
 AC_SUBST(CORBA_FILES)
 AC_SUBST(DESKTOP_FILES)
 

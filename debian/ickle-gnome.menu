@@ -1,0 +1,2 @@
+?package(ickle-gnome):needs="x11" section="Apps/Net"\
+  title="Ickle ICQ Gnome" command="/usr/bin/ickle_applet"

@@ -1,2 +1,2 @@
 ?package(ickle):needs="x11" section="Apps/Net"\
-  title="ickle" command="/usr/bin/ickle_applet"
+  title="Ickle ICQ" command="/usr/bin/ickle"
