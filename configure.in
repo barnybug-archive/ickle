@@ -169,6 +169,10 @@ AC_OUTPUT([Makefile ickle/Makefile share/Makefile \
 	   share/icons/eureka/Makefile share/translations/Makefile \
            share/icons/kit/Makefile macros/Makefile pixmaps/Makefile])
 
+if test -z "$ECHO"; then
+   ECHO=echo
+fi   
+
 $ECHO
 $ECHO "-----------------------------------------------------------------"
 if test "x$want_gnome" = xyes; then
