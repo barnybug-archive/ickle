@@ -21,7 +21,7 @@
 
 #include "Contact.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 #include <time.h>
 
 #include "userinfoconstants.h"

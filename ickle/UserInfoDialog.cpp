@@ -20,7 +20,7 @@
 
 #include "UserInfoDialog.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "socket.h"
 

@@ -21,7 +21,7 @@
 
 #include "SNAC-MSG.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "TLV.h"
 #include "Contact.h"

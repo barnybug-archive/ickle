@@ -1,6 +1,6 @@
 
 #include <iostream>
-#include <sstream>
+#include "sstream_fix.h"
 #include <set>
 
 #include "Client.h"

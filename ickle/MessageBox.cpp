@@ -20,7 +20,7 @@
 
 #include "MessageBox.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include <gtk--/imageloader.h>
 #include <gtk--/pixmap.h>

@@ -21,7 +21,7 @@
 
 #include "Client.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "TLV.h"
 #include "UserInfoBlock.h"

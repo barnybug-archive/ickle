@@ -25,7 +25,7 @@
 
 #include <time.h>
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "Client.h"
 #include "main.h"

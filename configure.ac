@@ -87,7 +87,8 @@ AC_CHECK_HEADERS([vector iostream fstream string algorithm list memory iterator 
 AC_CHECK_HEADERS(ext/hash_map,,
   AC_CHECK_HEADERS(hash_map,, AC_MSG_ERROR([Your libstdc++ installation does not have the extra hash classes])))
 
-AC_CHECK_HEADER(sstream,, AC_MSG_ERROR([Although you appear to have libstdc++ headers installed you will need a newer version such as those which come with gcc 2.95.3 or later]))
+AC_CHECK_HEADERS(sstream,,
+  AC_CHECK_HEADERS(strstream,, AC_MSG_ERROR([Your libstdc++ doesn't have the sstream or strstream classes])))
 
 AC_LANG_RESTORE
 

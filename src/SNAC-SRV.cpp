@@ -22,7 +22,7 @@
 #include "SNAC-SRV.h"
 
 #include <memory>
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "TLV.h"
 #include "Xml.h"

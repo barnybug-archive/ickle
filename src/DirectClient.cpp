@@ -21,7 +21,7 @@
 
 #include "DirectClient.h"
 
-#include <sstream>
+#include "sstream_fix.h"
 
 using std::ostringstream;
 

@@ -29,7 +29,7 @@
 # include <getopt.h>
 #endif
 
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "main.h"
 #include "Icons.h"
@@ -434,7 +434,7 @@ void IckleClient::event_system(const string& s, MessageEvent *ev) {
     char c;
     char timebuf[100];
     time_t ev_time;
-    istringstream istr (g_settings.getValueString(s), istringstream::in);
+    istringstream istr (g_settings.getValueString(s));
     ostringstream ostr;
 
     while(istr.good()){

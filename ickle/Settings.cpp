@@ -22,7 +22,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <sstream>
+#include "sstream_fix.h"
 
 using std::ostringstream;
 using std::istringstream;
@@ -114,6 +114,7 @@ string Settings::Unescape(const string& s) {
     }
     ++curr;
   }
+
   return ostr.str();
 }
 

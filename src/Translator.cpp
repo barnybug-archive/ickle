@@ -19,7 +19,7 @@
 
 #include <string>
 #include <fstream>
-#include <sstream>
+#include "sstream_fix.h"
 
 #include "Translator.h"
 
