@@ -36,4 +36,6 @@ Dominic Sacré
 
 Jan Demaerel - gcc 3 namespace fixes
 
-Daniel <dss@home.se> - message box remembering sizes
+Daniel <dss@home.se>
+ - message box remembering sizes
+ - Predefined away messages
