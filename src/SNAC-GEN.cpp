@@ -111,16 +111,20 @@ namespace ICQ2000 {
   }
 
   SetStatusSNAC::SetStatusSNAC(unsigned short status)
-    : m_status(status) { }
+    : m_status(status), m_sendextra(false) { }
 
   void SetStatusSNAC::OutputBody(Buffer& b) const {
     StatusTLV stlv(ALLOWDIRECT_EVERYONE, WEBAWARE_NORMAL, m_status);
     b << stlv;
-    UnknownTLV utlv;
-    b << utlv;
-    LANDetailsTLV ltlv(m_ip, m_port);
-    b << ltlv;
+    if (m_sendextra) {
+      UnknownTLV utlv;
+      b << utlv;
+      LANDetailsTLV ltlv(m_ip, m_port);
+      b << ltlv;
+    }
   }
+
+  void SetStatusSNAC::setSendExtra(bool b) { m_sendextra = b; }
 
   void SetStatusSNAC::setIP(unsigned int ip) { m_ip = ip; }
 

@@ -660,6 +660,7 @@ namespace ICQ2000 {
     // the statuschanged signal correctly
     m_status = STATUS_OFFLINE;
 
+    sss.setSendExtra(true);
     sss.setIP( m_serverSocket.getLocalIP() );
     sss.setPort( m_listenServer.getPort() );
     b << sss;

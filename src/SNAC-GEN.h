@@ -123,7 +123,8 @@ namespace ICQ2000 {
    private:
     unsigned short m_status, m_port;
     unsigned int m_ip;
-    
+    bool m_sendextra;
+
    protected:
     void OutputBody(Buffer& b) const;
 
@@ -131,6 +132,7 @@ namespace ICQ2000 {
     SetStatusSNAC(unsigned short status);
     unsigned short Subtype() const { return SNAC_GEN_SetStatus; }
 
+    void setSendExtra(bool b);
     void setIP(unsigned int ip);
     void setPort(unsigned short port);
   };
