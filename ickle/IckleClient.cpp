@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.50 2001-12-28 01:04:51 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.51 2001-12-28 20:23:15 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -59,6 +59,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   // initialize GNOME applet
   applet.init(argc, argv, gui);
   applet.user_popup.connect( slot( this,&IckleClient::user_popup_cb ) );
+  applet.exit.connect(slot(this,&IckleClient::exit_cb));
 #endif
 
   // let us know when the gui is destroyed

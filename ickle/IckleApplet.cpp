@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.18 2001-12-28 16:19:34 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.19 2001-12-28 20:23:15 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -76,8 +76,11 @@ void IckleApplet::applet_toogle_menu_cb(AppletWidget *applet, gpointer data)
 
 gint IckleApplet::applet_delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer data)
 {
-  ((IckleApplet *)data)->m_applet = NULL;
-  delete ((IckleApplet *)data)->m_box;
+  IckleApplet *appl = ((IckleApplet *)data);
+  appl->m_applet = NULL;
+  delete appl->m_box;
+  if( appl->m_gui->is_realized() )
+    appl->exit.emit();
   return FALSE;
 }
 
