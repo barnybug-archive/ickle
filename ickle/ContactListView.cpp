@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.68 2003-05-26 15:52:27 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.69 2004-02-08 20:23:10 cborni Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -597,7 +597,6 @@ void ContactListView::update_list()
     ++curr;
   }
 
-  sort();
 }
 
 void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
@@ -614,7 +613,6 @@ void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
 void ContactListView::contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
 {
   update_contact( ev->getContact() );
-  sort();
 }
 
 void ContactListView::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev)
@@ -678,7 +676,6 @@ void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
     update_group(gp);
   }
   
-  sort();
 }
 
 void ContactListView::queue_added_cb(MessageEvent *ev)
@@ -699,7 +696,6 @@ void ContactListView::queue_added_cb(MessageEvent *ev)
     update_contact(icq->getICQContact());
   }
 
-  sort();
 }
 
 void ContactListView::queue_removed_cb(MessageEvent *ev)
@@ -721,8 +717,6 @@ void ContactListView::queue_removed_cb(MessageEvent *ev)
     /* update contact */
     update_contact(icq->getICQContact());
   }
-      
-  sort();
 }
 
   
@@ -881,20 +875,6 @@ int ContactListView::status_order (ICQ2000::Status s)
   return 0;
 }
 
-void ContactListView::sort()
-{
-  /* this is a dirrty hack - gtk+ doesn't have any way of explicitly
-   * resorting, and doesn't reorder rows when their contents are changed
-   * (an acknowledged bug), so I hack an explicit resort function, which
-   * just switches sort columns to force gtk to resort
-   */
-  int sort_column_id;
-  Gtk::SortType order;
-
-  m_reftreestore->get_sort_column_id( sort_column_id, order );
-  m_reftreestore->set_sort_column_id( (sort_column_id == m_columns.nick.index()
-		       ? m_columns.icon.index() : m_columns.nick.index() ), order );
-}
 
 bool ContactListView::contact_restore_weight_timeout_cb(ICQ2000::ContactRef c)
 {
