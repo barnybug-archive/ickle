@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.36 2002-04-04 21:45:21 bugcreator Exp $
+/* $Id: SettingsDialog.h,v 1.37 2002-04-07 15:03:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -62,6 +62,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Button okay, cancel, trans_b, subs_b;
   Gtk::Label trans_l;
   Gtk::List icons_list;
+  Gtk::CheckButton window_icons_check;
   Gtk::Entry uin_entry, password_entry;
   Gtk::Entry event_user_online_entry, event_message_entry, event_url_entry, event_sms_entry, event_system_entry;
   Gtk::SpinButton *event_repetition_spinner;

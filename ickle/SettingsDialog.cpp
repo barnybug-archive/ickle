@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.43 2002-04-04 21:45:21 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.44 2002-04-07 15:03:37 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,6 +60,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     popup_away_response("Popup auto response dialog on status change", 0),
     reconnect_checkbox("Auto Reconnect", 0),
     reconnect_label( "Retries", 0),
+    window_icons_check("Set window icons", 0),
     log_info("Information", 0),
     log_warn("Warnings", 0),
     log_error("Errors", 0),
@@ -190,6 +191,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   ftable->attach( *frame, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
   frame = manage( new Gtk::Frame("Icons") );
+  hbox = manage( new Gtk::HBox() );
+  hbox->set_border_width(5);
+
   icons_list.set_selection_mode(GTK_SELECTION_BROWSE);
   {
     string current = g_settings.getValueString("icons_dir");
@@ -223,7 +227,19 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   Gtk::ScrolledWindow *scrolled_window = manage(new Gtk::ScrolledWindow());
   scrolled_window->set_policy(GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
   scrolled_window->add_with_viewport(icons_list);
-  frame->add(*scrolled_window);
+  hbox->pack_start(*scrolled_window, true, true);
+
+  vbox = manage( new Gtk::VBox() );
+  vbox->pack_start(window_icons_check, false, false);
+  window_icons_check.set_active(g_settings.getValueBool("window_status_icons"));
+  m_tooltips.set_tip (window_icons_check, "Uncheck this if you don't want a user's status to be shown in "
+                                          "the corresponding window's icon.\n"
+                                          "This feature won't work correctly with some broken window managers. "
+                                          "If you disable it, ickle must be restarted for the change to take effect.");
+
+  hbox->pack_end(*vbox);
+  hbox->set_spacing(5);
+  frame->add(*hbox);
 
   ftable->attach( *frame, 1, 2, 1, 2, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
 
@@ -695,6 +711,9 @@ void SettingsDialog::updateSettings() {
 
   g_settings.setValue("translation_map", icqclient.getTranslationMapFileName() );
   g_settings.setValue("icons_dir", getIconsFilename());
+  bool b = g_settings.getValueBool("window_status_icons");
+  g_settings.setValue("window_status_icons", window_icons_check.get_active());
+  if (window_icons_check.get_active() != b) g_icons.icons_changed();
 
   // ------------ Events tab -----------------------
   g_settings.setValue("event_user_online", event_user_online_entry.get_text());

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.92 2002-04-07 11:50:09 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.93 2002-04-07 15:03:36 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -243,6 +243,8 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueUnsignedShort("auto_away", 0, 0, 65535);
   g_settings.defaultValueUnsignedShort("auto_na", 0, 0, 65535);
   g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 0, 10);
+
+  g_settings.defaultValueBool("window_status_icons", true);
 
   /* Event settings */
   g_settings.defaultValueUnsignedInt("event_repetition_threshold", 100);

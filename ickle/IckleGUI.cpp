@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.52 2002-04-04 23:47:49 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.53 2002-04-07 15:03:36 bugcreator Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -137,22 +137,25 @@ void IckleGUI::set_ickle_title()
   if (c->getUIN() != 0) {
     ostr << " - " << c->getNameAlias();
   }
-  Gtk::ImageLoader *p;
+  set_title(ostr.str());
 
-  if (m_message_queue.get_size() > 0) {
-    ostr << "*";
-    MessageEvent *ev = m_message_queue.get_first_message();
-    if (ev->getServiceType() == MessageEvent::ICQ) {
-      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-      p = g_icons.IconForEvent(icq->getICQMessageType());
+  if (g_settings.getValueBool("window_status_icons")) {
+    Gtk::ImageLoader *p;
+
+    if (m_message_queue.get_size() > 0) {
+      ostr << "*";
+      MessageEvent *ev = m_message_queue.get_first_message();
+      if (ev->getServiceType() == MessageEvent::ICQ) {
+        ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+        p = g_icons.IconForEvent(icq->getICQMessageType());
+      }
+    }
+    else {
+      p = g_icons.IconForStatus( c->getStatus(), c->isInvisible() );
     }
 
-  } else {
-    p = g_icons.IconForStatus( c->getStatus(), c->isInvisible() );
+    gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
   }
-
-  gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
-  set_title(ostr.str());
 }
 
 void IckleGUI::icons_changed_cb()

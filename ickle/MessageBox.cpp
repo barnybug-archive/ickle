@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.53 2002-04-07 11:50:09 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.54 2002-04-07 15:03:36 bugcreator Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -409,22 +409,26 @@ void MessageBox::set_contact_title() {
   }
   ostr << " - ";
   ostr << m_contact->getStatusStr();
-  Gtk::ImageLoader *p;
-  
-  if (m_message_queue.get_contact_size(m_contact) > 0) {
-    ostr << "*";
-    MessageEvent *ev = m_message_queue.get_contact_first_message(m_contact);
-    if (ev->getServiceType() == MessageEvent::ICQ) {
-      ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-      p = g_icons.IconForEvent(icq->getICQMessageType());
+  set_title(ostr.str());
+
+  if (g_settings.getValueBool("window_status_icons"))
+  {
+    Gtk::ImageLoader *p;
+
+    if (m_message_queue.get_contact_size(m_contact) > 0) {
+      ostr << "*";
+      MessageEvent *ev = m_message_queue.get_contact_first_message(m_contact);
+      if (ev->getServiceType() == MessageEvent::ICQ) {
+        ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
+        p = g_icons.IconForEvent(icq->getICQMessageType());
+      }
+    }
+    else {
+      p = g_icons.IconForStatus( m_contact->getStatus(), m_contact->isInvisible() );
     }
 
-  } else {
-    p = g_icons.IconForStatus( m_contact->getStatus(), m_contact->isInvisible() );
+    gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
   }
-
-  gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
-  set_title(ostr.str());
 }
 
 void MessageBox::contactlist_cb(ICQ2000::ContactListEvent *ev) {
