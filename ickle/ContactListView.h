@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.26 2002-10-30 23:35:10 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.27 2002-11-02 18:03:28 barnabygray Exp $
  *
  * Well actually it's a tree now.. :-)
  *
@@ -65,9 +65,13 @@ class ContactListView : public Gtk::CTree {
   SigC::Connection contactlist_conn;
 
   void update_row(const ICQ2000::ContactRef& c);
+  void update_list();
+  void remove_row(Gtk::CTree_Helpers::Row& row);
+  void add_group(const ICQ2000::ContactTree::Group& gp);
+  void add_contact(const ICQ2000::ContactRef& c, const ICQ2000::ContactTree::Group& gp);
 
   titerator lookup_uin(unsigned int uin);
-  Gtk::CTree_Helpers::RowIterator get_tree_group( ICQ2000::ContactTree::Group& gp );
+  Gtk::CTree_Helpers::RowIterator get_tree_group( const ICQ2000::ContactTree::Group& gp );
 
   // contact rc callbacks
   void userinfo_cb();
@@ -94,7 +98,7 @@ class ContactListView : public Gtk::CTree {
 		      GtkCTreeNode *sibling, gpointer data);
 
  private:
-  bool m_single_click, m_check_away_click;
+  bool m_single_click, m_check_away_click, m_offline_contacts;
   int m_sort;
 
  public:
@@ -107,6 +111,7 @@ class ContactListView : public Gtk::CTree {
 
   void setSingleClick(bool b);
   void setCheckAwayClick(bool b);
+  void setShowOfflineContacts(bool b);
 
   gint button_press_cb(GdkEventButton *ev);
 
@@ -123,7 +128,7 @@ class ContactListView : public Gtk::CTree {
   void icons_changed_cb();
   void settings_changed_cb(const std::string&);
 
-  void load_sort_column ();
+  void post_settings_loaded ();
   static int status_order(ICQ2000::Status);
 
   static gint sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2);

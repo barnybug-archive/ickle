@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.113 2002-10-30 20:59:41 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.114 2002-11-02 18:03:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -130,7 +130,7 @@ void IckleClient::init()
   loadSettings();
   loadSelfContact();
 
-  gui.getContactListView()->load_sort_column ();
+  gui.post_settings_loaded();
 
   // setup contact list
   loadContactList();
@@ -326,6 +326,7 @@ void IckleClient::loadSettings() {
 #ifdef GNOME_ICKLE
   g_settings.defaultValueBool("hidegui_onstart", false);
 #endif
+  g_settings.defaultValueBool("show_offline_contacts", true);
   
   // Set settings in library
   icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));

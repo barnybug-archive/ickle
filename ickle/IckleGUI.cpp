@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.65 2002-10-30 20:59:42 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.66 2002-11-02 18:03:28 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -99,6 +99,10 @@ IckleGUI::IckleGUI(MessageQueue& mq)
     mi_search_for_contacts->set_sensitive(false);
     ml.push_back( MenuElem("Set Auto Response", bind<bool>(slot(this, &IckleGUI::set_auto_response_dialog), false)) );
     
+    m_offline_co_mi = manage( new Gtk::CheckMenuItem("Show offline contacts") );
+    m_offline_co_mi->toggled.connect( slot(this, &IckleGUI::toggle_offline_co_cb) );
+    ml.push_back(*m_offline_co_mi);
+
     m_log_window_mi = manage( new Gtk::CheckMenuItem("Log Window") );
     m_log_window_mi->toggled.connect( slot(this, &IckleGUI::log_window_cb) );
     ml.push_back(*m_log_window_mi);
@@ -539,6 +543,12 @@ void IckleGUI::add_contact_cb() {
   manage( new AddContactDialog(this) );
 }
 
+void IckleGUI::toggle_offline_co_cb()
+{
+  m_contact_list.setShowOfflineContacts( m_offline_co_mi->is_active() );
+  g_settings.setValue("show_offline_contacts", m_offline_co_mi->is_active() );
+}
+
 void IckleGUI::log_window_cb()
 {
   if ( m_log_window_mi->is_active() )
@@ -759,4 +769,10 @@ void IckleGUI::disconnected_cb(ICQ2000::DisconnectedEvent *)
 {
   // ensure StatusMenu is set back to offline, ie. for when connecting fails
   m_status_menu.set_status(ICQ2000::STATUS_OFFLINE, icqclient.getInvisibleWanted());
+}
+
+void IckleGUI::post_settings_loaded()
+{
+  m_contact_list.post_settings_loaded();
+  m_offline_co_mi->set_active( g_settings.getValueBool("show_offline_contacts") );
 }

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.44 2002-10-30 20:59:43 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.45 2002-11-02 18:03:28 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -77,7 +77,7 @@ class IckleGUI : public Gtk::Window {
   Gtk::Menu m_ickle_menu;
   StatusMenu m_status_menu;
   Gtk::MenuItem *mi_search_for_contacts;
-  Gtk::CheckMenuItem *m_log_window_mi;
+  Gtk::CheckMenuItem *m_log_window_mi, *m_offline_co_mi;
 
   int geometry_x, geometry_y;
   int geometry_w, geometry_h;
@@ -122,6 +122,7 @@ class IckleGUI : public Gtk::Window {
   void add_contact_cb();
   void search_contact_cb();
   void about_cb();
+  void toggle_offline_co_cb();
   void log_window_cb();
   void my_user_info_cb();
 
@@ -163,6 +164,8 @@ class IckleGUI : public Gtk::Window {
   void settings_changed_cb(const std::string& k);
 
   void spell_check_setup();
+
+  void post_settings_loaded();
 
   // signals
   SigC::Signal0<void> settings_changed;

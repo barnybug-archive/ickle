@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.45 2002-10-30 23:35:10 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.46 2002-11-02 18:03:28 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -54,7 +54,8 @@ ContactListView::ContactListView(IckleGUI& gui, MessageQueue& mq)
     m_message_queue(mq),
     m_gui(gui),
     m_single_click(false),
-    m_check_away_click(false)
+    m_check_away_click(false),
+    m_offline_contacts(false)
 {
   set_show_stub(false);
   set_line_style(GTK_CTREE_LINES_NONE);
@@ -139,9 +140,46 @@ void ContactListView::setCheckAwayClick(bool b)
   m_check_away_click = b;
 }
 
-void ContactListView::load_sort_column ()
+void ContactListView::setShowOfflineContacts(bool b)
+{
+  m_offline_contacts = b;
+  update_list();
+}
+
+void ContactListView::update_list()
+{
+  /* could be done more efficiently! */
+  clear();
+  ICQ2000::ContactTree& ct = icqclient.getContactTree();
+  ICQ2000::ContactTree::const_iterator curr = ct.begin();
+  while (curr != ct.end())
+  {
+    add_group( *curr );
+    
+    ICQ2000::ContactTree::Group::const_iterator gcurr = curr->begin();
+    while (gcurr != curr->end())
+    {
+      if ( m_offline_contacts || (*gcurr)->getStatus() != ICQ2000::STATUS_OFFLINE)
+	add_contact( *gcurr, *curr );
+      else if ( !m_offline_contacts )
+      {
+	/* status offline, but they may have pending messages */
+	if (m_message_queue.get_contact_size( *gcurr ) > 0)
+	  add_contact( *gcurr, *curr );
+      }
+      
+      ++gcurr;
+    }
+    ++curr;
+  }
+
+  sort();
+}
+
+void ContactListView::post_settings_loaded ()
 {
   m_sort = g_settings.getValueInt ("sort_contact_list_column");
+  m_offline_contacts = g_settings.getValueBool("show_offline_contacts");
 }
 
 // ughh.. all nasty Gtk stuff :-(
@@ -412,6 +450,9 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
 ContactListView::titerator ContactListView::lookup_uin(unsigned int uin)
 {
   titerator curr = tree().begin();
+
+  if (tree().empty()) return tree().end();
+
   while (curr != tree().end()) {
     RowData *p = (RowData*)((*curr).get_data());
     if (p->type == RowData::Contact && p->uin == uin) return curr;
@@ -453,7 +494,7 @@ void ContactListView::update_row(const ContactRef& c) {
   (*row)[0].set_text( alias );
 }
 
-Gtk::CTree_Helpers::RowIterator ContactListView::get_tree_group( ICQ2000::ContactTree::Group& gp )
+Gtk::CTree_Helpers::RowIterator ContactListView::get_tree_group( const ICQ2000::ContactTree::Group& gp )
 {
   Gtk::CTree_Helpers::RowList::iterator iter = rows().begin();
   while (iter != rows().end()) {
@@ -488,60 +529,35 @@ class RowIteratorHack : public Gtk::CTree_Helpers::RowIterator
 
 void ContactListView::contactlist_cb(ICQ2000::ContactListEvent *ev) {
 
-  if (ev->getType() == ICQ2000::ContactListEvent::UserAdded) {
-    
+  if (ev->getType() == ICQ2000::ContactListEvent::UserAdded)
+  {
     ICQ2000::UserAddedEvent *cev = static_cast<ICQ2000::UserAddedEvent*>(ev);
-    ContactRef c = cev->getContact();
-    unsigned int uin = c->getUIN();
+    if (m_offline_contacts || cev->getContact()->getStatus() != ICQ2000::STATUS_OFFLINE)
+    {
+      /* add contact */
+      add_contact( cev->getContact(), cev->get_group() );
+      columns_autosize();
+      sort();
+    }
     
-    vector<string> a;
-    a.push_back("");
-
-    Gtk::CTree_Helpers::RowIterator iter = get_tree_group( const_cast<ICQ2000::ContactTree::Group&>(cev->get_group()) );
-    Row& parent = *iter;
-    
-    // create + set per row data
-    RowData *p = new RowData;
-    p->type = RowData::Contact;
-    p->uin = c->getUIN();
-    citerator cr = parent.subtree()
-                         .insert( parent.subtree().end(),
-				  Gtk::CTree_Helpers::Element( a, false, false ) );
-    (*cr).set_data(p);
-
-    update_row(c);
-
-    columns_autosize();
-    sort();
-
-  } else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved) {
+  }
+  else if (ev->getType() == ICQ2000::ContactListEvent::UserRemoved)
+  {
     ICQ2000::UserRemovedEvent *cev = static_cast<ICQ2000::UserRemovedEvent*>(ev);
     ContactRef c = cev->getContact();
     unsigned int uin = c->getUIN();
     
-    // delete per row data
     titerator cr = lookup_uin(uin);
-    RowData *p = (RowData*)(*cr).get_data();
-    delete p;
-
-    RowHack rowh( (*cr) );
-    RowHack rowhp( rowh.get_parent() );
-    rows().erase(RowIteratorHack(gtkobj(), rowhp.get_gtkctreenode(), rowh.get_gtkctreenode()));
-    columns_autosize();
-    sort();
+    if (cr != tree().end())
+    {
+      remove_row(*cr);
+      columns_autosize();
+      sort();
+    }
 
   } else if (ev->getType() == ICQ2000::ContactListEvent::GroupAdded) {
     ICQ2000::GroupAddedEvent *cev = static_cast<ICQ2000::GroupAddedEvent*>(ev);
-    vector<string> a;
-    a.push_back( cev->get_group().get_label() );
-    citerator cr = rows().insert( rows().end(),
-				  Gtk::CTree_Helpers::BranchElem( a, true ) );
-
-    // create + set per row data
-    RowData *p = new RowData;
-    p->type = RowData::Group;
-    p->group_id = cev->get_group().get_id();
-    (*cr).set_data(p);
+    add_group(cev->get_group());
 
   } else if (ev->getType() == ICQ2000::ContactListEvent::GroupRemoved) {
     ICQ2000::GroupRemovedEvent *cev = static_cast<ICQ2000::GroupRemovedEvent*>(ev);
@@ -566,7 +582,37 @@ void ContactListView::contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *e
 
 void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
 {
-  update_row(ev->getContact());
+  if (m_offline_contacts)
+  {
+    update_row(ev->getContact());
+  }
+  else
+  {
+    if (ev->getStatus() == ICQ2000::STATUS_OFFLINE)
+    {
+      /* keep contacts visible whilst they've got pending messages */
+      if (m_message_queue.get_contact_size(ev->getContact()) == 0)
+      {
+	/* remove contact */
+	titerator ct = lookup_uin( ev->getContact()->getUIN() );
+	if (ct != tree().end())
+	  remove_row( *ct );
+      }
+    }
+    else if (ev->getOldStatus() == ICQ2000::STATUS_OFFLINE)
+    {
+      /* add contact */
+      titerator ct = lookup_uin( ev->getContact()->getUIN() );
+      if (ct == tree().end())
+	add_contact(ev->getContact(), icqclient.getContactTree().lookup_group_containing_contact( ev->getContact() ) );
+    }
+    else
+    {
+      /* update status */
+      update_row(ev->getContact());
+    }
+  }
+  
   sort();
 }
 
@@ -593,7 +639,20 @@ void ContactListView::queue_added_cb(MessageEvent *ev)
 {
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-  update_row(icq->getICQContact());
+
+  titerator cr = lookup_uin( icq->getICQContact()->getUIN() );
+  if (cr == tree().end())
+  {
+    /* add contact if necessary (ie. offline contacts, can still
+       message and would otherwise be hidden if offline contacts are
+       hidden) */
+    add_contact(icq->getICQContact(), icqclient.getContactTree().lookup_group_containing_contact( icq->getICQContact() ) );
+  }
+  else
+  {
+    update_row(icq->getICQContact());
+  }
+  
   sort();
 }
 
@@ -601,7 +660,20 @@ void ContactListView::queue_removed_cb(MessageEvent *ev)
 {
   if (ev->getServiceType() != MessageEvent::ICQ) return;
   ICQMessageEvent *icq = static_cast<ICQMessageEvent*>(ev);
-  update_row(icq->getICQContact());
+  if (!m_offline_contacts
+      && icq->getICQContact()->getStatus() == ICQ2000::STATUS_OFFLINE
+      && m_message_queue.get_contact_size( icq->getICQContact() ) == 0)
+  {
+    /* remove contact */
+    titerator ct = lookup_uin( icq->getICQContact()->getUIN() );
+    if (ct != tree().end())
+      remove_row( *ct );
+  }
+  else
+  {
+    update_row(icq->getICQContact());
+  }
+  
   sort();
 }
 
@@ -622,4 +694,52 @@ void ContactListView::group_remove_cb()
 void ContactListView::blank_add_group_cb()
 {
   manage( new AddGroupDialog(&m_gui) );
+}
+
+void ContactListView::remove_row(Gtk::CTree_Helpers::Row& row)
+{
+  /* this is all a big hack */
+
+  // delete per row data
+  RowData *p = (RowData*)row.get_data();
+  delete p;
+  
+  RowHack rowh( row );
+  RowHack rowhp( rowh.get_parent() );
+  rows().erase(RowIteratorHack(gtkobj(), rowhp.get_gtkctreenode(), rowh.get_gtkctreenode()));
+}
+
+void ContactListView::add_group(const ICQ2000::ContactTree::Group& gp)
+{
+  vector<string> a;
+  a.push_back( gp.get_label() );
+  rows().push_back( Gtk::CTree_Helpers::Element(a, false, true) );
+  citerator cr = --rows().end();
+  
+  // create + set per row data
+  RowData *p = new RowData;
+  p->type = RowData::Group;
+  p->group_id = gp.get_id();
+  (*cr).set_data(p);
+}
+
+void ContactListView::add_contact(const ICQ2000::ContactRef& c, const ICQ2000::ContactTree::Group& gp)
+{
+  unsigned int uin = c->getUIN();
+    
+  vector<string> a;
+  a.push_back("");
+  
+  Gtk::CTree_Helpers::RowIterator iter = get_tree_group( gp );
+  Row& parent = *iter;
+  
+  // create + set per row data
+  RowData *p = new RowData;
+  p->type = RowData::Contact;
+  p->uin = c->getUIN();
+  citerator cr = parent.subtree().insert( parent.subtree().end(),
+					  Gtk::CTree_Helpers::Element( a, false, false ) );
+  
+  (*cr).set_data(p);
+  update_row(c);
 }
