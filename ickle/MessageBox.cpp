@@ -396,6 +396,8 @@ bool MessageBox::message_cb(MessageEvent *ev) {
   
 void MessageBox::send_clicked_cb() {
 
+  m_status.set_text("Sending message...");
+
   if (m_message_type == MessageEvent::Normal) {
     NormalMessageEvent *nv = new NormalMessageEvent( m_contact, m_message_text.get_chars(0,-1) );
     send_event.emit( nv );
@@ -406,8 +408,6 @@ void MessageBox::send_clicked_cb() {
     SMSMessageEvent *sv = new SMSMessageEvent( m_contact, m_sms_text.get_chars(0,-1), true );
     send_event.emit( sv );
   }
-
-  m_status.set_text("Sending message...");
 
 }
 
