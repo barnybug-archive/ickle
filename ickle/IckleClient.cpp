@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.111 2002-07-21 00:23:37 bugcreator Exp $
+/* $Id: IckleClient.cpp,v 1.112 2002-10-13 22:39:47 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -263,6 +263,12 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("log_warn", true);
   g_settings.defaultValueBool("log_packet", false);
   g_settings.defaultValueBool("log_directpacket", false);
+
+  g_settings.defaultValueBool("log_window_info", false);
+  g_settings.defaultValueBool("log_window_error", true);
+  g_settings.defaultValueBool("log_window_warn", true);
+  g_settings.defaultValueBool("log_window_packet", false);
+  g_settings.defaultValueBool("log_window_directpacket", false);
 
   /* Default geometry for main window */
   g_settings.defaultValueUnsignedInt("geometry_width", 130, 30, 1000);

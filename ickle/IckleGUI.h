@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.42 2002-07-20 18:14:13 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.43 2002-10-13 22:39:47 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -53,6 +53,7 @@
 #include "SetAutoResponseDialog.h"
 #include "StatusMenu.h"
 #include "MessageQueue.h"
+#include "LogWindow.h"
 
 class IckleGUI : public Gtk::Window {
  private:
@@ -71,11 +72,13 @@ class IckleGUI : public Gtk::Window {
   Gtk::ScrolledWindow  m_contact_scroll;
   ContactListView m_contact_list;
   AwayMessageDialog m_away_message;
-  
+  LogWindow m_log_window;
+
   Gtk::MenuBar m_ickle_menubar;
   Gtk::Menu m_ickle_menu;
   StatusMenu m_status_menu;
   Gtk::MenuItem *mi_search_for_contacts;
+  Gtk::CheckMenuItem *m_log_window_mi;
 
   int geometry_x, geometry_y;
   int geometry_w, geometry_h;
@@ -120,6 +123,7 @@ class IckleGUI : public Gtk::Window {
   void add_user_cb();
   void search_user_cb();
   void about_cb();
+  void log_window_cb();
   void my_user_info_cb();
 
   // -- prompts --
@@ -152,6 +156,7 @@ class IckleGUI : public Gtk::Window {
   // -- other callbacks --
   void settings_cb(Gtk::Window * away_dlg);
   void icons_changed_cb();
+  void log_window_hidden_cb();
   void userinfo_toggle_cb(bool b, ICQ2000::ContactRef c);
   void exit_cb();
   void userinfo_fetch_cb(ICQ2000::ContactRef c);

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.63 2002-08-31 13:01:41 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.64 2002-10-13 22:39:47 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -28,6 +28,8 @@
 #include "AuthRespDialog.h"
 #include "ResendDialog.h"
 
+#include <gtk--/checkmenuitem.h>
+
 #include <libicq2000/Client.h>
 
 #include "main.h"
@@ -53,7 +55,8 @@ IckleGUI::IckleGUI(MessageQueue& mq)
      m_contact_scroll(),
      m_contact_list(*this, mq),
      m_away_message( this ),
-     m_exiting(false)
+     m_exiting(false),
+     m_log_window( this )
 {
   // -- libICQ2000 callbacks
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
@@ -93,6 +96,11 @@ IckleGUI::IckleGUI(MessageQueue& mq)
     mi_search_for_contacts = ml.back();
     mi_search_for_contacts->set_sensitive(false);
     ml.push_back( MenuElem("Set Auto Response", bind<bool>(slot(this, &IckleGUI::set_auto_response_dialog), false)) );
+    
+    m_log_window_mi = manage( new Gtk::CheckMenuItem("Log Window") );
+    m_log_window_mi->toggled.connect( slot(this, &IckleGUI::log_window_cb) );
+    ml.push_back(*m_log_window_mi);
+
     ml.push_back( MenuElem("Settings", bind<Gtk::Window*>( slot(this, &IckleGUI::settings_cb), NULL ) ) );
     ml.push_back( MenuElem("About", slot(this, &IckleGUI::about_cb)) );
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
@@ -110,6 +118,8 @@ IckleGUI::IckleGUI(MessageQueue& mq)
   m_top_vbox.pack_end(m_ickle_menubar,false);
   
   add(m_top_vbox);
+
+  m_log_window.hide.connect( slot( this, &IckleGUI::log_window_hidden_cb ) );
 
   m_contact_list.setupAccelerators();
   m_contact_list.grab_focus();
@@ -519,6 +529,19 @@ void IckleGUI::about_cb()
 {
   AboutDialog about (this);
   about.run();
+}
+
+void IckleGUI::log_window_cb()
+{
+  if ( m_log_window_mi->is_active() )
+    m_log_window.show();
+  else
+    m_log_window.hide();
+}
+
+void IckleGUI::log_window_hidden_cb()
+{
+  if (is_realized()) m_log_window_mi->set_active(false);
 }
 
 void IckleGUI::add_user_cb() {
