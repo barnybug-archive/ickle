@@ -234,7 +234,7 @@ void IckleClient::loadSettings() {
   }
 
   g_settings.defaultValueBool("away_autoposition", true);
-  g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 1, 10);
+  g_settings.defaultValueUnsignedInt("reconnect_retries", 2, 0, 10);
   g_settings.defaultValueBool("log_to_console", true);
   g_settings.defaultValueBool("log_to_file", false);
   g_settings.defaultValueUnsignedInt("geometry_width", 130, 30, 1000);
@@ -520,7 +520,12 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
-    //    cout << "connecting socket " << fd << endl;
+    ostringstream ostr;
+    ostr << "connecting socket " << fd;
+    if (cev->isRead()) ostr << " for read";
+    if (cev->isWrite()) ostr << " for write";
+    if (cev->isException()) ostr << " for exception";
+    SignalLog(LogEvent::INFO, ostr.str());
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
@@ -539,7 +544,9 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
-    //    cout << "disconnecting socket " << fd << endl;
+    ostringstream ostr;
+    ostr << "Disconnecting socket " << fd;
+    SignalLog(LogEvent::INFO, ostr.str());
 
     m_sockets[fd].disconnect();
     m_sockets.erase(fd);
