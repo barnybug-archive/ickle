@@ -1,0 +1,35 @@
+First version of a translation howto for ickle
+(C) Christian Bornträger 2003 christian@borntraeger.net
+This file is distributed under the same licence as the 
+ickle package.
+
+Creating a new language in the cvs version of ickle
+---------------------------------------------------
+1. Go into the po subdir
+    $ cd po
+2. Edit the file linguas and append the language code.
+For example if you want to add french to append an fr 
+to the line with languages.
+3. Run msginit to get a new po file for your language
+    $ msginit --locale=fr_FR
+4. return to the ickle directory
+    $ cd ..
+5. Rerun autogen.sh to modify the Makefile in the 
+po-sub-directory
+
+
+
+Applying newer code changes to your po-file
+-------------------------------------------
+1. Go into the po subdir
+    $ cd po
+2. run the update process
+    $ make update-po
+3. edit the po file and look for the entry fuzzy. 
+These entries are probably wrong. Remove the fuzzy 
+line and correct the translation.
+
+
+General rules for translating
+-----------------------------
+1. Never ever touch the "msgid" part, only edit the msgstr. 
