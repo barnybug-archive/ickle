@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.80 2002-03-28 21:51:49 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.81 2002-03-29 23:52:23 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -754,6 +754,13 @@ void IckleClient::message_cb(ICQ2000::MessageEvent *ev) {
   }
 
   ev->setDelivered(true);
+
+  // add to contact list if not on list already
+  if (!icqclient.getContactList().exists(ev->getContact()->getUIN())) {
+    cout << "boo" << endl;
+    icqclient.addContact(ev->getContact());
+    icqclient.fetchDetailContactInfo(ev->getContact());
+  }
 
   // convert to a client event type and add to queue
   MessageEvent *ickle_ev = convert_libicq2000_event(ev);
