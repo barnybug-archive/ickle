@@ -27,7 +27,9 @@
 
 #include <sigc++/signal_system.h>
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
 
 #ifdef HAVE_EXT_HASH_MAP
 # include <ext/hash_map>

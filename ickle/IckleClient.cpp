@@ -511,21 +511,23 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
 
     if (ev->getType() == ContactListEvent::UserAdded) {
       if (m_fmap.count(c->getUIN()) > 0) return;
-      ostringstream filename;
+      ostringstream ostr;
 
-      filename << CONTACT_DIR << c->getUIN() << ".user";
+      ostr << CONTACT_DIR << c->getUIN() << ".user";
 
       int n = 0;
       struct stat fs;
-      while ( stat( filename.str().c_str(), &fs ) == 0 ) {
+      string filename;
+      filename = ostr.str();
+      while ( stat( filename.c_str(), &fs ) == 0 ) {
+	ostringstream ostr;
 	n++;
-	filename.seekp(0);
-	filename << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
-	
+	ostr << CONTACT_DIR << c->getUIN() << "-" << n << ".user";
+	filename = ostr.str();
       }
       // ensure uniqueness
-      m_fmap[c->getUIN()] = filename.str();
-      m_histmap[c->getUIN()] = history_filename( filename.str() );
+      m_fmap[c->getUIN()] = filename;
+      m_histmap[c->getUIN()] = history_filename( filename );
     }
 
     if ( mkdir( BASE_DIR.c_str(), 0700 ) == -1 && errno != EEXIST ) {

@@ -457,6 +457,12 @@ namespace ICQ2000 {
       >> unknown
       >> seqnum; // again
 
+    /* unknown
+     * = 0x000e for normal messages
+     * = 0x0012 for the weird query ones sent by icq2000 clients through server
+     */
+    if (unknown != 0x000e) throw ParseException("Received unknown Server-Message type - to be fixed");
+
     b.advance(12); // unknown - all zeroes
 
     m_icqsubtype = ICQSubType::ParseICQSubType(b, true);
