@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.21 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.22 2002-01-02 17:20:45 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,6 +24,7 @@
 #include <libicq2000/Client.h>
 #include "Dir.h"
 #include "Icons.h"
+#include "PromptDialog.h"
 
 #include <gtk--/box.h>
 #include <gtk--/table.h>
@@ -42,6 +43,7 @@ using SigC::bind;
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
     okay("OK"), cancel("Cancel"),
+    subs_b("Substitutions legend"),
     away_autoposition("Autoposition away messages dialog", 0),
     reconnect_checkbox("Auto Reconnect", 0),
     reconnect_label( "Retries", 0),
@@ -192,9 +194,13 @@ SettingsDialog::SettingsDialog()
   table = manage( new Gtk::Table( 2, 4, false ) );
   
   label = manage( new Gtk::Label( "Below you can enter in commands to be executed when you receive an event. "
-				  "Leave them blank if you don't want anything to happen. ", 0 ) );
+				  "Leave them blank if you don't want anything to happen. "
+                                  "Click the button to the right for a list of available subsitutions.", 0 ) );
   label->set_line_wrap(true);
-  table->attach( *label, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND | GTK_SHRINK);
+
+  subs_b.clicked.connect(slot(this,&SettingsDialog::subs_cb));
+  table->attach( subs_b, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK );
 
   label = manage( new Gtk::Label( "Message Event", 0 ) );
   table->attach( *label, 0, 1, 1, 2, GTK_FILL | GTK_EXPAND, 0);
@@ -393,7 +399,7 @@ SettingsDialog::SettingsDialog()
 
 
   set_border_width(10);
-  set_usize(500, 300);
+  set_usize(500, 310);
   show_all();
 }
 
@@ -491,6 +497,27 @@ void SettingsDialog::cancel_cb() {
 
   // restore icons
   g_icons.setIcons( g_settings.getValueString("icons_dir") );
+}
+
+void SettingsDialog::subs_cb()
+{
+  PromptDialog pd(PromptDialog::PROMPT_INFO,
+                  "Available substitutions:\n\n"
+                  "%i\tExternal ip of the contact\n"
+                  "%p\tExternal port of the contact\n"
+                  "%e\tEmail address of the contact\n"
+                  "%n\tName of the contact\n"
+                  "%f\tFirst name of the contact\n"
+                  "%l\tLast name of the contact\n"
+                  "%u\tUIN of the contact\n"
+                  "%c\tCellular phonenumber of the contact\n"
+                  "%s\tStatus of the contact\n"
+                  "%S\tDitto.\n"
+                  "%t\tTimestamp for the event\n"
+                  "%T\tTimestamp for the event with timezone\n"
+                  "%m\tnumber of pending messages for the contact\n"
+                  );
+  pd.run();
 }
 
 void SettingsDialog::trans_cb() {

@@ -36,6 +36,13 @@ PromptDialog::PromptDialog(PromptType t, const string& msg)
   Gtk::Button *button;
 
   switch(t) {
+  case PROMPT_INFO:
+    set_title("ickle information");
+    button = manage( new Gtk::Button("OK") );
+    button->set_usize(70,20);
+    button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
+    hbox->pack_start(*button, true, false);
+    break;
   case PROMPT_WARNING:
     set_title("ickle warning");
     button = manage( new Gtk::Button("OK") );

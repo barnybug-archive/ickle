@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.18 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: SettingsDialog.h,v 1.19 2002-01-02 17:20:45 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -48,7 +48,7 @@ namespace Gtk {
 
 class SettingsDialog : public Gtk::Dialog {
  private:
-  Gtk::Button okay, cancel, trans_b;
+  Gtk::Button okay, cancel, trans_b, subs_b;
   Gtk::Label trans_l;
   Gtk::List icons_list;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
@@ -76,6 +76,7 @@ class SettingsDialog : public Gtk::Dialog {
 
   void okay_cb();
   void cancel_cb();
+  void subs_cb();
   void trans_cb();
   void fontsel_cb(int n);
   void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);

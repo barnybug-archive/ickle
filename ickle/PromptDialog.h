@@ -32,7 +32,8 @@ class PromptDialog : public Gtk::Dialog {
   enum PromptType {
     PROMPT_WARNING,
     PROMPT_CONFIRM,
-    PROMPT_QUESTION
+    PROMPT_QUESTION,
+    PROMPT_INFO
   };
 
  private:
