@@ -1,2 +1,0 @@
-?package(ickle):needs="x11" section="Apps/Net"\
-  title="Ickle ICQ" command="/usr/bin/ickle"
