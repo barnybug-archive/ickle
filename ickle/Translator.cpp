@@ -119,7 +119,7 @@ std::string IckleTranslator::get_contact_encoding(const ICQ2000::ContactRef& c)
     Glib::get_charset(default_encoding);
   }
   
-  if ( m_encoding_map.count( c->getUIN() ) )
+  if ( c.get() != NULL && m_encoding_map.count( c->getUIN() ) )
   {
     if (Utils::is_valid_encoding( m_encoding_map[c->getUIN()] ))
     {
