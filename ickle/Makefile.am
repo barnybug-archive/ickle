@@ -16,7 +16,7 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   SettingsDialog.cpp PromptDialog.cpp History.cpp MobileNoEntry.cpp	\
   Dir.cpp AwayMessageDialog.cpp EventSubstituter.cpp			\
   SetAutoResponseDialog.cpp SearchDialog.cpp AboutDialog.cpp		\
-  IdleTime.cpp
+  IdlerTime.cpp
 
 noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
   ContactListView.h MessageBox.h AddUserDialog.h		\
