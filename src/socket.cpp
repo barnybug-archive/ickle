@@ -23,10 +23,6 @@
 
 #include "socket.h"
 
-
-__STL_BEGIN_NAMESPACE
-
-
 using std::ostringstream;
 using std::istringstream;
 //using std::copy;
