@@ -63,7 +63,7 @@ bool CommandLineOption::isOption (const string & long_opt, const string & short_
       s << "Option `" << m_opt << "' requires at least " << min_args << " arguments";
       throw CommandLineException (s.str());
     }
-    if (int(m_args.size()) > max_args) {
+    if (max_args != -1 && int(m_args.size()) > max_args) {
       s << "Option `" << m_opt << "' doesn't take more than " << max_args << " arguments";
       throw CommandLineException (s.str());
     }
