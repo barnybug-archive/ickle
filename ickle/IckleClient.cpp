@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.60 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.61 2002-01-18 00:43:50 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -288,6 +288,7 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("mouse_single_click", false);
   g_settings.defaultValueBool("mouse_check_away_click", true);
   g_settings.defaultValueBool("spell_check", true);
+  g_settings.defaultValueBool("spell_check_aspell", false);
   
 
 #ifdef GNOME_ICKLE

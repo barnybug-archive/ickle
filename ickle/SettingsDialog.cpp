@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.28 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: SettingsDialog.cpp,v 1.29 2002-01-18 00:43:50 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -63,7 +63,8 @@ SettingsDialog::SettingsDialog()
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
-    spell_check("Spell check messages (you need ispell installed)", 0),
+    spell_check("Spell check messages (you need ispell/aspell installed)", 0),
+    spell_check_aspell("Use aspell instead of ispell", 0),
     mouse_single_click("Single click opens Message Window", 0),
     mouse_check_away_click("Icon click checks Away Message", 0),
     history_shownr_label("Number of messages to display per history-page", 0)
@@ -238,7 +239,7 @@ SettingsDialog::SettingsDialog()
 
   // ------------------ Message Box --------------------------
 
-  table = manage( new Gtk::Table( 2, 6, false ) );
+  table = manage( new Gtk::Table( 2, 7, false ) );
   
   message_autopopup.set_active( g_settings.getValueBool("message_autopopup") );
   message_autoraise.set_active( g_settings.getValueBool("message_autoraise") );
@@ -271,6 +272,8 @@ SettingsDialog::SettingsDialog()
 
   spell_check.set_active( g_settings.getValueBool("spell_check") );
   table->attach( spell_check, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
+  spell_check_aspell.set_active( g_settings.getValueBool("spell_check_aspell") );
+  table->attach( spell_check_aspell, 0, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0 );
 
   table->set_row_spacings(10);
   table->set_col_spacings(10);
@@ -517,6 +520,7 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("message_header_font", message_header_font );
   g_settings.setValue("message_text_font", message_text_font );
   g_settings.setValue("spell_check", spell_check.get_active() );
+  g_settings.setValue("spell_check_aspell", spell_check_aspell.get_active() );
 
   // ------------ Away Status tab ----------------
   g_settings.setValue("away_autoposition", away_autoposition.get_active() );

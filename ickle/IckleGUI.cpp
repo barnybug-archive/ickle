@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.30 2002-01-16 12:58:40 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.31 2002-01-18 00:43:50 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -418,15 +418,27 @@ void IckleGUI::spell_check_setup()
   if (g_settings.getValueBool("spell_check")) {
     // start gtkspell
 
-    char *spellcmd[] = { "ispell", "-a", NULL };
-    if (!gtkspell_running())
-      if (gtkspell_start(NULL, spellcmd) == 0) {
-	map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
-	while (i != m_message_boxes.end()) {
-	  (*i).second->spell_attach();
-	  ++i;
-	}
+    char *ispellcmd[] = { "ispell", "-a", NULL };
+    char *aspellcmd[] = { "aspell", "pipe", NULL };
+
+    char **spellcmd;
+    
+    if (g_settings.getValueBool("spell_check_aspell")) {
+      spellcmd = aspellcmd;
+    } else {
+      spellcmd = ispellcmd;
+    }
+          
+    if (gtkspell_running()) gtkspell_stop();
+    
+    if (gtkspell_start(NULL, spellcmd) == 0) {
+      map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
+      while (i != m_message_boxes.end()) {
+	(*i).second->spell_attach();
+	++i;
       }
+    }
+
   } else {
     // stop gtkspell
 
@@ -440,12 +452,15 @@ void IckleGUI::spell_check_setup()
     }
       
   }
+  
 }
 
 
 void IckleGUI::settings_changed_cb(const string& k)
 {
   if (k == "spell_check")
+    spell_check_setup();
+  else if (k == "spell_check_aspell")
     spell_check_setup();
 }
 
