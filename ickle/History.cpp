@@ -1,4 +1,4 @@
-/* $Id: History.cpp,v 1.8 2001-12-10 02:34:43 barnabygray Exp $
+/* $Id: History.cpp,v 1.9 2001-12-17 22:46:22 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
+#include <iostream.h>
 
 using ICQ2000::NormalMessageEvent;
 using ICQ2000::URLMessageEvent;
@@ -39,6 +40,9 @@ using ICQ2000::Contact;
 using std::endl;
 using std::out_of_range;
 using std::runtime_error;
+using std::ostringstream;
+using std::istringstream;
+using std::cerr;
 
 History::History() { }
 
