@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.44 2002-02-18 19:15:36 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.45 2002-02-18 19:28:18 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -22,7 +22,6 @@
 #include <ctype.h>
 
 #include <algorithm>
-#include <functional>
 
 #include "MessageBox.h"
 #include "sstream_fix.h"
@@ -49,7 +48,6 @@ using SigC::slot;
 using std::ostringstream;
 using std::endl;
 using std::exception;
-using std::not1;
 using std::find_if;
 
 MessageBox::MessageBox(Contact *self, Contact *c, History *h)
