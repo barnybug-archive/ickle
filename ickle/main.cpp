@@ -60,7 +60,7 @@ IckleClient *client;
 
 void handle_sig (int signum)
 {
-  if (signum == SIGTERM)
+  if ( (signum == SIGTERM) || (signum == SIGHUP) )
 	client->exit_cb();
 }
 
@@ -78,13 +78,14 @@ int main(int argc, char* argv[])
 
     /* handle segfaults */
     sighandler_init();
-    signal (SIGTERM, handle_sig);
 
     Gtk::Main gtkmain(argc,argv,true);
     g_icons.setDefaultIcons();
     UserInfoHelpers::initialize();
     
     client = new IckleClient (argc, argv);
+    signal (SIGTERM, handle_sig);
+    signal (SIGHUP, handle_sig);
     if (!client->check_pid_file()) return -1;
     client->init();    // finish initialising
 
