@@ -25,6 +25,7 @@
 #include <gtk--/imageloader.h>
 #include <gtk--/pixmap.h>
 #include <gtk--/scrollbar.h>
+#include <gdk/gdkkeysyms.h>
 
 using std::ostringstream;
 using std::endl;
@@ -189,10 +190,12 @@ void MessageBox::raise() const {
 
 gint MessageBox::key_press_cb(GdkEventKey* ev) {
   if (m_online) {
-    if (ev->state & 4) {
-      if (ev->keyval == 65293 || ev->keyval== 65421) m_send_button.clicked();
-    } else if (ev->state & 8) {
-      if (ev->keyval == 115) m_send_button.clicked();
+    if (ev->state & GDK_CONTROL_MASK ) {
+      if (ev->keyval == GDK_Return || ev->keyval== GDK_KP_Enter)
+        m_send_button.clicked();
+    } else if (ev->state & GDK_MOD1_MASK) {
+      if (ev->keyval == GDK_s)
+        m_send_button.clicked();
     }
   }
   return false;
