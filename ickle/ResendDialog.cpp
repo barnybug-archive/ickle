@@ -30,6 +30,8 @@
 #include "main.h"
 #include <libicq2000/Client.h>
 
+using std::ostringstream;
+
 ResendDialog::ResendDialog(Gtk::Window *parent, ICQ2000::ICQMessageEvent *ev)
 {
   set_position(GTK_WIN_POS_MOUSE);
