@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.81 2003-07-06 15:54:44 cborni Exp $
+/* $Id: MessageBox.cpp,v 1.82 2003-11-02 16:31:30 cborni Exp $
  * 
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -80,7 +80,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_last_ev(NULL),
     m_message_queue(mq),
     m_text_to_find(""),
-    m_highlight(History::NOT_FOUND)
+    m_highlight(G_MAXINT)
 {
   Gtk::Box *hbox;
 
@@ -453,14 +453,18 @@ void MessageBox::history_page_up()
 }
 
 
-void MessageBox::history_goto(guint position)
+void MessageBox::history_goto(guint position, guint charfrom, guint charto)
 {
   if (position>=m_history->size() ) {
-    m_highlight=History::NOT_FOUND;
+    m_highlight=G_MAXINT;
     return;
   }
   m_highlight=position;
-  m_scaleadj.set_value(position);
+  m_highlight_from=charfrom;
+  m_highlight_to=charto;
+  /* TODO this is still not ideal: esp. with lots of messages per page */
+  m_scaleadj.set_value(position - position % g_settings.getValueUnsignedInt("history_shownr") );
+  redraw_history();
 }
 
 void MessageBox::history_page_down()
@@ -687,11 +691,12 @@ void MessageBox::findtext_cb(Glib::ustring text, bool case_sensitive) {
   if (m_text_to_find.compare(text))
      {
        //search from beginning
-       guint position=m_history->find_msg(text,true,m_case_sensitive);
-       if ( position != History::NOT_FOUND )
+       History::FoundText *position=m_history->find_msg(text,true,m_case_sensitive);
+       if ( position->found )
        {
          m_text_to_find=text;
-         history_goto(position);
+         history_goto(position->entry,position->charfrom,position->charto);
+         delete (position);
        }
        else
        {
@@ -707,10 +712,11 @@ void MessageBox::findtext_cb(Glib::ustring text, bool case_sensitive) {
 
 void MessageBox::search_again()
 {
-  guint position=m_history->find_msg(m_text_to_find,false,m_case_sensitive);
-  if ( position == History::NOT_FOUND )
+  History::FoundText *position=m_history->find_msg(m_text_to_find,false,m_case_sensitive);
+  if ( !position->found)
     position=m_history->find_msg(m_text_to_find,true,m_case_sensitive);
-  history_goto(position);
+  history_goto(position->entry,position->charfrom,position->charto);
+  delete (position);
 }
 
 
@@ -825,7 +831,7 @@ void MessageBox::messageack_cb(ICQ2000::MessageEvent *ev)
 
 }
 
-void MessageBox::display_message(History::Entry &e)
+void MessageBox::display_message(History::Entry &e, guint charfrom, guint charto)
 {
   Glib::RefPtr<Gtk::TextBuffer> buffer = m_history_text.get_buffer();
   Glib::RefPtr<Gtk::TextBuffer::Tag> tag_header;
@@ -835,6 +841,7 @@ void MessageBox::display_message(History::Entry &e)
   if ( !message_text_font.empty() )
   {
     m_tag_normal->property_font().set_value( message_text_font );
+    m_tag_highlight->property_font().set_value( message_text_font );
   }
 
   string nick;
@@ -910,11 +917,11 @@ void MessageBox::display_message(History::Entry &e)
     break;
   }
   //deal with possible search results
-  if ( m_highlight != History::NOT_FOUND )
+  if ( ( charfrom>=0) && (charto<=e.message.size()) )
   {
-    buffer->insert_with_tag( buffer->end(), e.message, m_tag_highlight);
-    m_highlight = History::SEARCH_DONE;
-
+    buffer->insert_with_tag( buffer->end(), e.message.substr(0,charfrom), m_tag_normal);
+    buffer->insert_with_tag( buffer->end(), e.message.substr(charfrom,charto-charfrom), m_tag_highlight);
+    buffer->insert_with_tag( buffer->end(), e.message.substr(charto), m_tag_normal);
   }  else
     buffer->insert_with_tag( buffer->end(), e.message, m_tag_normal);
 
@@ -1053,13 +1060,19 @@ void MessageBox::scaleadj_value_changed_cb()
     {
       // auto-scroll last message to top, if they're on the last page
       Glib::RefPtr<Gtk::TextBuffer::Mark> mark = buffer->create_mark( buffer->end(), true );
-      display_message( he );
+      if (i == m_highlight)
+        display_message( he, m_highlight_from, m_highlight_to );
+      else
+        display_message( he, 0, 0 );
       m_history_text.scroll_to_mark( mark, 0.0, 0.0, 0.0 );
       buffer->delete_mark( mark );
     }
     else
     {
-      display_message( he );
+      if (i == m_highlight)
+        display_message( he, m_highlight_from, m_highlight_to );
+      else
+        display_message( he, 0, 0 );
     }
   }
 

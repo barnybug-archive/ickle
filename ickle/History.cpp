@@ -1,7 +1,8 @@
-/* $Id: History.cpp,v 1.26 2003-07-05 21:39:51 cborni Exp $
+/* $Id: History.cpp,v 1.27 2003-11-02 16:31:30 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>.
+ * Copyright (C) 2003 Christian Bornträger <linux@borntraeger.net>.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -93,6 +94,7 @@ void History::touch()
   }
   
 }
+
 
 void History::log(ICQ2000::MessageEvent *ev, bool received) throw(runtime_error)
 {
@@ -428,6 +430,55 @@ void History::get_msg(guint index, Entry &e) throw(out_of_range, runtime_error)
     m_if.close();
 }
 
+Glib::ustring History::get_msg(guint index) throw(out_of_range, runtime_error)
+{
+  std::string s, message;
+
+  if( !m_builtindex )
+    build_index();
+
+  if( index >= m_size )
+  {
+    throw out_of_range( String::ucompose( _("History::get_msg illegal index: %1"), index ) );
+  }
+
+  if( !m_streamlock )
+    m_if.open( m_filename.c_str() );
+
+  if( !m_if.is_open() )
+    throw runtime_error( String::ucompose( _("History::get_msg: Could not open historyfile for reading: %1"), m_filename ) );
+
+  m_if.clear();
+  m_if.seekg( m_index[ index ], std::ios::beg );
+
+  while (true)
+  {
+    getline( m_if, s );
+    if( m_if.eof() || !s.size() ) // eof or end of entry
+      break;
+    if( s.find( "Message: " ) != string::npos )
+    {
+      int start = string( "Message: ").size();
+      message = s.substr( start, s.size() - start - 1 );
+
+      while( s[ s.size() - 1 ] != ' ' )
+      {
+        message += '\n';
+        getline( m_if, s );
+        message += s.substr( 0, s.size() - 1 );
+      }
+      if (!m_utf8)
+      message = Utils::locale_to_utf8(message);
+    }
+  }
+  if( !m_streamlock )
+    m_if.close();
+    return (Glib::ustring(message));
+}
+
+
+
+
 void History::stream_lock() throw(runtime_error)
 {
   if( m_streamlock )
@@ -468,60 +519,104 @@ string History::getFilename() const
 {
   return m_filename.substr( CONTACT_DIR.size() );
 }
+
+
 /*
-* Finds a string in the full message history. THe functions return the number of the entry
-*/
-guint History::find_msg (const Glib::ustring searchtext, bool fromstart, bool m_case_sensitive)
-throw(std::runtime_error)
+ * Quick but dump search, might give wrong results
+ */
+guint History::give_possible_entry(const Glib::ustring searchtext, const guint start, const bool case_sensitive)
 {
-  Glib::ustring uline;
-  std::string line;
-  guint ret=0;
-  if (fromstart)
-    current_search=0;
-  else
-    current_search=(long) current_search + 1;
+  std::string s;
+  Glib::ustring us;
+  guint ret;
 
   if( !m_builtindex )
     build_index();
-  if( current_search >= m_size )
-  {
-    current_search=0;
-  }
+
   if( !m_streamlock )
     m_if.open( m_filename.c_str() );
   if( !m_if.is_open() )
-    throw runtime_error( String::ucompose( _("History::find_msg: Could not open historyfile for reading: %1"), m_filename ) );
-  m_if.clear();
-  m_if.seekg( m_index[ current_search ],std::ios::beg );
-  ret=NOT_FOUND;
-  current_search=0;
-
-  while (true) {
-
-    if (!getline( m_if, line ) )
-      break;
+    throw runtime_error( String::ucompose( _("History::get_msg: Could not open historyfile for reading: %1"),
+      m_filename ) );
+  if (start<m_size)
+    m_if.seekg( m_index[ start ] );
+  else
+    m_if.seekg( 0 );
+  ret=G_MAXINT;
+  while (!m_if.eof())
+  {
+  getline (m_if,s);
     if (!m_utf8)
-	uline = Utils::locale_to_utf8(line);
+        us = Utils::locale_to_utf8(s);
     else
-        uline=line;
-    if ( (( uline.find (searchtext)!=Glib::ustring::npos )&&(m_case_sensitive) )  ||
-         (( uline.uppercase().find (searchtext.uppercase())!=Glib::ustring::npos )&&(!m_case_sensitive) ) )
+        us=s;
+  if (( case_sensitive) && (us.find(searchtext) != Glib::ustring::npos  ) ||
+      (!case_sensitive) && (us.uppercase().find(searchtext.uppercase()) != Glib::ustring::npos ) )
     {
-      ret=position_to_index(m_if.tellg() );
-      current_search=ret;
+        ret=position_to_index(m_if.tellg());
       break;
     }
   }
   if( !m_streamlock )
     m_if.close();
-
   return ret;
 }
 
+
+
 /*
-* a search over the index to get the number from the file position
-* the search in quite dumb, a binary search might be better: TODO
+ * Finds a string in the full message history. This search is slow but correct
+ * function returns a FoundText struct
+ */
+struct History::FoundText * History::find_msg (const Glib::ustring searchtext, bool fromstart,
+  bool case_sensitive)
+throw(std::runtime_error)
+{
+  struct FoundText *result;
+  Glib::ustring entry;
+  Glib::ustring uline;
+  std::string line;
+  guint ret=0;
+
+  if (fromstart) {
+    current_search=0;
+    current_on_line=0;
+  }
+  if( current_search >= m_size )
+  {
+    current_search=0;
+  }
+  result=new struct FoundText();
+  result->found=false;
+  result->charfrom=0;
+  result->charto=0;
+  result->entry=G_MAXINT;
+  while (current_search < m_size)
+  {
+    entry=get_msg(current_search);
+    if (case_sensitive)
+      result->charfrom = entry.find (searchtext,current_on_line);
+    else
+      result->charfrom = entry.uppercase().find (searchtext.uppercase(),current_on_line);
+    if (result->charfrom != Glib::ustring::npos )
+    {
+      result->found=true;
+      result->entry=current_search;
+      result->charto=result->charfrom+searchtext.size();
+      //current_search=give_possible_entry(searchtext, current_search+1, case_sensitive);
+      current_on_line=result->charto;
+      break;
+    }
+    current_search=give_possible_entry(searchtext, current_search+1, case_sensitive);
+    current_on_line=0;
+  }
+  return result;
+}
+
+
+/*
+ * a search over the index to get the number from the file position
+ * the search in quite dumb, a binary search might be better: TODO
 */
 guint History::position_to_index(std::streampos position)
 {
@@ -531,5 +626,6 @@ guint History::position_to_index(std::streampos position)
        return i-1;
    }
    current_search=0;
+   current_on_line=0;
    return m_size-1;
 }

@@ -42,6 +42,7 @@ class FindTextDialog : public Gtk::Dialog
 
  protected:
   virtual void on_response(int response_id);
+  void change_cb();
 
  public:
   FindTextDialog(Gtk::Window& parent, const Glib::ustring title, const Glib::ustring question,

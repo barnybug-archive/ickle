@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.29 2003-07-06 15:54:44 cborni Exp $
+/* $Id: MessageBox.h,v 1.30 2003-11-02 16:31:30 cborni Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -111,12 +111,14 @@ class MessageBox : public Gtk::Window,
   Glib::ustring m_text_to_find;
   bool m_case_sensitive;
   guint m_highlight;
+  guint m_highlight_from;
+  guint m_highlight_to;
 
 
   void search_again ();
   void send_button_update();
   void set_contact_title();
-  void display_message(History::Entry &he);
+  void display_message(History::Entry &he, guint fromchar, guint tochar);
   void set_status( const std::string& text );
   void redraw_history();
   guint update_scalelabel(guint i);
@@ -130,7 +132,7 @@ class MessageBox : public Gtk::Window,
 
   void history_page_up();
   void history_page_down();
-  void history_goto(guint position);
+  void history_goto(guint position, guint charfrom, guint charto);
 
   static bool is_blank(const Glib::ustring& s);
 

@@ -47,11 +47,11 @@ FindTextDialog::FindTextDialog(Gtk::Window& parent, const Glib::ustring title,
   m_tooltip.set_tip (m_search_text,_("What text are you looking for?"));
   m_search_text.set_text(oldsearch);
   m_search_text.set_activates_default(true);
-
+  m_search_text.signal_changed().connect( SigC::slot( *this, &FindTextDialog::change_cb ) );
   vbox->pack_start(m_search_text);
 
   add_button(Gtk::Stock::CLOSE, Gtk::RESPONSE_CLOSE);
-  add_button( _("_Find"), RESPONSE_FIND);
+  add_button( _("_Find Next"), RESPONSE_FIND);
   set_default_response(RESPONSE_FIND);
 
   set_position(Gtk::WIN_POS_CENTER);
@@ -59,10 +59,15 @@ FindTextDialog::FindTextDialog(Gtk::Window& parent, const Glib::ustring title,
   set_border_width(10);
   set_transient_for(parent);
   show_all();
+  m_search_text.grab_focus();
 }
 
 FindTextDialog::~FindTextDialog()
 {
+}
+
+void FindTextDialog::change_cb() {
+  signal_textsubmit.emit(m_search_text.get_text(), m_case_sensitive.get_active() );
 }
 
 void FindTextDialog::on_response(int response_id)

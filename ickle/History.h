@@ -1,4 +1,4 @@
-/* $Id: History.h,v 1.16 2003-07-05 21:39:51 cborni Exp $
+/* $Id: History.h,v 1.17 2003-11-02 16:31:30 cborni Exp $
  *
  * Logging and loading of history.
  *
@@ -43,7 +43,6 @@ class History : public SigC::Object
 {
   
  private:
-
   std::ifstream           m_if;
   bool                    m_streamlock;
   std::string             m_filename;
@@ -53,20 +52,20 @@ class History : public SigC::Object
   unsigned int            m_uin;
   bool                    m_utf8;
   guint                   current_search;
+  guint                   current_on_line;
 
+
+  guint                 give_possible_entry(const Glib::ustring searchtext, const guint start,
+                        const bool case_sensitive);
   void                  quote_output    (std::ostream& ostr, const std::string& text);
   void                  build_index     ();
-
   void                  touch           ();
-  guint                 position_to_index (std::streampos position );
+  guint                 position_to_index(std::streampos position);
 
 
- public:
-    enum SearchResults {
-      NOT_FOUND=G_MAXINT,
-      SEARCH_DONE=G_MAXINT
-    };
 
+
+  public:
   struct Entry {
     enum Direction {
       RECEIVED,
@@ -78,11 +77,18 @@ class History : public SigC::Object
     Direction dir;
     bool offline;
     bool multiparty;
-    std::string message;
+    Glib::ustring message;
     std::string URL;
     bool receipt;
     bool delivered; // for SMS receipts
     bool urgent;
+  };
+
+  struct FoundText {
+    guint entry;
+    guint charfrom;
+    guint charto;
+    bool found;
   };
 
   History(const std::string& historyfile);
@@ -91,7 +97,9 @@ class History : public SigC::Object
   void                  log             (ICQ2000::MessageEvent *ev, bool received) throw (std::runtime_error);
   void                  get_msg         (guint index, Entry &he)
     throw(std::out_of_range, std::runtime_error);
-  guint                 find_msg         (const Glib::ustring searchtext, bool fromstart, bool case_sensitive) 	       throw(std::runtime_error);
+  Glib::ustring         get_msg         (guint index)
+    throw(std::out_of_range, std::runtime_error);
+  struct FoundText *    find_msg         (const Glib::ustring searchtext, bool fromstart, bool case_sensitive) 	       throw(std::runtime_error);
   void                  stream_lock     () throw (std::runtime_error);
   void                  stream_release  () throw (std::runtime_error);
   std::string           getFilename     () const;
