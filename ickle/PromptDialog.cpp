@@ -30,6 +30,7 @@ PromptDialog::PromptDialog(PromptType t, const string& msg)
     type(t)
 {
   set_modal(true);
+  set_position(GTK_WIN_POS_MOUSE);
 
   Gtk::HBox *hbox = get_action_area();
   Gtk::Button *button;

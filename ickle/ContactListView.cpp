@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.22 2001-12-16 15:56:07 nordman Exp $
+/* $Id: ContactListView.cpp,v 1.23 2001-12-19 12:28:55 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -25,13 +25,16 @@
 #include <string>
 #include <algorithm>
 #include <utility>
+#include "sstream_fix.h"
 
 #include "Client.h"
+#include "PromptDialog.h"
 
 using std::string;
 using std::vector;
 using std::transform;
 using std::inserter;
+using std::ostringstream;
 
 ContactListView::ContactListView()
   : CList(2) {
@@ -162,10 +165,14 @@ void ContactListView::userinfo_cb() {
 }
 
 void ContactListView::remove_user_cb() {
-  Gtk::CList_Helpers::SelectionList sl = selection();
-  Row r = *(sl.begin());
-  RowData *p = (RowData*)(*r).get_data();
-  icqclient.removeContact(p->uin);
+  unsigned int uin = current_selection_uin();
+  Contact *c = icqclient.getContact(uin);
+  if (c != NULL) {
+    ostringstream ostr;
+    ostr << "Are you sure you want to remove " << c->getAlias() << " (" << uin << ")?";
+    PromptDialog p(PromptDialog::PROMPT_CONFIRM, ostr.str());
+    if (p.run()) icqclient.removeContact(uin);
+  }
 }
 
 void ContactListView::fetch_away_msg_cb() {
