@@ -567,6 +567,10 @@ namespace ICQ2000 {
       c.setExtPort( userinfo.getExtPort() );
       c.setLanPort( userinfo.getLanPort() );
       c.setTCPVersion( userinfo.getTCPVersion() );
+      if (userinfo.getAcceptAdvMsgs() != UserInfoBlock::tri_unknown) {
+	c.setAcceptAdvMsgs( userinfo.getAcceptAdvMsgs() == UserInfoBlock::tri_true );
+      }
+      
       StatusChangeEvent ev(&c, c.getStatus(), old_st);
       contactlist.emit(&ev);
 
