@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.2 2001-11-22 14:34:43 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.3 2001-11-22 20:54:43 nordman Exp $
  * IckleApplet.cpp
  *
  * GNOME applet for ickle.
@@ -47,20 +47,6 @@ void IckleApplet::applet_sizechange_converter(GtkWidget *w, int size, gpointer d
 }
  
 
-void IckleApplet::status_change_cb(Status st)
-{
-  Gtk::ImageLoader *il;
-
-  // if we were previously offline, we wait for the connected notification instead
-  if( m_oldstat != STATUS_OFFLINE ) {
-    il = Icons::IconForStatus( st, icqclient.getInvisible() );
-    m_pm.set( il->pix(), il->bit() );
-    m_oldstat = st;
-    update_tooltip();
-  }
-}
-
-
 void IckleApplet::applet_click_cb()
 {
   if( m_gui->is_visible() ) {
@@ -90,8 +76,6 @@ void IckleApplet::applet_sizechange_cb(int size)
 }
 
 
-// FIXME: This does not work currently, since there's no way to get notification
-// from libicq about status change (gui won't get updated).
 void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
 {
   Status st = (Status)(int)data;
@@ -100,9 +84,9 @@ void IckleApplet::applet_status_menu_cb(AppletWidget *applet, gpointer data)
       icqclient.Disconnect();
   }
   else {
+    icqclient.setStatus( st );
     if( icqclient.getStatus() == STATUS_OFFLINE )
       icqclient.Connect();
-    icqclient.setStatus( st );
   }
 }
 
@@ -128,16 +112,20 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
 }
 
 
-void IckleApplet::icq_connected_cb(ConnectedEvent *ce)
+void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
 {
-  status_change_cb( m_oldstat = STATUS_ONLINE );
+  Gtk::ImageLoader *il;
+
+  il = Icons::IconForStatus( ev->getStatus(), icqclient.getInvisible() );
+  m_pm.set( il->pix(), il->bit() );
+  update_tooltip( ev->getStatus() );
 }
 
 
-void IckleApplet::update_tooltip()
+void IckleApplet::update_tooltip(Status st)
 {
   ostringstream ostr;
-  ostr << icqclient.getUIN() << " " << Status_text[m_oldstat];
+  ostr << icqclient.getUIN() << " " << Status_text[st];
   applet_widget_set_tooltip( APPLET_WIDGET(m_applet), ostr.str().c_str() );
 }
 
@@ -147,7 +135,6 @@ IckleApplet::IckleApplet()
 {
   m_nr.set_text( "0" );
   m_nrmsg = 0;
-  m_oldstat = STATUS_OFFLINE;
   m_applet = NULL;
 }
 
@@ -159,9 +146,8 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   m_gui = &g;
 
   // setup callbacks
-  g.status_changed.connect( slot(this, &IckleApplet::status_change_cb) );
+  icqclient.statuschanged.connect( slot(this, &IckleApplet::icq_statuschanged_cb) );
   icqclient.messaged.connect(slot(this,&IckleApplet::icq_messaged_cb));
-  icqclient.connected.connect(slot(this,&IckleApplet::icq_connected_cb));
 
   // create applet
 
@@ -209,7 +195,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   m_frame.add(m_hbox);
 
   applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()) );
-  update_tooltip();
+  update_tooltip( STATUS_OFFLINE );
 
   gtk_widget_show_all(m_applet);
 }
