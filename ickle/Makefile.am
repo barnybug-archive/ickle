@@ -20,19 +20,19 @@ ickle_SOURCES = main.cpp IckleClient.cpp IckleGUI.cpp			\
   SetAutoResponseDialog.cpp SearchDialog.cpp AboutDialog.cpp		\
   IdleTimer.cpp gtkspell.cpp StatusMenu.cpp WizardDialog.cpp		\
   ControlHandler.cpp MessageEvent.cpp MessageQueue.cpp EventSystem.cpp	\
-  SendAuthReqDialog.cpp AuthRespDialog.cpp
+  SendAuthReqDialog.cpp AuthRespDialog.cpp ResendDialog.cpp
 ickle_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
-noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h	\
-  ContactListView.h MessageBox.h AddUserDialog.h		\
-  Icons.h UserInfoDialog.h					\
-  SettingsDialog.h PromptDialog.h History.h			\
-  MobileNoEntry.h Dir.h IckleApplet.h				\
-  AwayMessageDialog.h sstream_fix.h				\
-  SetAutoResponseDialog.h EventSubstituter.h SearchDialog.h	\
-  AboutDialog.h IdleTimer.h gtkspell.h StatusMenu.h		\
-  WizardDialog.h ControlHandler.h MessageEvent.h MessageQueue.h	\
-  EventSystem.h SendAuthReqDialog.h AuthRespDialog.h
+noinst_HEADERS = main.h IckleClient.h IckleGUI.h Settings.h		\
+  ContactListView.h MessageBox.h AddUserDialog.h			\
+  Icons.h UserInfoDialog.h						\
+  SettingsDialog.h PromptDialog.h History.h				\
+  MobileNoEntry.h Dir.h IckleApplet.h					\
+  AwayMessageDialog.h sstream_fix.h					\
+  SetAutoResponseDialog.h EventSubstituter.h SearchDialog.h		\
+  AboutDialog.h IdleTimer.h gtkspell.h StatusMenu.h			\
+  WizardDialog.h ControlHandler.h MessageEvent.h MessageQueue.h		\
+  EventSystem.h SendAuthReqDialog.h AuthRespDialog.h ResendDialog.h
 
 ickle_applet_SOURCES = $(ickle_SOURCES) IckleApplet.cpp
 ickle_applet_LDFLAGS = @GNOME_APPLETS_LIBS@

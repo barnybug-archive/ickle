@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.57 2002-04-27 10:22:23 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.58 2002-05-11 12:29:08 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -26,6 +26,7 @@
 #include "PromptDialog.h"
 #include "Icons.h"
 #include "AuthRespDialog.h"
+#include "ResendDialog.h"
 
 #include <libicq2000/Client.h>
 
@@ -204,18 +205,7 @@ void IckleGUI::messageack_cb(ICQ2000::MessageEvent *ev) {
     if (icq != NULL &&
 	(ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
 	 || ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_DND)) {
-      ostringstream ostr;
-      ostr << "Your message to " << c->getNameAlias()
-	   << " wasn't received as the user is "
-	   << (ev->getDeliveryFailureReason() == ICQ2000::MessageEvent::Failed_Occupied
-	       ? "Occupied" : "in Do not Disturb")
-	   << "." << endl << endl
-	   << "Their away message is:" << endl
-	   << icq->getAwayMessage() << endl << endl
-	   << "You should resend the message as 'Urgent' or 'to Contact List'" << endl;
-      PromptDialog *p = new PromptDialog(this, PromptDialog::PROMPT_INFO,
-					 ostr.str(),
-					 false);
+      ResendDialog *p = new ResendDialog(this, icq);
       manage(p);
     }
   }
