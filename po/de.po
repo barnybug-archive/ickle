@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ickle 0.3.2\n"
-"POT-Creation-Date: 2003-02-08 19:32+0100\n"
+"POT-Creation-Date: 2003-02-09 19:02+0100\n"
 "PO-Revision-Date: 2003-02-05 23:55+0100\n"
 "Last-Translator: Christian Borntraeger <christian@borntraeger.net>\n"
 "Language-Team: Christian Borntraeger <christian@borntraeger.net>\n"
@@ -200,7 +200,7 @@ msgstr "Antwort Senden"
 msgid "Ignore"
 msgstr "Ignorieren"
 
-#: ickle/AwayMessageDialog.cpp:43 ickle/SettingsDialog.cpp:296
+#: ickle/AwayMessageDialog.cpp:43 ickle/SettingsDialog.cpp:368
 msgid "Away Messages"
 msgstr "Abwesenheits-Nachrichten"
 
@@ -332,7 +332,7 @@ msgstr ""
 "Der Kontakt im Moment nicht verfügbar.\n"
 "Sie können ihm/ihr eine Nachricht hinterlassen."
 
-#: ickle/IckleClient.cpp:311 ickle/SettingsDialog.cpp:240
+#: ickle/IckleClient.cpp:311 ickle/SettingsDialog.cpp:312
 #: ickle/UserInfoHelpers.cpp:55
 msgid "Away"
 msgstr "Abwesend"
@@ -380,8 +380,8 @@ msgid "Username and Password did not match"
 msgstr "Nutzername und Passwort passen nicht"
 
 #: ickle/IckleClient.cpp:518 ickle/IckleClient.cpp:524
-#: ickle/UserInfoDialog.cpp:593 ickle/UserInfoDialog.cpp:699
-#: ickle/UserInfoDialog.cpp:707
+#: ickle/UserInfoDialog.cpp:594 ickle/UserInfoDialog.cpp:700
+#: ickle/UserInfoDialog.cpp:708
 msgid "Unknown"
 msgstr "Unbekannt"
 
@@ -454,7 +454,7 @@ msgstr "Offline-Kontakte anzeigen"
 msgid "Log Window"
 msgstr "Protokollfenster"
 
-#: ickle/IckleGUI.cpp:120 ickle/UserInfoDialog.cpp:293
+#: ickle/IckleGUI.cpp:120 ickle/UserInfoDialog.cpp:294
 msgid "About"
 msgstr "Über"
 
@@ -883,80 +883,114 @@ msgstr ""
 "Settings::save: Fehler beim Umbenennen der temporären Datei um das Orginal "
 "zu ersetzen: %"
 
-#: ickle/SettingsDialog.cpp:49
+#: ickle/SettingsDialog.cpp:51
 msgid "ickle Preferences"
 msgstr "ickle Einstellungen"
 
-#: ickle/SettingsDialog.cpp:178
+#: ickle/SettingsDialog.cpp:203
 msgid "UIN/Password"
 msgstr "UIN/Passwort"
 
-#: ickle/SettingsDialog.cpp:182
+#: ickle/SettingsDialog.cpp:207
 msgid "UIN"
 msgstr "UIN"
 
-#: ickle/SettingsDialog.cpp:188
+#: ickle/SettingsDialog.cpp:213
 msgid "UIN is the unique number that identifies the user"
 msgstr "UIN ist die eindeutige Nummer, die den Kontakt identifiziert"
 
-#: ickle/SettingsDialog.cpp:191
+#: ickle/SettingsDialog.cpp:216
 msgid "Password"
 msgstr "Passwort"
 
-#: ickle/SettingsDialog.cpp:195
+#: ickle/SettingsDialog.cpp:220
 msgid "the password for the account"
 msgstr "Das Passwort für den Account"
 
-#: ickle/SettingsDialog.cpp:205
+#: ickle/SettingsDialog.cpp:230
 msgid "Login"
 msgstr "Login"
 
-#: ickle/SettingsDialog.cpp:211
+#: ickle/SettingsDialog.cpp:236
 msgid "Look'n'feel"
 msgstr "Erscheinungsbild"
 
-#: ickle/SettingsDialog.cpp:222
+#: ickle/SettingsDialog.cpp:248
 msgid "Messages"
 msgstr "Nachrichten"
 
-#: ickle/SettingsDialog.cpp:228
+#: ickle/SettingsDialog.cpp:254
 msgid "Contact list"
 msgstr "Kontaktliste"
 
-#: ickle/SettingsDialog.cpp:234
+#: ickle/SettingsDialog.cpp:261 ickle/SettingsDialog.cpp:300
+msgid "Character set"
+msgstr "Zeichensatz"
+
+#: ickle/SettingsDialog.cpp:270
+msgid "Default"
+msgstr "Standard"
+
+#: ickle/SettingsDialog.cpp:277
+msgid "<b>Valid</b>"
+msgstr "<b>Gültig</b>"
+
+#: ickle/SettingsDialog.cpp:284
+msgid ""
+"This setting determines the global default character set used when sending "
+"and receiving to the <i>ICQ</i> network. You can set per-contact encodings "
+"by choosing the relevant option from the right-click menu for a contact.\n"
+"\n"
+"You should use a character set name supported by iconv. If you are using GNU "
+"<tt>iconv</tt>, you should be able to list the available encodings by "
+"running the command:\n"
+"<tt>iconv --list</tt>\n"
+"\n"
+msgstr ""
+"Diese Einstellung bestimmt den Standardzeichensatz bei der Kommunikation mit "
+"dem <i>ICQ</i>-Server. Sie können den Zeichensatz kontaktspezifisch "
+"einstellen, indem sie die entsprechende Option durch Rechtsklick in der "
+"Kontaktliste wählen.\n"
+"\n"
+"Sie sollten einen Zeichensatz verwenden, der von iconv unterstützt wird. Mit "
+"dem Kommando\n"
+"<tt>iconv --list</tt>\n"
+"können Sie sich eine Liste der verfügbaren Zeichensätze anzeigen lassen.\n"
+
+#: ickle/SettingsDialog.cpp:306
 msgid "Icons"
 msgstr "Symbole"
 
-#: ickle/SettingsDialog.cpp:251
+#: ickle/SettingsDialog.cpp:323
 msgid "Away/Idle"
 msgstr "Abwesenheitsschaltung"
 
-#: ickle/SettingsDialog.cpp:255
+#: ickle/SettingsDialog.cpp:327
 msgid "Auto-away (minutes)"
 msgstr "Auto-Abwesend (Minuten)"
 
-#: ickle/SettingsDialog.cpp:262
+#: ickle/SettingsDialog.cpp:334
 msgid "After this time ickle will switch its mode to away. 0 to disable"
 msgstr ""
 "Nach dieser festgelegten Zeit wird ickle in den Modus 'Abwesend' gesetzt. 0 "
 "zum deaktivieren. "
 
-#: ickle/SettingsDialog.cpp:265
+#: ickle/SettingsDialog.cpp:337
 msgid "Auto-N/A (minutes)"
 msgstr "Auto-Nicht-Verfügbar (Minuten)"
 
-#: ickle/SettingsDialog.cpp:272
+#: ickle/SettingsDialog.cpp:344
 msgid ""
 "After this time ickle will switch its mode to Not Available. 0 to disable"
 msgstr ""
 "Nach dieser festgelegten Zeit wird ickle in den Modus 'Nicht Verfügbar' "
 "gesetzt. 0 zum deaktivieren."
 
-#: ickle/SettingsDialog.cpp:276
+#: ickle/SettingsDialog.cpp:348
 msgid "Automatically return (from Auto-away or Auto-N/A)"
 msgstr "Automatische Rückkehr aus 'Auto-Abwesend' und 'Auto-N/V'"
 
-#: ickle/SettingsDialog.cpp:278
+#: ickle/SettingsDialog.cpp:350
 msgid ""
 "Determines if ickle will return from Auto-away or Auto-N/A after pressing a "
 "key or moving the mouse."
@@ -964,25 +998,29 @@ msgstr ""
 "Legt fest, ob ickle bei Bewegen der Maus oder beim Drücken einer Taste aus "
 "Auto-Abwesend oder Auto-N/V zurückkehrt."
 
-#: ickle/SettingsDialog.cpp:287
+#: ickle/SettingsDialog.cpp:359
 msgid "Idle"
 msgstr "Ruheschaltung"
 
-#: ickle/SettingsDialog.cpp:302
+#: ickle/SettingsDialog.cpp:374
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: ickle/SettingsDialog.cpp:313
+#: ickle/SettingsDialog.cpp:385
 msgid "Security"
 msgstr "Sicherheit"
 
-#: ickle/SettingsDialog.cpp:318
+#: ickle/SettingsDialog.cpp:390
 msgid "SMTP"
 msgstr "SMTP"
 
-#: ickle/SettingsDialog.cpp:323
+#: ickle/SettingsDialog.cpp:395
 msgid "Logging"
 msgstr "Logging"
+
+#: ickle/SettingsDialog.cpp:576
+msgid "\"%1\" is not a valid encoding on your system."
+msgstr "\"%1\" ist kein gültiger Zeichensatz auf Ihrem System."
 
 #: ickle/StatusMenu.cpp:58 ickle/StatusMenu.cpp:87 ickle/StatusMenu.cpp:163
 msgid "Invisible"
@@ -1124,63 +1162,63 @@ msgstr "Mehr"
 msgid "About:"
 msgstr "Über:"
 
-#: ickle/UserInfoDialog.cpp:299
+#: ickle/UserInfoDialog.cpp:300
 msgid "Signon time:"
 msgstr "Einwahlzeit:"
 
-#: ickle/UserInfoDialog.cpp:303
+#: ickle/UserInfoDialog.cpp:304
 msgid "Last time seen online:"
 msgstr "Zuletzt online:"
 
-#: ickle/UserInfoDialog.cpp:307
+#: ickle/UserInfoDialog.cpp:308
 msgid "Last status change:"
 msgstr "Letzter Statuswechsel:"
 
-#: ickle/UserInfoDialog.cpp:311
+#: ickle/UserInfoDialog.cpp:312
 msgid "Last message:"
 msgstr "Letzte Nachricht:"
 
-#: ickle/UserInfoDialog.cpp:315
+#: ickle/UserInfoDialog.cpp:316
 msgid "Last checked your away message:"
 msgstr "Letzte Abfrage Ihrer Abwesenheitsnachricht:"
 
-#: ickle/UserInfoDialog.cpp:321
+#: ickle/UserInfoDialog.cpp:322
 msgid "Stats"
 msgstr "Statistik"
 
-#: ickle/UserInfoDialog.cpp:597
+#: ickle/UserInfoDialog.cpp:598
 msgid "%1 / %2"
 msgstr "%1 / %2"
 
-#: ickle/UserInfoDialog.cpp:637 ickle/UserInfoDialog.cpp:652
-#: ickle/UserInfoDialog.cpp:657 ickle/UserInfoDialog.cpp:660
-#: ickle/UserInfoDialog.cpp:718 ickle/UserInfoDialog.cpp:733
+#: ickle/UserInfoDialog.cpp:638 ickle/UserInfoDialog.cpp:653
+#: ickle/UserInfoDialog.cpp:658 ickle/UserInfoDialog.cpp:661
+#: ickle/UserInfoDialog.cpp:719 ickle/UserInfoDialog.cpp:734
 #: ickle/UserInfoHelpers.cpp:63 ickle/UserInfoHelpers.cpp:125
 #: ickle/UserInfoHelpers.cpp:444
 msgid "Unspecified"
 msgstr "Unbestimmt"
 
-#: ickle/UserInfoDialog.cpp:641
+#: ickle/UserInfoDialog.cpp:642
 msgid "%1 years"
 msgstr "%1 Jahre"
 
-#: ickle/UserInfoDialog.cpp:650 ickle/UserInfoDialog.cpp:656
-#: ickle/UserInfoDialog.cpp:662 ickle/UserInfoHelpers.cpp:443
+#: ickle/UserInfoDialog.cpp:651 ickle/UserInfoDialog.cpp:657
+#: ickle/UserInfoDialog.cpp:663 ickle/UserInfoHelpers.cpp:443
 msgid "Female"
 msgstr "Weiblich"
 
-#: ickle/UserInfoDialog.cpp:651 ickle/UserInfoDialog.cpp:655
-#: ickle/UserInfoDialog.cpp:661 ickle/UserInfoHelpers.cpp:442
+#: ickle/UserInfoDialog.cpp:652 ickle/UserInfoDialog.cpp:656
+#: ickle/UserInfoDialog.cpp:662 ickle/UserInfoHelpers.cpp:442
 msgid "Male"
 msgstr "Männlich"
 
-#: ickle/UserInfoDialog.cpp:710
+#: ickle/UserInfoDialog.cpp:711
 msgid "%1:?"
-msgstr ""
+msgstr "%1:?"
 
-#: ickle/UserInfoDialog.cpp:712
+#: ickle/UserInfoDialog.cpp:713
 msgid "%1:%2"
-msgstr ""
+msgstr "%1:%2"
 
 #: ickle/UserInfoHelpers.cpp:54
 msgid "Online"
@@ -1272,7 +1310,7 @@ msgstr "französisch"
 
 #: ickle/UserInfoHelpers.cpp:81
 msgid "Gaelic"
-msgstr ""
+msgstr "gälisch"
 
 #: ickle/UserInfoHelpers.cpp:82
 msgid "German"
@@ -1288,7 +1326,7 @@ msgstr "hebräisch"
 
 #: ickle/UserInfoHelpers.cpp:85
 msgid "Hindi"
-msgstr ""
+msgstr "hindi"
 
 #: ickle/UserInfoHelpers.cpp:86
 msgid "Hungarian"
@@ -1296,11 +1334,11 @@ msgstr "ungarisch"
 
 #: ickle/UserInfoHelpers.cpp:87
 msgid "Icelandic"
-msgstr ""
+msgstr "isländisch"
 
 #: ickle/UserInfoHelpers.cpp:88
 msgid "Indonesian"
-msgstr ""
+msgstr "indonesisch"
 
 #: ickle/UserInfoHelpers.cpp:89
 msgid "Italian"
@@ -1456,7 +1494,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:130
 msgid "Andorra"
-msgstr ""
+msgstr "Andorra"
 
 #: ickle/UserInfoHelpers.cpp:131
 msgid "Angola"
@@ -1604,7 +1642,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:167
 msgid "Central African Republic"
-msgstr ""
+msgstr "Zentralafrika"
 
 #: ickle/UserInfoHelpers.cpp:168
 msgid "Chad"
@@ -1628,7 +1666,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:173
 msgid "Colombia"
-msgstr ""
+msgstr "Kolumbien"
 
 #: ickle/UserInfoHelpers.cpp:174
 msgid "Comoros"
@@ -1688,7 +1726,7 @@ msgstr ""
 
 #: ickle/UserInfoHelpers.cpp:188
 msgid "Egypt"
-msgstr ""
+msgstr "Ägypten"
 
 #: ickle/UserInfoHelpers.cpp:189
 msgid "El Salvador"
@@ -1864,7 +1902,7 @@ msgstr "Iran"
 
 #: ickle/UserInfoHelpers.cpp:232
 msgid "Iraq"
-msgstr ""
+msgstr "Irak"
 
 #: ickle/UserInfoHelpers.cpp:233
 msgid "Ireland"
@@ -2344,7 +2382,7 @@ msgstr "Ukraine"
 
 #: ickle/UserInfoHelpers.cpp:352
 msgid "United Arab Emirates"
-msgstr ""
+msgstr "Vereinigte Arabische Emirate"
 
 #: ickle/UserInfoHelpers.cpp:353
 msgid "United Kingdom"
@@ -2524,7 +2562,7 @@ msgstr "Astronomie"
 
 #: ickle/UserInfoHelpers.cpp:399
 msgid "Space"
-msgstr ""
+msgstr "Weltraum"
 
 #: ickle/UserInfoHelpers.cpp:400
 msgid "Clothing"
@@ -2544,19 +2582,19 @@ msgstr "Sozialwissenschaft"
 
 #: ickle/UserInfoHelpers.cpp:404
 msgid "60's"
-msgstr ""
+msgstr "60er"
 
 #: ickle/UserInfoHelpers.cpp:405
 msgid "70's"
-msgstr ""
+msgstr "70er"
 
 #: ickle/UserInfoHelpers.cpp:406
 msgid "80's"
-msgstr ""
+msgstr "80er"
 
 #: ickle/UserInfoHelpers.cpp:407
 msgid "50's"
-msgstr ""
+msgstr "50er"
 
 #: ickle/UserInfoHelpers.cpp:408
 msgid "Finance and Corporate"
@@ -2691,8 +2729,8 @@ msgid ""
 "Register a new account. Choose this if you haven't used ICQ before to create "
 "a new account."
 msgstr ""
-"Ein neues Nutzerkonto anlegen. Falls sie ICQ noch nie benutzt haben, wählen sie "
-"diese Option um einen Nutzer anzulegen."
+"Ein neues Nutzerkonto anlegen. Falls sie ICQ noch nie benutzt haben, wählen "
+"sie diese Option um einen Nutzer anzulegen."
 
 #: ickle/WizardDialog.cpp:58
 msgid ""
@@ -2725,13 +2763,13 @@ msgid ""
 "it can be because the password you entered was too simple. Try to make up "
 "more complicated password by mixing numbers and letters."
 msgstr ""
-"Bitte geben Sie das Passwort ein. Sie müssen es zweimal eingeben, "
-"um Fehler zu vermeiden. Klicken auf Weiter wird ickle veranlassen, "
-"mit dem Server zu kommunizieren und das Nutzerkonto anzumelden. "
-"Stellen Sie deshalb sicher, dass sie mit dem Internet verbunden sind. "
-"Hinweis: Sollte die Anmeldung fehlschlagen, kann es daran liegen, "
-"dass das Passwort zu einfach war. Versuchen Sie dann ein koplexeres "
-"Passwort einzugeben, indem sie Buchstaben und Zahlen verwenden."
+"Bitte geben Sie das Passwort ein. Sie müssen es zweimal eingeben, um Fehler "
+"zu vermeiden. Klicken auf Weiter wird ickle veranlassen, mit dem Server zu "
+"kommunizieren und das Nutzerkonto anzumelden. Stellen Sie deshalb sicher, "
+"dass sie mit dem Internet verbunden sind. Hinweis: Sollte die Anmeldung "
+"fehlschlagen, kann es daran liegen, dass das Passwort zu einfach war. "
+"Versuchen Sie dann ein koplexeres Passwort einzugeben, indem sie Buchstaben "
+"und Zahlen verwenden."
 
 #: ickle/WizardDialog.cpp:101 ickle/WizardDialog.cpp:127
 msgid "Password:"
@@ -2748,7 +2786,6 @@ msgid ""
 msgstr ""
 "Bitte geben Sie Ihre bestehende Kennnummer (UIN) und Ihr Passwort\n"
 "ein. Es muss zweimal eigegeben werden, um Fehler zu vermeiden."
-
 
 #: ickle/WizardDialog.cpp:122
 msgid "Existing UIN:"
@@ -2778,7 +2815,8 @@ msgstr "Vor der Anmeldung müssen sie ein Passwort angeben"
 
 #: ickle/WizardDialog.cpp:247 ickle/WizardDialog.cpp:289
 msgid "The given passwords do not match, please correct this and try again"
-msgstr "Die beiden Passwörter passen nicht zueinander. Bitte versuchen es erneut"
+msgstr ""
+"Die beiden Passwörter passen nicht zueinander. Bitte versuchen es erneut"
 
 #: ickle/WizardDialog.cpp:252
 msgid "Process:"
@@ -2786,7 +2824,7 @@ msgstr ""
 
 #: ickle/WizardDialog.cpp:253
 msgid "Registering new account..."
-msgstr ""
+msgstr "Melde neues Konto an..."
 
 #: ickle/WizardDialog.cpp:277
 msgid "You must supply an UIN before continuing!"
@@ -2814,15 +2852,15 @@ msgstr "Die Anmeldung schlug fehl. Wollen Sie es noch einmal versuchen? "
 
 #: control/CommandLineParser.cpp:33 control/CommandLineParser.cpp:83
 msgid "Invalid option %1"
-msgstr ""
+msgstr "Ungültige Option %1"
 
 #: control/CommandLineParser.cpp:63
 msgid "Option %1 requires %2 arguments"
-msgstr ""
+msgstr "Option %1 benötigt %2 Argumente"
 
 #: control/CommandLineParser.cpp:67
 msgid "Option %1 at least %2 arguments"
-msgstr ""
+msgstr "Option %1 benötigt mindestes %2 Argumente"
 
 #: control/CommandLineParser.cpp:71
 msgid "Option %1 doesn't take more than %2 arguments"
