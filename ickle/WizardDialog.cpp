@@ -1,4 +1,4 @@
-/* $Id: WizardDialog.cpp,v 1.4 2002-04-02 21:11:08 bugcreator Exp $
+/* $Id: WizardDialog.cpp,v 1.5 2002-04-04 18:00:45 bugcreator Exp $
  *
  * Copyright (C) 2001 Nils Nordman <nino@nforced.com>
  *
@@ -243,6 +243,7 @@ void WizardDialog::new_pass_next() {
     fr->set_border_width(5);
     win_regpopup.add( *fr );
     win_regpopup.set_modal(true);
+    win_regpopup.set_transient_for (*this);
     win_regpopup.set_policy(false, false, false);
     win_regpopup.set_border_width(5);
     win_regpopup.delete_event.connect( slot(this, &WizardDialog::popup_delete_cb) );
