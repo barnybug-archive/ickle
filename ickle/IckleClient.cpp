@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.108 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.109 2002-06-25 18:08:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -141,7 +141,9 @@ void IckleClient::init()
   // give gtk some time to breathe before we do an auto connect - dns
   // lookup will block which would prevent them seeing anything for as
   // long as that takes
-  if (st != ICQ2000::STATUS_OFFLINE) Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st, false ) );
+  if (st != ICQ2000::STATUS_OFFLINE) 
+    Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), st, false ) );
+  
 
   if( g_settings.getValueUnsignedInt("uin") == 0 ) {
     WizardDialog wiz;

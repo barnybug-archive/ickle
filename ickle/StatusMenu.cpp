@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.cpp,v 1.4 2002-03-02 15:21:55 bugcreator Exp $
+/* $Id: StatusMenu.cpp,v 1.5 2002-06-25 18:08:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -175,9 +175,26 @@ void StatusMenu::menu_activate_inv_cb(Status st, bool inv)
 
 void StatusMenu::status_changed_cb(Status st, bool inv)
 {
+  set_status(st,inv);
+}
+
+void StatusMenu::set_status(Status st, bool inv)
+{
   remove();
   add_status(st, inv);
   m_current_status = st;
   m_current_invisible = inv;
-  
+}
+
+void StatusMenu::connecting()
+{
+  remove();
+
+  Gtk::Label* label = manage( new Gtk::Label("Connecting...") );
+  Gtk::HBox* box = manage( new Gtk::HBox(false, 5) );
+
+  box->pack_start(*label);
+  box->show_all();
+
+  add(*box);
 }

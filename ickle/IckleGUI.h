@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.40 2002-04-19 15:46:23 bugcreator Exp $
+/* $Id: IckleGUI.h,v 1.41 2002-06-25 18:08:35 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -142,6 +142,8 @@ class IckleGUI : public Gtk::Window {
   void messageack_cb(ICQ2000::MessageEvent* ev);
   void self_status_change_cb(ICQ2000::StatusChangeEvent *ev);
   void self_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev);
+  void connecting_cb(ICQ2000::ConnectingEvent *ev);
+  void disconnected_cb(ICQ2000::DisconnectedEvent *ev);
 
   // -- MessageQueue callbacks --
   void queue_added_cb(MessageEvent *ev);

@@ -47,5 +47,6 @@ Vladimir Klebanov <unny@rz.uni-karlsruhe.de>
 - option to keep the automatically set away status when returning from
   idle state.
 
-Nils Bj|rklund <nilbjo-0@student.luth.se>
+Nils Björklund <nilbjo-0@student.luth.se>
 - workaround for gtk+ table bug in message box
+- 'connecting...' status message

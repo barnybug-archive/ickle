@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.59 2002-06-08 13:51:26 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.60 2002-06-25 18:08:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -58,6 +58,8 @@ IckleGUI::IckleGUI(MessageQueue& mq)
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
   icqclient.self_contact_status_change_signal.connect(slot(this,&IckleGUI::self_status_change_cb));
   icqclient.self_contact_userinfo_change_signal.connect(slot(this,&IckleGUI::self_userinfo_change_cb));
+  icqclient.connecting.connect(slot(this,&IckleGUI::connecting_cb));
+  icqclient.disconnected.connect(slot(this,&IckleGUI::disconnected_cb));
 
   // -- MessageQueue callbacks
   m_message_queue.added.connect(slot(this,&IckleGUI::queue_added_cb));
@@ -718,4 +720,14 @@ void IckleGUI::exit_cb() {
   m_exiting = true;
   exit.emit ();
   destroy ();
+}
+
+void IckleGUI::connecting_cb(ICQ2000::ConnectingEvent *ev) {
+  m_status_menu.connecting();
+}
+
+void IckleGUI::disconnected_cb(ICQ2000::DisconnectedEvent *ev)
+{
+  // ensure StatusMenu is set back to offline, ie. for when connecting fails
+  m_status_menu.set_status(ICQ2000::STATUS_OFFLINE, icqclient.getInvisibleWanted());
 }

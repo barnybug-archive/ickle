@@ -1,4 +1,4 @@
-/* $Id: StatusMenu.h,v 1.2 2002-03-01 19:36:38 barnabygray Exp $
+/* $Id: StatusMenu.h,v 1.3 2002-06-25 18:08:35 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -69,6 +69,8 @@ class StatusMenu : public StatusMenuItem {
   void icons_changed_cb();
   void settings_changed_cb(const std::string& s);
   void status_changed_cb(ICQ2000::Status st, bool inv);
+  void connecting();
+  void set_status(ICQ2000::Status st, bool inv);
 
   SigC::Signal2<void,ICQ2000::Status,bool> status_changed_status_inv;
   SigC::Signal1<void,ICQ2000::Status> status_changed_status;
