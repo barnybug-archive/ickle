@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.59 2002-04-25 09:20:28 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.60 2002-04-25 09:26:44 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -60,7 +60,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
     m_history(h),
     m_send_button("Send"), m_close_button("Close"),
     m_vbox_top(false,10),
-    m_history_table(3,2,false),
+    m_history_table(2,3,false),
     m_sms_count_label("", 0),
     m_sms_count_over(false),
     m_sms_enabled(true),
