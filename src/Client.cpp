@@ -1303,7 +1303,7 @@ namespace ICQ2000 {
       if (ev->getType() == MessageEvent::Normal) {
 	NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
 	ist = new NormalICQSubType(nv->getMessage(), c->getUIN(), c->acceptAdvancedMsgs());
-      } else if (ev->getType() == MessageEvent::AwayMessage) {
+      } else if (ev->getType() == MessageEvent::URL) {
 	URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
 	ist = new URLICQSubType(uv->getMessage(), uv->getURL(), m_uin, c->getUIN(), c->acceptAdvancedMsgs());
       }
