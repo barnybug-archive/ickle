@@ -112,7 +112,7 @@ namespace ICQ2000 {
 	<< (unsigned int)0x00000000
 	<< (unsigned int)0x00000000;
 
-      m_icqsubtype->Output(b, m_advanced);
+      m_icqsubtype->Output(b);
       
       b.setEndianness(Buffer::BIG);
       b << (unsigned short)0x0003
@@ -239,7 +239,7 @@ namespace ICQ2000 {
 
       MessageDataTLV *t = static_cast<MessageDataTLV*>(tlvlist[TLV_MessageData]);
       // coerce this into the NormalICQSubType
-      NormalICQSubType *nst = new NormalICQSubType(false);
+      NormalICQSubType *nst = new NormalICQSubType(false,false);
       nst->setMessage( t->getMessage() );
       m_icqsubtype = nst;
       m_advanced = false;

@@ -1047,7 +1047,7 @@ namespace ICQ2000 {
     Contact *c = ev->getContact();
     if (ev->getType() == MessageEvent::Normal) {
       NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
-      NormalICQSubType nist(nv->getMessage(), c->getUIN());
+      NormalICQSubType nist(nv->getMessage(), c->getUIN(), c->acceptAdvancedMsgs());
 
       MsgSendSNAC msnac(&nist);
       if (c->acceptAdvancedMsgs()) {
@@ -1058,7 +1058,7 @@ namespace ICQ2000 {
 
     } else if (ev->getType() == MessageEvent::URL) {
       URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
-      URLICQSubType uist(uv->getMessage(), uv->getURL(), m_uin, c->getUIN());
+      URLICQSubType uist(uv->getMessage(), uv->getURL(), m_uin, c->getUIN(), c->acceptAdvancedMsgs());
 
       MsgSendSNAC msnac(&uist);
       if (c->acceptAdvancedMsgs()) {

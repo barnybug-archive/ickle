@@ -73,10 +73,10 @@ namespace ICQ2000 {
     virtual ~ICQSubType() { }
 
     static ICQSubType* ParseICQSubType(Buffer& b, bool adv);
-    void Output(Buffer& b, bool adv) const;
+    void Output(Buffer& b) const;
 
-    virtual void Parse(Buffer& b, bool adv) = 0;
-    virtual void OutputBody(Buffer& b, bool adv) const = 0;
+    virtual void Parse(Buffer& b) = 0;
+    virtual void OutputBody(Buffer& b) const = 0;
     virtual unsigned short Length() const = 0;
 
     virtual unsigned char getType() const = 0;
@@ -107,12 +107,12 @@ namespace ICQ2000 {
   class NormalICQSubType : public UINRelatedSubType {
    private:
     string m_message;
-    bool m_multi;
+    bool m_multi, m_advanced;
     unsigned int m_foreground, m_background;
     
    public:
-    NormalICQSubType(bool multi);
-    NormalICQSubType(const string& msg, unsigned int destination);
+    NormalICQSubType(bool multi, bool adv);
+    NormalICQSubType(const string& msg, unsigned int destination, bool adv);
 
     string getMessage() const;
     bool isMultiParty() const;
@@ -123,8 +123,8 @@ namespace ICQ2000 {
     unsigned int getForeground() const;
     unsigned int getBackground() const;
 
-    void Parse(Buffer& b, bool adv);
-    void OutputBody(Buffer& b, bool adv) const;
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
     unsigned short Length() const;
     unsigned char getType() const;
   };
@@ -133,18 +133,19 @@ namespace ICQ2000 {
    private:
     string m_message;
     string m_url;
+    bool m_advanced;
     
    public:
-    URLICQSubType();
-    URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination);
+    URLICQSubType(bool adv);
+    URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination, bool adv);
 
     string getMessage() const;
     void setMessage(const string& msg);
     string getURL() const;
     void setURL(const string& url);
     
-    void Parse(Buffer& b, bool adv);
-    void OutputBody(Buffer& b, bool adv) const;
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
     unsigned short Length() const;
     unsigned char getType() const;
   };
@@ -174,8 +175,8 @@ namespace ICQ2000 {
     string getMessage() const;
     Type getSMSType() const;
 
-    void Parse(Buffer& b, bool adv);
-    void OutputBody(Buffer& b, bool adv) const;
+    void Parse(Buffer& b);
+    void OutputBody(Buffer& b) const;
     unsigned short Length() const;
     unsigned char getType() const;
 

@@ -44,10 +44,10 @@ namespace ICQ2000 {
     ICQSubType *ist;
     switch(type) {
     case MSG_Type_Normal:
-      ist = new NormalICQSubType(multi);
+      ist = new NormalICQSubType(multi, adv);
       break;
     case MSG_Type_URL:
-      ist = new URLICQSubType();
+      ist = new URLICQSubType(adv);
       break;
     case MSG_Type_SMS:
       ist = new SMSICQSubType();
@@ -57,21 +57,16 @@ namespace ICQ2000 {
     }
 
     ist->setFlags(flags);
-    ist->Parse(b, adv);
+    ist->Parse(b);
 
     return ist;
   }
 
-  void ICQSubType::Output(Buffer& b, bool adv) const {
+  void ICQSubType::Output(Buffer& b) const {
     b << getType()
       << getFlags();
 
-    if (adv) {
-      b << (unsigned short)0x0000
-	<< (unsigned short)0x0001;
-    }
-
-    OutputBody(b, adv);
+    OutputBody(b);
   }
 
   void ICQSubType::CRLFtoLF(string& s) {
@@ -104,12 +99,12 @@ namespace ICQ2000 {
 
   void UINRelatedSubType::setSource(unsigned int s) { m_source = s; }
 
-  NormalICQSubType::NormalICQSubType(bool multi)
+  NormalICQSubType::NormalICQSubType(bool multi, bool adv)
     : m_multi(multi), m_foreground(0x00000000),
-      m_background(0x00ffffff) { }
+      m_background(0x00ffffff), m_advanced(adv) { }
 
-  NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin)
-    : m_message(msg), m_foreground(0x00000000),
+  NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin, bool adv)
+    : m_message(msg), m_foreground(0x00000000), m_advanced(adv),
       m_background(0x00ffffff), UINRelatedSubType(0, uin) { }
 
   string NormalICQSubType::getMessage() const { return m_message; }
@@ -118,14 +113,11 @@ namespace ICQ2000 {
 
   void NormalICQSubType::setMessage(const string& msg) { m_message = msg; }
 
-  void NormalICQSubType::Parse(Buffer& b, bool adv) {
-    unsigned short length;
-    b >> length;
-    b.Unpack(m_message, length-1);
+  void NormalICQSubType::Parse(Buffer& b) {
+    b.UnpackUint16StringNull(m_message);
     ICQSubType::CRLFtoLF(m_message);
-    b.advance(1); // null terminator
 
-    if (adv) {
+    if (m_advanced) {
       b >> m_foreground
 	>> m_background;
     } else {
@@ -134,17 +126,28 @@ namespace ICQ2000 {
     }
   }
 
-  void NormalICQSubType::OutputBody(Buffer& b, bool adv) const {
+  void NormalICQSubType::OutputBody(Buffer& b) const {
+    if (m_advanced) {
+      b << (unsigned short)0x0000
+	<< (unsigned short)0x0001;
+    }
+
     string m_text = m_message;
     ICQSubType::LFtoCRLF(m_text);
     b.PackUint16StringNull(m_text);
     
-    b << (unsigned int)m_foreground
-      << (unsigned int)m_background;
-    
+    if (m_advanced) {
+      b << (unsigned int)m_foreground
+	<< (unsigned int)m_background;
+    }
   }
 
-  unsigned short NormalICQSubType::Length() const { return m_message.size() + 11; }
+  unsigned short NormalICQSubType::Length() const {
+    string text = m_message;
+    ICQSubType::LFtoCRLF(text);
+
+    return text.size() + (m_advanced ? 11 : 3);
+  }
 
   unsigned char NormalICQSubType::getType() const { return MSG_Type_Normal; }
 
@@ -156,10 +159,11 @@ namespace ICQ2000 {
 
   unsigned int NormalICQSubType::getBackground() const { return m_background; }
 
-  URLICQSubType::URLICQSubType() { }
+  URLICQSubType::URLICQSubType(bool adv)
+    : m_advanced(adv) { }
 
-  URLICQSubType::URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination)
-    : m_message(msg), m_url(url), UINRelatedSubType(source, destination) { }
+  URLICQSubType::URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination, bool adv)
+    : m_message(msg), m_url(url), UINRelatedSubType(source, destination), m_advanced(adv) { }
 
   string URLICQSubType::getMessage() const { return m_message; }
 
@@ -169,12 +173,9 @@ namespace ICQ2000 {
 
   void URLICQSubType::setURL(const string& url) { m_url = url; }
 
-  void URLICQSubType::Parse(Buffer& b, bool adv) {
+  void URLICQSubType::Parse(Buffer& b) {
     string text;
-    unsigned short length;
-    b >> length;
-    b.Unpack(text, length-1);
-    b.advance(1); // null terminator
+    b.UnpackUint16StringNull(text);
     
     /*
      * Format is [message] 0xfe [url]
@@ -192,7 +193,12 @@ namespace ICQ2000 {
 
   }
 
-  void URLICQSubType::OutputBody(Buffer& b, bool adv) const {
+  void URLICQSubType::OutputBody(Buffer& b) const {
+    if (m_advanced) {
+      b << (unsigned short)0x0000
+	<< (unsigned short)0x0001;
+    }
+
     ostringstream ostr;
     ostr << m_message << (unsigned char)0xfe << m_url;
     string m_text = ostr.str();
@@ -200,7 +206,12 @@ namespace ICQ2000 {
     b.PackUint16StringNull(m_text);
   }
 
-  unsigned short URLICQSubType::Length() const { return m_message.size() + m_url.size() + 4; }
+  unsigned short URLICQSubType::Length() const {
+    string text = m_message + m_url;
+    ICQSubType::LFtoCRLF(text);
+
+    return text.size() + 4;
+  }
 
   unsigned char URLICQSubType::getType() const { return MSG_Type_URL; }
 
@@ -210,7 +221,7 @@ namespace ICQ2000 {
 
   SMSICQSubType::Type SMSICQSubType::getSMSType() const { return m_type; }
 
-  void SMSICQSubType::Parse(Buffer& b, bool adv) {
+  void SMSICQSubType::Parse(Buffer& b) {
     /*
      * Here we go... this is a biggy
      */
@@ -343,7 +354,7 @@ namespace ICQ2000 {
       
   }
 
-  void SMSICQSubType::OutputBody(Buffer& b, bool adv) const {  }
+  void SMSICQSubType::OutputBody(Buffer& b) const {  }
 
   unsigned short SMSICQSubType::Length() const { return 0; }
 
