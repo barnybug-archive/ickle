@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.87 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: IckleClient.cpp,v 1.88 2002-04-02 22:28:05 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -267,6 +267,11 @@ void IckleClient::loadSettings() {
   g_settings.defaultValueBool("network_in_dc", true);
   g_settings.defaultValueBool("network_out_dc", true);
 
+  /* Default SMTP server settings */
+  g_settings.defaultValueBool("network_smtp", true);
+  g_settings.defaultValueString("network_smtp_host", "localhost");
+  g_settings.defaultValueUnsignedShort("network_smtp_port", 25, 1, 65535);
+
   /* Default message box settings */
   g_settings.defaultValueBool("message_autopopup", false);
   g_settings.defaultValueBool("message_autoraise", true);
@@ -311,6 +316,16 @@ void IckleClient::loadSettings() {
     icqclient.setBOSServerOverridePort(true);
     icqclient.setBOSServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   }
+  if (g_settings.getValueBool("network_smtp")) {
+    // enable SMTP
+    icqclient.setSMTPServerHost( g_settings.getValueString("network_smtp_host") );
+    icqclient.setSMTPServerPort( g_settings.getValueUnsignedShort("network_smtp_port") );
+  } else {
+    // disable SMTP
+    icqclient.setSMTPServerHost( "" );
+    icqclient.setSMTPServerPort( 0 );
+  }
+    
   icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
   icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
 

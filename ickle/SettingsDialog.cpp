@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.39 2002-04-02 21:11:08 bugcreator Exp $
+/* $Id: SettingsDialog.cpp,v 1.40 2002-04-02 22:28:05 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -55,7 +55,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     okay("OK"), cancel("Cancel"),
     subs_b("Substitutions legend"),
     away_autoposition("Autoposition away messages dialog", 0),
-    status_cl_inv("Classic Invisibility (behaves like any other status)", 0),
+    status_cl_inv("Classic Invisibility", 0),
     popup_away_response("Popup auto response dialog on status change", 0),
     reconnect_checkbox("Auto Reconnect", 0),
     reconnect_label( "Retries", 0),
@@ -71,6 +71,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
     network_override_port("Override server redirect port with login port", 0),
     network_in_dc("Accept incoming direct connections", 0),
     network_out_dc("Make outgoing direct connections", 0),
+    network_smtp("Use an SMTP server", 0),
+    network_smtp_host_label("SMTP Host", 0),
+    network_smtp_port_label("SMTP Port", 0),
     message_autopopup("Autopopup on incoming message", 0),
     message_autoraise("Autoraise on incoming message", 0),
     message_autoclose("Autoclose after sending a message", 0),
@@ -91,6 +94,8 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   set_transient_for (*parent);
   set_modal(true);
 
+  m_tooltips.set_tip(okay, "Accept the changes you have made");
+  m_tooltips.set_tip(cancel, "Forget the changes you have made");
   okay.clicked.connect(slot(this,&SettingsDialog::okay_cb));
   cancel.clicked.connect(slot(this,&SettingsDialog::cancel_cb));
 
@@ -171,6 +176,9 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   frame = manage( new Gtk::Frame("Translation") );
   vbox = manage( new Gtk::VBox() );
   trans_l.set_text( icqclient.getTranslationMapName() );
+  m_tooltips.set_tip( trans_b, "Click to select a translation map from those installed.\n"
+		      "This allows conversion from some of the bizarre character sets the windows client uses "
+		      "to the unix standard. (ie. KOI-8 for Russian)");
   trans_b.set_border_width(10);
   trans_b.add(trans_l);
   trans_b.clicked.connect( slot( this, &SettingsDialog::trans_cb ) );
@@ -333,6 +341,8 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
   table->attach( away_autoposition, 0, 2, 0, 1, GTK_FILL | GTK_EXPAND, 0);
 
+  m_tooltips.set_tip( status_cl_inv, "If checked, invisibility will behave like any other status, "
+		      "the way some people are used to it working.");
   status_cl_inv.set_active( g_settings.getValueBool("status_classic_invisibility") );
   table->attach( status_cl_inv, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
 
@@ -407,6 +417,10 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   away_down_button.add( * manage( new Gtk::Arrow(GTK_ARROW_DOWN, GTK_SHADOW_ETCHED_IN) ) );
   away_down_button.clicked.connect( slot(this, &SettingsDialog::away_down_button_cb ) );
   
+  m_tooltips.set_tip( away_up_button, "Move selected away message upwards in the list");
+  m_tooltips.set_tip( away_down_button, "Move selected away message downwards in the list");
+  m_tooltips.set_tip( away_remove_button, "Remove the selected away message from the list");
+
   vbox2->pack_start( away_up_button, true );
 
   vbox2->pack_start( away_remove_button, true );
@@ -471,6 +485,11 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   log_to_file.set_group( log_to_nowhere.group() );
   log_to_consolefile.set_group( log_to_nowhere.group() );
 
+  m_tooltips.set_tip( log_to_nowhere, "Log messages are ignored");
+  m_tooltips.set_tip( log_to_console, "Log messages are sent to the console ickle was started on");
+  m_tooltips.set_tip( log_to_file, "Log messages are written to the log file.\n"
+		      "Warning: this can get quite large!");
+  m_tooltips.set_tip( log_to_consolefile, "Log messages are sent to console and written to file");
   
   bool log_to_console_b = g_settings.getValueBool("log_to_console");
   bool log_to_file_b = g_settings.getValueBool("log_to_file");
@@ -504,7 +523,7 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
 
   // ------------------ Network ------------------------------
 
-  table = manage( new Gtk::Table( 2, 5, false ) );
+  table = manage( new Gtk::Table( 2, 8, false ) );
 
   label = manage( new Gtk::Label( "Login Host", 0 ) );
   table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, 0);
@@ -523,14 +542,44 @@ SettingsDialog::SettingsDialog(Gtk::Window * parent)
   network_override_port.set_active( g_settings.getValueBool("network_override_port") );
   table->attach( network_override_port, 0, 2, 2, 3, GTK_FILL | GTK_EXPAND, 0);
 
+  m_tooltips.set_tip( network_in_dc, "Determine whether to start a listening server on a local port, "
+		      "to accept incoming direct connections");
+  m_tooltips.set_tip( network_out_dc, "Determine whether to attempt to make outgoing connections when messaging people.\n"
+		      "Failing this, ickle will fallback on sending the message through the server");
+
   network_in_dc.set_active( g_settings.getValueBool("network_in_dc") );
   table->attach( network_in_dc, 0, 2, 3, 4, GTK_FILL | GTK_EXPAND, 0);
 
   network_out_dc.set_active( g_settings.getValueBool("network_out_dc") );
   table->attach( network_out_dc, 0, 2, 4, 5, GTK_FILL | GTK_EXPAND, 0);
 
-  table->set_row_spacings(10);
-  table->set_col_spacings(10);
+  m_tooltips.set_tip( network_smtp, "Some Mobile providers provide SMS support for their phones "
+		      "by using an SMTP (email) gateway.\n"
+		      "If you would like to send messages to someone using one of these providers "
+		      "then supply your SMTP details here.\n"
+		      "See http://web.icq.com/sms/ for more details.");
+
+  network_smtp.set_active( g_settings.getValueBool("network_smtp") );
+  network_smtp.toggled.connect( slot( this, &SettingsDialog::network_smtp_toggle_cb ) );
+  table->attach( network_smtp, 0, 2, 5, 6, GTK_FILL | GTK_EXPAND, 0);
+
+  table->attach( network_smtp_host_label, 0, 1, 6, 7, GTK_FILL | GTK_EXPAND, 0);
+
+  network_smtp_host.set_text( g_settings.getValueString("network_smtp_host") );
+  table->attach( network_smtp_host, 1, 2, 6, 7, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+  
+  table->attach( network_smtp_port_label, 0, 1, 7, 8, GTK_FILL | GTK_EXPAND, 0);
+
+  port = g_settings.getValueUnsignedShort( "network_smtp_port" );
+  adj = manage( new Gtk::Adjustment( port, 1.0, 65535.0 ) );
+  network_smtp_port = manage( new Gtk::SpinButton( *adj, 1.0, 0 ) );
+  table->attach( *network_smtp_port, 1, 2, 7, 8, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
+
+  network_smtp_update();
+  // setup enabled or disabled for widget initially
+  
+  table->set_row_spacings(5);
+  table->set_col_spacings(5);
   table->set_border_width(10);
 
   frame = manage( new Gtk::Frame("Network") );
@@ -685,6 +734,11 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("network_in_dc", network_in_dc.get_active());
   g_settings.setValue("network_out_dc", network_out_dc.get_active());
 
+  g_settings.setValue("network_smtp", network_smtp.get_active());
+  g_settings.setValue("network_smtp_host", network_smtp_host.get_text() );
+  g_settings.setValue("network_smtp_port", (unsigned short)network_smtp_port->get_value_as_int());
+
+  // synchronise changes with library
   icqclient.setLoginServerHost( g_settings.getValueString("network_login_host") );
   icqclient.setLoginServerPort( g_settings.getValueUnsignedShort("network_login_port") );
   if (g_settings.getValueBool("network_override_port")) {
@@ -693,6 +747,16 @@ void SettingsDialog::updateSettings() {
   }
   icqclient.setAcceptInDC( g_settings.getValueBool("network_in_dc") );
   icqclient.setUseOutDC( g_settings.getValueBool("network_out_dc") );
+
+  if (g_settings.getValueBool("network_smtp")) {
+    // enable SMTP
+    icqclient.setSMTPServerHost( g_settings.getValueString("network_smtp_host") );
+    icqclient.setSMTPServerPort( g_settings.getValueUnsignedShort("network_smtp_port") );
+  } else {
+    // disable SMTP
+    icqclient.setSMTPServerHost( "" );
+    icqclient.setSMTPServerPort( 0 );
+  }
   
   // ------------ Contact List tab ----------------------
   g_settings.setValue("mouse_single_click", mouse_single_click.get_active());
@@ -720,6 +784,20 @@ void SettingsDialog::reconnect_toggle_cb() {
     reconnect_label.set_sensitive(false);
     reconnect_spinner->set_sensitive(false);
   }
+}
+
+void SettingsDialog::network_smtp_toggle_cb()
+{
+  network_smtp_update();
+}
+
+void SettingsDialog::network_smtp_update()
+{
+  bool b = network_smtp.get_active();
+  network_smtp_host_label.set_sensitive(b);
+  network_smtp_host.set_sensitive(b);
+  network_smtp_port_label.set_sensitive(b);
+  network_smtp_port->set_sensitive(b);
 }
 
 void SettingsDialog::okay_cb() {

@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.33 2002-04-02 21:11:08 bugcreator Exp $
+/* $Id: SettingsDialog.h,v 1.34 2002-04-02 22:28:05 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -22,6 +22,7 @@
 #define SETTINGSDIALOG_H
 
 #include <gtk--/main.h>
+#include <gtk--/tooltips.h>
 #include <gtk--/dialog.h>
 #include <gtk--/button.h>
 #include <gtk--/label.h>
@@ -56,6 +57,8 @@ namespace Gtk {
 
 class SettingsDialog : public Gtk::Dialog {
  private:
+  Gtk::Tooltips m_tooltips;
+
   Gtk::Button okay, cancel, trans_b, subs_b;
   Gtk::Label trans_l;
   Gtk::List icons_list;
@@ -64,6 +67,10 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::Entry network_host;
   Gtk::Notebook notebook;
   Gtk::CheckButton away_autoposition, reconnect_checkbox, network_override_port;
+  Gtk::CheckButton network_smtp;
+  Gtk::Entry network_smtp_host;
+  Gtk::SpinButton *network_smtp_port;
+  Gtk::Label network_smtp_host_label, network_smtp_port_label;
   Gtk::CheckButton network_in_dc, network_out_dc;
   Gtk::CheckButton message_autopopup, message_autoraise, message_autoclose;
   Gtk::CheckButton spell_check, spell_check_aspell;
@@ -113,6 +120,9 @@ class SettingsDialog : public Gtk::Dialog {
   void fontsel_ok_cb(Gtk::FontSelectionDialog *fontsel, int n);
   void icons_cb();
   void trans_ok_cb(Gtk::FileSelection *fs);
+
+  void network_smtp_toggle_cb();
+  void network_smtp_update();
 
   void away_remove_button_cb();
   void away_up_button_cb();
