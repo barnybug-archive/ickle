@@ -39,3 +39,6 @@ Jan Demaerel - gcc 3 namespace fixes
 Daniel <dss@home.se>
  - message box remembering sizes
  - Predefined away messages
+
+CB'ke
+ - Run-only-once pid lockfile behaviour
