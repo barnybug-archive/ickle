@@ -95,7 +95,7 @@ namespace ICQ2000 {
 
     Contact& operator[](unsigned int uin);
     Contact& operator[](const string& m);
-    void add(const Contact& ct);
+    Contact& add(const Contact& ct);
     void remove(unsigned int uin);
 
     bool empty();

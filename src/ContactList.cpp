@@ -42,8 +42,9 @@ namespace ICQ2000 {
     return m_cmap[c.getUIN()];
   }
 
-  void ContactList::add(const Contact& ct) {
-    m_cmap[ct.getUIN()] = ct;
+  Contact& ContactList::add(const Contact& ct) {
+    m_cmap.insert(std::pair<unsigned int,Contact>(ct.getUIN(),ct));
+    return m_cmap[ct.getUIN()];
   }
 
   void ContactList::remove(unsigned int uin) {

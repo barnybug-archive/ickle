@@ -1519,21 +1519,21 @@ namespace ICQ2000 {
 
     if (!m_contact_list.exists(c.getUIN())) {
 
-      m_contact_list.add(c);
-      SignalUserAdded(&c);
+      Contact& m_contact = m_contact_list.add(c);
+      SignalUserAdded(&m_contact);
 
-      if (c.isICQContact() && m_state == BOS_LOGGED_IN) {
+      if (m_contact.isICQContact() && m_state == BOS_LOGGED_IN) {
 	Buffer b(&m_translator);
 	unsigned int d;
 	d = FLAPHeader(b,0x02);
-	AddBuddySNAC abs(c);
+	AddBuddySNAC abs(m_contact);
 	b << abs;
 	FLAPFooter(b,d);
 
 	Send(b);
 
-	// fetch simple userinfo from server
-	fetchSimpleContactInfo(&c);
+	// fetch detailed userinfo from server
+	fetchDetailContactInfo(&m_contact);
       }
     }
 
