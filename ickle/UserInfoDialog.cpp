@@ -342,10 +342,10 @@ void UserInfoDialog::userinfochange_cb() {
   }
 
   switch( contact->getHomepageInfo().sex ) {
-  case SEX_MALE:
+  case SEX_FEMALE:
     sex_entry.set_text("Female");
     break;
-  case SEX_FEMALE:
+  case SEX_MALE:
     sex_entry.set_text("Male");
     break;
   default:
