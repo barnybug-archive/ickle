@@ -6,6 +6,7 @@ SUBDIRS = ickle share
 
 EXTRA_DIST = THANKS NEWS \
  scripts/licq2ickle.pl scripts/micq2ickle.pl \
+ scripts/gnomeicu2ickle.pl \
  debian/README                      debian/ickle-gnome.files \
  debian/changelog                   debian/ickle-gnome.manpages \
  debian/control                     debian/ickle-gnome.menu \
