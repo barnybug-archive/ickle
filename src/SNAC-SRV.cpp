@@ -384,16 +384,27 @@ namespace ICQ2000 {
       b >> wb; // status code ?
       string s;
       b.UnpackUint16StringNull(m_main_home_info.alias);     // alias
+      b.ServerToClient(m_main_home_info.alias);
       b.UnpackUint16StringNull(m_main_home_info.firstname); // first name
+      b.ServerToClient(m_main_home_info.firstname);
       b.UnpackUint16StringNull(m_main_home_info.lastname);  // last name
+      b.ServerToClient(m_main_home_info.lastname);
       b.UnpackUint16StringNull(m_main_home_info.email);	    // email
+      b.ServerToClient(m_main_home_info.email);
       b.UnpackUint16StringNull(m_main_home_info.city);	    // city
+      b.ServerToClient(m_main_home_info.city);
       b.UnpackUint16StringNull(m_main_home_info.state);     // state
+      b.ServerToClient(m_main_home_info.state);
       b.UnpackUint16StringNull(m_main_home_info.phone);     // phone
+      b.ServerToClient(m_main_home_info.phone);
       b.UnpackUint16StringNull(m_main_home_info.fax);       // fax
+      b.ServerToClient(m_main_home_info.fax);
       b.UnpackUint16StringNull(m_main_home_info.street);    // street
+      b.ServerToClient(m_main_home_info.street);
       b.UnpackUint16StringNull(m_main_home_info.cellular);  // cellular
+      b.ServerToClient(m_main_home_info.cellular);
       b.UnpackUint16StringNull(m_main_home_info.zip);       // zip
+      b.ServerToClient(m_main_home_info.zip);
       b >> m_main_home_info.country;
       unsigned char unk;
       b >> m_main_home_info.gmt;
@@ -413,6 +424,7 @@ namespace ICQ2000 {
       b >> unk;
       b >> m_homepage_info.sex;
       b.UnpackUint16StringNull(m_homepage_info.homepage);
+      b.ServerToClient(m_homepage_info.homepage);
       b >> m_homepage_info.birth_year;
       b >> m_homepage_info.birth_month;
       b >> m_homepage_info.birth_day;
@@ -432,6 +444,7 @@ namespace ICQ2000 {
       while(n > 0) {
 	string s;
 	b.UnpackUint16StringNull(s);
+	b.ServerToClient(s);
 	m_email_info.addEmailAddress(s);
 	--n;
       }
@@ -448,19 +461,27 @@ namespace ICQ2000 {
     case 4: {
       b >> wb; // 0a status code
       b.UnpackUint16StringNull(m_work_info.city);
+      b.ServerToClient(m_work_info.city);
       b.UnpackUint16StringNull(m_work_info.state);
+      b.ServerToClient(m_work_info.state);
       string s;	// these fields are incorrect in the spec
       b.UnpackUint16StringNull(s);
       b.UnpackUint16StringNull(s);
       b.UnpackUint16StringNull(m_work_info.street);
+      b.ServerToClient(m_work_info.street);
       b.UnpackUint16StringNull(m_work_info.zip);
+      b.ServerToClient(m_work_info.zip);
       b >> m_work_info.country;
       b.UnpackUint16StringNull(m_work_info.company_name);
+      b.ServerToClient(m_work_info.company_name);
       b.UnpackUint16StringNull(m_work_info.company_dept);
+      b.ServerToClient(m_work_info.company_dept);
       b.UnpackUint16StringNull(m_work_info.company_position);
+      b.ServerToClient(m_work_info.company_position);
       unsigned short ws;
       b >> ws;
       b.UnpackUint16StringNull(m_work_info.company_web);
+      b.ServerToClient(m_work_info.company_web);
       m_type = RWorkInfo;
       break;
     }
@@ -479,6 +500,7 @@ namespace ICQ2000 {
 	string spec;
 	b >> cat;
 	b.UnpackUint16StringNull(spec);
+	b.ServerToClient(spec);
 	m_personal_interest_info.addInterest(cat,spec);
 	--n;
       }
@@ -496,6 +518,7 @@ namespace ICQ2000 {
       for (int i=0; i < 3; i++) {
 	string s;
 	b.UnpackUint16StringNull(s);
+	b.ServerToClient(s);
 	m_background_info.addSchool(s);
       }
       b >> wb; // end marker?
@@ -519,9 +542,13 @@ namespace ICQ2000 {
     b >> m_uin;
 
     b.UnpackUint16StringNull(m_alias);
+    b.ServerToClient(m_alias);
     b.UnpackUint16StringNull(m_first_name);
+    b.ServerToClient(m_first_name);
     b.UnpackUint16StringNull(m_last_name);
+    b.ServerToClient(m_last_name);
     b.UnpackUint16StringNull(m_email);
+    b.ServerToClient(m_email);
 
     // Auth required
     b >> wb;
