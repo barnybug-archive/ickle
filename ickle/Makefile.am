@@ -11,7 +11,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/share/icons/ickle/ -DPKGDATADIR=\"$(pkgdatadir)\"	
               @GTKMM_CFLAGS@ @LIBICQ2000_CFLAGS@	\
               -I$(top_srcdir)/ctrlsocket -DLOCALEDIR=\"$(localedir)\"
 
-LDFLAGS = @GTKMM_LIBS@ @LIBICQ2000_LIBS@ @XSS_LIBS@ \
+AM_LDFLAGS = @GTKMM_LIBS@ @LIBICQ2000_LIBS@ @XSS_LIBS@ \
           -L$(top_builddir)/ctrlsocket @LIBICKLE_CTRLSOCKET_FLAG@ \
           @LIBINTL@
 
