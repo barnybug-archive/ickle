@@ -57,7 +57,7 @@ PromptDialog::PromptDialog(Gtk::Window * parent, PromptType t, const string& msg
     button = manage( new Gtk::Button("OK") );
     button->set_usize(70,20);
     button->clicked.connect( slot( this, &PromptDialog::true_cb ) );
-    hbox->pack_start(*button, true, false);
+    hbbox->pack_start(*button, true, false);
     break;
   case PROMPT_CONFIRM:
     set_title("ickle confirmation");
