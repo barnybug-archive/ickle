@@ -93,10 +93,10 @@ namespace ICQ2000 {
   }
 
   UINRelatedSubType::UINRelatedSubType(bool adv)
-    : m_source(0), m_destination(0), m_advanced(adv) { }
+    : m_source(0), m_destination(0), m_advanced(adv), m_ack(false) { }
 
   UINRelatedSubType::UINRelatedSubType(unsigned int s, unsigned int d, bool adv)
-    : m_source(s), m_destination(d), m_advanced(adv) { }
+    : m_source(s), m_destination(d), m_advanced(adv), m_ack(false)  { }
 
   unsigned int UINRelatedSubType::getSource() const { return m_source; }
 
