@@ -470,6 +470,12 @@ void IckleClient::logger_cb(LogEvent *c) {
 }
 
 void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
+  /*
+  ostringstream ostr;
+  ostr << "IckleClient::socket_cb " << source << " cond: " << cond;
+  SignalLog(LogEvent::INFO, ostr.str());
+  */
+
   icqclient.socket_cb(source, (SocketEvent::Mode)cond);
 }
 
@@ -520,12 +526,14 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
+    /*
     ostringstream ostr;
-    ostr << "connecting socket " << fd;
+    ostr << "Connecting socket " << fd;
     if (cev->isRead()) ostr << " for read";
     if (cev->isWrite()) ostr << " for write";
     if (cev->isException()) ostr << " for exception";
     SignalLog(LogEvent::INFO, ostr.str());
+    */
 
     if (m_sockets.count(fd) > 0) {
       // uh oh..
@@ -544,12 +552,18 @@ void IckleClient::socket_cb(SocketEvent *ev) {
     RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
     int fd = cev->getSocketHandle();
 
+    /*
     ostringstream ostr;
     ostr << "Disconnecting socket " << fd;
     SignalLog(LogEvent::INFO, ostr.str());
+    */
 
-    m_sockets[fd].disconnect();
-    m_sockets.erase(fd);
+    if (m_sockets.count(fd) == 0) {
+      SignalLog(LogEvent::ERROR, "Problem: file descriptor not connected");
+    } else {
+      m_sockets[fd].disconnect();
+      m_sockets.erase(fd);
+    }
   }
 }
 

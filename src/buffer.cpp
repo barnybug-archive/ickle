@@ -97,8 +97,18 @@ void Buffer::UnpackByteString(string& s) {
 }
 
 void Buffer::Unpack(string& s, int size) {
+  if (out_pos >= data.size()) return;
+
   if (size > data.size()-out_pos) size = data.size()-out_pos;
-  copy(data.begin()+out_pos, data.begin()+out_pos+size, back_inserter(s));
+
+  vector<unsigned char>::iterator i = data.begin()+out_pos;
+  vector<unsigned char>::iterator end = data.begin()+out_pos+size;
+
+  while (i != end) {
+    s += *i;
+    ++i;
+  }
+
   out_pos += size;
 }
 

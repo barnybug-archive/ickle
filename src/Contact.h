@@ -112,6 +112,7 @@ namespace ICQ2000 {
     unsigned char m_tcp_version;
     Status m_status;
     bool m_invisible;
+    bool m_direct;
     unsigned int m_ext_ip, m_lan_ip;
     unsigned short m_ext_port, m_lan_port;
 
@@ -158,6 +159,9 @@ namespace ICQ2000 {
     void setFirstName(const string& fn);
     void setLastName(const string& ln);
     void setEmail(const string& em);
+
+    bool getDirect() const;
+    void setDirect(bool b);
 
     void setStatus(Status st);
     void setInvisible(bool i);

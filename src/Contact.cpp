@@ -67,6 +67,7 @@ namespace ICQ2000 {
     m_lan_ip = 0;
     m_ext_port = 0;
     m_lan_port = 0;
+    m_direct = true;
   }
 
   unsigned int Contact::getUIN() const { return m_uin; }
@@ -96,6 +97,10 @@ namespace ICQ2000 {
   unsigned short Contact::getLanPort() const { return m_lan_port; }
 
   unsigned char Contact::getTCPVersion() const { return m_tcp_version; }
+
+  bool Contact::getDirect() const { return m_direct; }
+
+  void Contact::setDirect(bool b) { m_direct = b; }
 
   bool Contact::acceptAdvancedMsgs() const {
     return (m_tcp_version >= 7 && m_status != STATUS_OFFLINE);

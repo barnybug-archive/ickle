@@ -46,6 +46,13 @@ unsigned int StringtoIP(const string& ip);
 string IPtoString(unsigned int ip);
 
 class TCPSocket {
+ public:
+  enum State {
+    NOT_CONNECTED,
+    NONBLOCKING_CONNECT,
+    CONNECTED
+  };
+  
  private:
   static const unsigned int max_receive_size = 4096;
   
@@ -53,6 +60,10 @@ class TCPSocket {
 
   int socketDescriptor;
   struct sockaddr_in remoteAddr, localAddr;
+  bool blocking;
+  State m_state;
+
+  void fcntlSetup();
 
  public:
   TCPSocket();
@@ -62,14 +73,14 @@ class TCPSocket {
   TCPSocket( int fd, struct sockaddr_in addr );
 
   void Connect();
+  void FinishNonBlockingConnect();
   void Disconnect();
   
   int getSocketHandle();
 
   void Send(Buffer& b);
 
-  void RecvBlocking(Buffer& b);
-  bool RecvNonBlocking(Buffer& b);
+  bool Recv(Buffer& b);
 
   bool connected();
 
@@ -77,6 +88,11 @@ class TCPSocket {
   void setRemotePort(unsigned short port);
   void setRemoteIP(unsigned int ip);
   
+  void setBlocking(bool b);
+  bool isBlocking() const;
+
+  State getState() const;
+
   unsigned int getRemoteIP() const;
   unsigned short getRemotePort() const;
 

@@ -54,13 +54,14 @@ string IPtoString(unsigned int ip) {
   return ostr.str();
 }
 
-TCPSocket::TCPSocket() {
+TCPSocket::TCPSocket()
+  : socketDescriptor(-1), blocking(false), m_state(NOT_CONNECTED)
+{
   memset(&remoteAddr, 0, sizeof(remoteAddr));
-  socketDescriptor = -1;
 }
 
 TCPSocket::TCPSocket( int fd, struct sockaddr_in addr )
-  : socketDescriptor(fd), remoteAddr(addr)
+  : socketDescriptor(fd), remoteAddr(addr), blocking(false), m_state(CONNECTED)
 {
   socklen_t localLen = sizeof(struct sockaddr_in);
   getsockname( socketDescriptor, (struct sockaddr *)&localAddr, &localLen );
@@ -71,15 +72,20 @@ TCPSocket::~TCPSocket() {
 }
 
 void TCPSocket::Connect() {
-  if (socketDescriptor != -1) {
-    throw SocketException("Already connected");
-  } else {
-    socketDescriptor = socket(AF_INET,SOCK_STREAM,0);
-    if (socketDescriptor < 0) throw SocketException("Couldn't create socket");
-  }      
+  if (m_state != NOT_CONNECTED) throw SocketException("Already connected");
+
+  socketDescriptor = socket(AF_INET,SOCK_STREAM,0);
+  if (socketDescriptor == -1) throw SocketException("Couldn't create socket");
   remoteAddr.sin_family = AF_INET;
 
-  if (connect(socketDescriptor,(struct sockaddr *)&remoteAddr,sizeof(struct sockaddr)) < 0) {
+  fcntlSetup();
+
+  if (connect(socketDescriptor,(struct sockaddr *)&remoteAddr,sizeof(struct sockaddr)) == -1) {
+    if (errno == EINPROGRESS) {
+      m_state = NONBLOCKING_CONNECT;
+      return; // non-blocking connect
+    }
+
     close(socketDescriptor);
     socketDescriptor = -1;
     throw SocketException("Couldn't connect socket");
@@ -87,6 +93,26 @@ void TCPSocket::Connect() {
 
   socklen_t localLen = sizeof(struct sockaddr_in);
   getsockname( socketDescriptor, (struct sockaddr *)&localAddr, &localLen );
+
+  m_state = CONNECTED;
+}
+
+void TCPSocket::FinishNonBlockingConnect() {
+  // this should be called for non blocking connects
+  // after the socket is writeable
+  int so_error;
+  socklen_t optlen = sizeof(so_error);
+  if (getsockopt(socketDescriptor, SOL_SOCKET, SO_ERROR, &so_error, &optlen) == -1 || so_error != 0) {
+    close(socketDescriptor);
+    socketDescriptor = -1;
+    throw SocketException("Couldn't connect socket");
+  }
+
+  // success
+  socklen_t localLen = sizeof(struct sockaddr_in);
+  getsockname( socketDescriptor, (struct sockaddr *)&localAddr, &localLen );
+
+  m_state = CONNECTED;
 }
 
 void TCPSocket::Disconnect() {
@@ -94,12 +120,32 @@ void TCPSocket::Disconnect() {
     close(socketDescriptor);
     socketDescriptor = -1;
   }
+  m_state = NOT_CONNECTED;
 }
 
 int TCPSocket::getSocketHandle() { return socketDescriptor; }
 
+TCPSocket::State TCPSocket::getState() const { return m_state; }
+
 bool TCPSocket::connected() {
-  return (socketDescriptor != -1);
+  return (m_state == CONNECTED);
+}
+
+void TCPSocket::setBlocking(bool b) {
+  blocking = b;
+  fcntlSetup();
+}
+
+bool TCPSocket::isBlocking() const {
+  return blocking;
+}
+
+void TCPSocket::fcntlSetup() {
+  if (socketDescriptor != -1) {
+    int f = fcntl(socketDescriptor, F_GETFL);
+    if (blocking) fcntl(socketDescriptor, F_SETFL, f & ~O_NONBLOCK);
+    else fcntl(socketDescriptor, F_SETFL, f | O_NONBLOCK);
+  }
 }
 
 void TCPSocket::Send(Buffer& b) {
@@ -119,39 +165,22 @@ void TCPSocket::Send(Buffer& b) {
   }
 }
 
-void TCPSocket::RecvBlocking(Buffer& b) {
+bool TCPSocket::Recv(Buffer& b) {
   if (!connected()) throw SocketException("Not connected");
 
   unsigned char buffer[max_receive_size];
 
   int ret = recv(socketDescriptor, buffer, max_receive_size, 0);
   if (ret == 0) throw SocketException( "Other end closed connection" );
-  if (ret < 0) throw SocketException( strerror(errno) );
-
-  b.Pack(buffer,ret);
-}
-
-bool TCPSocket::RecvNonBlocking(Buffer& b) {
-  if (!connected()) throw SocketException("Not connected");
-
-  unsigned char buffer[max_receive_size];
-
-  int f = fcntl(socketDescriptor, F_GETFL);
-  fcntl(socketDescriptor, F_SETFL, f | O_NONBLOCK);
-  int ret = recv(socketDescriptor, buffer, max_receive_size, 0);
-  fcntl(socketDescriptor, F_SETFL, f & ~O_NONBLOCK);
-
   if (ret == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) return false;
     else throw SocketException( strerror(errno) );
-  } else {
-    if (ret == 0) throw SocketException( "Other end closed connection" );
   }
 
   b.Pack(buffer,ret);
   return true;
 }
-  
+
 void TCPSocket::setRemoteHost(const char *host) {
   remoteAddr.sin_addr.s_addr = gethostname(host);
 }

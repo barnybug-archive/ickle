@@ -94,20 +94,24 @@ namespace ICQ2000 {
   }
 
   void DirectClient::Connect() {
-    m_socket->setRemoteIP( m_contact->getLanIP() );
-    m_socket->setRemotePort( m_contact->getLanPort() );
-    m_socket->Connect();
-    SignalAddSocket( m_socket->getSocketHandle(), SocketEvent::READ );
-
     m_remote_tcp_version = m_contact->getTCPVersion();
     if (m_remote_tcp_version >= 7) m_eff_tcp_version = 7;
     else if (m_remote_tcp_version == 6) m_eff_tcp_version = 6;
     else throw DisconnectedException("Cannot direct connect to client with too old TCP version");
 
+    m_socket->setRemoteIP( m_contact->getLanIP() );
+    m_socket->setRemotePort( m_contact->getLanPort() );
+    m_socket->setBlocking(false);
+    m_socket->Connect();
+    SignalAddSocket( m_socket->getSocketHandle(), SocketEvent::WRITE );
+
     m_session_id = (unsigned int)(0xffffffff*(rand()/(RAND_MAX+1.0)));
 
-    SendInitPacket();
     m_state = WAITING_FOR_INIT_ACK;
+  }
+
+  void DirectClient::FinishNonBlockingConnect() {
+    SendInitPacket();
   }
 
   void DirectClient::expired_cb(MessageEvent *ev) {
@@ -124,7 +128,8 @@ namespace ICQ2000 {
 
   void DirectClient::Recv() {
     try {
-      while ( m_socket->RecvNonBlocking(m_recv) ) {
+      while ( m_socket->connected() ) {
+	if ( !m_socket->Recv(m_recv) ) break;
 	ostringstream ostr;
 	ostr << "Received packet from " << IPtoString( m_socket->getRemoteIP() ) << ":" << m_socket->getRemotePort() << endl << m_recv;
 	SignalLog(LogEvent::DIRECTPACKET, ostr.str());
@@ -757,6 +762,8 @@ namespace ICQ2000 {
   unsigned short DirectClient::getPort() const { return m_socket->getRemotePort(); }
 
   int DirectClient::getfd() const { return m_socket->getSocketHandle(); }
+
+  TCPSocket* DirectClient::getSocket() const { return m_socket; }
 
   void DirectClient::setContact(Contact *c) { m_contact = c; }
 

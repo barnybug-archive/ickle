@@ -111,6 +111,7 @@ namespace ICQ2000 {
     ~DirectClient();
 
     void Connect();
+    void FinishNonBlockingConnect();
     void Recv();
 
     // ------------------ Signal dispatchers -----------------
@@ -127,6 +128,7 @@ namespace ICQ2000 {
     unsigned int getIP() const;
     unsigned short getPort() const;
     int getfd() const;
+    TCPSocket* getSocket() const;
 
     void setContact(Contact* c);
     Contact* getContact() const;

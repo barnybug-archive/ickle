@@ -93,8 +93,8 @@ namespace ICQ2000 {
        */
       m_serverSocket.setRemoteHost(m_authorizerHostname.c_str());
       m_serverSocket.setRemotePort(m_authorizerPort);
+      m_serverSocket.setBlocking(false);
       m_serverSocket.Connect();
-      SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::READ );
     } catch(SocketException e) {
       // signal connection failure
       ostringstream ostr;
@@ -104,6 +104,7 @@ namespace ICQ2000 {
       return;
     }
     
+    SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::WRITE );
 
     // randomize sequence number
     srand(time(0));
@@ -123,8 +124,8 @@ namespace ICQ2000 {
     try {
       m_serverSocket.setRemoteHost(m_bosHostname.c_str());
       m_serverSocket.setRemotePort(m_bosPort);
+      m_serverSocket.setBlocking(false);
       m_serverSocket.Connect();
-      SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::READ );
     } catch(SocketException e) {
       ostringstream ostr;
       ostr << "Failed to connect to BOS server: " << e.what();
@@ -132,6 +133,8 @@ namespace ICQ2000 {
       SignalDisconnect(DisconnectedEvent::FAILED_LOWLEVEL);
       return;
     }
+
+    SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::WRITE );
 
     m_state = BOS_AWAITING_CONN_ACK;
   }
@@ -330,7 +333,6 @@ namespace ICQ2000 {
 
   }
 
-
   void Client::dc_messaged_cb(MessageEvent *ev) {
     Contact *contact = ev->getContact();
     contact->addPendingMessage(ev);
@@ -344,6 +346,7 @@ namespace ICQ2000 {
     messageack.emit(ev);
 
     if (!ev->isFinished()) {
+      ev->getContact()->setDirect(false);
       // attempt to deliver via server instead
       SendViaServer(ev);
     }
@@ -556,6 +559,7 @@ namespace ICQ2000 {
     if (m_contact_list.exists(userinfo.getUIN())) {
       Contact& c = m_contact_list[userinfo.getUIN()];
       Status old_st = c.getStatus();
+      c.setDirect(true); // reset flags when a user goes online
       c.setStatus( MapICQStatusToStatus(userinfo.getStatus()) );
       c.setInvisible( MapICQStatusToInvisible(userinfo.getStatus()) );
       c.setExtIP( userinfo.getExtIP() );
@@ -843,10 +847,10 @@ namespace ICQ2000 {
   // ------------------ Incoming packets -------------------
 
   void Client::RecvFromServer() {
-    if (!m_serverSocket.connected()) return;
 
     try {
-      while ( m_serverSocket.RecvNonBlocking(m_recv) ) {
+      while (m_serverSocket.connected()) {
+	if (!m_serverSocket.Recv(m_recv)) break;
 	ostringstream ostr;
 	ostr << "Received packet from Server" << endl << m_recv;
 	SignalLog(LogEvent::PACKET, ostr.str());
@@ -1209,10 +1213,54 @@ namespace ICQ2000 {
   }
 
   void Client::socket_cb(int fd, SocketEvent::Mode m) {
-    if ( fd == m_serverSocket.getSocketHandle() ) {
-      RecvFromServer();
 
+    if ( fd == m_serverSocket.getSocketHandle() ) {
+      /*
+       * File descriptor is the socket we have open to server
+       */
+
+      /*
+	if (m & SocketEvent::WRITE) SignalLog(LogEvent::INFO, "socket_cb for write");
+	if (m & SocketEvent::READ) SignalLog(LogEvent::INFO, "socket_cb for read");
+	if (m & SocketEvent::EXCEPTION) SignalLog(LogEvent::INFO, "socket_cb for exception");
+
+	if (m_serverSocket.getState() == TCPSocket::NOT_CONNECTED) SignalLog(LogEvent::INFO, "server socket in state NOT_CONNECTED");
+	if (m_serverSocket.getState() == TCPSocket::NONBLOCKING_CONNECT) SignalLog(LogEvent::INFO, "server socket in state NONBLOCKING_CONNECT");
+	if (m_serverSocket.getState() == TCPSocket::CONNECTED) SignalLog(LogEvent::INFO, "server socket in state CONNECTED");
+      */
+
+      if (m_serverSocket.getState() == TCPSocket::NONBLOCKING_CONNECT
+	  && (m & SocketEvent::WRITE)) {
+	// the non-blocking connect has completed (good/bad)
+
+	SignalRemoveSocket(fd);
+	// no longer select on write
+
+	try {
+	  m_serverSocket.FinishNonBlockingConnect();
+	} catch(SocketException e) {
+	  // signal connection failure
+	  ostringstream ostr;
+	  ostr << "Failed on non-blocking connect: " << e.what();
+	  SignalLog(LogEvent::ERROR, ostr.str());
+	  Disconnect(DisconnectedEvent::FAILED_LOWLEVEL);
+	  return;
+	}
+
+	SignalAddSocket(fd, SocketEvent::READ);
+	// select on read now
+	
+      } else if (m_serverSocket.getState() == TCPSocket::CONNECTED && (m & SocketEvent::READ)) { 
+	RecvFromServer();
+      } else {
+	SignalLog(LogEvent::ERROR, "Server socket in inconsistent state!");
+	Disconnect(DisconnectedEvent::FAILED_LOWLEVEL);
+      }
+      
     } else if ( fd == m_listenServer.getSocketHandle() ) {
+      /*
+       * File descriptor is the listening socket - someone is connected in
+       */
 
       TCPSocket *sock = m_listenServer.Accept();
       DirectClient *dc = new DirectClient(sock, &m_contact_list, m_uin, m_ext_ip, m_listenServer.getPort(), &m_translator);
@@ -1225,6 +1273,10 @@ namespace ICQ2000 {
       SignalAddSocket( sock->getSocketHandle(), SocketEvent::READ );
 
     } else {
+      /*
+       * File descriptor is a direct connection we have open to someone
+       *
+       */
 
       DirectClient *dc;
       if (m_dccache.exists(fd)) {
@@ -1233,14 +1285,44 @@ namespace ICQ2000 {
 	SignalLog(LogEvent::ERROR, "Problem: Unassociated socket");
 	return;
       }
+
+      TCPSocket *sock = dc->getSocket();
+      if (sock->getState() == TCPSocket::NONBLOCKING_CONNECT
+	  && (m & SocketEvent::WRITE)) {
+	// the non-blocking connect has completed (good/bad)
+
+	SignalRemoveSocket(fd);
+	// no longer select on write
+
+	try {
+	  sock->FinishNonBlockingConnect();
+	} catch(SocketException e) {
+	  // signal connection failure
+	  ostringstream ostr;
+	  ostr << "Failed on non-blocking connect for direct connection: " << e.what();
+	  SignalLog(LogEvent::ERROR, ostr.str());
+	  DisconnectDirectConn( fd );
+	  return;
+	}
+
+	SignalAddSocket(fd, SocketEvent::READ);
+	// select on read now
 	
-      try {
-	dc->Recv();
-      } catch(DisconnectedException e) {
-	// tear down connection
-	SignalLog(LogEvent::WARN, e.what());
+	dc->FinishNonBlockingConnect();
+
+      } else if (sock->getState() == TCPSocket::CONNECTED && (m & SocketEvent::READ)) { 
+	try {
+	  dc->Recv();
+	} catch(DisconnectedException e) {
+	  // tear down connection
+	  SignalLog(LogEvent::WARN, e.what());
+	  DisconnectDirectConn( fd );
+	}
+      } else {
+	SignalLog(LogEvent::ERROR, "Direct Connection socket in inconsistent state!");
 	DisconnectDirectConn( fd );
       }
+      
     }
   }
 
@@ -1462,6 +1544,7 @@ namespace ICQ2000 {
 
   bool Client::SendDirect(MessageEvent *ev) {
     Contact *c = ev->getContact();
+    if (!c->getDirect()) return false;
     DirectClient *dc = ConnectDirect(c);
     if (dc == NULL) return false;
     dc->SendEvent(ev);
