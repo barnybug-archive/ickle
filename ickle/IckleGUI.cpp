@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.69 2003-01-05 12:09:43 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.70 2003-01-12 16:55:06 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,8 @@
 #include "AddContactDialog.h"
 #include "SearchDialog.h"
 
+#include "ContactListView.h"
+
 #include <gtkmm/checkmenuitem.h>
 #include <gtkmm/stock.h>
 
@@ -52,7 +54,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
      m_invisible(false),
      m_top_vbox(false),
      m_contact_scroll(),
-     m_contact_list( *this, mq ),
+     m_contact_list( new ContactListView( *this, mq ) ),
      m_away_message( *this ),
      m_exiting(false),
      m_log_window(),
@@ -81,7 +83,7 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
   set_ickle_title();
 
   m_contact_scroll.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
-  m_contact_scroll.add(m_contact_list);
+  m_contact_scroll.add(* Gtk::manage( m_contact_list ) );
 
   m_top_vbox.pack_start(m_contact_scroll);
 
@@ -131,9 +133,9 @@ IckleGUI::IckleGUI(MessageQueue& mq, HistoryMap& histmap)
 
   m_log_window.signal_hide().connect( SigC::slot( *this, &IckleGUI::log_window_hidden_cb ) );
 
-  m_contact_list.signal_messagebox_popup().connect( SigC::slot( *this, &IckleGUI::messagebox_popup_cb ) );
-  m_contact_list.signal_userinfo_popup().connect( SigC::slot( *this, &IckleGUI::userinfo_popup_cb ) );
-  m_contact_list.grab_focus();
+  m_contact_list->signal_messagebox_popup().connect( SigC::slot( *this, &IckleGUI::messagebox_popup_cb ) );
+  m_contact_list->signal_userinfo_popup().connect( SigC::slot( *this, &IckleGUI::userinfo_popup_cb ) );
+  m_contact_list->grab_focus();
 
   g_settings.settings_changed.connect( SigC::slot( *this, &IckleGUI::settings_changed_cb ) );
 }
@@ -274,7 +276,7 @@ void IckleGUI::contactlist_cb(ICQ2000::ContactListEvent *ev)
 }
 
 ContactListView* IckleGUI::getContactListView() {
-  return &m_contact_list;
+  return m_contact_list;
 }
 
 void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
@@ -563,7 +565,7 @@ void IckleGUI::add_contact_cb()
 
 void IckleGUI::toggle_offline_co_cb()
 {
-  m_contact_list.set_show_offline_contacts( m_offline_co_mi->get_active() );
+  m_contact_list->set_show_offline_contacts( m_offline_co_mi->get_active() );
   g_settings.setValue("show_offline_contacts", m_offline_co_mi->get_active() );
 }
 
@@ -830,7 +832,7 @@ void IckleGUI::post_settings_loaded()
   // TODO  m_contact_list.post_settings_loaded();
   bool offline_co = g_settings.getValueBool("show_offline_contacts");
   m_offline_co_mi->set_active( offline_co );
-  m_contact_list.set_show_offline_contacts( offline_co );
+  m_contact_list->set_show_offline_contacts( offline_co );
 }
 
 void IckleGUI::messagebox_popup_cb(unsigned int uin)

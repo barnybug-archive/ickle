@@ -1,4 +1,4 @@
-/* $Id: ContactListView.h,v 1.30 2003-01-05 19:43:55 barnabygray Exp $
+/* $Id: ContactListView.h,v 1.31 2003-01-12 16:55:06 barnabygray Exp $
  *
  * ContactList(Tree)View
  *
@@ -47,6 +47,7 @@ class ContactListView : public Gtk::TreeView,
   void contactlist_cb(ICQ2000::ContactListEvent *ev);
   void contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev);
   void contact_status_change_cb(ICQ2000::StatusChangeEvent *ev);
+  void want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev);
 
   // -- MessageQueue callbacks --
   void queue_added_cb(MessageEvent *ev);
@@ -86,6 +87,9 @@ class ContactListView : public Gtk::TreeView,
   gint sort_func(const Gtk::TreeModel::iterator& iter1, const Gtk::TreeModel::iterator& iter2);
   int status_order (ICQ2000::Status s);
 
+  bool contact_restore_weight_timeout_cb(ICQ2000::ContactRef c);
+  bool contact_restore_colour_timeout_cb(ICQ2000::ContactRef c);
+
   ICQ2000::ContactRef get_selected_contact();
   ICQ2000::ContactTree::Group * get_selected_group();
 
@@ -100,6 +104,8 @@ class ContactListView : public Gtk::TreeView,
     Gtk::TreeModelColumn< ICQ2000::Status > status;
     Gtk::TreeModelColumn< unsigned int > messages;
     Gtk::TreeModelColumn< bool > visible;
+    Gtk::TreeModelColumn< int > text_weight;
+    Gtk::TreeModelColumn< Gdk::Color > text_colour;
 
     ModelColumns()
     {
@@ -111,6 +117,8 @@ class ContactListView : public Gtk::TreeView,
       add(status);
       add(messages);
       add(visible);
+      add(text_weight);
+      add(text_colour);
     }
   };
 

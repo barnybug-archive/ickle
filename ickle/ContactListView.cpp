@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.52 2003-01-11 20:23:53 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.53 2003-01-12 16:55:05 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -52,6 +52,7 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
   icqclient.contactlist.connect(this,&ContactListView::contactlist_cb);
   icqclient.contact_status_change_signal.connect(this,&ContactListView::contact_status_change_cb);
   icqclient.contact_userinfo_change_signal.connect(this,&ContactListView::contact_userinfo_change_cb);
+  icqclient.want_auto_resp.connect( this, &ContactListView::want_auto_resp_cb );
 
   // -- MessageQueue callbacks --
   m_message_queue.added.connect(SigC::slot(*this, &ContactListView::queue_added_cb));
@@ -83,8 +84,12 @@ ContactListView::ContactListView(Gtk::Window& parent, MessageQueue& mq)
     pColumn->pack_start( *pTextRenderer );
     
     pColumn->add_attribute( pPixbufRenderer->property_pixbuf(), m_columns.icon );
-    pColumn->add_attribute( pTextRenderer->property_text(), m_columns.nick );
     pColumn->add_attribute( pPixbufRenderer->property_visible(), m_columns.is_contact );
+
+    pColumn->add_attribute( pTextRenderer->property_text(), m_columns.nick );
+    pColumn->add_attribute( pTextRenderer->property_weight(), m_columns.text_weight );
+    pColumn->add_attribute( pTextRenderer->property_foreground_gdk(), m_columns.text_colour );
+
     append_column( *pColumn );
   }
 
@@ -273,6 +278,8 @@ void ContactListView::add_contact(const ICQ2000::ContactRef& c, const ICQ2000::C
     m_contact_map[ c->getUIN() ] = iter;
     row[m_columns.is_contact] = true;
     row[m_columns.id] = c->getUIN();
+    row[m_columns.status] = ICQ2000::STATUS_OFFLINE;
+    row[m_columns.text_colour] = get_style()->get_text( Gtk::STATE_NORMAL );
     update_contact(c);
   }
 }
@@ -286,6 +293,21 @@ void ContactListView::update_contact(const ICQ2000::ContactRef& c)
     update_icon(row, c);
     row[m_columns.nick] = c->getNameAlias();
     row[m_columns.nick_sort_key] = Glib::ustring(c->getNameAlias()).casefold_collate_key();
+
+    if (row[m_columns.status] == ICQ2000::STATUS_OFFLINE
+	&& c->getStatus() != ICQ2000::STATUS_OFFLINE)
+    {
+      /* highlight contacts who've just appeared online */
+      row[m_columns.text_weight] = Pango::WEIGHT_BOLD;
+      /* set timer */
+      Glib::signal_timeout().connect( SigC::bind( SigC::slot( *this, &ContactListView::contact_restore_weight_timeout_cb ), c ), 5000 );
+    }
+    else
+    {
+      /* default weight */
+      row[m_columns.text_weight] = Pango::WEIGHT_NORMAL;
+    }
+
     row[m_columns.status] = c->getStatus();
     row[m_columns.messages] = m_message_queue.get_contact_size(c);
   }
@@ -377,6 +399,21 @@ void ContactListView::remove_contact(const ICQ2000::ContactRef& c)
 
 void ContactListView::contact_userinfo_change_cb(ICQ2000::UserInfoChangeEvent *ev)
 {
+}
+
+void ContactListView::want_auto_resp_cb(ICQ2000::ICQMessageEvent *ev)
+{
+  /* blink contact on contact list - nice little touch to see who is
+     checking your away message - borrowed from licq :-) */
+  ICQ2000::ContactRef c = ev->getContact();
+  if ( m_contact_map.count(c->getUIN()) )
+  {
+    Gtk::TreeModel::Row row = * m_contact_map[ c->getUIN() ];
+    row[m_columns.text_colour] = Gdk::Color( "green" );
+
+    /* set timeout to restore colour */
+    Glib::signal_timeout().connect( SigC::bind( SigC::slot( *this, &ContactListView::contact_restore_colour_timeout_cb ), c ), 5000 );
+  }
 }
 
 void ContactListView::contact_status_change_cb(ICQ2000::StatusChangeEvent *ev)
@@ -614,4 +651,28 @@ void ContactListView::sort()
   m_reftreestore->get_sort_column_id( sort_column_id, order );
   m_reftreestore->set_sort_column_id( (sort_column_id == m_columns.nick.index()
 		       ? m_columns.icon.index() : m_columns.nick.index() ), order );
+}
+
+bool ContactListView::contact_restore_weight_timeout_cb(ICQ2000::ContactRef c)
+{
+  /* remove highlighting on contact list */
+  if ( m_contact_map.count( c->getUIN() ) > 0 )
+  {
+    Gtk::TreeModel::Row row = * m_contact_map[c->getUIN()];
+    row[m_columns.text_weight] = Pango::WEIGHT_NORMAL;
+  }
+
+  return false;
+}
+
+bool ContactListView::contact_restore_colour_timeout_cb(ICQ2000::ContactRef c)
+{
+  /* remove highlighting on contact list */
+  if ( m_contact_map.count( c->getUIN() ) > 0 )
+  {
+    Gtk::TreeModel::Row row = * m_contact_map[c->getUIN()];
+    row[m_columns.text_colour] = get_style()->get_text( Gtk::STATE_NORMAL );
+  }
+
+  return false;
 }

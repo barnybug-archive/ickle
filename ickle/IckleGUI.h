@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.47 2003-01-05 12:09:43 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.48 2003-01-12 16:55:06 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -43,7 +43,6 @@
 
 #include <libicq2000/constants.h>
 
-#include "ContactListView.h"
 #include "MessageBox.h"
 #include "UserInfoDialog.h"
 #include "PromptDialog.h"
@@ -53,6 +52,9 @@
 #include "StatusMenu.h"
 #include "MessageQueue.h"
 #include "LogWindow.h"
+
+/* predeclare classes */
+class ContactListView;
 
 class IckleGUI : public Gtk::Window,
 	         public sigslot::has_slots<>
@@ -71,7 +73,7 @@ class IckleGUI : public Gtk::Window,
   // gtk widgets
   Gtk::VBox m_top_vbox;
   Gtk::ScrolledWindow  m_contact_scroll;
-  ContactListView m_contact_list;
+  ContactListView * m_contact_list;
   AwayMessageDialog m_away_message;
   bool m_exiting;
   LogWindow m_log_window;
