@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #include "Client.h"
 #include "events.h"
@@ -8,10 +9,23 @@
 
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
+
+#if HAVE_SYS_WAIT_H
+# include <sys/wait.h>
+#endif
+#ifndef WEXITSTATUS
+# define WEXITSTATUS(stat_val) ((unsigned)(stat_val) >> 8)
+#endif
+#ifndef WIFEXITED
+# define WIFEXITED(stat_val) (((stat_val) & 255) == 0)
+#endif
+
 #include <signal.h>
-#include <getopt.h>
+
+#ifdef HAVE_GETOPT_H
+# include <getopt.h>
+#endif
 
 using namespace ICQ2000;
 using namespace std;
@@ -79,6 +93,7 @@ class PipeExec {
 class SimpleClient : public Object {
  private:
   ICQ2000::Client icqclient;
+  set<int> rfdl, wfdl, efdl;
   
  public:
   SimpleClient(unsigned int uin, const string& pass);
@@ -91,6 +106,7 @@ class SimpleClient : public Object {
   bool message_cb(MessageEvent *c);
   void logger_cb(LogEvent *c);
   void contactlist_cb(ContactListEvent *c);
+  void socket_cb(SocketEvent *ev);
 };
 
 
@@ -105,32 +121,99 @@ SimpleClient::SimpleClient(unsigned int uin, const string& pass)
   icqclient.messaged.connect(slot(this,&SimpleClient::message_cb));
   icqclient.logger.connect(slot(this,&SimpleClient::logger_cb));
   icqclient.contactlist.connect(slot(this,&SimpleClient::contactlist_cb));
+  icqclient.socket.connect(slot(this,&SimpleClient::socket_cb));
 }
 
 void SimpleClient::run() {
 
   icqclient.Connect();
 
-  list<int> fds;
-
   while(1) {
-    fd_set rfds;
+    fd_set rfds, wfds, efds;
     struct timeval tv;
 
+    int max_fd = -1;
+    
+    // this could be done much better..
+
     FD_ZERO(&rfds);
-    int fd = icqclient.getSocketHandle();
-    if (fd != -1) FD_SET(fd, &rfds);
+    FD_ZERO(&wfds);
+    FD_ZERO(&efds);
+
+    set<int>::iterator curr = rfdl.begin();
+    while (curr != rfdl.end()) {
+      FD_SET(*curr, &rfds);
+      if (*curr > max_fd) max_fd = *curr;
+      ++curr;
+    }
+
+    curr = wfdl.begin();
+    while (curr != wfdl.end()) {
+      FD_SET(*curr, &wfds);
+      if (*curr > max_fd) max_fd = *curr;
+      ++curr;
+    }
+
+    curr = efdl.begin();
+    while (curr != efdl.end()) {
+      FD_SET(*curr, &efds);
+      if (*curr > max_fd) max_fd = *curr;
+      ++curr;
+    }
 
     // should ping server every minute
     tv.tv_sec = 60;
     tv.tv_usec = 0;
 
-    int ret = select(fd+1, &rfds, NULL, NULL, &tv);
-    if (ret) icqclient.Poll();
-    else icqclient.PingServer();
+    int ret = select(max_fd+1, &rfds, &wfds, &efds, &tv);
+    if (ret) {
+      curr = rfdl.begin();
+      while (curr != rfdl.end()) {
+	if ( FD_ISSET( *curr, &rfds ) ) icqclient.socket_cb( *curr, SocketEvent::READ );
+	++curr;
+      }
+
+      curr = wfdl.begin();
+      while (curr != wfdl.end()) {
+	if ( FD_ISSET( *curr, &wfds ) ) icqclient.socket_cb( *curr, SocketEvent::WRITE );
+	++curr;
+      }
+
+      curr = efdl.begin();
+      while (curr != efdl.end()) {
+	if ( FD_ISSET( *curr, &efds ) ) icqclient.socket_cb( *curr, SocketEvent::EXCEPTION );
+	++curr;
+      }
+      
+    } else icqclient.PingServer();
   }
 
   icqclient.Disconnect();
+}
+
+void SimpleClient::socket_cb(SocketEvent *ev) {
+  
+  if (dynamic_cast<AddSocketHandleEvent*>(ev) != NULL) {
+    AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
+    int fd = cev->getSocketHandle();
+
+    cout << "connecting socket " << fd << endl;
+
+    if (cev->isRead()) rfdl.insert(fd);
+    if (cev->isWrite()) wfdl.insert(fd);
+    if (cev->isException()) efdl.insert(fd);
+
+  } else if (dynamic_cast<RemoveSocketHandleEvent*>(ev) != NULL) {
+    RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
+    int fd = cev->getSocketHandle();
+
+    cout << "disconnecting socket " << fd << endl;
+
+    rfdl.erase(fd);
+    wfdl.erase(fd);
+    efdl.erase(fd);
+  }
+  
 }
 
 void SimpleClient::connected_cb(ConnectedEvent *c) {
@@ -337,8 +420,13 @@ bool PipeExec::Open(const char *shellcmd) {
   close(pdes_in[0]);
 
   // Set both streams to line buffered
+#ifdef SETVBUF_REVERSED
+  setvbuf(fStdOut, _IOLBF, (char*)NULL, 0);
+  setvbuf(fStdIn, _IOLBF, (char*)NULL, 0);
+#else
   setvbuf(fStdOut, (char*)NULL, _IOLBF, 0);
   setvbuf(fStdIn, (char*)NULL, _IOLBF, 0);
+#endif
 
   return true;
 }
@@ -448,4 +536,3 @@ void processCommandLine( int argc, char *argv[] ) {
   shellcmd = argv[optind+2];
 
 }
-

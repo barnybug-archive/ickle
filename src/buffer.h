@@ -30,7 +30,6 @@
 
 using namespace std;
 
-
 class Buffer {
  public:
   enum endian { BIG, LITTLE };
@@ -74,8 +73,10 @@ class Buffer {
 
   void Pack(const unsigned char *d, int size);
   void Pack(const string& s);
-  void Unpack(string& s, int size);
+  void PackUint16StringNull(const string& s);
 
+  void Unpack(string& s, int size);
+  unsigned char UnpackChar();
   void UnpackUint32String(string& s);
   void UnpackUint16StringNull(string& s);
 

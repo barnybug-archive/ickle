@@ -26,8 +26,8 @@
 
 #include <errno.h>
 #include <netdb.h>
-#include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -35,10 +35,13 @@
 #include <fcntl.h>
 
 #include <string>
+#include <sstream>
 
 #include "buffer.h"
 
 using namespace std;
+
+string IPtoString(unsigned int ip);
 
 class TCPSocket {
  private:
@@ -47,11 +50,14 @@ class TCPSocket {
   unsigned long gethostname(const char *hostname);
 
   int socketDescriptor;
-  struct sockaddr_in remoteAddr;
+  struct sockaddr_in remoteAddr, localAddr;
 
  public:
   TCPSocket();
   ~TCPSocket();
+
+  // used after a successful accept on TCPServer
+  TCPSocket( int fd, struct sockaddr_in addr );
 
   void Connect();
   void Disconnect();
@@ -67,6 +73,34 @@ class TCPSocket {
 
   void setRemoteHost(const char *host);
   void setRemotePort(unsigned short port);
+  
+  unsigned int getRemoteIP() const;
+  unsigned short getRemotePort() const;
+
+  unsigned int getLocalIP() const;
+  unsigned short getLocalPort() const;
+
+};
+
+class TCPServer {
+ private:
+  int socketDescriptor;
+  struct sockaddr_in localAddr;
+
+ public:
+  TCPServer();
+  ~TCPServer();
+
+  int getSocketHandle();
+  
+  void StartServer();
+  void Disconnect();
+
+  // blocking accept
+  TCPSocket* Accept();
+  
+  unsigned short getPort() const;
+  unsigned int getIP() const;
 
 };
 

@@ -41,11 +41,14 @@
 #include <sstream>
 
 #include <stdlib.h>
-#include <getopt.h>
+#include <unistd.h>
 #include <glob.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <unistd.h>
+
+#ifdef HAVE_GETOPT_H
+# include <getopt.h>
+#endif
 
 #include "main.h"
 #include "Client.h"
@@ -71,8 +74,8 @@ class IckleClient : public SigC::Object {
   hash_map<unsigned int, string> m_fmap;
   hash_map<unsigned int, History> m_histmap;
 
-  Connection socket_read_cb_cnt, ping_server_cnt;
-  int socket_read_cb_fd;
+  hash_map<int, Connection> m_sockets;
+  Connection ping_server_cnt;
 
   void processCommandLine(int argc, char* argv[]);
   void loadSettings();
@@ -95,6 +98,7 @@ class IckleClient : public SigC::Object {
   void logger_cb(LogEvent *c);
   void contactlist_cb(ContactListEvent *ev);
   bool message_cb(MessageEvent* ev);
+  void socket_cb(SocketEvent* ev);
 
   // -- Callbacks for GUI --
   void status_change_cb(Status st);
@@ -106,8 +110,8 @@ class IckleClient : public SigC::Object {
   void settings_cb();
   void fetch_cb(Contact *c);
 
-  // -- Callback for socket ready for read --
-  void socket_read_cb(int source, GdkInputCondition cond);
+  // -- Callback for a socket ready --
+  void socket_select_cb(int source, GdkInputCondition cond);
 
   // -- Callback for timeout
   int ping_server_cb();

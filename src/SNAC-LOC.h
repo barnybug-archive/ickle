@@ -1,6 +1,5 @@
 /*
- * Exceptions
- *
+ * SNAC - Location services
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -19,26 +18,35 @@
  *
  */
 
-#ifndef EXCEPTIONS_H
-#define EXCEPTIONS_H
+#ifndef SNAC_LOC_H
+#define SNAC_LOC_H
 
-#include <string>
-#include <exception>
-
-using namespace std;
+#include "SNAC-base.h"
 
 namespace ICQ2000 {
 
-  class ParseException : exception {
-   private:
-    string m_errortext;
-    
+  // Locate (Family 0x0002)
+  const unsigned short SNAC_LOC_Error = 0x0001;
+  const unsigned short SNAC_LOC_RightsReq = 0x0002;
+  const unsigned short SNAC_LOC_Rights = 0x0003;
+  const unsigned short SNAC_LOC_SetUserInfo = 0x0004;
+
+  // ----------------- Location (Family 0x0002) SNACs -------------
+
+  class LOCFamilySNAC : virtual public SNAC {
    public:
-    ParseException(const string& text);
-    
-    const char* what() const;
+    unsigned short Family() const { return SNAC_FAM_LOC; }
   };
-  
+
+  class SetUserInfoSNAC : public LOCFamilySNAC, public OutSNAC {
+   protected:
+    void OutputBody(Buffer& b) const;
+
+   public:
+    SetUserInfoSNAC() { }
+    unsigned short Subtype() const { return SNAC_LOC_SetUserInfo; }
+  };
+
 }
 
 #endif

@@ -4,7 +4,7 @@
 
 bin_PROGRAMS = ickle
 
-CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
+AM_CPPFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
 LDFLAGS = @SIGC_LIBS@ @GTKMM_LIBS@
 INCLUDES = -I$(top_srcdir)/src/ -I$(top_srcdir)/icons/  \
            @SIGC_CFLAGS@ @GTKMM_CFLAGS@

@@ -22,8 +22,7 @@
 
 IckleClient::IckleClient(int argc, char* argv[])
   : gui(),
-    status(STATUS_OFFLINE),
-    socket_read_cb_fd(-1)
+    status(STATUS_OFFLINE)
 {
   // setup default compiled in xpms
   Icons::DefaultIcons();
@@ -41,6 +40,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
+  icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
 
   // set up GUI callbacks
   gui.status_changed.connect(slot(this,&IckleClient::status_change_cb));
@@ -70,7 +70,8 @@ void IckleClient::loadContactList() {
   glob_t gr;
   string pattern( CONTACT_DIR + "*.user" );
 
-  if ( glob( pattern.c_str(), 0, NULL, &gr ) == 0 ) {
+  if ( glob( pattern.c_str(), 0, NULL, &gr ) == 0
+       && gr.gl_pathc > 0 ) {
     char **nextp;
     nextp = gr.gl_pathv;
 
@@ -227,10 +228,6 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
     cout << endl;
   }
 
-  // disconnect the fd to the Gtk Connection
-  socket_read_cb_cnt.disconnect();
-  socket_read_cb_fd = -1;
-
   // disconnect PingServer callback
   ping_server_cnt.disconnect();
 
@@ -270,18 +267,13 @@ void IckleClient::status_change_cb(Status st) {
 	return;
       }
 
-      // should check valid uin & password here
-      int fd = icqclient.Connect();
-      if (fd != -1 && socket_read_cb_fd != fd) {
-	socket_read_cb_cnt = Gtk::Main::input.connect(slot(this, &IckleClient::socket_read_cb), fd, GDK_INPUT_READ);
-	socket_read_cb_fd = fd;
-      }
+      icqclient.Connect();
     }
   }
 }
 
-void IckleClient::socket_read_cb(int source, GdkInputCondition cond) {
-  icqclient.Poll();
+void IckleClient::socket_select_cb(int source, GdkInputCondition cond) {
+  icqclient.socket_cb(source, (SocketEvent::Mode)cond);
 }
 
 int IckleClient::ping_server_cb() {
@@ -339,6 +331,38 @@ void IckleClient::settings_cb() {
     if (reconnect) status_change_cb(STATUS_ONLINE);
   }
 
+}
+
+void IckleClient::socket_cb(SocketEvent *ev) {
+  
+  if (dynamic_cast<AddSocketHandleEvent*>(ev) != NULL) {
+    AddSocketHandleEvent *cev = dynamic_cast<AddSocketHandleEvent*>(ev);
+    int fd = cev->getSocketHandle();
+
+    cout << "connecting socket " << fd << endl;
+
+    if (m_sockets.count(fd) > 0) {
+      // uh oh..
+      cout << "problem: file descriptor already connected" << endl;
+      m_sockets[fd].disconnect();
+      m_sockets.erase(fd);
+    }
+
+    m_sockets[fd] = Gtk::Main::input.connect(slot(this, &IckleClient::socket_select_cb), fd,
+					     (GdkInputCondition)
+					     ((cev->isRead() ? GDK_INPUT_READ : 0) |
+					      (cev->isWrite() ? GDK_INPUT_WRITE : 0) |
+					      (cev->isException() ? GDK_INPUT_EXCEPTION : 0)));
+
+  } else if (dynamic_cast<RemoveSocketHandleEvent*>(ev) != NULL) {
+    RemoveSocketHandleEvent *cev = dynamic_cast<RemoveSocketHandleEvent*>(ev);
+    int fd = cev->getSocketHandle();
+
+    cout << "disconnecting socket " << fd << endl;
+
+    m_sockets[fd].disconnect();
+    m_sockets.erase(fd);
+  }
 }
 
 bool IckleClient::message_cb(MessageEvent *ev) {

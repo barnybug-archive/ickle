@@ -57,14 +57,29 @@ namespace ICQ2000 {
     int m_fd;
 
    public:
-    SocketEvent::SocketEvent(int fd);
+    SocketEvent(int fd);
+    virtual ~SocketEvent() { }
 
     int getSocketHandle() const;
+
+    enum Mode {
+      READ      = 1 << 0,
+      WRITE     = 1 << 1,
+      EXCEPTION = 1 << 2
+    };
   };
 
   class AddSocketHandleEvent : public SocketEvent {
+   private:
+    Mode m_mode;
+
    public:
-    AddSocketHandleEvent(int fd);
+    AddSocketHandleEvent(int fd, Mode m);
+    
+    Mode getMode() const;
+    bool isRead() const;
+    bool isWrite() const;
+    bool isException() const;
   };
 
   class RemoveSocketHandleEvent : public SocketEvent {
@@ -209,18 +224,25 @@ namespace ICQ2000 {
   class NormalMessageEvent : public MessageEvent {
    private:
     string m_message;
-    bool m_offline, m_multi;
+    bool m_offline, m_multi, m_direct;
+    unsigned int m_foreground, m_background;
     
    public:
     NormalMessageEvent(Contact* c, const string& msg);
     NormalMessageEvent(Contact* c, const string& msg, bool multi);
     NormalMessageEvent(Contact* c, const string& msg, time_t t, bool multi);
+    NormalMessageEvent(Contact* c, const string& msg, unsigned int fg, unsigned int bg);
 
     string getMessage() const;
     MessageType getType() const;
     unsigned int getSenderUIN() const;
     bool isOfflineMessage() const;
     bool isMultiParty() const;
+    bool isDirect() const;
+    unsigned int getForeground() const;
+    unsigned int getBackground() const;
+    void setForeground(unsigned int f);
+    void setBackground(unsigned int b);
   };
   
   class URLMessageEvent : public MessageEvent {
@@ -299,12 +321,51 @@ namespace ICQ2000 {
   class NewUINEvent : public Event {
    private:
     unsigned int m_uin;
+    bool m_success;       
 
    public:
-    NewUINEvent(unsigned int uin);
+    NewUINEvent(unsigned int uin, bool success=true);
     unsigned int getUIN() const;
+    bool isSuccess() const;
   };
 
+  class RateInfoChangeEvent : public Event {
+   public:
+    enum RateClass {
+      RATE_CHANGE=1,
+      RATE_WARNING,
+      RATE_LIMIT,
+      RATE_LIMIT_CLEARED
+    };
+    
+   private:
+    unsigned short m_code;	
+    unsigned short m_rateclass;	
+    unsigned int m_windowsize;
+    unsigned int m_clear;
+    unsigned int m_alert;
+    unsigned int m_limit;
+    unsigned int m_disconnect;
+    unsigned int m_currentavg;
+    unsigned int m_maxavg;
+
+   public:
+    RateInfoChangeEvent(unsigned short code, unsigned short rateclass, 
+                        unsigned int windowsize,unsigned int clear,
+                        unsigned int alert,unsigned int limit,
+                        unsigned int disconnect,unsigned int currentavg,
+                        unsigned int maxavg);
+    
+    unsigned short getCode() const { return m_code; }	
+    unsigned short getRateClass() const { return m_rateclass; }	
+    unsigned int getWindowSize() const { return m_windowsize; }
+    unsigned int getClear() const { return m_clear; }
+    unsigned int getAlert() const { return m_alert; }
+    unsigned int getLimit() const { return m_limit; }
+    unsigned int getDisconnect() const { return m_disconnect; }
+    unsigned int getCurrentAvg() const { return m_currentavg; }
+    unsigned int getMaxAvg() const { return m_maxavg; }
+  };
 }
 
 #endif

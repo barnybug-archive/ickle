@@ -127,6 +127,15 @@ namespace ICQ2000 {
       }
       break;
 
+      // ----- ADVMSGBLOCK -------
+    case TLV_ParseMode_AdvMsgBlock:
+      switch(type) {
+      case TLV_AdvMsgData:
+	tlv = new AdvMsgDataTLV();
+	break;
+      }
+      break;
+
       // ----- INMESSAGEDATA -----
     case TLV_ParseMode_InMessageData:
       switch(type) {
@@ -136,6 +145,13 @@ namespace ICQ2000 {
       }
       break;
 
+    case TLV_ParseMode_InAdvMsgData:
+      switch(type) {
+      case TLV_AdvMsgBody:
+	tlv = new AdvMsgBodyTLV();
+	break;
+      }
+      break;
     }
 
     if (tlv == NULL) {
@@ -211,6 +227,20 @@ namespace ICQ2000 {
 
   }
 
+  // ----------------- Capabilities TLV -----------
+
+  void CapabilitiesTLV::OutputValue(Buffer& b) const {
+    b << Length();
+    b << (unsigned int)0x09461349
+      << (unsigned int)0x4c7f11d1
+      << (unsigned int)0x82224445
+      << (unsigned int)0x53540000
+      << (unsigned int)0x09461344
+      << (unsigned int)0x4c7f11d1
+      << (unsigned int)0x82224445
+      << (unsigned int)0x53540000;
+  }
+
   // ----------------- Status TLV -----------------
 
   void StatusTLV::OutputValue(Buffer& b) const {
@@ -278,6 +308,9 @@ namespace ICQ2000 {
   LANDetailsTLV::LANDetailsTLV()
     : m_firewall(0x0400), m_tcp_version(7) { }
 
+  LANDetailsTLV::LANDetailsTLV(unsigned int ip, unsigned short port)
+    : m_firewall(0x0400), m_tcp_version(7), m_lan_ip(ip), m_lan_port(port) { }
+
   void LANDetailsTLV::ParseValue(Buffer& b) {
     unsigned short length;
     b >> length;
@@ -303,15 +336,26 @@ namespace ICQ2000 {
   }
 
   void LANDetailsTLV::OutputValue(Buffer& b) const {
-    b << (unsigned short)0x001d;
+    b << (unsigned short)0x0025;
+    b << (unsigned int)m_lan_ip;
+    b << (unsigned int)m_lan_port;
     b << m_firewall
       << m_tcp_version
-      << (unsigned int)0x00000000
+      << (unsigned int)0x279c6996
       << (unsigned int)0x00000050
       << (unsigned int)0x00000003
-      << (unsigned int)0x00000000
-      << (unsigned int)0x00000000
-      << (unsigned int)0x00000000
+
+      //      << (unsigned int)0x3bb9d506
+      //      << (unsigned int)0x3bb9d4f9
+      //      << (unsigned int)0x3bb9d4fa
+      << (unsigned int)0x3AA773EE
+      << (unsigned int)0x3AA66380
+      << (unsigned int)0x3A877A42
+
+
+      //      << (unsigned int)0x00000000
+      //      << (unsigned int)0x00000000
+      //      << (unsigned int)0x00000000
       << (unsigned short)0x0000;
   }
 
@@ -331,6 +375,8 @@ namespace ICQ2000 {
     }
   }
 
+  MessageDataTLV::MessageDataTLV() { }
+
   void MessageDataTLV::ParseValue(Buffer& b) {
     unsigned short length;
     b >> length;
@@ -343,7 +389,7 @@ namespace ICQ2000 {
     tlvlist.Parse(b, TLV_ParseMode_InMessageData, (short unsigned int)-1);
 
     if (tlvlist.exists(TLV_MessageText))
-      mttlv = *((MessageTextTLV*)tlvlist[TLV_MessageText]);
+      mttlv = *(static_cast<MessageTextTLV*>(tlvlist[TLV_MessageText]));
 
   }
 
@@ -355,6 +401,69 @@ namespace ICQ2000 {
 
     b.Unpack(m_message, length-4);
     ICQSubType::CRLFtoLF(m_message);
+  }
+
+  AdvMsgDataTLV::AdvMsgDataTLV() : m_icqsubtype(NULL) { }
+
+  AdvMsgDataTLV::~AdvMsgDataTLV() {
+    if (m_icqsubtype != NULL) delete m_icqsubtype;
+  }
+
+  ICQSubType *AdvMsgDataTLV::grabICQSubType() {
+    ICQSubType *ret = m_icqsubtype;
+    m_icqsubtype = NULL;
+    return ret;
+  }
+
+  void AdvMsgDataTLV::ParseValue(Buffer& b) {
+    unsigned short length;
+    b >> length;
+
+    unsigned short type;
+    b >> type;
+    b.advance(8); // ICBM Cookie again
+
+    b.advance(16); // a capability
+
+    TLVList tlvlist;
+    tlvlist.Parse(b, TLV_ParseMode_InAdvMsgData, (short unsigned int)-1);
+
+    if (!tlvlist.exists(TLV_AdvMsgBody))
+      throw ParseException("No Advanced Message Body TLV in SNAC 0x0004 0x0007 on channel 2");
+    
+    AdvMsgBodyTLV *t = static_cast<AdvMsgBodyTLV*>(tlvlist[TLV_AdvMsgBody]);
+    m_icqsubtype = t->grabICQSubType();
+
+  }
+
+  AdvMsgBodyTLV::AdvMsgBodyTLV() : m_icqsubtype(NULL) { }
+
+  AdvMsgBodyTLV::~AdvMsgBodyTLV() {
+    if (m_icqsubtype != NULL) delete m_icqsubtype;
+  }
+
+  ICQSubType *AdvMsgBodyTLV::grabICQSubType() {
+    ICQSubType *ret = m_icqsubtype;
+    m_icqsubtype = NULL;
+    return ret;
+  }
+
+  void AdvMsgBodyTLV::ParseValue(Buffer& b) {
+    unsigned short length, unknown;
+    unsigned char flags;
+    b >> length;
+
+    b.advance(27); // unknown
+
+    b.setEndianness(Buffer::LITTLE);
+    b >> m_seqnum
+      >> unknown
+      >> m_seqnum; // again
+
+    b.advance(12); // unknown - all zeroes
+
+    m_icqsubtype = ICQSubType::ParseICQSubType(b, true);
+
   }
 
   ICQDataTLV::ICQDataTLV() : m_icqsubtype(NULL) { }
@@ -388,267 +497,9 @@ namespace ICQ2000 {
     unsigned int uin;
     b >> uin;
 
-    m_icqsubtype = ICQSubType::ParseICQSubType(b);
+    m_icqsubtype = ICQSubType::ParseICQSubType(b, false);
     
   }
-
-  // ----------------- ICQSubtypes ----------------
-
-  ICQSubType* ICQSubType::ParseICQSubType(Buffer& b) {
-    unsigned short type;
-    b >> type;
-
-    ICQSubType *ist;
-    switch(type) {
-    case MSG_Type_Normal:
-      ist = new NormalICQSubType(false);
-      break;
-    case MSG_Type_URL:
-      ist = new URLICQSubType();
-      break;
-    case MSG_Type_SMS:
-      ist = new SMSICQSubType();
-      break;
-    case MSG_Type_Multi:
-      ist = new NormalICQSubType(true);
-      break;
-    default:
-      throw ParseException("Unknown ICQ Subtype");
-    }
-
-    ist->Parse(b);
-
-    return ist;
-  }
-
-  void ICQSubType::CRLFtoLF(string& s) {
-    int curr = 0, next;
-    while ( (next = s.find( "\r\n", curr )) != -1 ) {
-      s.replace( next, 2, "\n" );
-      curr = next + 1;
-    }
-  }
-
-  void ICQSubType::LFtoCRLF(string& s) {
-    int curr = 0, next;
-    while ( (next = s.find( "\n", curr )) != -1 ) {
-      s.replace( next, 1, "\r\n" );
-      curr = next + 2;
-    }
-  }
-
-  NormalICQSubType::NormalICQSubType(bool multi)
-    : m_multi(multi) { }
-
-  NormalICQSubType::NormalICQSubType(const string& msg, unsigned int uin)
-    : m_message(msg), m_destination(uin) { }
-
-  string NormalICQSubType::getMessage() const { return m_message; }
-  
-  bool NormalICQSubType::isMultiParty() const { return m_multi; }
-
-  void NormalICQSubType::setMessage(const string& msg) { m_message = msg; }
-
-  unsigned int NormalICQSubType::getDestination() const { return m_destination; }
-
-  void NormalICQSubType::setDestination(unsigned int uin) { m_destination = uin; }
-
-  void NormalICQSubType::Parse(Buffer& b) {
-    unsigned short length;
-    b >> length;
-    b.Unpack(m_message, length-1);
-    ICQSubType::CRLFtoLF(m_message);
-    b.advance(1); // null terminator
-  }
-
-  unsigned short NormalICQSubType::getType() const { return MSG_Type_Normal; }
-
-  URLICQSubType::URLICQSubType() { }
-
-  URLICQSubType::URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination)
-    : m_message(msg), m_url(url), m_source(source), m_destination(destination) { }
-
-  string URLICQSubType::getMessage() const { return m_message; }
-
-  string URLICQSubType::getURL() const { return m_url; }
-
-  unsigned int URLICQSubType::getSource() const { return m_source; }
-
-  unsigned int URLICQSubType::getDestination() const { return m_destination; }
-
-  void URLICQSubType::setMessage(const string& msg) { m_message = msg; }
-
-  void URLICQSubType::setURL(const string& url) { m_url = url; }
-
-  void URLICQSubType::setSource(unsigned int uin) { m_source = uin; }
-
-  void URLICQSubType::setDestination(unsigned int uin) { m_destination = uin; }
-
-  void URLICQSubType::Parse(Buffer& b) {
-    string text;
-    unsigned short length;
-    b >> length;
-    b.Unpack(text, length-1);
-    b.advance(1); // null terminator
-    
-    /*
-     * Format is [message] 0xfe [url]
-     */
-    int l = text.find( 0xfe );
-    if (l != -1) {
-      m_message = text.substr( 0, l );
-      m_url = text.substr( l+1 );
-    } else {
-      m_message = text;
-      m_url = "";
-    }
-    ICQSubType::CRLFtoLF(m_message);
-    ICQSubType::CRLFtoLF(m_url);
-
-  }
-
-  unsigned short URLICQSubType::getType() const { return MSG_Type_URL; }
-
-  SMSICQSubType::SMSICQSubType() { }
-
-  string SMSICQSubType::getMessage() const { return m_message; }
-
-  SMSICQSubType::Type SMSICQSubType::getSMSType() const { return m_type; }
-
-  void SMSICQSubType::Parse(Buffer& b) {
-    /*
-     * Here we go... this is a biggy
-     */
-
-    /* Next 21 bytes
-     * Unknown 
-     * 01 00 00 20 00 0e 28 f6 00 11 e7 d3 11 bc f3 00 04 ac 96 9d c2
-     */
-    b.advance(21);
-
-    /* Delivery status
-     *  0x0000 = SMS
-     *  0x0002 = SMS Receipt Success
-     *  0x0003 = SMS Receipt Failure
-     */
-    unsigned short del_stat;
-    b >> del_stat;
-    switch (del_stat) {
-    case 0x0000:
-      m_type = SMS;
-      break;
-    case 0x0002:
-      m_type = SMS_Receipt_Success;
-      break;
-    case 0x0003:
-      m_type = SMS_Receipt_Failure;
-      break;
-    default:
-      // todo
-      m_type = SMS;
-    }
-
-    /*
-     * A Tag for the type, can be:
-     * - "ICQSMS" NULL (?)
-     * - "IrCQ-Net Invitation"
-     * - ...
-     * 07 00 00 00 49 43 51 53 4d 53 00
-     * ---length-- ---string-----------
-     */
-    string tagstr;
-    b.UnpackUint32String(tagstr);
-
-    if (tagstr != string("ICQSMS")+'\0') {
-      ostringstream ostr;
-      ostr << "Unknown SNAC 0x0004 0x0007 ICQ SubType 0x001a tag string: " << tagstr;
-      throw ParseException(ostr.str());
-    }
-
-    /* Next 3 bytes
-     * Unknown
-     * 00 00 00
-     */
-    b.advance(3);
-
-
-    /* Length till end
-     * 4 bytes
-     */
-    unsigned int msglen;
-    b >> msglen;
-
-    string xmlstr;
-    b.UnpackUint32String(xmlstr);
-
-    string::iterator s = xmlstr.begin();
-    auto_ptr<XmlNode> top(XmlNode::parse(s, xmlstr.end()));
-
-    if (top.get() == NULL) throw ParseException("Couldn't parse xml data in Message SNAC");
-
-    if (m_type == SMS) {
-
-      // -------- Normal SMS Message ---------
-      if (top->getTag() != "sms_message") throw ParseException("No <sms_message> tag found in xml data");
-      XmlBranch *sms_message = dynamic_cast<XmlBranch*>(top.get());
-      if (sms_message == NULL || !sms_message->exists("text")) throw ParseException("No <text> tag found in xml data");
-      XmlLeaf *text = sms_message->getLeaf("text");
-      if (text == NULL) throw ParseException("<text> tag is not a leaf in xml data");
-      m_message = text->getValue();
-      
-      /**
-       * Extra fields
-       * senders_network is always blank from my mobile
-       */
-      XmlLeaf *source = sms_message->getLeaf("source");
-      if (source != NULL) m_source = source->getValue();
-
-      XmlLeaf *sender = sms_message->getLeaf("sender");
-      if (sender != NULL) m_sender = sender->getValue();
-
-      XmlLeaf *senders_network = sms_message->getLeaf("senders_network");
-      if (senders_network != NULL) m_senders_network = senders_network->getValue();
-
-      XmlLeaf *time = sms_message->getLeaf("time");
-      if (time != NULL) m_time = time->getValue();
-
-      // ----------------------------------
-
-    } else if (m_type == SMS_Receipt_Success) {
-
-      // -- SMS Delivery Receipt Success --
-      if (top->getTag() != "sms_delivery_receipt") throw ParseException("No <sms_delivery_receipt> tag found in xml data");
-      XmlBranch *sms_rcpt = dynamic_cast<XmlBranch*>(top.get());
-      if (sms_rcpt == NULL) throw ParseException("No tags found in <sms_delivery_receipt>");
-
-      XmlLeaf *message_id = sms_rcpt->getLeaf("message_id");
-      if (message_id != NULL) m_message_id = message_id->getValue();
-
-      XmlLeaf *destination = sms_rcpt->getLeaf("destination");
-      if (destination != NULL) m_destination = destination->getValue();
-
-      XmlLeaf *delivered = sms_rcpt->getLeaf("delivered");
-      m_delivered = false;
-      if (delivered != NULL && delivered->getValue() == "Yes") m_delivered = true;
-
-      XmlLeaf *text = sms_rcpt->getLeaf("text");
-      if (text != NULL) m_message = text->getValue();
-
-      XmlLeaf *submission_time = sms_rcpt->getLeaf("submition_time"); // can they not spell!
-      if (submission_time != NULL) m_submission_time = submission_time->getValue();
-
-      XmlLeaf *delivery_time = sms_rcpt->getLeaf("delivery_time");
-      if (delivery_time != NULL) m_delivery_time = delivery_time->getValue();
-
-      // ---------------------------------
-
-    } else if (m_type == SMS_Receipt_Failure) {
-      // todo
-    }
-      
-  }
-
-  unsigned short SMSICQSubType::getType() const { return MSG_Type_SMS; }
 
   // ----------------- TLV List -------------------
 

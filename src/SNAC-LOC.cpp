@@ -1,5 +1,5 @@
 /*
- * Exceptions
+ * SNAC - Location services
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -19,26 +19,18 @@
  *
  */
 
-#ifndef EXCEPTIONS_H
-#define EXCEPTIONS_H
+#include "SNAC-LOC.h"
 
-#include <string>
-#include <exception>
-
-using namespace std;
+#include "TLV.h"
 
 namespace ICQ2000 {
 
-  class ParseException : exception {
-   private:
-    string m_errortext;
-    
-   public:
-    ParseException(const string& text);
-    
-    const char* what() const;
-  };
-  
-}
+  // --------------- Location (Family 0x0002) SNACs ----------------
 
-#endif
+  void SetUserInfoSNAC::OutputBody(Buffer& b) const {
+    CapabilitiesTLV ctlv;
+    b << ctlv;
+  }
+
+
+}

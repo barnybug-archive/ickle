@@ -24,19 +24,27 @@
 
 #include <iostream>
 #include <string>
-#include <sstream>
-#include <algorithm>
+
+#include <config.h>
+
+#ifdef HAVE_EXT_HASH_MAP
+# include <ext/hash_map>
+#elif HAVE_HASH_MAP
+# include <hash_map>
+#else
+# error "hash_map not defined"
+#endif
 
 #include <sigc++/signal_system.h>
 
 #include "buffer.h"
 #include "socket.h"
-#include "TLV.h"
 #include "SNAC.h"
 #include "events.h"
 #include "constants.h"
 #include "Contact.h"
 #include "ContactList.h"
+#include "DirectClient.h"
 #include "custom_marshal.h"
 
 using namespace SigC;
@@ -53,7 +61,7 @@ namespace ICQ2000 {
   const unsigned short STATUS_FLAG_FREEFORCHAT = 0x0020;
   const unsigned short STATUS_FLAG_INVISIBLE = 0x0100;
 
-  class Client {
+  class Client : public SigC::Object {
 
    private:
     enum State { NOT_CONNECTED,
@@ -61,7 +69,9 @@ namespace ICQ2000 {
 		 AUTH_AWAITING_AUTH_REPLY,
 		 BOS_AWAITING_CONN_ACK,
 		 BOS_AWAITING_LOGIN_REPLY,
-		 BOS_LOGGED_IN
+		 BOS_LOGGED_IN,
+		 UIN_AWAITING_CONN_ACK,
+		 UIN_AWAITING_UIN_REPLY
     } m_state;
 
     unsigned int m_uin;
@@ -82,41 +92,61 @@ namespace ICQ2000 {
     unsigned char *m_cookie_data;
     unsigned short m_cookie_length;
 
+    unsigned int m_ext_ip;
     TCPSocket m_serverSocket;
+    TCPServer m_listenServer;
+    hash_map<int, DirectClient*> m_fdmap;
+    hash_map<unsigned int, DirectClient*> m_uinmap;
 
     Buffer m_recv;
     
     void Init();
     unsigned short NextSeqNum();
 
-    void ConnectAuthorizer();
+    void ConnectAuthorizer(State state);
     void DisconnectAuthorizer();
     void ConnectBOS();
     void DisconnectBOS();
     void DisconnectInt();
 
+    void DisconnectDirectConns();
+    void DisconnectDirectConn(int fd);
+
     // ------------------ Signal dispatchers -----------------
     void SignalConnect();
     void SignalDisconnect(DisconnectedEvent::Reason r);
     void SignalMessage(MessageSNAC *snac);
+    void SignalMessageEvent_cb(MessageEvent *ev);
     void SignalSrvResponse(SrvResponseSNAC *snac);
     void SignalUINResponse(UINResponseSNAC *snac);
+    void SignalUINRequestError();
+    void SignalRateInfoChange(RateInfoChangeSNAC *snac);
     void SignalLog(LogEvent::LogType type, const string& msg);
+    void SignalLog_cb(LogEvent *ev);
     void SignalUserOnline(BuddyOnlineSNAC *snac);
     void SignalUserOffline(BuddyOfflineSNAC *snac);
     void SignalUserAdded(Contact *c);
     void SignalUserRemoved(Contact *c);
+    void SignalAddSocket(int fd, AddSocketHandleEvent::Mode m);
+    void SignalRemoveSocket(int fd);
     // ------------------ Outgoing packets -------------------
 
     void SendAuthReq();
     void SendNewUINReq();
     void SendCookie();
     void SendCapabilities();
+    void SendRateInfoRequest();
+    void SendRateInfoAck();
+    void SendPersonalInfoRequest();
+    void SendAddICBMParameter();
+    void SendSetUserInfo();
     void SendLogin();
     void SendOfflineMessagesRequest();
     void SendOfflineMessagesACK();
 
     void Send(Buffer& b);
+
+    void HandleUserInfoSNAC(UserInfoSNAC *snac);
 
     unsigned int FLAPHeader(Buffer& b, unsigned char channel);
     void FLAPFooter(Buffer& b, unsigned int d);
@@ -124,11 +154,10 @@ namespace ICQ2000 {
     // ------------------ Incoming packets -------------------
 
     /**
-     *  non-blocking receives a waiting packet
-     *  and parses and handles it
-     *  returns: whether a packet was handled
+     *  non-blocking receives all waiting packets from server
+     *  and parses and handles them
      */
-    bool Recv();
+    void RecvFromServer();
 
     void Parse();
     void ParseCh1(Buffer& b, unsigned short seq_num);
@@ -166,6 +195,7 @@ namespace ICQ2000 {
     Signal1<bool,MessageEvent*,StopOnTrueMarshal> messaged;
     Signal1<void,ContactListEvent*> contactlist;
     Signal1<void,NewUINEvent*> newuin;
+    Signal1<void,RateInfoChangeEvent*> rate;
     Signal1<void,LogEvent*> logger;
     Signal1<void,SocketEvent*> socket;
     // -------------
@@ -200,10 +230,15 @@ namespace ICQ2000 {
     void setServerPort(const unsigned short& port) { m_authorizerPort = port; }
     unsigned short getServerPort() { return m_authorizerPort; }
 
+    // (deprecated - clients should know which socket to
+    //  poll and call socket_cb instead)
     void Poll();
+    void socket_cb(int fd, SocketEvent::Mode m);
 
     // might be useful for select calls within client
     // or library, eg. gtkmm
+    // (deprecated - clients should do Client::socket.connect() and listen
+    //  for socket events now)
     int getSocketHandle() { return m_serverSocket.getSocketHandle(); }
 
     /* The client should be free to call Connect()
@@ -211,7 +246,9 @@ namespace ICQ2000 {
      * it's ignored, if we aren't and are not already
      * connecting it should start the proceedings
      * Returns the file descriptor for the socket,
-     * so the client can select() on it
+     * so the client can select() on it - not this is
+     * deprecated - a client should listen for socket
+     * events.
      */
     int Connect();
     int RegisterUIN();

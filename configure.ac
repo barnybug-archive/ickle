@@ -8,7 +8,6 @@ AM_CONFIG_HEADER(config.h)
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
-AC_PROG_CC
 AC_PROG_CPP
 
 AC_PROG_INSTALL
@@ -20,7 +19,9 @@ AC_PROG_LIBTOOL
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h getopt.h],, AC_MSG_ERROR([Required header not found]) )
+AC_CHECK_HEADERS([errno.h fcntl.h netdb.h netinet/in.h stdlib.h string.h sys/socket.h sys/time.h sys/wait.h sys/types.h unistd.h signal.h],, AC_MSG_ERROR([Required header not found]) )
+# doesn't matter if getopt is missing it's a gnu thing
+AC_CHECK_HEADERS([getopt.h],,)
 
 dnl Checks for library functions.
 AC_CHECK_LIB(xnet,inet_addr)
@@ -77,7 +78,10 @@ AC_HEADER_TIME
 AC_FUNC_MKTIME
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
+AC_FUNC_FORK
+AC_FUNC_SETVBUF_REVERSED
+AC_HEADER_SYS_WAIT
+AC_CHECK_FUNCS([dup2 mkdir select socket strerror],,AC_MSG_ERROR([You do not have one of the standard C functions required - check you have libc installed properly]))
 
 AC_CONFIG_FILES([Makefile src/Makefile ickle/Makefile examples/Makefile])
 AC_OUTPUT

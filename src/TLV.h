@@ -43,20 +43,12 @@
 #include "exceptions.h"
 #include "buffer.h"
 #include "constants.h"
+#include "ICQ.h"
 
 using namespace std;
 
 namespace ICQ2000 {
  
-  // ------------- Message Types ----------------------
-
-  const unsigned short MSG_Type_Normal  = 0x0001;
-  const unsigned short MSG_Type_URL     = 0x0004;
-  const unsigned short MSG_Type_AuthReq = 0x0006;
-  const unsigned short MSG_Type_SMS     = 0x001a;
-
-  const unsigned short MSG_Type_Multi   = 0x8001;
-
   // ------------- TLV numerical constants ------------
 
   /*
@@ -73,7 +65,9 @@ namespace ICQ2000 {
 		       TLV_ParseMode_Channel02,
 		       TLV_ParseMode_Channel04,
 		       TLV_ParseMode_MessageBlock,
-		       TLV_ParseMode_InMessageData
+		       TLV_ParseMode_AdvMsgBlock,
+		       TLV_ParseMode_InMessageData,
+		       TLV_ParseMode_InAdvMsgData
   };
 
   // Channel 0x0001
@@ -96,7 +90,7 @@ namespace ICQ2000 {
   const unsigned short TLV_SignupDate = 0x0002;
   const unsigned short TLV_SignonDate = 0x0003;
   const unsigned short TLV_Port = 0x0004; // ??
-  const unsigned short TLV_Encoded = 0x0005;
+  const unsigned short TLV_Capabilities = 0x0005;
   const unsigned short TLV_Status = 0x0006;
   const unsigned short TLV_Unknown = 0x0008; // ??
   const unsigned short TLV_IPAddress = 0x000a;
@@ -123,9 +117,16 @@ namespace ICQ2000 {
   const unsigned short TLV_MessageIsAutoResponse = 0x0004;
   const unsigned short TLV_ICQData = 0x0005;
 
+  // Advanced Message Block
+  const unsigned short TLV_AdvMsgData = 0x0005;
+
   // In Message Data
   const unsigned short TLV_Unknown0501 = 0x0501;
   const unsigned short TLV_MessageText = 0x0101;
+
+  // In Advanced Message Data
+  const unsigned short TLV_AdvMsgBody = 0x2711;
+  // loads more - but we don't parse them yet
 
   // ------------- abstract TLV classes ---------------
 
@@ -378,6 +379,12 @@ namespace ICQ2000 {
     unsigned short Type() const { return TLV_SignonDate; }
   };
 
+  class UnknownTLV : public ShortTLV {
+   public:
+    UnknownTLV() : ShortTLV(0) { }
+    unsigned short Type() const { return TLV_Unknown; }
+  };
+
   class IPAddressTLV : public LongTLV {
    public:
     IPAddressTLV() { }
@@ -385,9 +392,18 @@ namespace ICQ2000 {
   };
 
   class PortTLV : public ShortTLV {
-    public:
+   public:
     PortTLV() { }
     unsigned short Type() const { return TLV_Port; }
+  };
+
+  class CapabilitiesTLV : public OutTLV {
+   public:
+    CapabilitiesTLV() { }
+    unsigned short Type() const { return TLV_Capabilities; }
+    unsigned short Length() const { return 32; }
+
+    void OutputValue(Buffer& b) const;
   };
 
   class RedirectTLV : public InTLV {
@@ -435,6 +451,7 @@ namespace ICQ2000 {
     
    public:
     LANDetailsTLV();
+    LANDetailsTLV(unsigned int ip, unsigned short port);
 
     unsigned short Length() const { return 0; } // varies
     unsigned short Type() const { return TLV_LANDetails; }
@@ -483,7 +500,7 @@ namespace ICQ2000 {
     MessageTextTLV mttlv;
 
    public:
-    MessageDataTLV() { }
+    MessageDataTLV();
 
     string getMessage() { return mttlv.getMessage(); }
     unsigned short getFlag1() { return mttlv.getFlag1(); }
@@ -494,112 +511,40 @@ namespace ICQ2000 {
     unsigned short Length() const { return 0; }
   };
 
-
-  /* ICQSubtype classes
-   * An attempt at clearing up the complete
-   * mess ICQ have made of bundling everything
-   * into one TLV
-   */
-
-  class ICQSubType {
-   public:
-    virtual ~ICQSubType() { }
-
-    static ICQSubType* ParseICQSubType(Buffer& b);
-
-    virtual void Parse(Buffer& b) = 0;
-    virtual unsigned short getType() const = 0;
-
-    static void CRLFtoLF(string& s);
-    static void LFtoCRLF(string& s);
-  };
-
-  class NormalICQSubType : public ICQSubType {
-   private:
-    string m_message;
-    unsigned int m_destination;
-    bool m_multi;
+  class AdvMsgBodyTLV : public InTLV {
+   protected:
+    unsigned short m_seqnum;
+    ICQSubType *m_icqsubtype;
     
    public:
-    NormalICQSubType(bool multi);
-    NormalICQSubType(const string& msg, unsigned int destination);
+    AdvMsgBodyTLV();
+    ~AdvMsgBodyTLV();
 
-    string getMessage() const;
-    bool isMultiParty() const;
-    void setMessage(const string& message);
-    unsigned int getDestination() const;
-    void setDestination(unsigned int uin);
-    
-    void Parse(Buffer& b);
-    unsigned short getType() const;
+    unsigned short getSeqNum() const { return m_seqnum; }
+    ICQSubType* grabICQSubType();
+
+    void ParseValue(Buffer& b);
+    unsigned short Type() const { return TLV_AdvMsgBody; }
+    unsigned short Length() const { return 0; }
   };
 
-  class URLICQSubType : public ICQSubType {
-   private:
-    string m_message;
-    string m_url;
-    unsigned int m_destination, m_source;
-    
-   public:
-    URLICQSubType();
-    URLICQSubType(const string& msg, const string& url, unsigned int source, unsigned int destination);
+  class AdvMsgDataTLV : public InTLV {
+    unsigned short m_seqnum;
+    ICQSubType *m_icqsubtype;
 
-    string getMessage() const;
-    void setMessage(const string& msg);
-    string getURL() const;
-    void setURL(const string& url);
-    unsigned int getSource() const;
-    void setSource(unsigned int uin);
-    unsigned int getDestination() const;
-    void setDestination(unsigned int uin);
-    
-    void Parse(Buffer& b);
-    unsigned short getType() const;
+   public:
+    AdvMsgDataTLV();
+    ~AdvMsgDataTLV();
+
+    unsigned short getSeqNum() const { return m_seqnum; }
+    ICQSubType* grabICQSubType();
+
+    void ParseValue(Buffer& b);
+    unsigned short Type() const { return TLV_AdvMsgData; }
+    unsigned short Length() const { return 0; }
   };
 
-  class SMSICQSubType : public ICQSubType {
-   public:
-    enum Type {
-      SMS,
-      SMS_Receipt_Success,
-      SMS_Receipt_Failure
-    };
 
-   private:
-    // SMS fields
-    string m_source, m_sender, m_senders_network, m_time;
-
-    // SMS Receipt fields
-    string m_message_id, m_destination, m_submission_time, m_delivery_time;
-    bool m_delivered;
-
-    string m_message;
-    Type m_type;
-
-   public:
-    SMSICQSubType();
-
-    string getMessage() const;
-    Type getSMSType() const;
-
-    void Parse(Buffer& b);
-    unsigned short getType() const;
-
-    // -- SMS fields --
-    string getSource() const { return m_source; }
-    string getSender() const { return m_sender; }
-    string getSenders_network() const { return m_senders_network; }
-    string getTime() const { return m_time; }
-
-    // -- SMS Receipt fields --
-    string getMessageId() const { return m_message_id; }
-    string getDestination() const { return m_destination; }
-    string getSubmissionTime() const { return m_submission_time; }
-    string getDeliveryTime() const { return m_delivery_time; }
-    bool delivered() const { return m_delivered; }
-
-  };
-  
   // --------------- ICQDataTLV ------------------
 
   class ICQDataTLV : public InTLV {

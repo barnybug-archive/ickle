@@ -51,8 +51,19 @@ void Buffer::Pack(const unsigned char *d, int size) {
   copy(d, d+size, back_inserter(data));
 }
 
+void Buffer::PackUint16StringNull(const string& s) {
+  (*this) << (unsigned short)(s.size()+1);
+  Pack(s);
+  (*this) << (unsigned char)0x00;
+}
+
 void Buffer::Pack(const string& s) {
   copy(s.begin(), s.end(), back_inserter(data));
+}
+
+unsigned char Buffer::UnpackChar() {
+  if (out_pos + 1 > data.size()) return 0;
+  else return data[out_pos++];
 }
 
 void Buffer::UnpackUint32String(string& s) {

@@ -42,8 +42,14 @@ namespace ICQ2000 {
 
   int SocketEvent::getSocketHandle() const { return m_fd; }
 
-  AddSocketHandleEvent::AddSocketHandleEvent(int fd)
-    : SocketEvent(fd) { }
+  AddSocketHandleEvent::AddSocketHandleEvent(int fd, Mode m)
+    : SocketEvent(fd), m_mode(m) { }
+
+  bool AddSocketHandleEvent::isRead() const { return m_mode & READ; };
+  bool AddSocketHandleEvent::isWrite() const { return m_mode & WRITE; };
+  bool AddSocketHandleEvent::isException() const { return m_mode & EXCEPTION; };
+
+  SocketEvent::Mode AddSocketHandleEvent::getMode() const { return m_mode; }
 
   RemoveSocketHandleEvent::RemoveSocketHandleEvent(int fd)
     : SocketEvent(fd) { }
@@ -114,15 +120,22 @@ namespace ICQ2000 {
   // ---------------- Normal Message ---------------------
 
   NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg)
-    : MessageEvent(c), m_message(msg), m_offline(false) { }
+    : MessageEvent(c), m_message(msg), m_offline(false), m_direct(false),
+      m_foreground(0x00000000), m_background(0x00ffffff) { }
 
   NormalMessageEvent::NormalMessageEvent(Contact* c, const string& msg, bool multi)
-    : MessageEvent(c), m_message(msg), m_multi(multi), m_offline(false) { }
+    : MessageEvent(c), m_message(msg), m_multi(multi), m_offline(false), m_direct(false),
+      m_foreground(0x00000000), m_background(0x00ffffff) { }
 
   NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, time_t t, bool multi)
-    : MessageEvent(c), m_message(msg), m_offline(true), m_multi(multi) {
+    : MessageEvent(c), m_message(msg), m_offline(true), m_multi(multi), m_direct(false),
+      m_foreground(0x00000000), m_background(0x00ffffff) {
     m_time = t;
   }
+
+  NormalMessageEvent::NormalMessageEvent(Contact *c, const string& msg, unsigned int fg, unsigned int bg)
+    : MessageEvent(c), m_message(msg), m_offline(false), m_multi(false) /* todo */,
+      m_direct(true), m_foreground(fg), m_background(bg) { }
 
   MessageEvent::MessageType NormalMessageEvent::getType() const { return MessageEvent::Normal; }
   
@@ -133,6 +146,16 @@ namespace ICQ2000 {
   bool NormalMessageEvent::isOfflineMessage() const { return m_offline; }
 
   bool NormalMessageEvent::isMultiParty() const { return m_multi; }
+
+  bool NormalMessageEvent::isDirect() const { return m_direct; }
+
+  unsigned int NormalMessageEvent::getForeground() const { return m_foreground; }
+
+  unsigned int NormalMessageEvent::getBackground() const { return m_background; }
+
+  void NormalMessageEvent::setForeground(unsigned int f) { m_foreground = f; }
+
+  void NormalMessageEvent::setBackground(unsigned int b) { m_background = b; }
 
   // ---------------- URL Message ---------------------
 
@@ -210,9 +233,26 @@ namespace ICQ2000 {
 
   // ---------------- New UIN ----------------------------
 
-  NewUINEvent::NewUINEvent(unsigned int uin) : m_uin(uin) { }
+  NewUINEvent::NewUINEvent(unsigned int uin, bool success) 
+    : m_uin(uin), m_success(success) { }
 
   unsigned int NewUINEvent::getUIN() const { return m_uin; }
+  bool NewUINEvent::isSuccess() const { return m_success; }
 
 
+  // ---------------- Rate Info Change -------------------
+
+  RateInfoChangeEvent::RateInfoChangeEvent(unsigned short code, 
+                                           unsigned short rateclass,
+                                           unsigned int windowsize,
+                                           unsigned int clear,
+                                           unsigned int alert,
+                                           unsigned int limit,
+                                           unsigned int disconnect,
+                                           unsigned int currentavg,
+                                           unsigned int maxavg) 
+    : m_code(code), m_rateclass(rateclass), m_windowsize(windowsize),
+      m_clear(clear), m_alert(alert), m_limit(limit), m_disconnect(disconnect), 
+      m_currentavg(currentavg), m_maxavg(maxavg) { }
+    
 }

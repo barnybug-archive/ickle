@@ -21,6 +21,12 @@
 
 #include "Client.h"
 
+#include <sstream>
+#include <algorithm>
+
+#include "TLV.h"
+#include "UserInfoBlock.h"
+
 namespace ICQ2000 {
 
   Client::Client() {
@@ -34,6 +40,7 @@ namespace ICQ2000 {
   Client::~Client() {
     if (m_cookie_data)
       delete [] m_cookie_data;
+    Disconnect();
   }
 
   void Client::Init() {
@@ -41,19 +48,21 @@ namespace ICQ2000 {
     m_authorizerPort = 5190;
 
     m_state = NOT_CONNECTED;
-
+    
     m_cookie_data = NULL;
     m_cookie_length = 0;
 
-    m_status = STATUS_ONLINE;
+    m_status = STATUS_OFFLINE;
     m_invisible = false;
+
+    m_ext_ip = 0;
   }
 
   unsigned short Client::NextSeqNum() {
     return m_client_seq_num++;
   }
 
-  void Client::ConnectAuthorizer() {
+  void Client::ConnectAuthorizer(State state) {
     SignalLog(LogEvent::INFO, "Client connecting\n");
     try {
       /*
@@ -65,6 +74,7 @@ namespace ICQ2000 {
       m_serverSocket.setRemoteHost(m_authorizerHostname.c_str());
       m_serverSocket.setRemotePort(m_authorizerPort);
       m_serverSocket.Connect();
+      SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::READ );
     } catch(SocketException e) {
       // signal connection failure
       ostringstream ostr;
@@ -79,10 +89,11 @@ namespace ICQ2000 {
     srand(time(0));
     m_client_seq_num = (unsigned short)(0xFFFF*(rand()/(RAND_MAX+1.0)));
 
-    m_state = AUTH_AWAITING_CONN_ACK;
+    m_state = state;
   }
 
   void Client::DisconnectAuthorizer() {
+    SignalRemoveSocket( m_serverSocket.getSocketHandle() );
     m_serverSocket.Disconnect();
     m_state = NOT_CONNECTED;
   }
@@ -92,6 +103,7 @@ namespace ICQ2000 {
       m_serverSocket.setRemoteHost(m_bosHostname.c_str());
       m_serverSocket.setRemotePort(m_bosPort);
       m_serverSocket.Connect();
+      SignalAddSocket( m_serverSocket.getSocketHandle(), SocketEvent::READ );
     } catch(SocketException e) {
       ostringstream ostr;
       ostr << "Failed to connect to BOS server: " << e.what() << endl;
@@ -104,8 +116,27 @@ namespace ICQ2000 {
   }
 
   void Client::DisconnectBOS() {
+    SignalRemoveSocket( m_serverSocket.getSocketHandle() );
     m_serverSocket.Disconnect();
+    SignalRemoveSocket( m_listenServer.getSocketHandle() );
+    m_listenServer.Disconnect();
+    DisconnectDirectConns();
+
     m_state = NOT_CONNECTED;
+  }
+
+  void Client::DisconnectDirectConns() {
+    while ( !m_fdmap.empty() ) {
+      delete (*m_fdmap.begin()).second;
+      SignalRemoveSocket( (*m_fdmap.begin()).first );
+      m_fdmap.erase( m_fdmap.begin() );
+    }
+  }
+
+  void Client::DisconnectDirectConn(int fd) {
+    SignalRemoveSocket(fd);
+    delete m_fdmap[fd];
+    m_fdmap.erase(fd);
   }
 
   // ------------------ Signal Dispatchers -----------------
@@ -132,24 +163,36 @@ namespace ICQ2000 {
     }
   }
 
+  void Client::SignalAddSocket(int fd, SocketEvent::Mode m) {
+    AddSocketHandleEvent ev( fd, m );
+    socket.emit(&ev);
+  }
+
+  void Client::SignalRemoveSocket(int fd) {
+    RemoveSocketHandleEvent ev(fd);
+    socket.emit(&ev);
+  }
+
   void Client::SignalMessage(MessageSNAC *snac) {
     Contact *contact;
     MessageEvent *e = NULL;
     ICQSubType *st = snac->getICQSubType();
+    if (st == NULL) return;
 
     if (st->getType() == MSG_Type_Normal) {
       NormalICQSubType *nst = static_cast<NormalICQSubType*>(st);
       
-      UserInfoBlock userinfo = snac->getUserInfo();
+      const UserInfoBlock &userinfo = snac->getUserInfo();
       unsigned int uin = userinfo.getUIN();
       contact = lookupICQ(uin);
       e = new NormalMessageEvent(contact,
 				 nst->getMessage(), nst->isMultiParty() );
+      
 
     } else if (st->getType() == MSG_Type_URL) {
       URLICQSubType *ust = static_cast<URLICQSubType*>(st);
       
-      UserInfoBlock userinfo = snac->getUserInfo();
+      const UserInfoBlock &userinfo = snac->getUserInfo();
       unsigned int uin = userinfo.getUIN();
       contact = lookupICQ(uin);
       e = new URLMessageEvent(contact,
@@ -184,6 +227,12 @@ namespace ICQ2000 {
       if (messaged.emit(e)) contact->erasePendingMessage(e);
     }
 
+  }
+
+  void Client::SignalMessageEvent_cb(MessageEvent *ev) {
+    Contact *contact = ev->getContact();
+    contact->addPendingMessage(ev);
+    if (messaged.emit(ev)) contact->erasePendingMessage(ev);
   }
 
   void Client::SignalSrvResponse(SrvResponseSNAC *snac) {
@@ -261,14 +310,32 @@ namespace ICQ2000 {
   }
 
   void Client::SignalUINResponse(UINResponseSNAC *snac) {
-      unsigned int uin = snac->getUIN();
-      NewUINEvent e(uin);
-      newuin.emit(&e);
+    unsigned int uin = snac->getUIN();
+    NewUINEvent e(uin);
+    newuin.emit(&e);
+  }
+
+  void Client::SignalUINRequestError() {
+    NewUINEvent e(0,false);
+    newuin.emit(&e);
+  }
+  
+  void Client::SignalRateInfoChange(RateInfoChangeSNAC *snac) {
+    RateInfoChangeEvent e(snac->getCode(), snac->getRateClass(),
+			  snac->getWindowSize(), snac->getClear(),
+			  snac->getAlert(), snac->getLimit(),
+			  snac->getDisconnect(), snac->getCurrentAvg(),
+			  snac->getMaxAvg());
+    rate.emit(&e);
   }
 
   void Client::SignalLog(LogEvent::LogType type, const string& msg) {
     LogEvent ev(type,msg);
     logger.emit(&ev);
+  }
+  
+  void Client::SignalLog_cb(LogEvent *ev) {
+    logger.emit(ev);
   }
 
   void Client::SignalUserOnline(BuddyOnlineSNAC *snac) {
@@ -277,6 +344,11 @@ namespace ICQ2000 {
       Contact& c = m_contact_list[userinfo.getUIN()];
       c.setStatus( MapICQStatusToStatus(userinfo.getStatus()) );
       c.setInvisible( MapICQStatusToInvisible(userinfo.getStatus()) );
+      c.setExtIP( userinfo.getExtIP() );
+      c.setLanIP( userinfo.getLanIP() );
+      c.setExtPort( userinfo.getExtPort() );
+      c.setLanPort( userinfo.getLanPort() );
+      c.setTCPVersion( userinfo.getTCPVersion() );
       StatusChangeEvent ev(&c, c.getStatus());
       contactlist.emit(&ev);
     } else {
@@ -336,6 +408,7 @@ namespace ICQ2000 {
       << CountryCodeTLV("us");
 
     FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Authorisation Request\n");
     Send(b);
   }
 
@@ -352,6 +425,7 @@ namespace ICQ2000 {
     UINRequestSNAC sn(m_password);
     b << sn;
     FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending New UIN Request\n");
     Send(b);
   }
     
@@ -364,6 +438,7 @@ namespace ICQ2000 {
     b << CookieTLV(m_cookie_data, m_cookie_length);
 
     FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Login Cookie\n");
     Send(b);
   }
     
@@ -373,12 +448,71 @@ namespace ICQ2000 {
     CapabilitiesSNAC cs;
     b << cs;
     FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Capabilities\n");
+    Send(b);
+  }
+
+  void Client::SendSetUserInfo() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x02);
+    SetUserInfoSNAC cs;
+    b << cs;
+    FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Set User Info\n");
+    Send(b);
+  }
+
+  void Client::SendRateInfoRequest() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x02);
+    RequestRateInfoSNAC rs;
+    b << rs;
+    FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Rate Info Request\n");
+    Send(b);
+  }
+  
+  void Client::SendRateInfoAck() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x02);
+    RateInfoAckSNAC rs;
+    b << rs;
+    FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Rate Info Ack\n");
+    Send(b);
+  }
+
+  void Client::SendPersonalInfoRequest() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x02);
+    PersonalInfoRequestSNAC us;
+    b << us;
+    FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Personal Info Request\n");
+    Send(b);
+  }
+
+  void Client::SendAddICBMParameter() {
+    Buffer b;
+    unsigned int d = FLAPHeader(b,0x02);
+    MsgAddICBMParameterSNAC ms;
+    b << ms;
+    FLAPFooter(b,d);
+    SignalLog(LogEvent::INFO, "Sending Add ICBM Parameter\n");
     Send(b);
   }
 
   void Client::SendLogin() {
     Buffer b;
     unsigned int d;
+
+    // startup listening server at this point, so we
+    // know the listening port and ip
+    m_listenServer.StartServer();
+    SignalAddSocket( m_listenServer.getSocketHandle(), SocketEvent::READ );
+    ostringstream ostr;
+    ostr << "Server listening on " << IPtoString( m_serverSocket.getLocalIP() ) << ":" << m_listenServer.getPort() << endl;
+    SignalLog(LogEvent::INFO, ostr.str());
 
     if (!m_contact_list.empty()) {
       d = FLAPHeader(b,0x02);
@@ -389,19 +523,22 @@ namespace ICQ2000 {
 
     d = FLAPHeader(b,0x02);
     SetStatusSNAC sss(MapStatusToICQStatus(m_status, m_invisible));
+    sss.setIP( m_serverSocket.getLocalIP() );
+    sss.setPort( m_listenServer.getPort() );
     b << sss;
     FLAPFooter(b,d);
 
-    d = FLAPHeader(b,0x02);
-    SetIdleSNAC sis;
-    b << sis;
-    FLAPFooter(b,d);
+    //    d = FLAPHeader(b,0x02);
+    //    SetIdleSNAC sis;
+    //    b << sis;
+    //    FLAPFooter(b,d);
 
     d = FLAPHeader(b,0x02);
     ClientReadySNAC crs;
     b << crs;
     FLAPFooter(b,d);
 
+    SignalLog(LogEvent::INFO, "Sending Contact List, Status and Client Ready\n");
     Send(b);
   }
 
@@ -414,6 +551,7 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
+    SignalLog(LogEvent::INFO, "Sending Offline Messages Request\n");
     Send(b);
   }
 
@@ -427,13 +565,14 @@ namespace ICQ2000 {
     b << ssnac;
     FLAPFooter(b,d);
 
+    SignalLog(LogEvent::INFO, "Sending Offline Messages ACK\n");
     Send(b);
   }
 
   void Client::Send(Buffer& b) {
     try {
       ostringstream ostr;
-      ostr << "Sending packet" << endl << b << endl;
+      ostr << "Sending packet to Server" << endl << b << endl;
       SignalLog(LogEvent::PACKET, ostr.str());
       m_serverSocket.Send(b);
     } catch(SocketException e) {
@@ -446,19 +585,15 @@ namespace ICQ2000 {
 
   // ------------------ Incoming packets -------------------
 
-  bool Client::Recv() {
-    if (!m_serverSocket.connected()) return false;
+  void Client::RecvFromServer() {
+    if (!m_serverSocket.connected()) return;
 
     try {
-      Buffer b;
-      if (m_serverSocket.RecvNonBlocking(m_recv)) {
+      while ( m_serverSocket.RecvNonBlocking(m_recv) ) {
 	ostringstream ostr;
-	ostr << "Received packet" << endl << m_recv << endl;
+	ostr << "Received packet from Server" << endl << m_recv << endl;
 	SignalLog(LogEvent::PACKET, ostr.str());
 	Parse();
-	return true;
-      } else {
-	return false;
       }
     } catch(SocketException e) {
       ostringstream ostr;
@@ -466,9 +601,6 @@ namespace ICQ2000 {
       SignalLog(LogEvent::WARN, ostr.str());
       Disconnect();
     }
-
-    return false;
-
   }
 
   void Client::Parse() {
@@ -551,20 +683,22 @@ namespace ICQ2000 {
 
   void Client::ParseCh1(Buffer& b, unsigned short seq_num) {
 
-    if (b.remains() == 4 && m_state == AUTH_AWAITING_CONN_ACK) {
+    if (b.remains() == 4 && (m_state == AUTH_AWAITING_CONN_ACK || 
+			     m_state == UIN_AWAITING_CONN_ACK)) {
 
       // Connection Acknowledge - first packet from server on connection
       unsigned int unknown;
       b >> unknown; // always 0x0001
 
-      if (m_uin) {
+      if (m_state == AUTH_AWAITING_CONN_ACK) {
 	SendAuthReq();
 	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending Authorisation request\n");
-      } else {
+	m_state = AUTH_AWAITING_AUTH_REPLY;
+      } else if (m_state == UIN_AWAITING_CONN_ACK) {
 	SendNewUINReq();
 	SignalLog(LogEvent::INFO, "Connection Acknowledge from server, sending New UIN request\n");
+	m_state = UIN_AWAITING_UIN_REPLY;
       }
-      m_state = AUTH_AWAITING_AUTH_REPLY;
 
     } else if (b.remains() == 4 && m_state == BOS_AWAITING_CONN_ACK) {
 
@@ -584,7 +718,7 @@ namespace ICQ2000 {
   void Client::ParseCh2(Buffer& b, unsigned short seq_num) {
     InSNAC *snac;
     try {
-      snac = InSNAC::ParseSNAC(b);
+      snac = ParseSNAC(b);
     } catch(ParseException e) {
       ostringstream ostr;
       ostr << "Problem parsing SNAC: " << e.what() << endl;
@@ -599,8 +733,18 @@ namespace ICQ2000 {
       case SNAC_GEN_ServerReady:
 	SendCapabilities();
 	break;
-      case SNAC_GEN_CapAck:
+      case SNAC_GEN_RateInfo:
+	SendRateInfoAck();
+	SendPersonalInfoRequest();
+	SendAddICBMParameter();
+	SendSetUserInfo();
 	SendLogin();
+	break;
+      case SNAC_GEN_CapAck:
+	SendRateInfoRequest();
+	break;
+      case SNAC_GEN_UserInfo:
+	HandleUserInfoSNAC(static_cast<UserInfoSNAC*>(snac));
 	break;
       case SNAC_GEN_MOTD:
 	SignalConnect();
@@ -609,23 +753,26 @@ namespace ICQ2000 {
 	 * are online proper
 	 */
 	break;
+      case SNAC_GEN_RateInfoChange:
+	SignalRateInfoChange(static_cast<RateInfoChangeSNAC*>(snac));
+	break;
       }
       break;
 
     case SNAC_FAM_BUD:
       switch(snac->Subtype()) {
       case SNAC_BUD_Online:
-	SignalUserOnline((BuddyOnlineSNAC*)snac);
+	SignalUserOnline(static_cast<BuddyOnlineSNAC*>(snac));
 	break;
       case SNAC_BUD_Offline:
-	SignalUserOffline((BuddyOfflineSNAC*)snac);
+	SignalUserOffline(static_cast<BuddyOfflineSNAC*>(snac));
       }
       break;
 
     case SNAC_FAM_MSG:
       switch(snac->Subtype()) {
       case SNAC_MSG_Message:
-	SignalMessage((MessageSNAC*)snac);
+	SignalMessage(static_cast<MessageSNAC*>(snac));
 	break;
       }
       break;
@@ -633,14 +780,17 @@ namespace ICQ2000 {
     case SNAC_FAM_SRV:
       switch(snac->Subtype()) {
       case SNAC_SRV_Response:
-	SignalSrvResponse((SrvResponseSNAC*)snac);
+	SignalSrvResponse(static_cast<SrvResponseSNAC*>(snac));
 	break;
       }
       break;
     case SNAC_FAM_UIN:
       switch(snac->Subtype()) {
       case SNAC_UIN_Response:
-	SignalUINResponse((UINResponseSNAC*)snac);
+	SignalUINResponse(static_cast<UINResponseSNAC*>(snac));
+	break;
+      case SNAC_UIN_RequestError:
+	SignalUINRequestError();
 	break;
       }
       break;
@@ -664,7 +814,7 @@ namespace ICQ2000 {
   }
 
   void Client::ParseCh4(Buffer& b, unsigned short seq_num) {
-    if (m_state == AUTH_AWAITING_AUTH_REPLY) {
+    if (m_state == AUTH_AWAITING_AUTH_REPLY || m_state == UIN_AWAITING_UIN_REPLY) {
       // An Authorisation Reply / Error
       TLVList tlvlist;
       tlvlist.Parse(b, TLV_ParseMode_Channel04, (short unsigned int)-1);
@@ -721,14 +871,10 @@ namespace ICQ2000 {
 	  default:
 	    st = DisconnectedEvent::FAILED_UNKNOWN;
 	  }
-	} else {
-	  if (m_uin) {
+	} else if (m_state == AUTH_AWAITING_AUTH_REPLY) {
 	    SignalLog(LogEvent::WARN, "Error logging in, no error code given(?!)\n");
 	    st = DisconnectedEvent::FAILED_UNKNOWN;
-	  } else {
-	    Disconnect();
-	  }
-	}
+	  } 	
 	DisconnectAuthorizer();
 	SignalDisconnect(st); // signal client (error)
       }
@@ -765,23 +911,86 @@ namespace ICQ2000 {
   /*
    *  non-blocking poll on socket
    *  deals with all waiting packets
+   *  (deprecated)
    */
   void Client::Poll() {
-    while (Client::Recv()) { };
+    RecvFromServer();
+  }
+
+  void Client::socket_cb(int fd, SocketEvent::Mode m) {
+    if ( fd == m_serverSocket.getSocketHandle() ) {
+      RecvFromServer();
+    } else if ( fd == m_listenServer.getSocketHandle() ) {
+      TCPSocket *sock = m_listenServer.Accept();
+      DirectClient *dc = new DirectClient(sock, m_uin, 0, m_listenServer.getPort() );
+      m_fdmap[ sock->getSocketHandle() ] = dc;
+      dc->logger.connect( slot(this, &Client::SignalLog_cb) );
+      dc->messaged.connect( slot(this, &Client::SignalMessageEvent_cb) );
+      SignalAddSocket( sock->getSocketHandle(), SocketEvent::READ );
+    } else {
+      if (m_fdmap.count(fd) > 0) {
+	DirectClient *dc = m_fdmap[fd];
+	try {
+	  dc->Recv();
+	} catch(UINConfirmationException e) {
+	  // thrown by DirectClient indicating
+	  // we should confirm the UIN it has
+	  if ( m_contact_list.exists( dc->getUIN() ) ) {
+	    Contact &c = m_contact_list[ dc->getUIN() ];
+	    if ( (c.getExtIP() == m_ext_ip && c.getLanIP() == dc->getIP() )
+		 /* They are behind the same masquerading box,
+		  * and the Lan IP matches
+		  */
+		 || c.getExtIP() == dc->getIP()) {
+	      dc->setContact( &c );
+	    } else {
+	      // spoofing attempt most likely
+	      ostringstream ostr;
+	      ostr << "Refusing direct connection from someone that claims to be UIN "
+		   << dc->getUIN() << " since IPs don't match with what server has told us." << endl;
+	      SignalLog(LogEvent::WARN, ostr.str() );
+	      DisconnectDirectConn( fd );
+	    }
+
+	  } else {
+	    // add to contact list and wait for an online alert
+	    // then handle the confirmation - need timeouts really!
+	    // note to self: todo!
+	    cout << "Lookup contact" << endl;
+	  }
+	} catch(DisconnectedException e) {
+	  // tear down connection
+	  DisconnectDirectConn( fd );
+	}
+      } else {
+	cout << "Problem: unassociated socket" << endl;
+      }
+    }
   }
 
   int Client::Connect() {
     if (m_state == NOT_CONNECTED)
-      ConnectAuthorizer();
+      ConnectAuthorizer(AUTH_AWAITING_CONN_ACK);
     return getSocketHandle();
   }
   int Client::RegisterUIN() {
-    m_uin = 0;
-    return Connect();
+    if (m_state == NOT_CONNECTED)
+      ConnectAuthorizer(UIN_AWAITING_CONN_ACK);
+    return getSocketHandle();
   }
 
   bool Client::isConnected() {
     return (m_state == BOS_LOGGED_IN);
+  }
+
+  void Client::HandleUserInfoSNAC(UserInfoSNAC *snac) {
+    // this should only be personal info
+    const UserInfoBlock &ub = snac->getUserInfo();
+    if (ub.getUIN() == m_uin) {
+      // currently only interested in our external IP
+      // - we might be behind NAT
+      if (ub.getExtIP() != 0) m_ext_ip = ub.getExtIP();
+    }
   }
 
   void Client::SendEvent(MessageEvent *ev) {
@@ -793,12 +1002,14 @@ namespace ICQ2000 {
     if (ev->getType() == MessageEvent::Normal) {
       NormalMessageEvent *nv = static_cast<NormalMessageEvent*>(ev);
       NormalICQSubType nist(nv->getMessage(), c->getUIN());
-      MsgSendSNAC msnac(&nist);
+      MsgSendSNAC msnac(&nist, true);
+      msnac.setSeqNum( c->nextSeqNum() );
       b << msnac;
     } else if (ev->getType() == MessageEvent::URL) {
       URLMessageEvent *uv = static_cast<URLMessageEvent*>(ev);
       URLICQSubType uist(uv->getMessage(), uv->getURL(), m_uin, c->getUIN());
-      MsgSendSNAC msnac(&uist);
+      MsgSendSNAC msnac(&uist, true);
+      msnac.setSeqNum( c->nextSeqNum() );
       b << msnac;
     } else if (ev->getType() == MessageEvent::SMS) {
       SMSMessageEvent *sv = static_cast<SMSMessageEvent*>(ev);
@@ -808,7 +1019,7 @@ namespace ICQ2000 {
     FLAPFooter(b,d);
     Send(b);
   }
-
+  
   void Client::PingServer() {
     
     Buffer b;
@@ -951,7 +1162,8 @@ namespace ICQ2000 {
 
     SignalLog(LogEvent::INFO, "Client disconnecting\n");
 
-    if (m_state == AUTH_AWAITING_CONN_ACK || m_state == AUTH_AWAITING_AUTH_REPLY) {
+    if (m_state == AUTH_AWAITING_CONN_ACK || m_state == AUTH_AWAITING_AUTH_REPLY|| 
+        m_state == UIN_AWAITING_CONN_ACK || m_state == UIN_AWAITING_UIN_REPLY) {
       DisconnectAuthorizer();
     } else {
       DisconnectBOS();

@@ -45,12 +45,15 @@ ContactListView::ContactListView()
      ml.push_back( MenuElem( "User Info", slot( this, &ContactListView::user_info_cb ) ) );
      ml.push_back( MenuElem( "Remove User", slot( this, &ContactListView::remove_user_cb ) ) );
    }
-   // the popup menu needs to be told where to place its accelerators
-   rc_popup.accelerate( *(this->get_toplevel()) );
 }
 
 ContactListView::~ContactListView() {
   clear();
+}
+
+void ContactListView::setupAccelerators() {
+  // the popup menu needs to be told where to place its accelerators
+  rc_popup.accelerate( *(this->get_toplevel()) );
 }
 
 gint ContactListView::sort_func( GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2 ) {

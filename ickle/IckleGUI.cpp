@@ -70,6 +70,8 @@ IckleGUI::IckleGUI()
   
   add(m_top_vbox);
   show_all();
+
+  m_contact_list.setupAccelerators();
 }
 
 IckleGUI::~IckleGUI() {

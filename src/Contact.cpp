@@ -24,22 +24,23 @@
 namespace ICQ2000 {
 
   Contact::Contact()
-    : m_status(STATUS_OFFLINE), m_invisible(false),
+    : m_status(STATUS_OFFLINE), m_invisible(false), m_seqnum(0xffff),
       m_icqcontact(false), m_mobilecontact(false) {
   }
 
   Contact::Contact(unsigned int uin)
     : m_uin(uin), m_status(STATUS_OFFLINE), m_invisible(false),
-      m_alias(UINtoString(m_uin)),
+      m_alias(UINtoString(m_uin)), m_seqnum(0xffff),
       m_icqcontact(true), m_mobilecontact(false) { }
 
   Contact::Contact(const string& a, const string& m)
-    : m_alias(a), m_mobileno(m), m_icqcontact(false), m_status(STATUS_OFFLINE), m_invisible(false),
+    : m_alias(a), m_mobileno(m), m_icqcontact(false), m_status(STATUS_OFFLINE),
+      m_seqnum(0xffff), m_invisible(false),
       m_mobilecontact(true), m_uin(nextImaginaryUIN()) { }
 
   Contact::~Contact() {
     while (!m_pending_msgs.empty()) {
-      delete m_pending_msgs.front();
+      delete m_pending_msgs.back();
       m_pending_msgs.pop_back();
     }
 
@@ -54,6 +55,16 @@ namespace ICQ2000 {
   Status Contact::getStatus() const { return m_status; }
 
   string Contact::getMobileNo() const { return m_mobileno; }
+
+  unsigned int Contact::getExtIP() const { return m_ext_ip; }
+
+  unsigned int Contact::getLanIP() const { return m_lan_ip; }
+
+  unsigned short Contact::getExtPort() const { return m_ext_port; }
+
+  unsigned short Contact::getLanPort() const { return m_lan_port; }
+
+  unsigned char Contact::getTCPVersion() const { return m_tcp_version; }
 
   bool Contact::isInvisible() const { return m_invisible; }
 
@@ -73,6 +84,16 @@ namespace ICQ2000 {
 
   bool Contact::isMobileContact() const { return m_mobilecontact; }
 
+  void Contact::setExtIP(unsigned int ip) { m_ext_ip = ip; }
+
+  void Contact::setLanIP(unsigned int ip) { m_lan_ip = ip; }
+
+  void Contact::setExtPort(unsigned short port) { m_ext_port = port; }
+
+  void Contact::setLanPort(unsigned short port) { m_lan_port = port; }
+
+  void Contact::setTCPVersion(unsigned char v) { m_tcp_version = v; }
+
   unsigned int Contact::numberPendingMessages() const { return m_pending_msgs.size(); }
 
   void Contact::addPendingMessage(MessageEvent* e) { return m_pending_msgs.push_back(e); }
@@ -89,6 +110,10 @@ namespace ICQ2000 {
       }
       ++curr;
     }
+  }
+
+  unsigned short Contact::nextSeqNum() {
+    return --m_seqnum;
   }
 
   string Contact::UINtoString(unsigned int uin) {
@@ -111,4 +136,3 @@ namespace ICQ2000 {
   }
 
 }
-  

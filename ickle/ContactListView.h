@@ -79,6 +79,8 @@ class ContactListView : public Gtk::CList {
   ContactListView();
   ~ContactListView();
 
+  void setupAccelerators();
+
   void clear();
 
   void user_info_cb();

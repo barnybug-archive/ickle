@@ -49,9 +49,14 @@ namespace ICQ2000 {
     unsigned char m_tcp_version;
     Status m_status;
     bool m_invisible;
+    unsigned int m_ext_ip, m_lan_ip;
+    unsigned short m_ext_port, m_lan_port;
 
     static unsigned int imag_uin;
     
+    // other fields
+    unsigned short m_seqnum;
+
   public:
     Contact();
     Contact(unsigned int uin);
@@ -65,14 +70,26 @@ namespace ICQ2000 {
     Status getStatus() const;
     string getMobileNo() const;
     bool isInvisible() const;
+    unsigned int getExtIP() const;
+    unsigned int getLanIP() const;
+    unsigned short getExtPort() const;
+    unsigned short getLanPort() const;
+    unsigned char getTCPVersion() const;
 
     void setMobileNo(const string& mn);
     void setAlias(const string& al);
     void setStatus(Status st);
     void setInvisible(bool i);
-
+    void setExtIP(unsigned int ip);
+    void setLanIP(unsigned int ip);
+    void setExtPort(unsigned short port);
+    void setLanPort(unsigned short port);
+    void setTCPVersion(unsigned char v);
+    
     bool isICQContact() const;
     bool isMobileContact() const;
+
+    unsigned short nextSeqNum();
 
     unsigned int numberPendingMessages() const;
 
