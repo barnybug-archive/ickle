@@ -72,10 +72,12 @@ namespace ICQ2000 {
 
     void removeContact(Contact *c) {
       literator curr = m_list.begin();
+      literator next = curr;
       while ( curr != m_list.end() ) {
+	++next;
 	RequestIDCacheValue *cv = (*curr).getValue();
 	if ( cv->getContact() == c ) removeItem(curr);
-	++curr;
+	curr = next;
       }
     }
 

@@ -46,10 +46,9 @@ namespace ICQ2000 {
 
     void removeContact(Contact *c) {
       literator curr = m_list.begin();
-      literator next;
+      literator next = curr;
       while ( curr != m_list.end() ) {
 	DirectClient *dc = (*curr).getValue();
-	next = curr;
 	++next;
 	if ( dc->getContact() == c ) {
 	  dc->setContact(NULL); // invalidate contact so the DC doesn't attempt to redeliver

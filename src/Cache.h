@@ -97,10 +97,11 @@ namespace ICQ2000 {
 
     Value& operator[](const Key &k) {
       literator i = lookup(k);
-      if (i == m_list.end())
+      if (i == m_list.end()) {
 	return insert(k, Value());
-      else
+      } else {
 	return (*i).getValue();
+      }
     }
 
     void remove(const Key &k)  {
@@ -224,10 +225,7 @@ namespace ICQ2000 {
 
   template <typename Key, typename Value>
   Cache<Key,Value>::~Cache() {
-    while ( !m_list.empty() ) {
-      removeItem( m_list.begin() );
-      m_list.pop_front();
-    }
+    removeAll();
   }
  
 }

@@ -54,10 +54,12 @@ namespace ICQ2000 {
 
     void removeContact(Contact *c) {
       literator curr = m_list.begin();
+      literator next = curr;
       while ( curr != m_list.end() ) {
+	++next;
 	MessageEvent *ev = (*curr).getValue();
 	if ( ev->getContact() == c ) removeItem(curr);
-	++curr;
+	curr = next;
       }
     }
 
