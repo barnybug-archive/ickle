@@ -61,7 +61,7 @@ MessageBox::MessageBox(Contact *c)
   m_history_text.set_editable(false);
   m_history_text.set_word_wrap(true);
 
-  m_pane.add1(m_history_table);
+  m_pane.pack1(m_history_table, true, true);
 
   // -- bottom pane --
 
@@ -173,7 +173,7 @@ MessageBox::MessageBox(Contact *c)
 
   m_vbox_top.pack_start(m_hbox_buttons,false);
 
-  m_vbox_top.pack_start(m_status, TRUE, TRUE, 0);
+  m_vbox_top.pack_start(m_status, false, false, 0);
   m_status_context = m_status.get_context_id("messagebox");
 
   add(m_vbox_top);
