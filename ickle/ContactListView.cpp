@@ -24,6 +24,8 @@
 #include <string>
 #include <utility>
 
+#include "Client.h"
+
 using std::string;
 using std::vector;
 
@@ -37,7 +39,7 @@ ContactListView::ContactListView()
   // callbacks
   icqclient.contactlist.connect(slot(this,&ContactListView::contactlist_cb));
 
-  set_selection_mode(GTK_SELECTION_SINGLE);
+  set_selection_mode(GTK_SELECTION_BROWSE);
   set_row_height(18);
 
   set_sort_column(0);
@@ -124,6 +126,7 @@ void ContactListView::fetch_away_msg_cb() {
 
 unsigned int ContactListView::current_selection_uin() {
   Gtk::CList_Helpers::SelectionList sl = selection();
+  if (sl.begin() == sl.end()) return 0;
   Row r = *(sl.begin());
   RowData *p = (RowData*)(*r).get_data();
   return p->uin;
@@ -137,6 +140,11 @@ gint ContactListView::button_press_cb(GdkEventButton *ev) {
     RowData *p = (RowData*)get_row_data(rw);
     if (ev->type == GDK_2BUTTON_PRESS && ev->button == 1) {
       user_popup.emit(p->uin);
+      return true;
+    } else if (ev->button == 1 && col == 0) {
+      Contact *c = icqclient.getContact( p->uin );
+      if (c != NULL) icqclient.fetchAwayMsg(c);
+      row(rw).select();
       return true;
     } else if(ev->button == 3) {
       row(rw).select();

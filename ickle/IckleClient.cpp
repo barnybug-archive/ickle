@@ -205,7 +205,8 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 void IckleClient::loadSettings() {
   // load in settings
   if (!g_settings.load(BASE_DIR + "ickle.conf")) {
-    cout << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl;
+    cout << "Couldn't open " << BASE_DIR << "ickle.conf, using default settings" << endl
+	 << "This is probably the first time you've run ickle." << endl;
   } else {
     icqclient.setUIN(g_settings.getValueUnsignedInt("uin"));
     icqclient.setPassword(g_settings.getValueString("password"));
@@ -220,6 +221,9 @@ void IckleClient::loadSettings() {
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
   gui.icons_changed_cb( g_settings.getValueString("icons_dir") );
+
+  g_settings.defaultValue("away_autoposition", true);
+
 }
 
 void IckleClient::saveSettings() {

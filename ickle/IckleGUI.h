@@ -61,6 +61,7 @@
 #include "AddMobileUserDialog.h"
 #include "UserInfoDialog.h"
 #include "PromptDialog.h"
+#include "AwayMessageDialog.h"
 
 #include "constants.h"
 
@@ -86,6 +87,7 @@ class IckleGUI : public Gtk::Window {
   Gtk::VBox m_top_vbox;
   Gtk::ScrolledWindow  m_contact_scroll;
   ContactListView m_contact_list;
+  AwayMessageDialog m_away_message;
   
   Gtk::MenuBar m_ickle_menubar;
   Gtk::Menu m_ickle_menu;

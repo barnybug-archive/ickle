@@ -40,10 +40,11 @@
 #endif
 
 #include "main.h"
-#include "Client.h"
 #include "ContactList.h"
 #include "Contact.h"
 #include "Icons.h"
+
+using SigC::Signal1;
 
 using namespace ICQ2000;
 

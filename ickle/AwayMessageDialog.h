@@ -23,8 +23,12 @@
 
 #include <gtk--/window.h>
 #include <gtk--/box.h>
+#include <gtk--/text.h>
 
 #include <sigc++/signal_system.h>
+
+#include "main.h"
+#include "Settings.h"
 
 #include "Contact.h"
 #include "events.h"
@@ -33,13 +37,18 @@ using namespace ICQ2000;
 
 class AwayMessageDialog : public Gtk::Window {
  private:
-  Gtk::VBox m_awayvbox;
+  Gtk::Window *m_main_window;
+  Gtk::Text m_awaytext;
+  unsigned int m_pos, m_count;
 
+  string format_time(time_t t);
  public:
-  AwayMessageDialog(Contact *c);
-
+  AwayMessageDialog(Gtk::Window *main_window);
+  ~AwayMessageDialog();
+  
   void away_message_cb(AwayMsgEvent *ev);
-
+  gint button_press_cb(GdkEventButton *ev);
+  gint delete_event_impl(GdkEventAny *ev);
 };
 
 #endif

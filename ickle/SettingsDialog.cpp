@@ -37,7 +37,8 @@ using SigC::bind;
 
 SettingsDialog::SettingsDialog()
   : Gtk::Dialog(),
-    okay("OK"), cancel("Cancel")
+    okay("OK"), cancel("Cancel"),
+    away_autoposition("Autoposition away messages dialog")
 {
   set_title("Settings Dialog");
   set_modal(true);
@@ -82,7 +83,8 @@ SettingsDialog::SettingsDialog()
     for (int n = STATUS_ONLINE; n <= STATUS_OFFLINE; n++)
       ml.push_back( MenuElem( Status_text[n], bind( slot(this, &SettingsDialog::setStatus), Status(n) ) ) );
   }
-  m->set_active( g_settings.getValueUnsignedInt("autoconnect") - STATUS_ONLINE );
+  m_status = Status(g_settings.getValueUnsignedInt("autoconnect"));
+  m->set_active( m_status - STATUS_ONLINE );
   autoconnect_om->set_menu(*m);
 
   table->attach( *autoconnect_om, 1, 3, 2, 3, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0);
@@ -177,6 +179,22 @@ SettingsDialog::SettingsDialog()
   table->set_border_width(10);
   notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *label )  );
 
+  // ---------------------------------------------------------
+
+  // ------------------ Away Messages ------------------------
+
+  table = manage( new Gtk::Table( 2, 1, false ) );
+  
+  away_autoposition.set_active( g_settings.getValueBool("away_autoposition") );
+  label = manage( new Gtk::Label( "Autoposition Dialog", 0 ) );
+  table->attach( away_autoposition, 0, 2, 1, 2, GTK_FILL | GTK_EXPAND, 0);
+
+  label = manage( new Gtk::Label( "Away Messages" ) );
+  table->set_row_spacings(10);
+  table->set_col_spacings(10);
+  table->set_border_width(10);
+  notebook.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *label )  );
+
   Gtk::VBox *vbox = get_vbox();
   vbox->pack_start( notebook, true, true );
 
@@ -208,6 +226,9 @@ void SettingsDialog::updateSettings() {
   g_settings.setValue("event_message", event_message_entry.get_text());
   g_settings.setValue("event_url", event_url_entry.get_text());
   g_settings.setValue("event_sms", event_sms_entry.get_text());
+
+  // ------------ Away Messages tab ----------------
+  g_settings.setValue("away_autoposition", away_autoposition.get_active() );
 }
 
 unsigned int SettingsDialog::getUIN() const {

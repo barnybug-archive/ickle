@@ -26,7 +26,8 @@ IckleGUI::IckleGUI()
   : m_top_vbox(false),
     m_contact_scroll(),
     m_contact_list(),
-    m_status(STATUS_OFFLINE)
+    m_status(STATUS_OFFLINE),
+    m_away_message( this )
 {
   // setup default compiled in xpms
   Icons::setDefaultIcons();

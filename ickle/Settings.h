@@ -62,12 +62,19 @@ class Settings {
 				 unsigned short lower = 0, unsigned short upper = 0xffff);
   unsigned char getValueUnsignedChar(const string& k, unsigned char dflt = 0,
 				 unsigned char lower = 0, unsigned char upper = 0xff);
+  bool getValueBool(const string& k, bool dflt = false);
 
   void setValue(const string& k, const string& v);
   void setValue(const string& k, int v);
   void setValue(const string& k, unsigned int v);
   void setValue(const string& k, unsigned short v);
   void setValue(const string& k, unsigned char v);
+  void setValue(const string& k, bool v);
+
+  template <typename Value>
+  void defaultValue(const string& k, const Value& v) {
+    if ( !exists(k) ) { setValue(k, v); }
+  }
 
   bool exists(const string& k);
 

@@ -29,6 +29,7 @@
 #include <gtk--/notebook.h>
 #include <gtk--/fileselection.h>
 #include <gtk--/list.h>
+#include <gtk--/checkbutton.h>
 
 #include <sigc++/signal_system.h>
 
@@ -49,6 +50,7 @@ class SettingsDialog : public Gtk::Dialog {
   Gtk::List icons_list;
   Gtk::Entry uin_entry, password_entry, event_message_entry, event_url_entry, event_sms_entry;
   Gtk::Notebook notebook;
+  Gtk::CheckButton away_autoposition;
 
   Status m_status;
 

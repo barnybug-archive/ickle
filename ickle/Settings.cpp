@@ -177,6 +177,12 @@ unsigned char Settings::getValueUnsignedChar(const string& k, unsigned char dflt
   return v;
 }
 
+bool Settings::getValueBool(const string& k, bool dflt) {
+  bool v;
+  v = (getValueUnsignedShort(k, (dflt ? 1 : 0), 0, 1) == 1);
+  return v;
+}
+
 void Settings::setValue(const string& k, const string& v) {
   m_map[k] = v;
 }
@@ -203,6 +209,11 @@ void Settings::setValue(const string& k, unsigned char v) {
   ostringstream ostr;
   ostr << (unsigned int)v;
   m_map[k] = ostr.str();
+}
+
+void Settings::setValue(const string& k, bool v) {
+  if (v) m_map[k] = "1";
+  else m_map[k] = "0";
 }
 
 bool Settings::exists(const string& k) {
