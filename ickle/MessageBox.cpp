@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.45 2002-02-18 19:28:18 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.46 2002-02-26 13:48:47 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -187,7 +187,7 @@ MessageBox::MessageBox(Contact *self, Contact *c, History *h)
   m_sms_text.set_editable(true);
   m_sms_text.changed.connect( slot( this, &MessageBox::sms_count_update_cb ) );
   m_sms_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
-  if (!c->isMobileContact()) disable_sms();
+  if (!c->isSMSable()) disable_sms();
   sms_count_update_cb();
 
   sms_vbox->pack_start( *table, true, true );
@@ -306,13 +306,11 @@ gint MessageBox::key_press_cb(GdkEventKey* ev) {
 
 void MessageBox::set_contact_title() {
   ostringstream ostr;
-  ostr << m_contact->getAlias() << " (";
+  ostr << m_contact->getAlias();
   if (m_contact->isICQContact()) {
-    ostr << m_contact->getUIN();
-  } else {
-    ostr << m_contact->getMobileNo();
+    ostr << " (" << m_contact->getUIN() << ")";
   }
-  ostr << ") - ";
+  ostr << " - ";
   ostr << m_contact->getStatusStr();
   Gtk::ImageLoader *p;
   
@@ -328,7 +326,7 @@ void MessageBox::set_contact_title() {
 }
 
 void MessageBox::contactlist_cb(ContactListEvent *ev) {
-  if (m_contact->isMobileContact()) enable_sms();
+  if (m_contact->isSMSable()) enable_sms();
   else disable_sms();
 
   // in case Alias or Status has changed

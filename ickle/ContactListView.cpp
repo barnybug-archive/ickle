@@ -1,4 +1,4 @@
-/* $Id: ContactListView.cpp,v 1.28 2002-01-26 14:24:24 barnabygray Exp $
+/* $Id: ContactListView.cpp,v 1.29 2002-02-26 13:48:47 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -190,7 +190,9 @@ void ContactListView::remove_user_cb() {
   Contact *c = icqclient.getContact(uin);
   if (c != NULL) {
     ostringstream ostr;
-    ostr << "Are you sure you want to remove " << c->getAlias() << " (" << uin << ")?";
+    ostr << "Are you sure you want to remove " << c->getAlias();
+    if (c->isICQContact()) ostr << " (" << uin << ")";
+    ostr << "?";
     PromptDialog p(PromptDialog::PROMPT_CONFIRM, ostr.str());
     if (p.run()) icqclient.removeContact(uin);
   }
