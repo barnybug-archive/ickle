@@ -3,7 +3,9 @@ thanks from the main developers.
 
 Konstantin Klyagin - Fixes
 
-Michael Smith - Sorting contact list by alias, finding by keypress
+Michael Smith
+ - Sorting contact list by alias, finding by keypress
+ - Adding set away message
 
 Dominik 'Aeneas' Schnitzer - debian pkg stuff
 

@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.49 2001-12-27 15:16:18 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.50 2001-12-28 01:04:51 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -219,7 +219,7 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
 }
 
 void IckleClient::usageInstructions(const char* progname) {
-  cout << "ickle version 0.2.0" << endl
+  cout << "ickle version 0.2.1" << endl
        << "Usage: " << progname << " [-h] [-b dir]" << endl << endl
        << " -h : the help screen you are seeing" << endl
        << " -b : use a different configuration directory (~/.ickle/ is the default)" << endl
