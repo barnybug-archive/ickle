@@ -177,9 +177,9 @@ void ContactListView::UpdateRow(const Contact& c) {
   ImageLoader *p;
   if (rp->msgs > 0) {
     MessageEvent *ev = c.getPendingMessage();
-    p = Icons::IconForEvent(ev->getType());
+    p = g_icons.IconForEvent(ev->getType());
   } else {
-    p = Icons::IconForStatus(c.getStatus(),c.isInvisible());
+    p = g_icons.IconForStatus(c.getStatus(),c.isInvisible());
   }
   
   (*row)[0].set_pixmap( p->pix(), p->bit() );

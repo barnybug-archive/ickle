@@ -88,7 +88,7 @@ MessageBox::MessageBox(Contact *c)
     m_message_text.set_editable(true);
     m_message_text.key_press_event.connect(slot(this,&MessageBox::key_press_cb));
 
-    l = Icons::IconForEvent(MessageEvent::Normal);
+    l = g_icons.IconForEvent(MessageEvent::Normal);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
@@ -115,7 +115,7 @@ MessageBox::MessageBox(Contact *c)
 
     url_vbox->pack_start( *url_hbox, false );
 
-    l = Icons::IconForEvent(MessageEvent::URL);
+    l = g_icons.IconForEvent(MessageEvent::URL);
     i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *url_vbox, *i )  );
@@ -152,7 +152,7 @@ MessageBox::MessageBox(Contact *c)
 
   sms_vbox->pack_start( *sms_hbox, false );
 
-  l = Icons::IconForEvent(MessageEvent::SMS);
+  l = g_icons.IconForEvent(MessageEvent::SMS);
   i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
 
   m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *sms_vbox, *i )  );

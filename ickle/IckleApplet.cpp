@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.6 2001-11-26 20:36:11 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.7 2001-11-26 23:45:29 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -100,7 +100,7 @@ bool IckleApplet::icq_messaged_cb(MessageEvent* ev)
   ostringstream ostr;
   
   if( !m_nr_msgs++ ) {
-    Gtk::ImageLoader *il = Icons::IconForEvent( ev->getType() );
+    Gtk::ImageLoader *il = g_icons.IconForEvent( ev->getType() );
     m_pm.set( il->pix(), il->bit() );
   }
 
@@ -123,7 +123,7 @@ void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
   Gtk::ImageLoader *il;
 
   if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgss > 0)
-    il = Icons::IconForStatus( ev->getStatus(), icqclient.getInvisible() );
+    il = g_icons.IconForStatus( ev->getStatus(), icqclient.getInvisible() );
     m_pm.set( il->pix(), il->bit() );
   }
   update_applet_tooltip();
@@ -165,7 +165,7 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
         itr->nr_msgs = c->numberPendingMessages();
       
       if( !m_nr_msgs ) { // last msg read, switch icon
-        Gtk::ImageLoader *il = Icons::IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
+        Gtk::ImageLoader *il = g_icons.IconForStatus( icqclient.getStatus(), icqclient.getInvisible() );
         m_pm.set( il->pix(), il->bit() );
       }
     }
@@ -323,7 +323,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 				   "Show/hide main window", applet_toogle_menu_cb, this);
 
   // whip the layout together
-  il = Icons::IconForStatus( STATUS_OFFLINE, false );
+  il = g_icons.IconForStatus( STATUS_OFFLINE, false );
   m_pm.set( il->pix(), il->bit() );
   reset_applet_box();
   applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()) );

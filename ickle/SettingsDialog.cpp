@@ -23,6 +23,7 @@
 #include "main.h"
 #include "Client.h"
 #include "Dir.h"
+#include "Icons.h"
 
 #include <gtk--/box.h>
 #include <gtk--/table.h>
@@ -250,7 +251,7 @@ void SettingsDialog::cancel_cb() {
   string m_old_icons_dir = g_settings.getValueString("icons_dir");
   if ( getIconsFilename() != m_old_icons_dir ) {
     // restore icons
-    icons_changed.emit( m_old_icons_dir );
+    g_icons.setIcons( m_old_icons_dir );
   }
 }
 
@@ -268,12 +269,14 @@ void SettingsDialog::trans_cb() {
 }
 
 void SettingsDialog::icons_cb() {
-  icons_changed.emit( getIconsFilename() );
+  string s = getIconsFilename();
+  if( s.size() )
+    g_icons.setIcons( s );
 }
  
 string SettingsDialog::getIconsFilename() {
   Gtk::List::SelectionList &slist = icons_list.selection();
-  if (slist.empty()) return "Default";
+  if (slist.empty()) return "";
 
   Gtk::List::SelectionList::iterator iter = slist.begin();
   

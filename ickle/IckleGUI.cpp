@@ -30,13 +30,15 @@ IckleGUI::IckleGUI()
     m_away_message( this )
 {
   // setup default compiled in xpms
-  Icons::setDefaultIcons();
+  g_icons.setDefaultIcons();
 
   // setup callbacks
   icqclient.messaged.connect(slot(this,&IckleGUI::message_cb));
   icqclient.messageack.connect(slot(this,&IckleGUI::messageack_cb));
   icqclient.contactlist.connect(slot(this,&IckleGUI::contactlist_cb));
   icqclient.statuschanged.connect(slot(this,&IckleGUI::status_change_cb));
+
+  g_icons.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
 
   Gtk::HButtonBox::set_child_size_default(80,30);
   Gtk::HButtonBox::set_layout_default(GTK_BUTTONBOX_SPREAD);
@@ -94,7 +96,7 @@ Gtk::MenuItem* IckleGUI::menu_status_widget( Status s ) {
   Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
   mi->activate.connect( bind(slot(this,&IckleGUI::status_change_menu_cb),s) );
   Gtk::HBox *hbox=manage( new Gtk::HBox() );
-  Gtk::ImageLoader *p = Icons::IconForStatus(s, false);
+  Gtk::ImageLoader *p = g_icons.IconForStatus(s, false);
   hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
   hbox->pack_end( * manage( new Gtk::Label( Status_text[s], 1.0 ) ), true );
   mi->add(*hbox);
@@ -272,7 +274,6 @@ void IckleGUI::user_info_edit(Contact *c) {
 
 void IckleGUI::settings_cb() {
   SettingsDialog dialog;
-  dialog.icons_changed.connect( slot( this, &IckleGUI::icons_changed_cb ) );
 
   if (dialog.run()) {
     bool reconnect = false;
@@ -293,8 +294,7 @@ void IckleGUI::settings_cb() {
 
 }
 
-void IckleGUI::icons_changed_cb(string s) {
-  Icons::setIcons(s);
+void IckleGUI::icons_changed_cb() {
   menu_status_update();
   m_contact_list.icons_changed_cb();
 }

@@ -31,8 +31,6 @@
 #include <gtk--/list.h>
 #include <gtk--/checkbutton.h>
 
-#include <sigc++/signal_system.h>
-
 #include <string>
 
 #include "Settings.h"
@@ -40,7 +38,6 @@
 
 #include "Contact.h"
 
-using SigC::Signal1;
 using std::string;
 
 class SettingsDialog : public Gtk::Dialog {
@@ -75,8 +72,6 @@ class SettingsDialog : public Gtk::Dialog {
   string getPassword() const;
 
   void updateSettings();
-
-  Signal1<void,string> icons_changed;
 };
 
 #endif

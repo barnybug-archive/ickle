@@ -22,6 +22,7 @@
 #define ICONS_H
 
 #include <gtk--/imageloader.h>
+#include <sigc++/signal_system.h>
 
 #include <string>
 
@@ -34,27 +35,31 @@ using Gtk::ImageLoader;
 using Gtk::ImageLoaderData;
 using ICQ2000::MessageEvent;
 using std::string;
+using SigC::Signal0;
 
 class Icons {
  private:
-  static ImageLoader *Icon_Status_Online;
-  static ImageLoader *Icon_Status_Away;
-  static ImageLoader *Icon_Status_NA;
-  static ImageLoader *Icon_Status_Occupied;
-  static ImageLoader *Icon_Status_DND;
-  static ImageLoader *Icon_Status_FFC;
-  static ImageLoader *Icon_Status_Offline;
-  static ImageLoader *Icon_Status_Message;
-  static ImageLoader *Icon_Status_URL;
-  static ImageLoader *Icon_Status_SMS;
-  static ImageLoader *Icon_Status_Invisible;
+  ImageLoader *Icon_Status_Online;
+  ImageLoader *Icon_Status_Away;
+  ImageLoader *Icon_Status_NA;
+  ImageLoader *Icon_Status_Occupied;
+  ImageLoader *Icon_Status_DND;
+  ImageLoader *Icon_Status_FFC;
+  ImageLoader *Icon_Status_Offline;
+  ImageLoader *Icon_Status_Message;
+  ImageLoader *Icon_Status_URL;
+  ImageLoader *Icon_Status_SMS;
+  ImageLoader *Icon_Status_Invisible;
 
  public:
-  static void setDefaultIcons();
-  static bool setIcons(const string& dir);
-  static void FreeIcons();
-  static ImageLoader* IconForStatus(Status s,bool inv);
-  static ImageLoader* IconForEvent(MessageEvent::MessageType t);
+  void setDefaultIcons();
+  bool setIcons(const string& dir);
+  void FreeIcons();
+  ImageLoader* IconForStatus(Status s,bool inv);
+  ImageLoader* IconForEvent(MessageEvent::MessageType t);
+
+  Signal0<void> icons_changed;
+
 };
 
 #endif

@@ -31,6 +31,7 @@
 
 #include <sstream>
 
+#include "main.h"
 #include "Icons.h"
 #include "Dir.h"
 
@@ -92,7 +93,7 @@ IckleClient::IckleClient(int argc, char* argv[])
 }
 
 IckleClient::~IckleClient() {
-  Icons::FreeIcons();
+  g_icons.FreeIcons();
 }
 
 void IckleClient::loadContactList() {
@@ -220,8 +221,9 @@ void IckleClient::loadSettings() {
   y = g_settings.getValueUnsignedInt("geometry_y", 50);
   gui.set_default_size( width, height );
   gui.set_uposition( x, y );
-  gui.icons_changed_cb( g_settings.getValueString("icons_dir") );
 
+  g_icons.setIcons( g_settings.getValueString("icons_dir") );
+  
   g_settings.defaultValue("away_autoposition", true);
 
 }

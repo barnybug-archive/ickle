@@ -122,7 +122,7 @@ class IckleGUI : public Gtk::Window {
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void settings_cb();
-  void icons_changed_cb(string);
+  void icons_changed_cb();
   void status_change_cb(MyStatusChangeEvent *ev);
 
   // signals
