@@ -1,3 +1,13 @@
+2001-11-22 15:38 nordman
+
+	* ickle/IckleApplet.c ickle/IckleApplet.hpp
+	  ickle/IckleClient.cpp ickle/IckleGUI.cpp
+	  
+        Quit correctly when run as applet.
+	Use a separate wmclass for IckleGUI, fixes problem where main
+	GUI would jump around on the screen a lot when run as applet.
+
+	
 2001-11-20 23:25  nordman
 
 	* configure.ac ickle/IckleApplet.h ickle/IckleApplet.cpp
