@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.28 2002-01-13 20:33:53 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.29 2002-01-16 03:09:11 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -77,7 +77,14 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
     MenuList& mbl = m_ickle_menubar.items();
-    mbl.push_front(MenuElem("Offline",m_status_menu));
+    Gtk::MenuItem *mi = manage( new Gtk::MenuItem() );
+    Gtk::HBox *hbox = manage( new Gtk::HBox() );
+    Gtk::ImageLoader *p = g_icons.IconForStatus(STATUS_OFFLINE, false);
+    hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
+    hbox->pack_end( * manage( new Gtk::Label( Status_text[STATUS_OFFLINE], 1.0 ) ), true );
+    mi->add(*hbox);
+    mi->set_submenu( m_status_menu );
+    mbl.push_front( *mi );
     mbl.front()->right_justify();
     mbl.push_front(MenuElem("ickle",m_ickle_menu));
   }
@@ -309,15 +316,21 @@ void IckleGUI::status_change_inv_menu_cb(Gtk::CheckMenuItem *cmi)
  
 void IckleGUI::status_change_cb(MyStatusChangeEvent *ev) {
   Status st = ev->getStatus();
-  Gtk::MenuItem *m = m_ickle_menubar.items()[1];
-  m->remove();
-  ostringstream ostr;
-  ostr << Status_text[st];
-  if (ev->getInvisible()) ostr << " (I)";
-  m->add_label( ostr.str() );
+  bool inv = ev->getInvisible();
+
+  Gtk::MenuItem *mi = m_ickle_menubar.items()[1];
+
+  Gtk::HBox *hbox = dynamic_cast<Gtk::HBox*>(mi->get_child());
+  if (hbox != NULL) {
+    Gtk::ImageLoader *p = g_icons.IconForStatus(st, inv);
+    hbox->children().clear();
+    hbox->pack_end( * manage( new Gtk::Pixmap(p->pix(),p->bit()) ), false, false, 3 );
+    hbox->pack_end( * manage( new Gtk::Label( Status_text[st], 1.0 ) ), true );
+    hbox->show_all();
+  }
 
   m_status = st;
-  m_invisible = ev->getInvisible();
+  m_invisible = inv;
 
   map<unsigned int, MessageBox*>::iterator i = m_message_boxes.begin();
   while (i != m_message_boxes.end()) {
