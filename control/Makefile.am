@@ -11,6 +11,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/ctrlsocket @LIBICQ2000_CFLAGS@ @GLIBMM_CFLAGS@ \
 LDFLAGS = -L$(top_builddir)/ctrlsocket -lickle_ctrlsocket @GLIBMM_LIBS@ @LIBINTL@
 
 ickle_control_SOURCES = main.cpp IckleControl.cpp CommandLineParser.cpp
+ickle_control_LDADD = ../ickle/utils.o
 noinst_HEADERS = IckleControl.h CommandLineParser.h
 ickle_control_DEPENDENCIES = @LIBICKLE_CTRLSOCKET_DEP@
 
