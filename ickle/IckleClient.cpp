@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.48 2001-12-27 14:27:37 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.49 2001-12-27 15:16:18 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -64,6 +64,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   // let us know when the gui is destroyed
   gui.destroy.connect(slot(this,&IckleClient::quit));
   gui.delete_event.connect(slot(this,&IckleClient::close_cb));
+  gui.exit.connect(slot(this,&IckleClient::exit_cb));
   
   // set up libICQ2000 Callbacks
   // -- callbacks into IckleClient
@@ -340,15 +341,19 @@ void IckleClient::saveSettings() {
 
 }
 
-gint IckleClient::close_cb(GdkEventAny*) {
+void IckleClient::exit_cb() {
   /*
    * These both need to be done while the widget
    * still exists, in IckleClient::quit is too late
    */
-
   saveSettings();
   icqclient.setStatus(STATUS_OFFLINE);
-  
+}
+
+gint IckleClient::close_cb(GdkEventAny*) {
+#ifndef GNOME_ICKLE
+  exit_cb();
+#endif
   return false;
 }
 

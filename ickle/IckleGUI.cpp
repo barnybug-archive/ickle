@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.24 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.25 2001-12-27 15:16:18 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -67,7 +67,7 @@ IckleGUI::IckleGUI()
     ml.push_back( MenuElem("Add User", slot(this, &IckleGUI::add_user_cb)) );
     ml.push_back( MenuElem("Add Mobile User", slot(this, &IckleGUI::add_mobile_user_cb)) );
     ml.push_back( MenuElem("Settings", slot(this, &IckleGUI::settings_cb)) );
-    ml.push_back( MenuElem("Exit", destroy.slot()) );
+    ml.push_back( MenuElem("Exit", slot(this, &IckleGUI::exit_cb)) );
     
     MenuList& mbl = m_ickle_menubar.items();
     mbl.push_front(MenuElem("Offline",m_status_menu));
@@ -251,7 +251,12 @@ void IckleGUI::popup_messagebox(Contact *c, History *h) {
 }
 
 int IckleGUI::delete_event_impl(GdkEventAny*) {
+#ifdef GNOME_ICKLE
+  hide();
+  return true;
+#else
   return false;
+#endif
 }
 
 void IckleGUI::status_change_menu_cb(Status st) {
@@ -412,4 +417,9 @@ void IckleGUI::settings_cb() {
 void IckleGUI::icons_changed_cb() {
   menu_status_update();
   m_contact_list.icons_changed_cb();
+}
+
+void IckleGUI::exit_cb() {
+  exit.emit ();
+  destroy ();
 }

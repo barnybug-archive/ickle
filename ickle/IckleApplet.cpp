@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.16 2001-12-26 23:24:19 barnabygray Exp $
+/* $Id: IckleApplet.cpp,v 1.17 2001-12-27 15:16:17 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -258,10 +258,20 @@ void IckleApplet::reset_applet_box()
 
 void IckleApplet::toggle_gui()
 {
-  if( m_gui->is_visible() )
+  int x, y;
+
+  if( m_gui->is_visible() ) {
+    m_gui->get_window().get_root_origin(x, y);
+    g_settings.setValue("geometry_x", x);
+    g_settings.setValue("geometry_y", y);
     m_gui->hide();
-  else
+  }
+  else {
+    x = g_settings.getValueUnsignedInt("geometry_x");
+    y = g_settings.getValueUnsignedInt("geometry_y");
+    m_gui->set_uposition(x, y);
     m_gui->show();
+  }
 }
 
 

@@ -109,6 +109,7 @@ class IckleClient : public SigC::Object {
   void add_user_cb(unsigned int uin);
   void add_mobile_user_cb(string,string);
   void fetch_cb(Contact *c);
+  void exit_cb();
   gint close_cb(GdkEventAny*);
   void settings_changed_cb();
 

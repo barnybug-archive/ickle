@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.21 2001-12-26 23:32:55 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.22 2001-12-27 15:16:18 nordman Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -125,6 +125,7 @@ class IckleGUI : public Gtk::Window {
   void icons_changed_cb();
   void userinfo_toggle_cb(bool b, Contact *c);
   void status_change_cb(MyStatusChangeEvent *ev);
+  void exit_cb();
 
   // signals
   Signal0<void> settings_changed;
@@ -134,6 +135,7 @@ class IckleGUI : public Gtk::Window {
   Signal2<void,string,string> add_mobile_user;
   Signal1<void,Contact*> fetch;
   Signal1<void,unsigned int> user_popup;
+  Signal0<void> exit;
 
   // handle wm calls
   gint delete_event_impl(GdkEventAny*);
