@@ -1,7 +1,6 @@
 ickle/AboutDialog.cpp
 ickle/AddContactDialog.cpp
 ickle/AddGroupDialog.cpp
-ickle/AddUserDialog.cpp
 ickle/AuthRespDialog.cpp
 ickle/AwayMessageDialog.cpp
 ickle/ContactListView.cpp
