@@ -249,6 +249,22 @@ SearchDialog::SearchDialog(Gtk::Window * parent)
   label = manage( new Gtk::Label("UIN") );
   m_notebook.pages().push_back( Gtk::Notebook_Helpers::TabElem( *table, *label ) );
 
+  // ------------------------
+
+  // ----- Keyword Search -----------
+
+  table = manage( new Gtk::Table( 2, 1, false ) );
+  
+  label = manage( new Gtk::Label( "Keyword", 0 ) );
+  table->attach( *label, 0, 1, 0, 1, GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND);
+  table->attach( m_keyword_entry, 1, 2, 0, 1, GTK_FILL | GTK_EXPAND | GTK_SHRINK, GTK_FILL | GTK_EXPAND);
+  
+  table->set_border_width(5);
+  label = manage( new Gtk::Label("Keyword") );
+  m_notebook.pages().push_back( Gtk::Notebook_Helpers::TabElem( *table, *label ) );
+
+  // ------------------------
+
   Gtk::VBox *vbox = get_vbox();
   vbox->set_spacing(10);
   vbox->pack_start( m_notebook, false );
@@ -332,6 +348,11 @@ void SearchDialog::search_cb()
     unsigned int uin = Contact::StringtoUIN( m_uin_entry.get_text() );
     if (uin == 0) return;
     m_ev = icqclient.searchForContacts(uin);
+
+  } else if (n == 2) {
+    string kw = m_keyword_entry.get_text();
+    if (kw.empty()) return;
+    m_ev = icqclient.searchForContacts(kw);
   }
 
   m_add_button.set_sensitive(false);
@@ -464,6 +485,10 @@ void SearchDialog::reset_cb()
   m_agerange_selected = range_NoRange;
   m_sex_menu.set_history(0);
   m_sex_selected = SEX_UNSPECIFIED;
+
+  m_uin_entry.delete_text(0, -1);
+  
+  m_keyword_entry.delete_text(0, -1);
 }
 
 void SearchDialog::set_status( const string& text )

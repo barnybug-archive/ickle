@@ -53,6 +53,9 @@ class SearchDialog : public Gtk::Dialog {
   // -- uin search --
   Gtk::Entry m_uin_entry;
 
+  // -- keyword search --
+  Gtk::Entry m_keyword_entry;
+
   Gtk::CList m_clist;
 
   Gtk::Button m_ok_button, m_search_button, m_stop_button, m_add_button, m_reset_button;
