@@ -48,12 +48,21 @@ string TRANSLATIONS_DIR;
 string ICONS_DIR;
 
 int main(int argc, char* argv[]) {
-  Gtk::Main gtkmain(argc,argv,true);
-  IckleClient client(argc,argv);
+  try {
+    Gtk::Main gtkmain(argc,argv,true);
+    IckleClient client(argc,argv);
 #ifdef GNOME_ICKLE
-  applet_widget_gtk_main();
+    applet_widget_gtk_main();
 #else
-  gtkmain.run();
+    gtkmain.run();
 #endif 
-  return 0;
+    return 0;
+  }
+  catch( exception &e ) {
+    cout << "Exiting abnormally: " << e.what() << endl;
+  }
+  catch( ... ) {
+    cout << "Exiting abnormally" << endl;
+  }
+  return 1;
 }
