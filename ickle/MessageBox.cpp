@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.25 2001-12-10 19:19:03 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.26 2001-12-10 20:28:42 nordman Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -390,6 +390,9 @@ void MessageBox::messageack_cb(MessageEvent *ev) {
       }
       
       set_status("Sent message successfully");
+
+      if( g_settings.getValueBool( "message_autoclose" ) )
+        destroy.emit();
     } else {
       set_status("Sending message failed");
     }
