@@ -118,7 +118,7 @@ namespace StringPrivate
   }
 
   template <typename T>
-  Glib::ustring
+  inline Glib::ustring
   Composition::as_ustring(const T& obj)
   {
     std::ostringstream os;
@@ -129,6 +129,13 @@ namespace StringPrivate
     return Glib::locale_to_utf8(os.str());
   }
   
+  template <>
+  inline Glib::ustring
+  Composition::as_ustring<Glib::ustring>(const Glib::ustring& obj)
+  {
+    return obj;
+  }
+
   // implementation of class Composition
   template <typename T>
   inline Composition &Composition::arg(const T &obj)
