@@ -91,14 +91,20 @@ namespace ICQ2000 {
 
       Buffer sb(m_translator);
       m_recv.chopOffBuffer( sb, length+2 );
-      sb.advance(2);
 
       if (m_state == WAITING_FOR_INIT) {
 	ParseInitPacket(sb);
 	m_state = WAITING_FOR_UIN_CONFIRMATION;
 	throw UINConfirmationException();
       } else if (m_state == WAITING_FOR_INIT_ACK) {
-	ParseInitAck(sb, length);
+	ParseInitAck(sb);
+	if (m_eff_tcp_version == 7)
+	  m_state = WAITING_FOR_INIT2; // v7 has an extra stage of handshaking
+	else
+	  m_state = CONNECTED;          // v5 is done handshaking now
+      } else if (m_state == WAITING_FOR_INIT2) {
+	// This is a V7 only packet
+	ParseInit2(sb);
 	m_state = CONNECTED;
       } else if (m_state == CONNECTED) {
 	ParsePacket(sb);
@@ -153,8 +159,11 @@ namespace ICQ2000 {
   }
 
   void DirectClient::ParseInitPacket(Buffer &b) {
-    unsigned char start_byte;
     b.setEndianness(Buffer::LITTLE);
+    unsigned short length;
+    b >> length;
+
+    unsigned char start_byte;
     b >> start_byte;
     if (start_byte != 0xff) throw ParseException("Init Packet didn't start with 0xff");
     
@@ -198,11 +207,31 @@ namespace ICQ2000 {
 
   }
 
-  void DirectClient::ParseInitAck(Buffer &b, unsigned short length) {
-    if (length != 4) throw ParseException("Init Ack not as expected");
+  void DirectClient::ParseInitAck(Buffer &b) {
     b.setEndianness(Buffer::LITTLE);
+    unsigned short length;
+    b >> length;
+    if (length != 4) throw ParseException("Init Ack not as expected");
+
     unsigned int a;
     b >> a;       // should be 0x00000001 really
+  }
+
+  void DirectClient::ParseInit2(Buffer &b) {
+    b.setEndianness(Buffer::LITTLE);
+    unsigned short length;
+    b >> length;
+
+    unsigned char type;
+    b >> type;
+    if (type != 0x03) throw ParseException("Expecting V7 final handshake packet, received something else");
+    if (length != 0x0021) throw ParseException("V7 final handshake packet incorrect length");
+
+    unsigned int unknown;
+    b >> unknown // 0x0000000a
+      >> unknown; // 0x00000001 on genuine connections, otherwise some weird connections which we drop
+
+    if (unknown != 0x00000001) throw DisconnectedException("Ignoring weird direct connection");
   }
 
   void DirectClient::ParsePacket(Buffer& b) {
@@ -214,6 +243,10 @@ namespace ICQ2000 {
   }
 
   void DirectClient::ParsePacketV6(Buffer& b) {
+    b.setEndianness(Buffer::LITTLE);
+    unsigned short length;
+    b >> length;
+
     // we should get the decrypted packet in
     unsigned int checksum, foreground, background;
     unsigned short command, seqnum, unknown, ackFlags, msgFlags, version;
@@ -277,7 +310,11 @@ namespace ICQ2000 {
   }
 
   void DirectClient::ParsePacketV7(Buffer& b) {
-    
+    b.setEndianness(Buffer::LITTLE);
+    unsigned short length;
+    b >> length;
+
+    cout << "V7 packet" << endl;
   }
 
   bool DirectClient::Decrypt(Buffer& in, Buffer& out) {
@@ -292,6 +329,10 @@ namespace ICQ2000 {
       
       in.setEndianness(Buffer::LITTLE);
       out.setEndianness(Buffer::LITTLE);
+
+      unsigned short length;
+      in >> length;
+      out << length;
 
       unsigned int check;
       in >> check;
@@ -315,7 +356,7 @@ namespace ICQ2000 {
 	out << c;
       }
 
-      B1 = (out[4]<<24) | (out[6]<<16) | (out[4]<<8) | (out[6]<<0);
+      B1 = (out[6]<<24) | (out[8]<<16) | (out[6]<<8) | (out[8]<<0);
       
       // special decryption
       B1 ^= check;
@@ -324,7 +365,7 @@ namespace ICQ2000 {
       M1 = (B1 >> 24) & 0xFF;
       if(M1 < 10 || M1 >= size) return false;
 
-      X1 = out[M1] ^ 0xFF;
+      X1 = out[M1+2] ^ 0xFF;
       if(((B1 >> 16) & 0xFF) != X1) return false;
       
       X2 = ((B1 >> 8) & 0xFF);
