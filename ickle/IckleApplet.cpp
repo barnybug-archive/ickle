@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.11 2001-12-07 23:48:56 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.12 2001-12-09 19:51:35 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -122,7 +122,7 @@ void IckleApplet::icq_statuschanged_cb(MyStatusChangeEvent *ev)
 {
   Gtk::ImageLoader *il;
 
-  if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgss > 0)
+  if( !m_nr_msgs ) { // we don't even display the status for (m_nr_msgs > 0)
     il = g_icons.IconForStatus( ev->getStatus(), icqclient.getInvisible() );
     m_pm.set( il->pix(), il->bit() );
   }
@@ -155,9 +155,7 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
     list<msg_entry>::iterator itr = m_pending.begin();
     for( ; itr->contact != c && itr != m_pending.end(); ++itr );
 
-    if( itr == m_pending.end() ) // no entry?!
-      g_warning( "empty message queue changed for %s(%i)", c->getUIN(), c->getAlias().c_str()  );
-    else {
+    if( itr != m_pending.end() ) {
       m_nr_msgs -= (itr->nr_msgs - c->numberPendingMessages());
       if( !c->numberPendingMessages() ) // no more pending messages from this contact
         m_pending.erase( itr );
@@ -183,7 +181,6 @@ void IckleApplet::icons_changed_cb()
   else // we don't keep track of the exact event so just use normal
     il = g_icons.IconForEvent( MessageEvent::Normal );
   m_pm.set( il->pix(), il->bit() );
-  
 }
 
 
