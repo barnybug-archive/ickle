@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.90 2002-04-04 23:21:45 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.91 2002-04-04 23:47:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -1094,8 +1094,7 @@ void IckleClient::check_pid_file(){
     if (getpid() == pid || (kill(pid, 0) == -1 && errno == ESRCH)) {
       cerr << "ickle left behind a stale lockfile (" << PID_FILENAME << ")" << endl;
     } else {
-      cerr << "ickle appears to be already running (process id " << pid << ")." << endl
-	   << "Either kill this process (if it is actually ickle), or remove the lockfile (" << PID_FILENAME << ")" << endl;
+      gui.already_running_prompt( PID_FILENAME, pid );
       exit(1);
     }
   }

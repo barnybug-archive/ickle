@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.37 2002-04-02 21:11:07 bugcreator Exp $
+/* $Id: IckleGUI.h,v 1.38 2002-04-04 23:47:49 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -118,12 +118,13 @@ class IckleGUI : public Gtk::Window {
   void about_cb();
   void my_user_info_cb();
 
-  // -- disconnected callbacks --
+  // -- prompts --
   void invalid_login_prompt();
   void turboing_prompt();
   void duallogin_prompt();
   void disconnect_lowlevel_prompt(int retries);
   void disconnect_unknown_prompt(int retries);
+  void already_running_prompt(const std::string& pid_file, unsigned int pid);
 
   void setDisplayTimes(bool d);
   string getAutoResponse() const;

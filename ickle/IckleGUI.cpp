@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.51 2002-04-04 20:08:16 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.52 2002-04-04 23:47:49 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -526,6 +526,15 @@ void IckleGUI::duallogin_prompt() {
   PromptDialog pd(this, PromptDialog::PROMPT_WARNING,
                   "The server recieved multiple simultaneous login for this account.\n"
                   "Do you have multiple clients running with the same account?" );
+  pd.run();
+}
+
+void IckleGUI::already_running_prompt(const std::string& pid_file, unsigned int pid)
+{
+  ostringstream ostr;
+  ostr << "ickle appears to be already running (process id " << pid << "). " << endl
+       << "Either kill this process (if it is actually ickle), or remove the lockfile:" << endl << pid_file;
+  PromptDialog pd(this, PromptDialog::PROMPT_WARNING, ostr.str() );
   pd.run();
 }
 
