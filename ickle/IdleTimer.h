@@ -1,4 +1,4 @@
-/* $Id: IdleTimer.h,v 1.2 2002-01-10 11:43:10 nordman Exp $
+/* $Id: IdleTimer.h,v 1.3 2002-04-18 17:32:57 nordman Exp $
  *
  * IdleTimer: Used to implement idle-events for X.
  *
@@ -31,6 +31,7 @@
 #include <sigc++/signal_system.h>
 
 #ifdef USE_XSCREENSAVER
+# include <X11/Xlib.h>
 # include <X11/Xutil.h>
 # include <X11/extensions/scrnsaver.h>
 #endif
