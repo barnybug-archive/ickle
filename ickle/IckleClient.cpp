@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.52 2002-01-02 21:41:27 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.53 2002-01-04 14:15:04 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -128,7 +128,7 @@ void IckleClient::loadContactList() {
 	Contact c(uin);
 
 	// only needed for backward compatibility
-        // (history_file settingsentry only exists for v >= 0.3)
+        // (history_file settingsentry only exists for v >= 0.2.2)
         ostringstream historyfile;
         historyfile << uin << ".history";
         cs.defaultValueString("history_file", historyfile.str() );
@@ -180,7 +180,7 @@ void IckleClient::loadContactList() {
 	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
 	m_settingsmap[c.getUIN()] = *dirit;
         string s = cs.getValueString("history_file");
-        if ( !s.size() ) // v < 0.3 settings file, use a newly created history file from now on
+        if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
           s = get_unique_historyname();
         m_histmap[c.getUIN()] = new History( s );
 	icqclient.addContact(c);
@@ -752,8 +752,16 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
     user.save(m_settingsmap[c->getUIN()]);
 
   } else if (ev->getType() == ContactListEvent::UserRemoved) {
-    // delete
+    // delete .user file for this contact
     unlink( m_settingsmap[c->getUIN()].c_str() );
+
+    // remove history file for mobile users as well, we will not be able to correctly
+    // reuse this history file if the same user is added anyway
+    if( !c->isICQContact() )
+      unlink( string(CONTACT_DIR + m_histmap[c->getUIN()]->getFilename()).c_str() );
+
+    m_histmap.erase(c->getUIN());
+    m_settingsmap.erase(c->getUIN());
   }
 }
 
