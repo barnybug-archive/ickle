@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.38 2002-04-04 23:47:49 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.39 2002-04-14 22:49:27 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -83,6 +83,9 @@ class IckleGUI : public Gtk::Window {
 
   void create_messagebox(const ICQ2000::ContactRef& c, History *h);
   void raise_messagebox(const ICQ2000::ContactRef& c);
+
+  gint remove_from_queue_idle_cb(MessageEvent *ev);
+  void remove_from_queue_delayed(MessageEvent *ev);
 
   void set_ickle_title();
   bool m_exiting;

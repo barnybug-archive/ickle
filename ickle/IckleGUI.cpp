@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.53 2002-04-07 15:03:36 bugcreator Exp $
+/* $Id: IckleGUI.cpp,v 1.54 2002-04-14 22:49:27 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -269,6 +269,18 @@ void IckleGUI::popup_next_event(const ContactRef& c, History *h) {
   }
 }
 
+gint IckleGUI::remove_from_queue_idle_cb(MessageEvent *ev)
+{
+  m_message_queue.remove_from_queue(ev);
+  return 0;
+}
+
+void IckleGUI::remove_from_queue_delayed(MessageEvent *ev)
+{
+  // hmmff.. if it's any consolation I don't like this either :-(
+  Gtk::Main::idle.connect( bind( slot( this, &IckleGUI::remove_from_queue_idle_cb ), ev ) );
+}
+
 void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent *ev)
 {
   ostringstream ostr;
@@ -276,14 +288,14 @@ void IckleGUI::popup_user_added_you(const ContactRef& c, UserAddICQMessageEvent 
 
   PromptDialog *dialog = new PromptDialog( this, PromptDialog::PROMPT_INFO, ostr.str(), false );
   manage( dialog );
-  m_message_queue.remove_from_queue(ev);
+  remove_from_queue_delayed(ev);
 }
 
 void IckleGUI::popup_auth_req(const ContactRef& c, AuthReqICQMessageEvent *ev)
 {
   AuthRespDialog *dialog = new AuthRespDialog(this, c, ev);
   manage( dialog );
-  m_message_queue.remove_from_queue(ev);
+  remove_from_queue_delayed(ev);
 }
 
 void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
@@ -298,7 +310,7 @@ void IckleGUI::popup_auth_resp(const ContactRef& c, AuthAckICQMessageEvent *ev)
 
   PromptDialog *dialog = new PromptDialog( this, PromptDialog::PROMPT_INFO, ostr.str(), false );
   manage( dialog );
-  m_message_queue.remove_from_queue(ev);
+  remove_from_queue_delayed(ev);
 }
 
 void IckleGUI::popup_messagebox(const ContactRef& c, History *h)
