@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.h,v 1.5 2001-11-25 15:30:17 nordman Exp $
+/* $Id: IckleApplet.h,v 1.6 2001-11-26 20:36:11 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -40,7 +40,7 @@ class IckleApplet : public SigC::Object {
 
   GtkWidget *   m_applet;
   Gtk::Frame    m_frame;
-  Gtk::HBox     m_hbox;
+  Gtk::Box *    m_box;
   Gtk::Label    m_nr;
   Gtk::Pixmap   m_pm;
   IckleGUI *    m_gui;
@@ -61,20 +61,23 @@ class IckleApplet : public SigC::Object {
   // C-callback to member function converters
   static void   applet_click_converter          (GtkWidget *sender, GdkEventButton *ev, gpointer data);
   static void   applet_sizechange_converter     (GtkWidget *w, int size, gpointer data);
-  
+  static void   applet_orientchange_converter   (AppletWidget *applet, GNOME_Panel_OrientType orient, gpointer data);
+
   // callbacks
   void          applet_click_cb         (GdkEventButton *ev);
-  void          applet_sizechange_cb    (int size);
   static void   applet_status_menu_cb   (AppletWidget *applet, gpointer data);
   static void   applet_toogle_menu_cb   (AppletWidget *applet, gpointer data);
   static gint   applet_delete_cb        (GtkWidget *widget, GdkEvent  *event, gpointer data);
+  void          applet_orientchange_cb  (PanelOrientType orient);
   bool          icq_messaged_cb         (MessageEvent *ev);
   void          icq_statuschanged_cb    (MyStatusChangeEvent *ev);
   void          icq_contactlist_cb      (ContactListEvent *ev);
   
   // misc
+  void          set_applet_size         (int size, PanelOrientType orient);
   void          update_applet_tooltip   ();
   void          update_applet_number    ();
+  void          reset_applet_box        ();
   void          toggle_gui              ();
 
  public:

@@ -1,4 +1,4 @@
-/* $Id: IckleApplet.cpp,v 1.5 2001-11-25 15:30:17 nordman Exp $
+/* $Id: IckleApplet.cpp,v 1.6 2001-11-26 20:36:11 nordman Exp $
  *
  * GNOME applet for ickle.
  *
@@ -31,8 +31,6 @@
 
 using std::ostringstream;
 
-#define PANEL_PADDING 10
-
 void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, gpointer data)
 {
   ((IckleApplet *)data)->applet_click_cb(ev);
@@ -41,9 +39,15 @@ void IckleApplet::applet_click_converter(GtkWidget *sender, GdkEventButton *ev, 
 
 void IckleApplet::applet_sizechange_converter(GtkWidget *w, int size, gpointer data)
 {
-    ((IckleApplet *)data)->applet_sizechange_cb(size);
+    ((IckleApplet *)data)->set_applet_size(size,
+                                           applet_widget_get_panel_orient( APPLET_WIDGET(w) ) );
 }
  
+
+void IckleApplet::applet_orientchange_converter(AppletWidget *applet, PanelOrientType orient, gpointer data)
+{
+  ((IckleApplet *)data)->applet_orientchange_cb(orient);
+}
 
 void IckleApplet::applet_click_cb(GdkEventButton *ev)
 {
@@ -54,13 +58,6 @@ void IckleApplet::applet_click_cb(GdkEventButton *ev)
     toggle_gui();
   else
     m_gui->user_popup( m_pending.front().contact );
-}
-
-
-void IckleApplet::applet_sizechange_cb(int size)
-{
-  size -= PANEL_PADDING;
-  m_frame.set_usize(-1,size);
 }
 
 
@@ -80,7 +77,20 @@ void IckleApplet::applet_toogle_menu_cb(AppletWidget *applet, gpointer data)
 gint IckleApplet::applet_delete_cb(GtkWidget *widget, GdkEvent  *event, gpointer data)
 {
   ((IckleApplet *)data)->m_applet = NULL;
+  delete ((IckleApplet *)data)->m_box;
   return FALSE;
+}
+
+
+void IckleApplet::applet_orientchange_cb(PanelOrientType orient)
+{
+  int size = 48;
+
+#ifdef HAVE_PANEL_PIXEL_SIZE
+  size = applet_widget_get_panel_pixel_size( APPLET_WIDGET(m_applet) );
+#endif
+  reset_applet_box();
+  set_applet_size( size, orient );
 }
 
 
@@ -165,6 +175,22 @@ void IckleApplet::icq_contactlist_cb(ContactListEvent *ev)
 }
 
 
+void IckleApplet::set_applet_size(int size, PanelOrientType orient)
+{
+  int width, height;
+
+  width = height = -1;
+
+  if( orient == ORIENT_UP || orient == ORIENT_DOWN ) {
+    height = size - (size / 8);
+  }
+  else {
+    width = size - (size / 8);
+  }
+  m_frame.set_usize( width, height );
+}
+
+
 void IckleApplet::update_applet_tooltip()
 {
   ostringstream ostr;
@@ -193,6 +219,34 @@ void IckleApplet::update_applet_number()
 }
 
 
+void IckleApplet::reset_applet_box()
+{
+  int padding;
+  PanelOrientType orient = applet_widget_get_panel_orient( APPLET_WIDGET(m_applet) );
+
+  if( m_box ) { // already allocated, free this first
+    m_box->remove(m_pm);
+    m_box->remove(m_nr);
+    m_frame.remove();
+    delete m_box;
+  }
+
+  if( orient == ORIENT_UP || orient == ORIENT_DOWN ) {
+    m_box = new Gtk::HBox(false, 0);
+    padding = 3;
+  }
+  else {
+    m_box = new Gtk::VBox(false, 0);
+    padding = 1;
+  }
+
+  m_box->pack_start( m_pm, true, true, padding );
+  m_box->pack_end( m_nr, true, true, padding );
+  m_box->show_all();
+  m_frame.add(*m_box);
+}
+
+
 void IckleApplet::toggle_gui()
 {
   if( m_gui->is_visible() )
@@ -203,9 +257,9 @@ void IckleApplet::toggle_gui()
 
 
 IckleApplet::IckleApplet()
-  : m_hbox(false, 0)
 {
   m_applet = NULL;
+  m_box = NULL;
   m_nr.set_text( "0" );
 
   m_nr_msgs = 0;
@@ -240,6 +294,8 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
 		     GTK_SIGNAL_FUNC(applet_click_converter), this);
   gtk_signal_connect(GTK_OBJECT(m_applet), "delete_event",
   		     GTK_SIGNAL_FUNC(applet_delete_cb), this);
+  gtk_signal_connect(GTK_OBJECT(m_applet), "change_orient",
+  		     GTK_SIGNAL_FUNC(applet_orientchange_converter), this);
 
 #ifdef HAVE_PANEL_PIXEL_SIZE
   gtk_signal_connect(GTK_OBJECT(m_applet),"change_pixel_size",
@@ -269,10 +325,7 @@ void IckleApplet::init(int argc, char* argv[], IckleGUI &g)
   // whip the layout together
   il = Icons::IconForStatus( STATUS_OFFLINE, false );
   m_pm.set( il->pix(), il->bit() );
-  m_hbox.pack_start( m_pm, true, true, 3 );
-  m_hbox.pack_end( m_nr, true, true, 3 );
-  m_frame.add(m_hbox);
-
+  reset_applet_box();
   applet_widget_add(APPLET_WIDGET(m_applet), GTK_WIDGET(m_frame.gtkobj()) );
   update_applet_tooltip();
 
