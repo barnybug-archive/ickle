@@ -677,7 +677,9 @@ void UserInfoDialog::update_from_userinfo()
   }
   else
   {
-    birthday_entry.set_text(Glib::locale_to_utf8(m_contact->getHomepageInfo().getBirthDate() ) );
+    birthday_entry.set_text( format_date( m_contact->getHomepageInfo().birth_day,
+					  m_contact->getHomepageInfo().birth_month,
+					  m_contact->getHomepageInfo().birth_year ) );
   }
 
   // ----------------------- Stats ----------------------
@@ -708,6 +710,14 @@ string UserInfoDialog::format_IP_and_port(unsigned int ip, unsigned short port)
     return String::ucompose( _("%1:?"), Utils::format_IP(ip) );
 
   return String::ucompose( _("%1:%2"), Utils::format_IP(ip), port );
+}
+
+string UserInfoDialog::format_date(unsigned char day, unsigned char month, unsigned short year)
+{
+  if (day == 0 || year == 0)
+    return string(_("Unspecified"));
+
+  return Utils::format_date(day, month, year);
 }
 
 void UserInfoDialog::status_change_cb(StatusChangeEvent *ev)

@@ -79,6 +79,7 @@ class UserInfoDialog : public Gtk::Dialog,
 
   static std::string format_time(time_t t);
   static std::string format_IP_and_port(unsigned int ip, unsigned short port);
+  static std::string format_date(unsigned char day, unsigned char month, unsigned short year);
 
   // -- library callbacks --
   void status_change_cb(ICQ2000::StatusChangeEvent *ev);

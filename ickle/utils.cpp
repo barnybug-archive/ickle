@@ -185,4 +185,23 @@ namespace Utils
 			     ( ip & 0xff ) );
   }
 
+  std::string format_date(unsigned char day, unsigned char month, unsigned short year)
+  {
+    struct tm date;
+    date.tm_sec = 0;
+    date.tm_min = 0;
+    date.tm_hour = 0;
+    date.tm_mday = day;
+    date.tm_mon = month - 1;
+    date.tm_year = year - 1900;
+    date.tm_isdst = 0;
+
+    mktime(&date);
+
+    char bday[255];
+    strftime(bday, 255, _("%B %e, %G"), &date);
+
+    return std::string(Glib::locale_to_utf8(bday));
+  }
+
 }

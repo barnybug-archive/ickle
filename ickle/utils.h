@@ -52,6 +52,9 @@ namespace Utils
 
   /* IP address -> string */
   std::string format_IP(unsigned int ip);
+
+  /* date -> string */
+  std::string format_date(unsigned char day, unsigned char month, unsigned short year);
 };
 
 #endif /* UTILS_H */
