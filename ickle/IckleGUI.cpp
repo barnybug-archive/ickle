@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.35 2002-01-29 17:06:59 nordman Exp $
+/* $Id: IckleGUI.cpp,v 1.36 2002-01-30 15:35:35 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,6 +34,7 @@
 #include "gtkspell.h"
 
 using std::map;
+using std::ostringstream;
 
 IckleGUI::IckleGUI()
   : m_top_vbox(false),
@@ -387,7 +388,7 @@ void IckleGUI::add_mobile_user_cb() {
 
 void IckleGUI::invalid_login_prompt() {
   PromptDialog pd(PromptDialog::PROMPT_WARNING, "You have not entered a valid UIN and Password. "
-	                                     "Go to Settings and enter the details.");
+	                                     "Go to Settings and correct the details.");
   pd.run();
 }
 
@@ -397,6 +398,39 @@ void IckleGUI::turboing_prompt(){
 		  "quickly and so it has blocked you temporarily. Don't be alarmed, just "
 		  "wait for at least 5 minutes before reattempting. If you still get this "
 		  "message then wait a bit longer - maybe up to an hour.");
+  pd.run();
+}
+
+void IckleGUI::duallogin_prompt() {
+  PromptDialog pd(PromptDialog::PROMPT_WARNING,
+                  "The server recieved multiple simultaneous login for this account"
+                  "Do you have multiple clients running with the same account?" );
+  pd.run();
+}
+
+void IckleGUI::disconnect_lowlevel_prompt(int retries) {
+  ostringstream os;
+  os << "There occured a networking error while communicating with the server, and as a "
+    "result you were disconnected.";
+  if( retries ) {
+    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success."
+       << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
+  }
+  
+  PromptDialog pd( PromptDialog::PROMPT_WARNING, os.str() );
+  pd.run();
+}
+
+void IckleGUI::disconnect_unknown_prompt(int retries) {
+  ostringstream os;
+  os << "There occured an unknown error while communicating with the server, and as a "
+    "result you were disconnected.";
+  if( retries ) {
+    os << " Ickle tried to reconnect " << retries << " times, unfortunately with little success."
+       << "You will have to manually attempt to reconnect, preferably after waiting a short while.";
+  }
+  
+  PromptDialog pd( PromptDialog::PROMPT_WARNING, os.str() );
   pd.run();
 }
 

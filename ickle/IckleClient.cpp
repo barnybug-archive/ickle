@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.69 2002-01-27 23:11:45 nordman Exp $
+/* $Id: IckleClient.cpp,v 1.70 2002-01-30 15:35:35 nordman Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -385,8 +385,6 @@ void IckleClient::connected_cb(ConnectedEvent *c) {
 void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   if (c->getReason() == DisconnectedEvent::REQUESTED) {
     SignalLog(LogEvent::INFO, "Disconnected as requested");
-  } else if (c->getReason() == DisconnectedEvent::FAILED_DUALLOGIN) {
-    SignalLog(LogEvent::ERROR, "Dual login, disconnected");
   } else {
     ostringstream ostr;
     ostr << "Problem connecting: ";
@@ -409,6 +407,9 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
     case DisconnectedEvent::FAILED_UNKNOWN:
       ostr << "Unknown";
       break;
+    case DisconnectedEvent::FAILED_DUALLOGIN:
+      ostr << "Dual login, disconnected";
+      break;
     }
     SignalLog(LogEvent::ERROR, ostr.str() );
   }
@@ -416,14 +417,34 @@ void IckleClient::disconnected_cb(DisconnectedEvent *c) {
   // disconnect PingServer callback
   poll_server_cnt.disconnect();
   
-  if (c->getReason() == DisconnectedEvent::FAILED_TURBOING) {
-    gui.turboing_prompt();
-    return;
-  }
+  // do another switch here since we want to return early for some of these reasons
+    switch(c->getReason()) {
+    case DisconnectedEvent::REQUESTED:
+      return;
+    case DisconnectedEvent::FAILED_BADUSERNAME:
+    case DisconnectedEvent::FAILED_BADPASSWORD:
+    case DisconnectedEvent::FAILED_MISMATCH_PASSWD:
+      gui.invalid_login_prompt();
+      return;
+    case DisconnectedEvent::FAILED_TURBOING:
+      gui.turboing_prompt();
+      return;
+    case DisconnectedEvent::FAILED_DUALLOGIN:
+      gui.duallogin_prompt();
+      return;
+    }
 
-  if (m_retries > 0 && c->getReason() != DisconnectedEvent::REQUESTED && c->getReason() != DisconnectedEvent::FAILED_DUALLOGIN) {
+  if (m_retries > 0) {
     --m_retries;
     Gtk::Main::idle.connect( bind( slot( this, &IckleClient::idle_connect_cb ), icqclient.getStatus() ) );
+  }
+  else {
+    m_retries = g_settings.getValueUnsignedChar("reconnect_retries"); // reset m_retries
+
+    if( c->getReason() == DisconnectedEvent::FAILED_LOWLEVEL )
+      gui.disconnect_lowlevel_prompt(m_retries);
+    else if( c->getReason() == DisconnectedEvent::FAILED_UNKNOWN )
+      gui.disconnect_unknown_prompt(m_retries);
   }
 }
 
