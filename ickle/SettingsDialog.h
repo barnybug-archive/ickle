@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.48 2003-03-09 15:02:22 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.49 2003-03-10 00:49:39 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -30,6 +30,8 @@
 #include <gtkmm/spinbutton.h>
 #include <gtkmm/button.h>
 #include <gtkmm/tooltips.h>
+
+#include <libicq2000/constants.h>
 
 class SettingsDialog : public Gtk::Dialog
 {
@@ -66,7 +68,7 @@ class SettingsDialog : public Gtk::Dialog
   // login page
   Gtk::SpinButton m_login_uin;
   Gtk::Entry m_login_pass;
-  Gtk::CheckButton m_auto_connect;
+  ICQ2000::Status m_auto_connect;
   Gtk::CheckButton m_auto_reconnect;
   Gtk::SpinButton m_reconnect_retries;
 
@@ -88,9 +90,6 @@ class SettingsDialog : public Gtk::Dialog
   // page init functions
   void init_pages();
   void init_login_page();
-  void init_login_uin_page();
-  void init_login_connect_page();
-  void init_login_reconnect_page();
   void init_look_page();
   void init_look_message_page();
   void init_look_contact_list_page();
@@ -108,9 +107,6 @@ class SettingsDialog : public Gtk::Dialog
   // load from settings functions
   void load_pages();
   void load_login_page();
-  void load_login_uin_page();
-  void load_login_connect_page();
-  void load_login_reconnect_page();
   void load_look_page();
   void load_look_message_page();
   void load_look_contact_list_page();
@@ -128,9 +124,6 @@ class SettingsDialog : public Gtk::Dialog
   // save to settings functions
   void save_pages();
   void save_login_page();
-  void save_login_uin_page();
-  void save_login_connect_page();
-  void save_login_reconnect_page();
   void save_look_page();
   void save_look_message_page();
   void save_look_contact_list_page();
@@ -158,6 +151,9 @@ class SettingsDialog : public Gtk::Dialog
   void on_apply_clicked();
   void on_ok_clicked();
   
+  void choose_autoconnect (unsigned int s);
+  
+    
   void lnf_charset_validate_cb();
 
  public:

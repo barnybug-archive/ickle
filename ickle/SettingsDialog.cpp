@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.64 2003-03-09 15:02:20 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.65 2003-03-10 00:49:39 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -24,13 +24,19 @@
 #include <gtkmm/entry.h>
 #include <gtkmm/stock.h>
 #include <gtkmm/messagedialog.h>
+#include <gtkmm/menu.h>
+#include <gtkmm/optionmenu.h>
+#include <gtkmm/imagemenuitem.h>
+#include <gtkmm/menushell.h>
 
 #include "main.h"
 #include "Settings.h"
 
 #include "ickle.h"
+#include "UserInfoHelpers.h"
 #include "ucompose.h"
 #include "utils.h"
+#include "Icons.h"
 
 class SectionFrame : public Gtk::Frame
 {
@@ -199,21 +205,9 @@ void SettingsDialog::init_pages()
 void SettingsDialog::init_login_page()
 {
   Gtk::VBox * vbox = manage( new Gtk::VBox() );
-  add_page( _("Login"), vbox, true );
-  // sub-pages
-  init_login_uin_page();
-  init_login_connect_page();
-  init_login_reconnect_page();
-}
-
-void SettingsDialog::init_login_uin_page()
-{
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
-    
-  SectionFrame * frame = manage( new SectionFrame( _("UIN/Password") ) );
+  SectionFrame * frame = manage( new SectionFrame( _("Login") ) );
+  Gtk::Table * table = new Gtk::Table( 2, 5 );
   
-  Gtk::Table * table = new Gtk::Table( 2, 2 );
-
   table->attach( * manage( new Gtk::Label( _("UIN"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
   m_login_uin.set_range(1, 0xffffffff);
@@ -228,73 +222,60 @@ void SettingsDialog::init_login_uin_page()
   m_login_pass.set_visibility(false);
   m_login_pass.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_login_pass,_("the password for the account"));
-  table->attach( m_login_pass, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL );
-
-  table->set_spacings(5);
-  table->set_border_width(10);
+  table->attach( m_login_pass, 1, 2, 1, 2, Gtk::FILL, Gtk::FILL | Gtk::EXPAND );
   
-  frame->add( * table );
-
-  vbox->pack_start( *frame );
+  table->attach( * manage( new Gtk::Label( _("Auto connect to"), 0.0, 0.5 ) ),
+		 0, 1, 2, 3, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
   
-  add_page( _("UNI/Password"), vbox, false );
-}
-
-
-void SettingsDialog::init_login_connect_page()
-{
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
+  Gtk::OptionMenu * autoconnect_om = manage (new Gtk::OptionMenu() );
+  m_tooltip.set_tip (* autoconnect_om,_("Specifies the state for auto connect"));
+  {
+    using namespace Gtk::Menu_Helpers;
+    Gtk::Menu *menu = Gtk::manage( new Gtk::Menu() );
+    MenuList menu_list = menu->items();
+    for (int n = ICQ2000::STATUS_ONLINE; n <= ICQ2000::STATUS_OFFLINE; n++)
+    {
+      Glib::RefPtr<Gdk::Pixbuf> p = g_icons.get_icon_for_status(ICQ2000::Status(n), false );
+      Gtk::Image * img = manage( new Gtk::Image( p ) );
+      Glib::ustring label = UserInfoHelpers::getStringFromStatus(ICQ2000::Status(n) );
+      
+      menu_list.push_back( ImageMenuElem( label,* img, 
+      			  SigC::bind<int>( SigC::slot(*this, &SettingsDialog::choose_autoconnect),n) ) );
+    }
+    //we have to load here, otherwise we have to make the menu a variable of the class
+    m_auto_connect=ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect") );
+    menu->set_active(m_auto_connect);
+    autoconnect_om->set_menu( *menu );
+  }
+  table->attach( * autoconnect_om, 1, 2, 2, 3, Gtk::FILL | Gtk::EXPAND, Gtk::FILL );
   
-  SectionFrame * frame = manage( new SectionFrame( _("Auto connect") ) );
   
-  Gtk::Table * table = new Gtk::Table( 1, 1 );
-
-  m_auto_connect.set_label(_("Auto connect"));
-  m_auto_connect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
-  m_tooltip.set_tip (m_auto_connect,_("Determines if ickle will automatically connect to the ICQ network"));
-  table->attach( m_auto_connect, 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
-  table->set_border_width(10);
-  
-  frame->add( * table );
-  
-  vbox->pack_start( *frame );
-  //todo: autoconnect into which state? Online, Invisible, DND, etc...
-  
-  add_page( _("Auto connect"), vbox, false );
-}
-
-void SettingsDialog::init_login_reconnect_page()
-{
-  Gtk::VBox * vbox = manage( new Gtk::VBox() );
-  
-  SectionFrame * frame = manage( new SectionFrame( _("Auto reconnect") ) );
-  
-  Gtk::Table * table = new Gtk::Table( 2, 2 );
-
   table->attach( * manage( new Gtk::Label( _("Reconnect retries"), 0.0, 0.5 ) ),
-		 0, 1, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+		 0, 1, 3, 4, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
   m_reconnect_retries.set_range(1, 10);
   m_reconnect_retries.set_digits(0);
   m_reconnect_retries.set_increments(1, 1);
   m_reconnect_retries.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_reconnect_retries,_("Specifies how often ickle tries to reconnect after an error."));
-  table->attach( m_reconnect_retries, 1, 2, 0, 1, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
+  table->attach( m_reconnect_retries, 1, 2, 3, 4, Gtk::FILL | Gtk::EXPAND, Gtk::FILL);
   
   m_auto_reconnect.set_label(_("Auto reconnect"));
   m_auto_reconnect.signal_toggled().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_auto_reconnect,_("Determines if ickle tries to reconnect after an error."));
-  table->attach( m_auto_reconnect, 0, 2, 1, 2, Gtk::FILL, Gtk::FILL );
+  table->attach( m_auto_reconnect, 0, 2, 4, 5, Gtk::FILL, Gtk::FILL );
   
+  
+  
+
   table->set_spacings(5);
-    
   table->set_border_width(10);
-    
+  
   frame->add( * table );
-  
+
   vbox->pack_start( *frame );
-  
-  add_page( _("Auto reconnect"), vbox, false );
+  add_page( _("Login"), vbox, true );
 }
+
 
 void SettingsDialog::init_look_page()
 {
@@ -507,28 +488,13 @@ void SettingsDialog::load_pages()
 
 void SettingsDialog::load_login_page()
 {
-  load_login_uin_page();
-  load_login_connect_page();
-  load_login_reconnect_page();
-}
-
-void SettingsDialog::load_login_uin_page()
-{
   m_login_uin.set_value((double)g_settings.getValueUnsignedInt("uin") );
   m_login_pass.set_text( g_settings.getValueString("password") );
-}
-
-void SettingsDialog::load_login_connect_page()
-{
-  m_auto_connect.set_active(g_settings.getValueBool("autoconnect") );
-}
-
-void SettingsDialog::load_login_reconnect_page()
-{
+  m_auto_connect=ICQ2000::Status(g_settings.getValueUnsignedInt("autoconnect") );
   m_auto_reconnect.set_active(g_settings.getValueBool("auto_reconnect") );
   m_reconnect_retries.set_value((double)g_settings.getValueUnsignedInt("reconnect_retries") );
-}
 
+}
 
 void SettingsDialog::load_look_page()
 {
@@ -611,28 +577,12 @@ void SettingsDialog::save_pages()
 //Saves the settings of the login page
 void SettingsDialog::save_login_page()
 {
-  save_login_uin_page();
-  save_login_connect_page();
-  save_login_reconnect_page();
-}
-
-void SettingsDialog::save_login_uin_page()
-{
   g_settings.setValue( "uin", (unsigned int) m_login_uin.get_value() );
   g_settings.setValue( "password", m_login_pass.get_text() );
-}
-
-void SettingsDialog::save_login_connect_page()
-{
-  g_settings.setValue( "autoconnect", m_auto_connect.get_active() );
-}
-
-void SettingsDialog::save_login_reconnect_page()
-{
+  g_settings.setValue( "autoconnect",(unsigned int) m_auto_connect );
   g_settings.setValue( "autoreconnect", m_auto_reconnect.get_active() );
   g_settings.setValue( "reconnect_retries", (unsigned int) m_reconnect_retries.get_value() );
 }
-
 
 
 //Saves the settings of the look page
@@ -752,4 +702,11 @@ bool SettingsDialog::validate_look_charset_page()
   }
 
   return true;
+}
+
+
+void SettingsDialog::choose_autoconnect (unsigned int s) 
+{
+  m_auto_connect=ICQ2000::Status(s);
+  changed_cb();
 }
