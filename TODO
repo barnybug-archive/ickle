@@ -14,6 +14,8 @@ G = work required GUI side
 
 * (G) Authorisation request/responses
 
+* (G/L) Contact list sending/receiving
+
 * (G) History Searching support
 
 * (G/ L?) Foreground/background colour support for sending/receiving messages
@@ -22,6 +24,8 @@ G = work required GUI side
 * (G/L) Even More User info (some of the extended info isn't handled)
 
 * (G/L) Setting/Retrieving owner's user info
+
+* (L) Non-blocking DNS lookup at startup
 
 * (G) Better way of indicating messaged
 

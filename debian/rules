@@ -17,7 +17,7 @@ export ACLOCAL_FLAGS=-I /usr/share/aclocal/gnome
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	./autogen.sh --prefix=/usr --sysconfdir=/etc --with-gnome=no
+	./configure --prefix=/usr --sysconfdir=/etc --with-gnome=no
 	touch configure-stamp
 
 build: configure-stamp build-stamp
