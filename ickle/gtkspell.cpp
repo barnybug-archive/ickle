@@ -193,7 +193,7 @@ int gtkspell_start(char *path, char * args[]) {
 		}
 
 		if (FD_ISSET(fd_error[0], &rfds)) { /* stderr readable? */
-			error_print("Spell command printed on stderr -- probably failed.\n");
+			error_print("Spell command failed -- install ispell if you want to use spell-checking.\n");
 			gtkspell_stop();
 			return -1;
 		}
