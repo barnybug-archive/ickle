@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.cpp,v 1.78 2004-02-08 14:05:06 cborni Exp $
+/* $Id: SettingsDialog.cpp,v 1.79 2004-02-15 21:14:27 cborni Exp $
  *
  * Copyright (C) 2001-2003 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -34,6 +34,7 @@
 
 #include "main.h"
 #include "Settings.h"
+#include "PromptDialog.h"
 
 #include "ickle.h"
 #include "UserInfoHelpers.h"
@@ -564,7 +565,7 @@ void SettingsDialog::init_events_page()
 {
   Gtk::VBox * vbox = new Gtk::VBox();
   SectionFrame * commands = manage( new SectionFrame( _("Commands") ) );
-  Gtk::Table * table = manage( new Gtk::Table( 2, 5 ) );
+  Gtk::Table * table = manage( new Gtk::Table( 2, 6 ) );
 
   table->attach( * manage( new Gtk::Label( _("Message events"), 0.0, 0.5 ) ),
 		 0, 1, 0, 1, Gtk::FILL, Gtk::FILL );
@@ -595,6 +596,10 @@ void SettingsDialog::init_events_page()
   m_event_user_online.signal_changed().connect( SigC::slot( *this, &SettingsDialog::changed_cb ) );
   m_tooltip.set_tip (m_event_user_online,_("todo"));
   table->attach( m_event_user_online, 1, 2, 4, 5, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND );
+
+  m_substitutions.set_label(_("Show Substitutions") );
+  m_substitutions.signal_clicked().connect( SigC::slot (*this, &SettingsDialog::subs_cb ) );
+  table->attach (m_substitutions, 0, 2, 5, 6, Gtk::FILL | Gtk::EXPAND, Gtk::FILL | Gtk::EXPAND);
 
   table->set_spacings(5);
   table->set_border_width(10);
@@ -1587,5 +1592,27 @@ void SettingsDialog::set_message_text_font_cb()
   if (m_message_header_font.get_label() != fd.get_font_name() )
     m_fonts_changed=true;
   m_message_text_font.set_label(fd.get_font_name() );
+}
+
+void SettingsDialog::subs_cb()
+{
+	 PromptDialog pd (*this, Gtk::MESSAGE_INFO,_("Available substitutions:\n\n"
+                  "%i\tExternal ip of the contact\n"
+                  "%p\tExternal port of the contact\n"
+                  "%e\tEmail address of the contact\n"
+                  "%n\tName of the contact\n"
+                  "%f\tFirst name of the contact\n"
+                  "%l\tLast name of the contact\n"
+                  "%a\tAlias of the contact\n"
+                  "%u\tUIN of the contact\n"
+                  "%c\tCellular phonenumber of the contact\n"
+                  "%s\tStatus of the contact\n"
+                  "%S\tDitto.\n"
+                  "%t\tTimestamp for the event\n"
+                  "%T\tTimestamp for the event with timezone\n"
+                  "%r\tWhether the event is repeated\n"
+                  "%m\tNumber of pending messages for the contact\n"
+                  "%o\tWhen the contact went online\n") );
+	pd.run();
 }
 

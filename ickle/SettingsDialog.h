@@ -1,4 +1,4 @@
-/* $Id: SettingsDialog.h,v 1.60 2004-02-08 14:05:07 cborni Exp $
+/* $Id: SettingsDialog.h,v 1.61 2004-02-15 21:14:27 cborni Exp $
  *
  * Copyright (C) 2001, 2002 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -194,6 +194,7 @@ class SettingsDialog : public Gtk::Dialog
   Gtk::Entry m_event_user_online;
   Gtk::SpinButton m_event_repetition_threshold;
   Gtk::CheckButton m_event_execute_all;
+  Gtk::Button m_substitutions;
 
 
   // page init functions
@@ -269,6 +270,8 @@ class SettingsDialog : public Gtk::Dialog
   void set_message_text_font_cb();
 
   void choose_autoconnect (unsigned int s);
+
+  void subs_cb();
 
   // Away messages
   void away_message_up_cb();
