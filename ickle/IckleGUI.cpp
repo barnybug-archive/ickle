@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.68 2003-01-04 19:42:45 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.69 2003-01-05 12:09:43 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -805,6 +805,13 @@ void IckleGUI::exit_cb()
 {
   m_exiting = true;
   m_signal_exit.emit();
+}
+
+bool IckleGUI::on_delete_event(GdkEventAny *event)
+{
+  m_exiting = true;
+  m_signal_exit.emit();
+  return true;
 }
 
 void IckleGUI::connecting_cb(ICQ2000::ConnectingEvent *)

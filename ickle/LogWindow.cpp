@@ -111,12 +111,6 @@ LogWindow::LogWindow()
 LogWindow::~LogWindow()
 { }
 
-gint LogWindow::delete_event_impl(GdkEventAny *)
-{
-  hide();
-  return true;
-}
-
 void LogWindow::close_cb()
 {
   hide();

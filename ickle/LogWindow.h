@@ -59,7 +59,6 @@ class LogWindow : public Gtk::Window,
   
   void logger_cb(ICQ2000::LogEvent *ev);
   void close_cb();
-  gint delete_event_impl(GdkEventAny *ev);
 };
 
 #endif

@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.h,v 1.46 2003-01-02 16:39:58 barnabygray Exp $
+/* $Id: IckleGUI.h,v 1.47 2003-01-05 12:09:43 barnabygray Exp $
  * 
  * The 'looks' part of Ickle (the view)
  *
@@ -106,6 +106,12 @@ class IckleGUI : public Gtk::Window,
 
   void set_ickle_title();
 
+ protected:
+  // handle wm calls
+  virtual void on_show();
+  virtual void on_hide();
+  virtual bool on_delete_event(GdkEventAny *event);
+
  public:
   IckleGUI(MessageQueue& mq, HistoryMap& histmap);
   ~IckleGUI();
@@ -190,10 +196,6 @@ class IckleGUI : public Gtk::Window,
   SigC::Signal0<void>& signal_destroy();
   SigC::Signal0<void>& signal_settings_changed();
   SigC::Signal1<void,ICQ2000::MessageEvent*>& signal_send_event();
-
-  // handle wm calls
-  void on_show();
-  void on_hide();
 };
 
 #endif
