@@ -190,7 +190,6 @@ void IckleClient::processCommandLine(int argc, char* argv[]) {
   if (BASE_DIR.empty()) {
     // default to ~/.ickle/ if home is defined, otherwise just .ickle/ in the current directory
     char *dir = getenv("HOME");
-    dir = NULL;
     if (dir == NULL) dir = getenv("PWD");
 
     if (dir != NULL) {
