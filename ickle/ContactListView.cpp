@@ -22,12 +22,15 @@
 
 #include <vector>
 #include <string>
+#include <algorithm>
 #include <utility>
 
 #include "Client.h"
 
 using std::string;
 using std::vector;
+using std::transform;
+using std::inserter;
 
 ContactListView::ContactListView()
   : CList(2) {
