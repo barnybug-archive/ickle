@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.31 2001-12-18 19:45:10 nordman Exp $
+/* $Id: MessageBox.cpp,v 1.32 2001-12-18 22:51:22 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -129,7 +129,7 @@ MessageBox::MessageBox(Contact *c, History *h)
     m_tab.pages().push_back(  Gtk::Notebook_Helpers::TabElem( *table, *i )  );
     // -------------------------
 
-  // -------- url tab --------
+    // -------- url tab --------
     Gtk::Box *url_hbox = manage( new Gtk::HBox() );
     Gtk::Box *url_vbox = manage( new Gtk::VBox() );
     table = manage( new Gtk::Table( 2, 1, false ) );
@@ -232,6 +232,8 @@ MessageBox::MessageBox(Contact *c, History *h)
   
   m_histconn = m_history->new_entry.connect( slot(this, &MessageBox::new_entry_cb) );
   m_settingsconn = g_settings.settings_changed.connect( slot(this, &MessageBox::settings_changed_cb) );
+
+  g_icons.icons_changed.connect( slot(this, &MessageBox::icons_changed_cb) );
   
   add(m_vbox_top);
 }
@@ -347,6 +349,28 @@ void MessageBox::sms_count_update_cb() {
 void MessageBox::settings_changed_cb(const string &key) {
   if( key == "history_shownr" ) {
     redraw_history();
+  }
+}
+
+void MessageBox::icons_changed_cb() {
+  using namespace Gtk::Notebook_Helpers;
+  PageList& pl = m_tab.pages();
+  Gtk::ImageLoader *l;
+  Gtk::Pixmap *i;
+  if (m_contact->isICQContact()) {
+    l = g_icons.IconForEvent(MessageEvent::Normal);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pl[0]->set_tab( i );
+    l = g_icons.IconForEvent(MessageEvent::URL);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pl[1]->set_tab( i );
+    l = g_icons.IconForEvent(MessageEvent::SMS);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pl[2]->set_tab( i );
+  } else {
+    l = g_icons.IconForEvent(MessageEvent::SMS);
+    i = manage( new Gtk::Pixmap( l->pix(), l->bit() ) );
+    pl[0]->set_tab( i );
   }
 }
 

@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.10 2001-12-18 19:45:10 nordman Exp $
+/* $Id: MessageBox.h,v 1.11 2001-12-18 22:51:22 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -133,6 +133,7 @@ class MessageBox : public Gtk::Window {
   void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);
   void userinfo_toggle_cb();
   void sms_count_update_cb();
+  void icons_changed_cb();
   void settings_changed_cb(const string &key);
   gint key_press_cb(GdkEventKey*);
   virtual gint delete_event_impl(GdkEventAny *ev);
