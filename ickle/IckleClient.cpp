@@ -1,4 +1,4 @@
-/* $Id: IckleClient.cpp,v 1.62 2002-01-19 15:20:38 barnabygray Exp $
+/* $Id: IckleClient.cpp,v 1.63 2002-01-19 16:08:14 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -80,6 +80,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   icqclient.disconnected.connect(slot(this,&IckleClient::disconnected_cb));
   icqclient.logger.connect(slot(this,&IckleClient::logger_cb));
   icqclient.contactlist.connect(slot(this,&IckleClient::contactlist_cb));
+  icqclient.self_event.connect(slot(this,&IckleClient::self_event_cb));
   icqclient.messaged.connect(slot(this,&IckleClient::message_cb));
   icqclient.messageack.connect(slot(this,&IckleClient::messageack_cb));
   icqclient.socket.connect(slot(this,&IckleClient::socket_cb));
@@ -98,6 +99,7 @@ IckleClient::IckleClient(int argc, char* argv[])
   gui.setDisplayTimes(true);
 
   loadSettings();
+  loadSelfContact();
 
   // setup contact list
   loadContactList();
@@ -126,75 +128,8 @@ void IckleClient::loadContactList() {
 
   Dir::iterator dirit = dir.begin();
   while( dirit != dir.end() ) {
-    
-    Settings cs;
-    if (cs.load(*dirit)) {
-      cs.defaultValueUnsignedInt("uin", 0);
-      unsigned int uin = cs.getValueUnsignedInt("uin");
-      if (uin != 0) { // ICQ user
-	Contact c(uin);
-
-	// only needed for backward compatibility
-        // (history_file settingsentry only exists for v >= 0.2.2)
-        ostringstream historyfile;
-        historyfile << uin << ".history";
-        cs.defaultValueString("history_file", historyfile.str() );
-
-        cs.defaultValueUnsignedChar("age", 0, 0, 150);
-	cs.defaultValueUnsignedChar("sex", 0, 0, 2);
-	cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
-	cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
-	cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
-
-	string alias = cs.getValueString("alias");
-	c.setAlias(alias);
-	c.setMobileNo(cs.getValueString("mobile_no"));
-	c.setFirstName(cs.getValueString("firstname"));
-	c.setLastName(cs.getValueString("lastname"));
-	c.setEmail(cs.getValueString("email"));
-	
-	// Main Home Info
-	MainHomeInfo& mhi = c.getMainHomeInfo();
-	mhi.city = cs.getValueString("city");
-	mhi.state = cs.getValueString("state");
-	mhi.phone = cs.getValueString("phone");
-	mhi.fax = cs.getValueString("fax");
-	mhi.street = cs.getValueString("street");
-	mhi.zip = cs.getValueString("zip");
-	mhi.country = cs.getValueUnsignedShort("country");
-	mhi.gmt = cs.getValueUnsignedChar("gmt");
-	
-	// Homepage Info
-	HomepageInfo& hpi = c.getHomepageInfo();
-	hpi.age = cs.getValueUnsignedChar("age");
-	hpi.sex = cs.getValueUnsignedChar("sex");
-	hpi.homepage = cs.getValueString("homepage");
-	hpi.birth_year = cs.getValueUnsignedShort("birth_year");
-	hpi.birth_month = cs.getValueUnsignedChar("birth_month");
-	hpi.birth_day = cs.getValueUnsignedChar("birth_day");
-	hpi.lang1 = cs.getValueUnsignedChar("lang1");
-	hpi.lang2 = cs.getValueUnsignedChar("lang2");
-	hpi.lang3 = cs.getValueUnsignedChar("lang3");
-
-	// About Info
-	c.setAboutInfo( cs.getValueString("about") );
-	
-	m_settingsmap[c.getUIN()] = *dirit;
-	m_histmap[c.getUIN()] = new History( cs.getValueString("history_file") );
-	icqclient.addContact(c);
-      }
-      else { // mobile-only user
-	Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
-	m_settingsmap[c.getUIN()] = *dirit;
-        string s = cs.getValueString("history_file");
-        if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
-          s = get_unique_historyname();
-        m_histmap[c.getUIN()] = new History( s );
-	icqclient.addContact(c);
-      }
-    }
+    loadContact( *dirit, false );
     ++dirit;
-
   }
 
 }
@@ -747,43 +682,8 @@ void IckleClient::contactlist_cb(ContactListEvent *ev) {
       return;
     }
     
-    Settings user;
-    user.setValue( "alias", c->getAlias() );
-    if (c->isICQContact())
-      user.setValue( "uin", c->getUIN() );
-    user.setValue( "mobile_no", c->getMobileNo() );
-    user.setValue( "firstname", c->getFirstName() );
-    user.setValue( "lastname", c->getLastName() );
-    user.setValue( "email", c->getEmail() );
-
-    // Main Home Info
-    MainHomeInfo& mhi = c->getMainHomeInfo();
-    user.setValue( "city", mhi.city );
-    user.setValue( "state", mhi.state );
-    user.setValue( "phone", mhi.phone );
-    user.setValue( "fax", mhi.fax );
-    user.setValue( "street", mhi.street );
-    user.setValue( "zip", mhi.zip );
-    user.setValue( "country", mhi.country );
-    user.setValue( "gmt", mhi.gmt );
+    saveContact( c, m_settingsmap[c->getUIN()] );
     
-    // Homepage Info
-    HomepageInfo& hpi = c->getHomepageInfo();
-    user.setValue( "age", hpi.age );
-    user.setValue( "sex", hpi.sex );
-    user.setValue( "homepage", hpi.homepage );
-    user.setValue( "birth_year", hpi.birth_year );
-    user.setValue( "birth_month", hpi.birth_month );
-    user.setValue( "birth_day", hpi.birth_day );
-    user.setValue( "lang1", hpi.lang1 );
-    user.setValue( "lang2", hpi.lang2 );
-    user.setValue( "lang3", hpi.lang3 );
-    
-    // About Info
-    user.setValue( "about", c->getAboutInfo() );
-
-    user.save(m_settingsmap[c->getUIN()]);
-
   } else if (ev->getType() == ContactListEvent::UserRemoved) {
     // delete .user file for this contact
     unlink( m_settingsmap[c->getUIN()].c_str() );
@@ -802,3 +702,135 @@ void IckleClient::settings_changed_cb() {
   saveSettings();
 }
 
+void IckleClient::self_event_cb(SelfEvent *ev)
+{
+  if (ev->getType() == SelfEvent::MyUserInfoChange)
+    saveSelfContact();
+}
+
+void IckleClient::saveContact(Contact *c, const string& s)
+{
+  Settings user;
+  user.setValue( "alias", c->getAlias() );
+  if (c->isICQContact())
+    user.setValue( "uin", c->getUIN() );
+  user.setValue( "mobile_no", c->getMobileNo() );
+  user.setValue( "firstname", c->getFirstName() );
+  user.setValue( "lastname", c->getLastName() );
+  user.setValue( "email", c->getEmail() );
+
+  // Main Home Info
+  MainHomeInfo& mhi = c->getMainHomeInfo();
+  user.setValue( "city", mhi.city );
+  user.setValue( "state", mhi.state );
+  user.setValue( "phone", mhi.phone );
+  user.setValue( "fax", mhi.fax );
+  user.setValue( "street", mhi.street );
+  user.setValue( "zip", mhi.zip );
+  user.setValue( "country", mhi.country );
+  user.setValue( "gmt", mhi.gmt );
+    
+  // Homepage Info
+  HomepageInfo& hpi = c->getHomepageInfo();
+  user.setValue( "age", hpi.age );
+  user.setValue( "sex", hpi.sex );
+  user.setValue( "homepage", hpi.homepage );
+  user.setValue( "birth_year", hpi.birth_year );
+  user.setValue( "birth_month", hpi.birth_month );
+  user.setValue( "birth_day", hpi.birth_day );
+  user.setValue( "lang1", hpi.lang1 );
+  user.setValue( "lang2", hpi.lang2 );
+  user.setValue( "lang3", hpi.lang3 );
+    
+  // About Info
+  user.setValue( "about", c->getAboutInfo() );
+
+  user.save(s);
+}
+ 
+
+void IckleClient::saveSelfContact()
+{
+  saveContact( icqclient.getSelfContact(), BASE_DIR + "self.user" );
+}
+
+void IckleClient::loadContact(const string& s, bool self)
+{
+  Settings cs;
+  if (cs.load(s)) {
+    cs.defaultValueUnsignedInt("uin", 0);
+    unsigned int uin = cs.getValueUnsignedInt("uin");
+    if (uin != 0) { // ICQ user
+      Contact *c;
+      if (self) c = icqclient.getSelfContact();
+      else c = new Contact(uin);
+      
+      // only needed for backward compatibility
+      // (history_file settingsentry only exists for v >= 0.2.2)
+      ostringstream historyfile;
+      historyfile << uin << ".history";
+      cs.defaultValueString("history_file", historyfile.str() );
+
+      cs.defaultValueUnsignedChar("age", 0, 0, 150);
+      cs.defaultValueUnsignedChar("sex", 0, 0, 2);
+      cs.defaultValueUnsignedShort("birth_year", 0, 1900, 2100);
+      cs.defaultValueUnsignedChar("birth_month", 0, 0, 12);
+      cs.defaultValueUnsignedChar("birth_day", 0, 0, 31);
+
+      string alias = cs.getValueString("alias");
+      c->setAlias(alias);
+      c->setMobileNo(cs.getValueString("mobile_no"));
+      c->setFirstName(cs.getValueString("firstname"));
+      c->setLastName(cs.getValueString("lastname"));
+      c->setEmail(cs.getValueString("email"));
+	
+      // Main Home Info
+      MainHomeInfo& mhi = c->getMainHomeInfo();
+      mhi.city = cs.getValueString("city");
+      mhi.state = cs.getValueString("state");
+      mhi.phone = cs.getValueString("phone");
+      mhi.fax = cs.getValueString("fax");
+      mhi.street = cs.getValueString("street");
+      mhi.zip = cs.getValueString("zip");
+      mhi.country = cs.getValueUnsignedShort("country");
+      mhi.gmt = cs.getValueUnsignedChar("gmt");
+	
+      // Homepage Info
+      HomepageInfo& hpi = c->getHomepageInfo();
+      hpi.age = cs.getValueUnsignedChar("age");
+      hpi.sex = cs.getValueUnsignedChar("sex");
+      hpi.homepage = cs.getValueString("homepage");
+      hpi.birth_year = cs.getValueUnsignedShort("birth_year");
+      hpi.birth_month = cs.getValueUnsignedChar("birth_month");
+      hpi.birth_day = cs.getValueUnsignedChar("birth_day");
+      hpi.lang1 = cs.getValueUnsignedChar("lang1");
+      hpi.lang2 = cs.getValueUnsignedChar("lang2");
+      hpi.lang3 = cs.getValueUnsignedChar("lang3");
+
+      // About Info
+      c->setAboutInfo( cs.getValueString("about") );
+	
+      if (!self) {
+	m_settingsmap[c->getUIN()] = s;
+	m_histmap[c->getUIN()] = new History( cs.getValueString("history_file") );
+	icqclient.addContact(*c);
+	delete c;
+      }
+      
+    }
+    else if (!self) { // mobile-only user
+      Contact c( cs.getValueString("alias"), cs.getValueString("mobile_no") );
+      m_settingsmap[c.getUIN()] = s;
+      string s = cs.getValueString("history_file");
+      if ( !s.size() ) // v < 0.2.2 settings file, use a newly created history file from now on
+	s = get_unique_historyname();
+      m_histmap[c.getUIN()] = new History( s );
+      icqclient.addContact(c);
+    }
+  }
+}
+
+void IckleClient::loadSelfContact()
+{
+  loadContact( BASE_DIR + "self.user", true );
+}

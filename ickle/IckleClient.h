@@ -83,6 +83,12 @@ class IckleClient : public SigC::Object {
 
   void loadContactList();
 
+  void loadSelfContact();
+  void saveSelfContact();
+
+  void loadContact(const string& s, bool self);
+  void saveContact(Contact *c, const string& s);
+
   void event_system(const string& s, MessageEvent *e);
   gint idle_connect_cb(Status s);
 
@@ -103,6 +109,7 @@ class IckleClient : public SigC::Object {
   void disconnected_cb(DisconnectedEvent *c);
   void logger_cb(LogEvent *c);
   void contactlist_cb(ContactListEvent *ev);
+  void self_event_cb(SelfEvent *ev);
   bool message_cb(MessageEvent* ev);
   void messageack_cb(MessageEvent* ev);
   void socket_cb(SocketEvent* ev);
