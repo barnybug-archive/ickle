@@ -72,7 +72,23 @@ gint AwayMessageDialog::delete_event_impl(GdkEventAny *ev) {
 }
 
 gint AwayMessageDialog::button_press_cb(GdkEventButton *ev) {
-  hide();
+  Gtk::Adjustment *adj;
+  gfloat val;
+
+  if( ev->button != 4 && ev->button != 5 ) {
+    hide();
+    return true;
+  }
+  
+  adj = m_awaytext.get_vadjustment();
+  val = adj->get_value();
+  if( ev->button == 4 ) {
+    val -= adj->get_page_increment();
+  }
+  else if( ev->button = 5 ) {
+    val += adj->get_page_increment();
+  }
+  adj->set_value( val );
   return true;
 }
 
