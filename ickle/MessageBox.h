@@ -1,4 +1,4 @@
-/* $Id: MessageBox.h,v 1.23 2002-06-15 13:44:41 barnabygray Exp $
+/* $Id: MessageBox.h,v 1.24 2002-06-16 00:01:14 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -88,7 +88,8 @@ class MessageBox : public Gtk::Window {
   Gtk::RadioButton m_send_normal, m_send_urgent, m_send_tocontactlist;
 
   Gtk::VPaned m_pane;
-  Gtk::ToggleButton *m_userinfo_toggle;
+  Gtk::ToggleButton *m_userinfo_toggle, *m_delivery_toggle;
+  Gtk::HBox m_delivery_buttons;
 
   Gtk::Tooltips m_tooltips;
   Gtk::Statusbar m_status;
@@ -160,6 +161,7 @@ class MessageBox : public Gtk::Window {
   void send_clicked_cb();
   void switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n);
   void userinfo_toggle_cb();
+  void delivery_toggle_cb();
   void sms_count_update_cb();
   void icons_changed_cb();
   void settings_changed_cb(const std::string &key);

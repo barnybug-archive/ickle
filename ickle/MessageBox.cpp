@@ -1,4 +1,4 @@
-/* $Id: MessageBox.cpp,v 1.66 2002-06-15 13:44:41 barnabygray Exp $
+/* $Id: MessageBox.cpp,v 1.67 2002-06-16 00:01:14 barnabygray Exp $
  * 
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -40,6 +40,9 @@
 #include "gtkspell.h"
 
 #include "PromptDialog.h"
+
+#include "pixmaps/info.xpm"
+#include "pixmaps/delivery.xpm"
 
 using Gtk::Text;
 using Gtk::Text_Helpers::Context;
@@ -219,17 +222,16 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   
   // -- sending modes --
   
-  hbox = manage( new Gtk::HBox() );
   m_send_urgent.set_group( m_send_normal.group() );
   m_send_tocontactlist.set_group( m_send_normal.group() );
   if (m_contact->getStatus() == ICQ2000::STATUS_DND
       || m_contact->getStatus() == ICQ2000::STATUS_OCCUPIED) m_send_tocontactlist.set_active(true);
 
-  hbox->pack_end( m_send_normal, false );
-  hbox->pack_end( m_send_urgent, false );
-  hbox->pack_end( m_send_tocontactlist, false );
+  m_delivery_buttons.pack_end( m_send_normal, false );
+  m_delivery_buttons.pack_end( m_send_urgent, false );
+  m_delivery_buttons.pack_end( m_send_tocontactlist, false );
 
-  pane_vbox->pack_start( *hbox, false );
+  pane_vbox->pack_start( m_delivery_buttons, false );
 
   m_pane.pack2(*pane_vbox, false, false);
 
@@ -243,8 +245,14 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   {
     using namespace Gtk::Toolbar_Helpers;
     ToolList& tl = toolbar->tools();
-    tl.push_back( ToggleElem("User Info", slot( this, &MessageBox::userinfo_toggle_cb ), "Popup User Information Dialog" ) );
+    tl.push_back( ToggleElem( * manage( new Gtk::Pixmap(info_xpm) ),
+			      slot( this, &MessageBox::userinfo_toggle_cb ),
+			      "Popup User Information Dialog" ) );
     m_userinfo_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
+    tl.push_back( ToggleElem( * manage( new Gtk::Pixmap(delivery_xpm) ),
+			      slot( this, &MessageBox::delivery_toggle_cb ),
+			      "Show/Hide Delivery urgency options" ) );
+    m_delivery_toggle = static_cast<Gtk::ToggleButton*>(tl.back()->get_widget());
   }
 
   hbox->pack_start(*toolbar, false);
@@ -312,6 +320,7 @@ MessageBox::MessageBox(MessageQueue& mq, const ICQ2000::ContactRef& self, const 
   m_scaleadj.set_value( upper );
 
   show_all();
+  m_delivery_buttons.hide_all(); // start hidden
   set_contact_title();
 }
 
@@ -547,6 +556,13 @@ void MessageBox::userinfo_toggle_cb() {
   userinfo_dialog.emit( m_userinfo_toggle->get_active() );
 }
 
+void MessageBox::delivery_toggle_cb() {
+  if ( m_delivery_toggle->get_active() )
+    m_delivery_buttons.show_all();
+  else
+    m_delivery_buttons.hide_all();
+}
+
 void MessageBox::switch_page_cb(Gtk::Notebook_Helpers::Page* p, guint n) {
   if (n == 0 && m_contact->isICQContact() ) {
     m_message_type = ICQ2000::MessageEvent::Normal;
@@ -729,6 +745,7 @@ void MessageBox::display_message(History::Entry &e)
 
 void MessageBox::popup() {
   show_all();
+  if (!m_delivery_toggle->get_active()) m_delivery_buttons.hide_all();
   redraw_history();
 }
 
