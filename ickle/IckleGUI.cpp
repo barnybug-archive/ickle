@@ -1,4 +1,4 @@
-/* $Id: IckleGUI.cpp,v 1.54 2002-04-14 22:49:27 barnabygray Exp $
+/* $Id: IckleGUI.cpp,v 1.55 2002-04-17 22:17:29 barnabygray Exp $
  *
  * Copyright (C) 2001 Barnaby Gray <barnaby@beedesign.co.uk>.
  *
@@ -137,11 +137,13 @@ void IckleGUI::set_ickle_title()
   if (c->getUIN() != 0) {
     ostr << " - " << c->getNameAlias();
   }
+
+  if (m_message_queue.get_size() > 0) ostr << "*";
   set_title(ostr.str());
 
   if (g_settings.getValueBool("window_status_icons")) {
     Gtk::ImageLoader *p;
-
+    
     if (m_message_queue.get_size() > 0) {
       ostr << "*";
       MessageEvent *ev = m_message_queue.get_first_message();
@@ -153,9 +155,10 @@ void IckleGUI::set_ickle_title()
     else {
       p = g_icons.IconForStatus( c->getStatus(), c->isInvisible() );
     }
-
+    
     gdk_window_set_icon(get_window(), NULL, p->pix(), p->bit());
   }
+
 }
 
 void IckleGUI::icons_changed_cb()

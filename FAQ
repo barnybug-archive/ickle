@@ -156,6 +156,15 @@ $ rm -Rf `find / -name sigc-config`
 
 Hopefully that'll solve it.
 
+The other common reason for it failing the sane test is if your
+library is compiled with a different major version of gcc. If your gcc
+is version 3.x and you got libsigc++ from packages or compiled it from
+source a while ago, say before you updated gcc I'd be highly
+suspicious about this. Log in the config.log file near to the end and
+if there are unresolved symbols this is likely to be your problem. The
+solution is to remove the old libraries and recompile libsigc++ from
+source.
+
  --------------------------------------------------------------------
 
 Q. ickle fails right at the end of make in compiling with lots of
